@@ -1,0 +1,10 @@
+# Android Build and Temp Files
+build/
+app/build/
+.gradle/
+.idea/
+.kotlin/
+local.properties
+*.iml
+*.apk
+*.aab

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Elektrik</string>
+    <string name="widget_description">View active project and quickly take photos</string>
+    <string name="project_name_label">Project Name</string>
+    <string name="delete_project_title">Delete Project</string>
+    <string name="export_pdf_desc">Consolidates photos and notes chronologically into an A4 PDF document. Best for printing or quick sharing.</string>
+    <string name="export_zip_desc">Creates an HTML web page containing photos and notes in their original format. Best for viewing videos.</string>
+    <string name="export_pdf_video_warning">Videos cannot be played in PDF format; only a preview image is included.</string>
+    <string name="export_zip_original_desc">Photos and videos are added to the archive in their original quality without loss.</string>
+    <string name="export_zip_compressed_desc">Images undergo web optimization.</string>
+    <string name="export_pdf_estimate">📄 Estimated PDF Size: ~%s</string>
+    <string name="export_zip_estimate">📦 Estimated ZIP Size: ~%s</string>
+    <string name="export_started_toast">Export started in background. Please wait...</string>
+
+    <!-- AppViewModel Errors -->
+    <string name="error_unknown">An unknown error occurred</string>
+    <string name="error_delete_failed">Deletion failed</string>
+
+    <!-- ExportWorker Notifications -->
+    <string name="export_notif_title">Exporting</string>
+    <string name="export_notif_text">Please wait while %s is being prepared…</string>
+    <string name="export_share_chooser">Share Report</string>
+    <string name="export_complete_channel">Export Completed</string>
+    <string name="export_ready_title">Ready to Share!</string>
+    <string name="export_ready_text">%1$s %2$s is ready to be shared.</string>
+    <string name="export_share_action">Share Now</string>
+    <string name="export_format_pdf">daily log</string>
+    <string name="export_format_zip">web archive</string>
+
+    <!-- Camera Permission -->
+    <string name="camera_permission_rationale_title">Camera Permission Required</string>
+    <string name="camera_permission_rationale_desc">Camera permission was permanently denied. Please grant permission from settings to take photos.</string>
+    <string name="camera_permission_go_settings">Go to Settings</string>
+
+    <!-- Crash Recovery -->
+    <string name="crash_recovery_message">An unexpected error occurred and the app recovered safely. Your data is safe.</string>
+
+    <!-- Dashboard (hardcoded fixes) -->
+    <string name="my_projects_title">My Projects</string>
+    <string name="start_project_btn">Start Project</string>
+    <string name="project_added_success">Project added successfully</string>
+
+    <!-- Settings (hardcoded fixes) -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_theme_system">System Default</string>
+    <string name="settings_theme_light">Light Theme</string>
+    <string name="settings_theme_dark">Dark Theme</string>
+    <string name="settings_report">Report Settings</string>
+    <string name="settings_company_logo">Company Logo</string>
+    <string name="settings_company_logo_desc">Select the image to appear in the top right corner of PDF reports.</string>
+    <string name="settings_remove_logo">Remove Logo</string>
+
+    <!-- Camera (hardcoded fixes) -->
+    <string name="camera_error_prefix">Camera Error:</string>
+    <string name="camera_retry_btn">Retry</string>
+
+
+</resources>

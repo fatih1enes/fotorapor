@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- Include database for user data preservation -->
+    <include domain="database" path="elektrik_database" />
+    <include domain="database" path="elektrik_database-wal" />
+    <include domain="database" path="elektrik_database-shm" />
+    <!-- Include internal files (photos, videos, logos) -->
+    <include domain="file" path="." />
+    <!-- Exclude caches and temp files -->
+    <exclude domain="cache" path="." />
+    <exclude domain="sharedpref" path="device.xml" />
+</full-backup-content>

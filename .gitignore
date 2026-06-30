@@ -1,0 +1,41 @@
+# Project-specific
+keystore.properties
+*.jks
+
+# Gradle
+.gradle
+/build
+/app/build
+
+# IDE - Android Studio / IntelliJ
+.idea
+*.iml
+*.iws
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/gradle.xml
+.idea/assetWizardSettings.xml
+.idea/dictionaries
+.idea/libraries
+.idea/caches
+.idea/navEditor.xml
+
+# Local configuration
+local.properties
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Firebase
+google-services.json
+
+# Log files
+*.log
+
+# Captures
+/captures
+
+# External Native Build
+.externalNativeBuild
+.cxx
