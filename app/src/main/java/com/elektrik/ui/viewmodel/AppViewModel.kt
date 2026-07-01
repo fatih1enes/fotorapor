@@ -1,41 +1,55 @@
 package com.elektrik.ui.viewmodel
 
-import androidx.lifecycle.SavedStateHandle
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import javax.inject.Inject
-
 import com.elektrik.repository.AppRepository
 
 @HiltViewModel
 class AppViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
+    private val dataStore: DataStore<Preferences>,
     private val repository: AppRepository
 ) : ViewModel() {
 
-    // --- Theme ---
-    val themeMode = savedStateHandle.getStateFlow("theme_mode", "system")
+    companion object {
+        private val THEME_MODE = stringPreferencesKey("theme_mode")
+        private val CAMERA_OPT = booleanPreferencesKey("camera_opt")
+        private val WEBP_ENABLED = booleanPreferencesKey("webp_enabled")
+    }
+
+    val themeMode: StateFlow<String> = dataStore.data
+        .map { it[THEME_MODE] ?: "system" }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, "system")
+
+    val cameraOptimizationEnabled: StateFlow<Boolean> = dataStore.data
+        .map { it[CAMERA_OPT] ?: true }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, initialValue = true)
+
+    val webpEnabled: StateFlow<Boolean> = dataStore.data
+        .map { it[WEBP_ENABLED] ?: true }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, initialValue = true)
 
     fun setThemeMode(mode: String) {
-        savedStateHandle["theme_mode"] = mode
+        viewModelScope.launch { dataStore.edit { it[THEME_MODE] = mode } }
     }
-
-    // --- Camera Settings ---
-    val cameraOptimizationEnabled = savedStateHandle.getStateFlow("camera_opt", true)
-    val videoStabilizationEnabled = savedStateHandle.getStateFlow("video_stab", false)
-    val webpEnabled = savedStateHandle.getStateFlow("webp_enabled", false)
 
     fun setCameraOptimization(enabled: Boolean) {
-        savedStateHandle["camera_opt"] = enabled
+        viewModelScope.launch { dataStore.edit { it[CAMERA_OPT] = enabled } }
     }
-
-    fun setVideoStabilization(enabled: Boolean) {
-        savedStateHandle["video_stab"] = enabled
-    }
-
 
     fun setWebpEnabled(enabled: Boolean) {
-        savedStateHandle["webp_enabled"] = enabled
+        viewModelScope.launch { dataStore.edit { it[WEBP_ENABLED] = enabled } }
     }
 
     fun savePhotoInBackground(uri: android.net.Uri, projectId: Long, logId: Long, enableWebp: Boolean, projectName: String) {

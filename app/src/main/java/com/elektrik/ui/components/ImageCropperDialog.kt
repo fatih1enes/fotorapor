@@ -59,9 +59,15 @@ fun ImageCropperDialog(
                     originalBitmap = bmp
                     imageBitmap = bmp.asImageBitmap()
                 }
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 // Ignore
             }
+        }
+    }
+
+    DisposableEffect(originalBitmap) {
+        onDispose {
+            originalBitmap?.recycle()
         }
     }
 

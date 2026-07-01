@@ -14,6 +14,11 @@ import android.os.StrictMode
 import dagger.hilt.android.HiltAndroidApp
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import com.elektrik.worker.TrashCleanupWorker
+import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltAndroidApp
@@ -29,6 +34,15 @@ class ElektrikApp : Application(), SingletonImageLoader.Factory, Configuration.P
 
     override fun onCreate() {
         super.onCreate()
+        
+        val cleanupRequest = PeriodicWorkRequestBuilder<TrashCleanupWorker>(24, TimeUnit.HOURS)
+            .build()
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "TrashCleanupWork",
+            ExistingPeriodicWorkPolicy.KEEP,
+            cleanupRequest
+        )
+        
         if (BuildConfig.DEBUG) {
             StrictMode.setThreadPolicy(
                 StrictMode.ThreadPolicy.Builder()

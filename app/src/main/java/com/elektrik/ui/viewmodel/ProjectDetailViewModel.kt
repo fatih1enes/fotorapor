@@ -11,6 +11,7 @@ import com.elektrik.data.DailyLogEntity
 import com.elektrik.data.PhotoEntity
 import com.elektrik.repository.AppRepository
 import com.elektrik.util.DateUtils
+import com.elektrik.util.groupBy
 import com.elektrik.worker.ExportWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -26,15 +27,22 @@ import kotlin.time.Duration.Companion.milliseconds
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class ProjectDetailViewModel @Inject constructor(
-    @ApplicationContext private val appContext: Context,
+    @get:ApplicationContext private val appContext: Context,
     private val repository: AppRepository,
-    private val savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
     private val projectIdFlow = savedStateHandle.getStateFlow<Long?>("projectId", null)
 
     fun setProjectId(id: Long) {
         savedStateHandle["projectId"] = id
+    }
+
+    private val _exportState = MutableStateFlow<UiState<Unit>?>(null)
+    val exportState: StateFlow<UiState<Unit>?> = _exportState
+
+    fun resetExportState() {
+        _exportState.value = null
     }
 
     val selectedProject = projectIdFlow.flatMapLatest { id ->
@@ -54,6 +62,7 @@ class ProjectDetailViewModel @Inject constructor(
     init {
         // Collect note updates, debounce them by logId, and save to DB safely
         viewModelScope.launch {
+            @OptIn(kotlinx.coroutines.FlowPreview::class)
             _noteUpdates
                 .groupBy { it.first } // Group by logId
                 .collect { groupedFlow ->
@@ -68,20 +77,7 @@ class ProjectDetailViewModel @Inject constructor(
         }
     }
 
-    // Helper extension to group Flow by key for per-item debouncing
-    private fun <T, K> Flow<T>.groupBy(keySelector: (T) -> K): Flow<Flow<T>> = flow {
-        val groups = mutableMapOf<K, MutableSharedFlow<T>>()
-        collect { item ->
-            val key = keySelector(item)
-            var groupFlow = groups[key]
-            if (groupFlow == null) {
-                groupFlow = MutableSharedFlow(extraBufferCapacity = 10)
-                groups[key] = groupFlow
-                emit(groupFlow)
-            }
-            groupFlow.emit(item)
-        }
-    }
+
 
 
     fun updateNote(logId: Long, note: String) {
@@ -129,7 +125,7 @@ class ProjectDetailViewModel @Inject constructor(
 
     fun deletePhoto(photo: PhotoEntity) {
         viewModelScope.launch(Dispatchers.IO) {
-            repository.deletePhotoWithFile(photo)
+            repository.softDeletePhoto(photo)
         }
     }
 
@@ -139,7 +135,7 @@ class ProjectDetailViewModel @Inject constructor(
                 .flatMap { it.photos }
                 .filter { it.id in photoIds }
             
-            repository.deletePhotosWithFiles(photosToDelete)
+            repository.softDeletePhotos(photosToDelete)
         }
     }
 
@@ -151,6 +147,11 @@ class ProjectDetailViewModel @Inject constructor(
 
     fun exportProject(context: Context, projectId: Long, projectName: String, format: String, quality: Int) {
         val workRequest = OneTimeWorkRequestBuilder<ExportWorker>()
+            .setBackoffCriteria(
+                androidx.work.BackoffPolicy.EXPONENTIAL,
+                10,
+                java.util.concurrent.TimeUnit.SECONDS
+            )
             .setInputData(
                 workDataOf(
                     "project_id" to projectId,
@@ -160,7 +161,29 @@ class ProjectDetailViewModel @Inject constructor(
                 )
             )
             .build()
-        WorkManager.getInstance(context).enqueue(workRequest)
+            
+        val workManager = WorkManager.getInstance(context)
+        workManager.enqueue(workRequest)
+        
+        viewModelScope.launch {
+            workManager.getWorkInfoByIdFlow(workRequest.id).collect { workInfo ->
+                if (workInfo != null) {
+                    when (workInfo.state) {
+                        androidx.work.WorkInfo.State.ENQUEUED, androidx.work.WorkInfo.State.RUNNING -> {
+                            _exportState.value = UiState.Loading
+                        }
+                        androidx.work.WorkInfo.State.SUCCEEDED -> {
+                            _exportState.value = UiState.Success(Unit)
+                        }
+                        androidx.work.WorkInfo.State.FAILED -> {
+                            val errorMsg = workInfo.outputData.getString("error") ?: context.getString(com.elektrik.R.string.error_unknown)
+                            _exportState.value = UiState.Error(errorMsg)
+                        }
+                        else -> {}
+                    }
+                }
+            }
+        }
     }
 
     fun deleteProject(projectId: Long) {

@@ -32,11 +32,11 @@ object ImageUtils {
                 ExifInterface(inputStream)
             } ?: return 0f
             parseExifOrientation(exif)
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             try {
                 val exif = ExifInterface(pathString)
                 parseExifOrientation(exif)
-            } catch (ex: Exception) {
+            } catch (_: Exception) {
                 0f
             }
         }
@@ -61,7 +61,7 @@ object ImageUtils {
         pathString: String,
         targetWidth: Int,
         targetHeight: Int,
-        config: Bitmap.Config = Bitmap.Config.RGB_565
+        config: Bitmap.Config = Bitmap.Config.ARGB_8888,
     ): Bitmap? {
         return try {
             loadScaledBitmapViaContentResolver(context, pathString, targetWidth, targetHeight, config)
@@ -135,7 +135,7 @@ object ImageUtils {
         targetHeight: Int
     ): Int {
         var inSampleSize = 1
-        if (options.outHeight > targetHeight || options.outWidth > targetWidth) {
+        if (options.outHeight > targetHeight || (options.outWidth > targetWidth)) {
             val halfHeight = options.outHeight / 2
             val halfWidth = options.outWidth / 2
             while (halfHeight / inSampleSize >= targetHeight && halfWidth / inSampleSize >= targetWidth) {
@@ -210,7 +210,7 @@ object ImageUtils {
                 } else {
                     (maxDimension * ratio).toInt() to maxDimension
                 }
-                bitmap.scale(targetW, targetH, true)
+                bitmap.scale(targetW, targetH, filter = true)
             } else {
                 bitmap
             }

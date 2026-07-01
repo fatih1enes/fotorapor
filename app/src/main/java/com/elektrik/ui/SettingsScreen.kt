@@ -32,12 +32,10 @@ import com.elektrik.util.CompanyLogoManager
 @Composable
 fun SettingsScreen(
     onBack: () -> Unit,
-    viewModel: AppViewModel
+    viewModel: AppViewModel,
 ) {
     val context = LocalContext.current
     val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
-    val cameraOptimizationEnabled by viewModel.cameraOptimizationEnabled.collectAsStateWithLifecycle()
-    val webpEnabled by viewModel.webpEnabled.collectAsStateWithLifecycle()
 
     var logoUri by remember { mutableStateOf(CompanyLogoManager.getLogoUri(context)) }
     var logoVersion by remember { mutableLongStateOf(System.currentTimeMillis()) }
@@ -61,6 +59,7 @@ fun SettingsScreen(
                 logoUri = CompanyLogoManager.getLogoUri(context)
                 logoVersion = System.currentTimeMillis()
                 imageToCropUri = null
+                bitmap.recycle() // OOM önlemi
             }
         )
     }
@@ -170,7 +169,7 @@ fun SettingsScreen(
                     if (logoUri != null) {
                         TextButton(
                             onClick = {
-                                context.deleteFile("company_logo.png")
+                                CompanyLogoManager.deleteLogo(context)
                                 logoUri = null
                                 logoVersion = System.currentTimeMillis()
                             },

@@ -2,7 +2,6 @@ package com.elektrik.util
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.net.Uri
 import java.io.File
 import java.io.FileOutputStream
@@ -32,7 +31,8 @@ object CompanyLogoManager {
     fun getLogoBitmap(context: Context): Bitmap? {
         val file = getLogoFile(context)
         if (!file.exists()) return null
-        return BitmapFactory.decodeFile(file.absolutePath)
+        // OOM önlemi: Logo küçük olsa bile güvenlik amaçlı en fazla 512x512 yüklüyoruz
+        return ImageUtils.loadScaledBitmap(context, file.absolutePath, 512, 512)
     }
 
     fun hasLogo(context: Context): Boolean {

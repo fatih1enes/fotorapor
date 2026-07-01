@@ -1,7 +1,11 @@
 package com.elektrik.repository
 
+import android.content.Context
+import androidx.core.net.toUri
 import com.elektrik.data.*
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
@@ -15,9 +19,10 @@ interface AppRepository {
     fun getDeletedPhotos(): Flow<List<PhotoEntity>>
     suspend fun restoreProjectById(projectId: Long)
     suspend fun restorePhoto(id: Long)
-    suspend fun hardDeleteProject(context: android.content.Context, projectId: Long)
-    suspend fun hardDeletePhoto(context: android.content.Context, photo: PhotoEntity)
+    suspend fun hardDeleteProject(context: Context, projectId: Long)
+    suspend fun hardDeletePhoto(context: Context, photo: PhotoEntity)
     suspend fun emptyTrash()
+    suspend fun cleanOldTrash(threshold: Long)
     fun getLogsForProject(projectId: Long): Flow<List<DailyLogEntity>>
     suspend fun getLogForDate(projectId: Long, date: Long): DailyLogEntity?
     suspend fun insertLog(log: DailyLogEntity): Long
@@ -33,17 +38,18 @@ interface AppRepository {
     suspend fun getLatestProjectSuspend(): ProjectEntity?
     fun getLogsWithPhotosForProjectFlow(projectId: Long): Flow<List<LogWithPhotos>>
     suspend fun getLogsWithPhotosForProject(projectId: Long): List<LogWithPhotos>
-    suspend fun deletePhotoWithFile(photo: PhotoEntity)
-    suspend fun deletePhotosWithFiles(photos: List<PhotoEntity>)
+    suspend fun softDeletePhoto(photo: PhotoEntity)
+    suspend fun softDeletePhotos(photos: List<PhotoEntity>)
     fun processAndSavePhotoInBackground(uri: android.net.Uri, projectId: Long, logId: Long, enableWebp: Boolean, projectName: String)
 }
 
 @Singleton
 class AppRepositoryImpl @Inject constructor(
-    @dagger.hilt.android.qualifiers.ApplicationContext private val appContext: android.content.Context,
+    @get:ApplicationContext private val appContext: Context,
     private val projectDao: ProjectDao,
     private val dailyLogDao: DailyLogDao,
-    private val photoDao: PhotoDao
+    private val photoDao: PhotoDao,
+    private val mediaProcessor: com.elektrik.util.MediaProcessor,
 ) : AppRepository {
 
     private val applicationScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO)
@@ -71,7 +77,7 @@ class AppRepositoryImpl @Inject constructor(
     }
     override suspend fun restorePhoto(id: Long) = photoDao.restorePhoto(id)
 
-    override suspend fun hardDeleteProject(context: android.content.Context, projectId: Long) {
+    override suspend fun hardDeleteProject(context: Context, projectId: Long) = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
         val logsWithPhotos = dailyLogDao.getLogsWithPhotosForProjectSuspend(projectId)
         val allPhotos = logsWithPhotos.flatMap { it.photos }
         for (photo in allPhotos) {
@@ -82,16 +88,57 @@ class AppRepositoryImpl @Inject constructor(
         refreshWidgetData()
     }
 
-    override suspend fun hardDeletePhoto(context: android.content.Context, photo: PhotoEntity) {
+    override suspend fun hardDeletePhoto(context: Context, photo: PhotoEntity) = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
         deletePhysicalFile(context, photo.filePath)
         photoDao.hardDeletePhotoById(photo.id)
     }
 
-    override suspend fun emptyTrash() {
-        // Find old projects
+    override suspend fun emptyTrash() = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+        // 1. Önce isDeleted = 1 olan tüm projeleri bul
+        val deletedProjects = projectDao.getDeletedProjects().first()
+        
+        for (project in deletedProjects) {
+            // 2. Her projenin tüm fotoğraf dosyalarını deletePhysicalFile() ile sil
+            val logsWithPhotos = dailyLogDao.getLogsWithPhotosForProjectSuspend(project.id)
+            val allPhotos = logsWithPhotos.flatMap { it.photos }
+            for (photo in allPhotos) {
+                deletePhysicalFile(appContext, photo.filePath)
+            }
+            // 3. projectDao.hardDeleteProjectById() ile DB'den sil
+            projectDao.hardDeleteProjectById(project.id)
+        }
+        
+        // 4. Ardından logla ilişkili olmayan orphan isDeleted fotoğrafları bul ve temizle
+        val deletedPhotos = photoDao.getDeletedPhotos().first()
+        for (photo in deletedPhotos) {
+            deletePhysicalFile(appContext, photo.filePath)
+            photoDao.hardDeletePhotoById(photo.id)
+        }
 
-        // We will just do a simple empty trash for now, let's say it deletes EVERYTHING in trash regardless of 30 days.
-        // Actually user clicks "Empty Trash". So delete all where isDeleted = 1.
+        // 5. refreshWidgetData() çağır
+        refreshWidgetData()
+    }
+
+    override suspend fun cleanOldTrash(threshold: Long) = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+        val deletedProjects = projectDao.getDeletedProjects().first()
+        for (project in deletedProjects) {
+            if (project.deletedAt != null && project.deletedAt < threshold) {
+                val logsWithPhotos = dailyLogDao.getLogsWithPhotosForProjectSuspend(project.id)
+                val allPhotos = logsWithPhotos.flatMap { it.photos }
+                for (photo in allPhotos) {
+                    deletePhysicalFile(appContext, photo.filePath)
+                }
+                projectDao.hardDeleteProjectById(project.id)
+            }
+        }
+        
+        val deletedPhotos = photoDao.getDeletedPhotos().first()
+        for (photo in deletedPhotos) {
+            if (photo.deletedAt != null && photo.deletedAt < threshold) {
+                deletePhysicalFile(appContext, photo.filePath)
+                photoDao.hardDeletePhotoById(photo.id)
+            }
+        }
     }
 
     override fun getLogsForProject(projectId: Long): Flow<List<DailyLogEntity>> = dailyLogDao.getLogsForProject(projectId)
@@ -126,7 +173,7 @@ class AppRepositoryImpl @Inject constructor(
     override suspend fun getLatestProjectSuspend(): ProjectEntity? = projectDao.getLatestProjectSuspend()
 
     /** Fetch latest project from DB and push to SharedPreferences for the widget. */
-    private suspend fun refreshWidgetData() {
+    private suspend fun refreshWidgetData() = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
         val latest = projectDao.getLatestProjectSuspend()
         if (latest != null) {
             com.elektrik.widget.WidgetDataHelper.saveLatestProject(appContext, latest.id, latest.name)
@@ -143,21 +190,21 @@ class AppRepositoryImpl @Inject constructor(
         return dailyLogDao.getLogsWithPhotosForProjectSuspend(projectId)
     }
 
-    override suspend fun deletePhotoWithFile(photo: PhotoEntity) {
+    override suspend fun softDeletePhoto(photo: PhotoEntity) {
         // Soft Delete
         photoDao.softDeletePhoto(photo.id, System.currentTimeMillis())
     }
 
-    override suspend fun deletePhotosWithFiles(photos: List<PhotoEntity>) {
+    override suspend fun softDeletePhotos(photos: List<PhotoEntity>) {
         val now = System.currentTimeMillis()
         for (photo in photos) {
             photoDao.softDeletePhoto(photo.id, now)
         }
     }
 
-    private fun deletePhysicalFile(context: android.content.Context, filePath: String): Boolean {
+    private fun deletePhysicalFile(context: Context, filePath: String): Boolean {
         return try {
-            val uri = android.net.Uri.parse(filePath)
+            val uri = filePath.toUri()
             if (uri.scheme == "content") {
                 context.contentResolver.delete(uri, null, null) > 0
             } else {
@@ -165,8 +212,8 @@ class AppRepositoryImpl @Inject constructor(
                 val file = java.io.File(path)
                 if (file.exists()) file.delete() else true
             }
-        } catch (e: Exception) {
-            android.util.Log.e("AppRepository", "Physical file deletion failed: $filePath", e)
+        } catch (_: Exception) {
+            android.util.Log.e("AppRepository", "Physical file deletion failed: $filePath")
             false
         }
     }
@@ -176,53 +223,7 @@ class AppRepositoryImpl @Inject constructor(
     override fun processAndSavePhotoInBackground(uri: android.net.Uri, projectId: Long, logId: Long, enableWebp: Boolean, projectName: String) {
         applicationScope.launch {
             try {
-                var finalUri = uri
-
-                if (enableWebp && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-                    var bitmapToCompress: android.graphics.Bitmap? = null
-                    appContext.contentResolver.openInputStream(uri)?.use { input ->
-                        bitmapToCompress = android.graphics.BitmapFactory.decodeStream(input)
-                    }
-
-                    if (bitmapToCompress != null) {
-                        var orientation = 0
-                        var dateTime = ""
-                        appContext.contentResolver.openInputStream(uri)?.use { input ->
-                            val oldExif = androidx.exifinterface.media.ExifInterface(input)
-                            orientation = oldExif.getAttributeInt(androidx.exifinterface.media.ExifInterface.TAG_ORIENTATION, 0)
-                            dateTime = oldExif.getAttribute(androidx.exifinterface.media.ExifInterface.TAG_DATETIME_ORIGINAL) ?: ""
-                        }
-
-                        val contentValues = android.content.ContentValues().apply {
-                            put(android.provider.MediaStore.MediaColumns.DISPLAY_NAME, "IMG_${System.currentTimeMillis()}.webp")
-                            put(android.provider.MediaStore.MediaColumns.MIME_TYPE, "image/webp")
-                            put(android.provider.MediaStore.MediaColumns.RELATIVE_PATH, android.os.Environment.DIRECTORY_DCIM + "/Elektrik")
-                        }
-
-                        val webpUri = appContext.contentResolver.insert(android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
-                        if (webpUri != null) {
-                            appContext.contentResolver.openOutputStream(webpUri)?.use { out ->
-                                bitmapToCompress?.compress(android.graphics.Bitmap.CompressFormat.WEBP_LOSSY, 100, out)
-                            }
-
-                            appContext.contentResolver.openFileDescriptor(webpUri, "rw")?.use { rwPfd ->
-                                if (rwPfd != null) {
-                                    val newExif = androidx.exifinterface.media.ExifInterface(rwPfd.fileDescriptor)
-                                    newExif.setAttribute(androidx.exifinterface.media.ExifInterface.TAG_ORIENTATION, orientation.toString())
-                                    if (dateTime.isNotEmpty()) {
-                                        newExif.setAttribute(androidx.exifinterface.media.ExifInterface.TAG_DATETIME_ORIGINAL, dateTime)
-                                    }
-                                    if (projectName.isNotBlank()) {
-                                        newExif.setAttribute(androidx.exifinterface.media.ExifInterface.TAG_USER_COMMENT, projectName)
-                                    }
-                                    newExif.saveAttributes()
-                                }
-                            }
-                            appContext.contentResolver.delete(uri, null, null)
-                            finalUri = webpUri
-                        }
-                    }
-                }
+                val finalUri = mediaProcessor.processAndConvertToWebpIfNeeded(uri, enableWebp, projectName)
 
                 val targetLogId = if (logId != -1L) {
                     logId

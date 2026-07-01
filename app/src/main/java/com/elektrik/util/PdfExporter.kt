@@ -49,8 +49,8 @@ object PdfExporter {
                     val ratio = it.width.toFloat() / it.height.toFloat()
                     val newWidth = (maxHeight * ratio).toInt().coerceAtLeast(1)
                     it.scale(newWidth, maxHeight, true)
-                } catch (e: Exception) {
-                    android.util.Log.e("PdfExporter", "Logo scale error", e)
+                } catch (_: Exception) {
+                    android.util.Log.e("PdfExporter", "Logo scale error")
                     null
                 }
             } else null
@@ -239,8 +239,8 @@ object PdfExporter {
                                 } else {
                                     bitmap
                                 }
-                            } catch (e: OutOfMemoryError) {
-                                android.util.Log.e("PdfExporter", "OOM during bitmap scaling", e)
+                            } catch (_: OutOfMemoryError) {
+                                android.util.Log.e("PdfExporter", "OOM during bitmap scaling")
                                 bitmap.recycle()
                                 null
                             }
@@ -363,8 +363,11 @@ object PdfExporter {
                 val uri = FileProvider.getUriForFile(context, authority, file)
                 uri
             }
-        } catch (e: Exception) {
-            android.util.Log.e("PdfExporter", "PDF Generation failed", e)
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            pdfDocument.close()
+            throw e
+        } catch (_: Exception) {
+            android.util.Log.e("PdfExporter", "PDF Generation failed")
             pdfDocument.close()
             null
         }
@@ -381,7 +384,7 @@ object PdfExporter {
             val frame = retriever.getFrameAtTime(0, android.media.MediaMetadataRetriever.OPTION_CLOSEST_SYNC)
             retriever.release()
             frame
-        } catch (e: Exception) {
+        } catch (_: Exception) {
             null
         }
     }

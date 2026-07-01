@@ -45,6 +45,13 @@
 -keep class * extends androidx.room.RoomDatabase { *; }
 -keep @androidx.room.Entity class * { *; }
 -keep @androidx.room.Dao interface * { *; }
+-keepclassmembers class * {
+    @androidx.room.Query <methods>;
+    @androidx.room.Insert <methods>;
+    @androidx.room.Update <methods>;
+    @androidx.room.Delete <methods>;
+    @androidx.room.Transaction <methods>;
+}
 -dontwarn androidx.room.**
 
 # ===========================
@@ -55,6 +62,7 @@
 -keepclassmembers class kotlinx.coroutines.** {
     volatile <fields>;
 }
+-keep class kotlin.coroutines.Continuation
 -dontwarn kotlinx.coroutines.**
 
 # ===========================
@@ -82,6 +90,12 @@
 # Compose
 # ===========================
 -dontwarn androidx.compose.**
+
+# ===========================
+# Compose Navigation
+# ===========================
+-keep class androidx.navigation.compose.** { *; }
+-keep class androidx.navigation.** { *; }
 
 # ===========================
 # Okio (used by Coil)

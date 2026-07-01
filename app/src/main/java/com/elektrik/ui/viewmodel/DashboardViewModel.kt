@@ -20,8 +20,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
-    @ApplicationContext private val appContext: Context,
-    private val repository: AppRepository
+    @get:ApplicationContext private val appContext: Context,
+    private val repository: AppRepository,
 ) : ViewModel() {
 
     private val _projectActionState = MutableStateFlow<UiState<Unit>?>(null)
@@ -37,6 +37,8 @@ class DashboardViewModel @Inject constructor(
                 val colorHex = String.format(Locale.US, "#%06X", 0xFFFFFF and color.toArgb())
                 repository.insertProject(ProjectEntity(name = name, colorHex = colorHex))
                 _projectActionState.value = UiState.Success(Unit)
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
             } catch (e: Exception) {
                 _projectActionState.value = UiState.Error(
                     e.message ?: appContext.getString(R.string.error_unknown)
@@ -51,6 +53,8 @@ class DashboardViewModel @Inject constructor(
             try {
                 repository.deleteProjectById(projectId)
                 _projectActionState.value = UiState.Success(Unit)
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
             } catch (e: Exception) {
                 _projectActionState.value = UiState.Error(
                     e.message ?: appContext.getString(R.string.error_delete_failed)

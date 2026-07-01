@@ -10,6 +10,8 @@ import androidx.camera.core.resolutionselector.AspectRatioStrategy
 import androidx.camera.core.resolutionselector.ResolutionSelector
 import androidx.camera.core.resolutionselector.ResolutionStrategy
 import androidx.camera.camera2.interop.Camera2Interop
+import androidx.camera.extensions.ExtensionsManager
+import androidx.camera.extensions.ExtensionMode
 import android.hardware.camera2.CaptureRequest
 import androidx.compose.runtime.*
 import androidx.core.content.ContextCompat
@@ -19,7 +21,6 @@ import kotlinx.coroutines.ensureActive
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
-import kotlin.coroutines.coroutineContext
 import kotlin.coroutines.resume
 import kotlinx.coroutines.suspendCancellableCoroutine
 
@@ -56,6 +57,7 @@ class CameraStateHolder(
     var initializationError by mutableStateOf<String?>(null)
         private set
 
+    @androidx.annotation.OptIn(androidx.camera.camera2.interop.ExperimentalCamera2Interop::class)
     suspend fun bindCamera(
         previewView: PreviewView,
         lensFacing: Int,
@@ -75,6 +77,16 @@ class CameraStateHolder(
             }, ContextCompat.getMainExecutor(context))
         }
 
+        // Initialize ExtensionsManager for HDR
+        val extensionsManager = suspendCancellableCoroutine<ExtensionsManager> { continuation ->
+            val extensionsManagerFuture = ExtensionsManager.getInstanceAsync(context, cameraProvider)
+            extensionsManagerFuture.addListener({
+                if (continuation.isActive) {
+                    continuation.resume(extensionsManagerFuture.get())
+                }
+            }, ContextCompat.getMainExecutor(context))
+        }
+
         // If coroutine was cancelled while waiting, bail out
         currentCoroutineContext().ensureActive()
 
@@ -83,37 +95,46 @@ class CameraStateHolder(
             .setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
             .build()
 
-        val preview = Preview.Builder()
+        val previewBuilder = Preview.Builder()
             .setResolutionSelector(resolutionSelector)
-            .build()
-            .also { it.surfaceProvider = previewView.surfaceProvider }
+            .setPreviewStabilizationEnabled(true) // Önizleme sarsıntı engelleme
+        
+        val captureBuilder = ImageCapture.Builder()
+            .setResolutionSelector(resolutionSelector)
+            .setFlashMode(flashMode)
+            .setTargetRotation(currentRotation)
+            .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
 
         var activeSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
 
+        // Enable HDR extension if available and requested
+        if (enableOptimization && extensionsManager.isExtensionAvailable(activeSelector, ExtensionMode.HDR)) {
+            activeSelector = extensionsManager.getExtensionEnabledCameraSelector(activeSelector, ExtensionMode.HDR)
+            Log.d("CameraStateHolder", "HDR Extension enabled")
+        } else if (enableOptimization) {
+            // Fallback to Camera2Interop optimizations if HDR is not available
+            val extender = Camera2Interop.Extender(captureBuilder)
+            extender.setCaptureRequestOption(CaptureRequest.EDGE_MODE, CaptureRequest.EDGE_MODE_HIGH_QUALITY)
+            extender.setCaptureRequestOption(CaptureRequest.NOISE_REDUCTION_MODE, CaptureRequest.NOISE_REDUCTION_MODE_HIGH_QUALITY)
+            Log.d("CameraStateHolder", "Camera2Interop optimizations enabled")
+        }
+
+        val preview = previewBuilder.build().also { it.surfaceProvider = previewView.surfaceProvider }
+
         try {
             if (!cameraProvider.hasCamera(activeSelector)) {
-                val fallbackLens = if (lensFacing == CameraSelector.LENS_FACING_BACK) 
-                    CameraSelector.LENS_FACING_FRONT else CameraSelector.LENS_FACING_BACK
-                activeSelector = CameraSelector.Builder().requireLensFacing(fallbackLens).build()
+                // If the selected camera with HDR is not available, fallback to basic selector
+                activeSelector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
+                if (!cameraProvider.hasCamera(activeSelector)) {
+                    val fallbackLens = if (lensFacing == CameraSelector.LENS_FACING_BACK) 
+                        CameraSelector.LENS_FACING_FRONT else CameraSelector.LENS_FACING_BACK
+                    activeSelector = CameraSelector.Builder().requireLensFacing(fallbackLens).build()
+                }
             }
 
             cameraProvider.unbindAll()
 
-            // Stabilization for Preview is handled by VideoCapture/Recorder stabilization which is standard.
-
             if (cameraMode == "PHOTO") {
-                val captureBuilder = ImageCapture.Builder()
-                    .setResolutionSelector(resolutionSelector)
-                    .setFlashMode(flashMode)
-                    .setTargetRotation(currentRotation)
-                    .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
-                
-                if (enableOptimization) {
-                    val extender = Camera2Interop.Extender(captureBuilder)
-                    extender.setCaptureRequestOption(CaptureRequest.EDGE_MODE, CaptureRequest.EDGE_MODE_HIGH_QUALITY)
-                    extender.setCaptureRequestOption(CaptureRequest.NOISE_REDUCTION_MODE, CaptureRequest.NOISE_REDUCTION_MODE_HIGH_QUALITY)
-                }
-                
                 val capture = captureBuilder.build()
                 imageCapture = capture
                 videoCapture = null

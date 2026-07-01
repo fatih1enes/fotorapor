@@ -1,5 +1,10 @@
 package com.elektrik.ui
 
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
+import androidx.compose.ui.graphics.graphicsLayer
 import kotlinx.coroutines.isActive
 import android.content.Context
 import android.net.Uri
@@ -74,13 +79,12 @@ private val ControlBg = Color(0x66000000)
 
 @Composable
 fun CameraScreen(
-    projectName: String = "",
     onPhotoCaptured: (Uri) -> Unit,
     onClose: () -> Unit,
     enableOptimization: Boolean = true,
     enableWebp: Boolean = true,
     onToggleOptimization: (Boolean) -> Unit = {},
-    onToggleWebp: (Boolean) -> Unit = {}
+    onToggleWebp: (Boolean) -> Unit = {},
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -91,7 +95,7 @@ fun CameraScreen(
 
     // State
     var cameraMode by remember { mutableStateOf("PHOTO") }
-    var isRecording by remember { mutableStateOf(false) }
+    var isRecording by remember { mutableStateOf(value = false) }
     var recordingDuration by remember { mutableIntStateOf(0) }
     var flashMode by remember { mutableIntStateOf(ImageCapture.FLASH_MODE_OFF) }
     var videoQuality by remember { mutableStateOf(Quality.FHD) }
@@ -107,6 +111,28 @@ fun CameraScreen(
     var lastCapturedUri by remember { mutableStateOf<Uri?>(null) }
     var isPaused by remember { mutableStateOf(false) }
     var showSettingsPanel by remember { mutableStateOf(false) }
+
+    // Leveler State
+    var deviceAngle by remember { mutableFloatStateOf(0f) }
+    DisposableEffect(Unit) {
+        val sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        val accelerometer = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER)
+        val listener = object : SensorEventListener {
+            override fun onSensorChanged(event: SensorEvent) {
+                if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) {
+                    val ax = event.values[0]
+                    val ay = event.values[1]
+                    // Calculate angle in degrees
+                    val angle = Math.toDegrees(kotlin.math.atan2(ax.toDouble(), ay.toDouble())).toFloat()
+                    // Normalize to -180 to 180 and handle landscape
+                    deviceAngle = -angle
+                }
+            }
+            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
+        }
+        sensorManager.registerListener(listener, accelerometer, SensorManager.SENSOR_DELAY_UI)
+        onDispose { sensorManager.unregisterListener(listener) }
+    }
 
     // Auto-hide exposure
     LaunchedEffect(showExposure, exposureValue) {
@@ -153,7 +179,7 @@ fun CameraScreen(
             videoQuality = videoQuality,
             currentRotation = currentRotation,
             flashMode = flashMode,
-            enableOptimization = enableOptimization
+            enableOptimization = enableOptimization,
         )
         zoomRatio = 1f; exposureValue = 0f
     }
@@ -168,12 +194,25 @@ fun CameraScreen(
 
     val previewAspect = if (aspectRatio == AspectRatio.RATIO_4_3) 3f / 4f else 9f / 16f
     
+    // Orientation helpers
+    val isLandscape = (currentRotation == Surface.ROTATION_90) || (currentRotation == Surface.ROTATION_270)
+    val iconRotateAngle by animateFloatAsState(
+        targetValue = when (currentRotation) {
+            Surface.ROTATION_90 -> -90f
+            Surface.ROTATION_180 -> -180f
+            Surface.ROTATION_270 -> 90f
+            else -> 0f
+        },
+        animationSpec = spring(stiffness = Spring.StiffnessLow),
+        label = "iconRotation"
+    )
+
     val triggerShutter = {
         if (cameraMode == "PHOTO") {
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
             showCaptureFeedback = true
             scope.launch { delay(100.milliseconds); showCaptureFeedback = false }
-            takePhoto(context, cameraState.imageCapture, cameraState.executor, projectName, enableWebp) { uri ->
+            takePhoto(context, cameraState.imageCapture, cameraState.executor) { uri ->
                 lastCapturedUri = uri
                 onPhotoCaptured(uri)
             }
@@ -193,9 +232,10 @@ fun CameraScreen(
                         if (ev is VideoRecordEvent.Finalize) {
                             isRecording = false
                             isPaused = false
-                            if (!ev.hasError()) ev.outputResults.outputUri?.let { 
-                                lastCapturedUri = it
-                                onPhotoCaptured(it) 
+                            val uri = ev.outputResults.outputUri
+                            if (!ev.hasError()) {
+                                lastCapturedUri = uri
+                                onPhotoCaptured(uri)
                             }
                             else Log.e("CameraScreen", "Video err: ${ev.error}")
                         }
@@ -249,15 +289,16 @@ fun CameraScreen(
                             }
                         }
                         .pointerInput(cameraState.camera) {
-                            detectTapGestures(onTap = { 
+                            detectTapGestures { 
                                 tapOffset = it
                                 exposureValue = 0f 
                                 cameraState.focusAndMeter(it, previewView) 
-                            })
+                            }
                         }
                 )
             }
             if (isGridVisible) GridOverlay()
+            LevelerOverlay(deviceAngle)
             tapOffset?.let { FocusRing(it) }
         }
 
@@ -270,75 +311,39 @@ fun CameraScreen(
         // 3) TOP TOOLBAR — always accessible, overlays on top
         AnimatedVisibility(
             visible = !isRecording, enter = fadeIn(), exit = fadeOut(),
-            modifier = Modifier.align(Alignment.TopCenter)
+            modifier = Modifier.align(if (isLandscape) Alignment.CenterStart else Alignment.TopCenter)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth().statusBarsPadding()
-                    .padding(horizontal = 16.dp, vertical = 10.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // Close
-                ToolbarBtn(onClick = onClose) {
-                    Icon(Icons.Default.Close, stringResource(R.string.close_label), tint = Color.White, modifier = Modifier.size(22.dp))
-                }
-
-                Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
-                    // Flash (photo) — cycles Auto/On/Off
-                    if (cameraMode == "PHOTO") {
-                        ToolbarBtn(onClick = {
-                            flashMode = when (flashMode) {
-                                ImageCapture.FLASH_MODE_OFF -> ImageCapture.FLASH_MODE_AUTO
-                                ImageCapture.FLASH_MODE_AUTO -> ImageCapture.FLASH_MODE_ON
-                                else -> ImageCapture.FLASH_MODE_OFF
-                            }
-                            cameraState.setFlashMode(flashMode)
-                        }) {
-                            Icon(
-                                when (flashMode) {
-                                    ImageCapture.FLASH_MODE_ON -> Icons.Default.FlashOn
-                                    ImageCapture.FLASH_MODE_AUTO -> Icons.Default.FlashAuto
-                                    else -> Icons.Default.FlashOff
-                                },
-                                stringResource(R.string.flash_label),
-                                tint = if (flashMode != ImageCapture.FLASH_MODE_OFF) Amber else Color.White,
-                                modifier = Modifier.size(22.dp)
+            val toolbarPadding = if (isLandscape) Modifier.padding(start = 16.dp) else Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 16.dp, vertical = 10.dp)
+            val containerModifier = if (isLandscape) Modifier.width(60.dp) else Modifier.fillMaxWidth()
+            
+                    if (isLandscape) {
+                        Column(
+                            modifier = toolbarPadding.then(containerModifier),
+                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            ToolbarItems(
+                                cameraMode, flashMode, videoQuality, aspectRatio, isGridVisible, showSettingsPanel, iconRotateAngle, cameraState,
+                                { flashMode = it }, { aspectRatio = it }, { isGridVisible = it }, { showSettingsPanel = it }, { videoQuality = it }, onClose
                             )
                         }
-                    }
-
-                    // Video quality
-                    if (cameraMode == "VIDEO") {
-                        val qt = when (videoQuality) { Quality.SD -> "SD"; Quality.HD -> "HD"; Quality.FHD -> "FHD"; Quality.UHD -> "4K"; else -> "FHD" }
-                        ToolbarBtn(onClick = {
-                            if (cameraState.supportedQualities.isNotEmpty()) {
-                                val i = cameraState.supportedQualities.indexOf(videoQuality)
-                                videoQuality = cameraState.supportedQualities[if (i != -1) (i + 1) % cameraState.supportedQualities.size else 0]
+                    } else {
+                        Row(
+                            modifier = toolbarPadding.then(containerModifier),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            ToolbarBtn(rotation = iconRotateAngle, onClick = onClose) {
+                                Icon(Icons.Default.Close, stringResource(R.string.close_label), tint = Color.White, modifier = Modifier.size(22.dp))
                             }
-                        }) { Text(qt, color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold) }
+                            Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
+                                ToolbarItems(
+                                    cameraMode, flashMode, videoQuality, aspectRatio, isGridVisible, showSettingsPanel, iconRotateAngle, cameraState,
+                                    { flashMode = it }, { aspectRatio = it }, { isGridVisible = it }, { showSettingsPanel = it }, { videoQuality = it }, null
+                                )
+                            }
+                        }
                     }
-
-                    // Aspect ratio
-                    ToolbarBtn(onClick = {
-                        aspectRatio = if (aspectRatio == AspectRatio.RATIO_4_3) AspectRatio.RATIO_16_9 else AspectRatio.RATIO_4_3
-                    }) {
-                        Text(if (aspectRatio == AspectRatio.RATIO_4_3) "4:3" else "16:9",
-                            color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                    }
-
-                    // Grid
-                    ToolbarBtn(onClick = { isGridVisible = !isGridVisible }) {
-                        Icon(Icons.Default.GridOn, stringResource(R.string.grid_label),
-                            tint = if (isGridVisible) Amber else Color.White, modifier = Modifier.size(22.dp))
-                    }
-                    
-                    // Settings
-                    ToolbarBtn(onClick = { showSettingsPanel = !showSettingsPanel }) {
-                        Icon(Icons.Default.Settings, "Ayarlar",
-                            tint = if (showSettingsPanel) Amber else Color.White, modifier = Modifier.size(22.dp))
-                    }
-                }
-            }
         }
 
         // 3.5) SETTINGS PANEL (Glassmorphism overlay)
@@ -365,7 +370,7 @@ fun CameraScreen(
                         Text("Donanım HDR", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                         Text("Daha net ve pürüzsüz fotoğraflar çeker", color = Color.LightGray, fontSize = 10.sp)
                     }
-                    androidx.compose.material3.Switch(checked = enableOptimization, onCheckedChange = onToggleOptimization, modifier = Modifier.scale(0.8f))
+                    Switch(checked = enableOptimization, onCheckedChange = onToggleOptimization, modifier = Modifier.scale(0.8f))
                 }
                 
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
@@ -373,7 +378,7 @@ fun CameraScreen(
                         Text("WebP Kayıt", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
                         Text("Kaliteyi bozmadan boyutu 4 kat küçültür", color = Color.LightGray, fontSize = 10.sp)
                     }
-                    androidx.compose.material3.Switch(checked = enableWebp, onCheckedChange = onToggleWebp, modifier = Modifier.scale(0.8f))
+                    Switch(checked = enableWebp, onCheckedChange = onToggleWebp, modifier = Modifier.scale(0.8f))
                 }
             }
         }
@@ -393,139 +398,99 @@ fun CameraScreen(
             }
         }
 
-        // 5) BOTTOM CONTROLS — always at bottom, overlays preview edge
-        Column(
-            modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth()
+        // 5) BOTTOM/SIDE CONTROLS — always at bottom or side, overlays preview edge
+        val controlsAlignment = if (isLandscape) Alignment.CenterEnd else Alignment.BottomCenter
+        val controlsPadding = if (isLandscape) Modifier.padding(end = 12.dp) else Modifier.padding(bottom = 12.dp)
+        
+        Box(
+            modifier = Modifier.align(controlsAlignment).then(controlsPadding)
+                .clip(RoundedCornerShape(if (isLandscape) 24.dp else 0.dp))
                 .background(Color.Black.copy(alpha = 0.7f))
-                .navigationBarsPadding().padding(bottom = 12.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .then(if (isLandscape) Modifier.fillMaxHeight().width(100.dp) else Modifier.fillMaxWidth().navigationBarsPadding()),
+            contentAlignment = Alignment.Center
         ) {
-            // Exposure slider (horizontal, shown when toggled)
-            androidx.compose.animation.AnimatedVisibility(
-                visible = showExposure, enter = fadeIn() + expandVertically(), exit = fadeOut() + shrinkVertically()
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 4.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(Icons.Default.WbSunny, null, tint = Color.White.copy(alpha = 0.5f), modifier = Modifier.size(16.dp))
-                    Slider(
-                        value = exposureValue,
-                        onValueChange = { exposureValue = it; cameraState.setExposure(it.toInt()); showExposure = true },
-                        valueRange = cameraState.exposureRange,
-                        modifier = Modifier.weight(1f).padding(horizontal = 8.dp),
-                        colors = SliderDefaults.colors(
-                            thumbColor = Amber, activeTrackColor = Amber.copy(alpha = 0.6f),
-                            inactiveTrackColor = Color.White.copy(alpha = 0.2f)
-                        )
-                    )
-                    Icon(Icons.Default.WbSunny, null, tint = Amber, modifier = Modifier.size(20.dp))
-                }
-            }
-
-            // EV indicator
-            if (cameraState.exposureIndex != 0) {
-                Text("EV ${if (cameraState.exposureIndex > 0) "+" else ""}${cameraState.exposureIndex}",
-                    color = Amber, fontSize = 11.sp, fontWeight = FontWeight.Bold,
-                    modifier = Modifier.padding(bottom = 2.dp))
-            }
-
-            // Zoom pills + EV toggle
-            Row(
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.padding(vertical = 8.dp)
-            ) {
-                // EV toggle
-                ZoomPill("☀", showExposure) { showExposure = !showExposure }
-                Spacer(Modifier.width(12.dp))
-
-                if (cameraState.maxZoom > cameraState.minZoom) {
-                    // Ultra-wide (0.5x-0.6x) — shown when device supports zoom below 1.0
-                    if (cameraState.minZoom < 1f) {
-                        val wideLabel = String.format(java.util.Locale.US, "%.1fx", cameraState.minZoom)
-                        ZoomPill(wideLabel, zoomRatio < 0.9f) {
-                            zoomRatio = cameraState.minZoom; cameraState.setZoom(cameraState.minZoom)
-                        }
-                        Spacer(Modifier.width(8.dp))
-                    }
-                    ZoomPill("1x", zoomRatio in 0.9f..1.1f) { zoomRatio = 1f; cameraState.setZoom(1f) }
-                    if (cameraState.maxZoom >= 2f) {
-                        Spacer(Modifier.width(8.dp))
-                        ZoomPill("2x", zoomRatio in 1.9f..2.1f) { zoomRatio = 2f; cameraState.setZoom(2f) }
-                    }
-                    if (cameraState.maxZoom >= 5f) {
-                        Spacer(Modifier.width(8.dp))
-                        ZoomPill("5x", zoomRatio in 4.9f..5.1f) { zoomRatio = 5f; cameraState.setZoom(5f) }
-                    }
-                }
-            }
-
-            // Mode selector
-            androidx.compose.animation.AnimatedVisibility(visible = !isRecording, enter = fadeIn(), exit = fadeOut()) {
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 14.dp, top = 4.dp)
-                ) {
-                    ModeText(stringResource(R.string.camera_mode_photo), cameraMode == "PHOTO") {
-                        if (!isRecording) { cameraMode = "PHOTO"; haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove) }
-                    }
-                    Spacer(Modifier.width(32.dp))
-                    ModeText(stringResource(R.string.camera_mode_video), cameraMode == "VIDEO") {
-                        if (!isRecording) { cameraMode = "VIDEO"; haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove) }
-                    }
-                }
-            }
-
-            // Shutter row
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 44.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                // MINI GALLERY (Left)
-                if (lastCapturedUri != null) {
-                    AsyncImage(
-                        model = lastCapturedUri,
-                        contentDescription = "Gallery",
-                        contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-                        modifier = Modifier
-                            .size(44.dp)
-                            .clip(CircleShape)
-                            .border(1.dp, Color.White, CircleShape)
-                            .clickable {
-                                onClose()
+            if (isLandscape) {
+                // LANDSCAPE UI: Shutter on right, modes vertical
+                Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxHeight()) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.SpaceEvenly,
+                        modifier = Modifier.fillMaxHeight().padding(vertical = 20.dp)
+                    ) {
+                        // Flip / Pause
+                        if (isRecording) {
+                            ToolbarBtn(rotation = iconRotateAngle, size = 44, onClick = {
+                                if (isPaused) { activeRecording?.resume(); isPaused = false }
+                                else { activeRecording?.pause(); isPaused = true }
+                            }) {
+                                Icon(if (isPaused) Icons.Default.PlayArrow else Icons.Default.Pause, "Pause", tint = Color.White)
                             }
-                    )
-                } else {
-                    Spacer(Modifier.size(44.dp))
-                }
-
-                // SHUTTER
-                ShutterButton(isVideo = cameraMode == "VIDEO", isRecording = isRecording) {
-                    triggerShutter()
-                }
-
-                // PAUSE / FLIP (Right)
-                if (isRecording) {
-                    ToolbarBtn(size = 44, onClick = {
-                        if (isPaused) {
-                            activeRecording?.resume()
-                            isPaused = false
                         } else {
-                            activeRecording?.pause()
-                            isPaused = true
+                            ToolbarBtn(rotation = iconRotateAngle, size = 44, onClick = {
+                                lensFacing = if (lensFacing == CameraSelector.LENS_FACING_BACK) CameraSelector.LENS_FACING_FRONT else CameraSelector.LENS_FACING_BACK
+                            }) { Icon(Icons.Default.Cameraswitch, null, tint = Color.White) }
                         }
-                    }) {
-                        Icon(
-                            if (isPaused) Icons.Default.PlayArrow else Icons.Default.Pause,
-                            "Pause/Resume", tint = Color.White, modifier = Modifier.size(24.dp)
-                        )
+
+                        // Shutter
+                        ShutterButton(isVideo = cameraMode == "VIDEO", isRecording = isRecording) { triggerShutter() }
+
+                        // Gallery
+                        if (lastCapturedUri != null) {
+                            AsyncImage(
+                                model = lastCapturedUri, contentDescription = null, contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                                modifier = Modifier.size(44.dp).clip(CircleShape).border(1.dp, Color.White, CircleShape).clickable { onClose() }
+                            )
+                        } else Spacer(Modifier.size(44.dp))
                     }
-                } else {
-                    ToolbarBtn(size = 44, onClick = {
-                        lensFacing = if (lensFacing == CameraSelector.LENS_FACING_BACK) CameraSelector.LENS_FACING_FRONT else CameraSelector.LENS_FACING_BACK
-                    }) { Icon(Icons.Default.Cameraswitch, stringResource(R.string.flip_camera_label), tint = Color.White, modifier = Modifier.size(24.dp)) }
+                }
+            } else {
+                // PORTRAIT UI: Existing column
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    // Exposure slider
+                    androidx.compose.animation.AnimatedVisibility(visible = showExposure) {
+                        Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
+                            Icon(Icons.Default.WbSunny, null, tint = Color.White.copy(alpha = 0.5f), modifier = Modifier.size(16.dp))
+                            Slider(value = exposureValue, onValueChange = { exposureValue = it; cameraState.setExposure(it.toInt()); showExposure = true }, valueRange = cameraState.exposureRange, modifier = Modifier.weight(1f).padding(horizontal = 8.dp), colors = SliderDefaults.colors(thumbColor = Amber, activeTrackColor = Amber.copy(alpha = 0.6f), inactiveTrackColor = Color.White.copy(alpha = 0.2f)))
+                            Icon(Icons.Default.WbSunny, null, tint = Amber, modifier = Modifier.size(20.dp))
+                        }
+                    }
+                    if (cameraState.exposureIndex != 0) {
+                        Text("EV ${if (cameraState.exposureIndex > 0) "+" else ""}${cameraState.exposureIndex}", color = Amber, fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 2.dp))
+                    }
+                    // Zoom pills
+                    Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 8.dp)) {
+                        ZoomPill("☀", showExposure, iconRotateAngle) { showExposure = !showExposure }
+                        Spacer(Modifier.width(12.dp))
+                        if (cameraState.maxZoom > cameraState.minZoom) {
+                            if (cameraState.minZoom < 1f) {
+                                ZoomPill(String.format(java.util.Locale.US, "%.1fx", cameraState.minZoom), zoomRatio < 0.9f, iconRotateAngle) { zoomRatio = cameraState.minZoom; cameraState.setZoom(cameraState.minZoom) }
+                                Spacer(Modifier.width(8.dp))
+                            }
+                            ZoomPill("1x", zoomRatio in 0.9f..1.1f, iconRotateAngle) { zoomRatio = 1f; cameraState.setZoom(1f) }
+                            if (cameraState.maxZoom >= 2f) { Spacer(Modifier.width(8.dp)); ZoomPill("2x", zoomRatio in 1.9f..2.1f, iconRotateAngle) { zoomRatio = 2f; cameraState.setZoom(2f) } }
+                            if (cameraState.maxZoom >= 5f) { Spacer(Modifier.width(8.dp)); ZoomPill("5x", zoomRatio in 4.9f..5.1f, iconRotateAngle) { zoomRatio = 5f; cameraState.setZoom(5f) } }
+                        }
+                    }
+                    // Mode selector
+                    androidx.compose.animation.AnimatedVisibility(visible = !isRecording) {
+                        Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth().padding(bottom = 14.dp, top = 4.dp)) {
+                            ModeText(stringResource(R.string.camera_mode_photo), cameraMode == "PHOTO", iconRotateAngle) { if (!isRecording) cameraMode = "PHOTO" }
+                            Spacer(Modifier.width(32.dp))
+                            ModeText(stringResource(R.string.camera_mode_video), cameraMode == "VIDEO", iconRotateAngle) { if (!isRecording) cameraMode = "VIDEO" }
+                        }
+                    }
+                    // Shutter row
+                    Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 44.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
+                        if (lastCapturedUri != null) {
+                            AsyncImage(model = lastCapturedUri, contentDescription = null, contentScale = androidx.compose.ui.layout.ContentScale.Crop, modifier = Modifier.size(44.dp).clip(CircleShape).border(1.dp, Color.White, CircleShape).clickable { onClose() })
+                        } else Spacer(Modifier.size(44.dp))
+                        ShutterButton(isVideo = cameraMode == "VIDEO", isRecording = isRecording) { triggerShutter() }
+                        if (isRecording) {
+                            ToolbarBtn(rotation = iconRotateAngle, size = 44, onClick = { if (isPaused) { activeRecording?.resume(); isPaused = false } else { activeRecording?.pause(); isPaused = true } }) { Icon(if (isPaused) Icons.Default.PlayArrow else Icons.Default.Pause, null, tint = Color.White) }
+                        } else {
+                            ToolbarBtn(rotation = iconRotateAngle, size = 44, onClick = { lensFacing = if (lensFacing == CameraSelector.LENS_FACING_BACK) CameraSelector.LENS_FACING_FRONT else CameraSelector.LENS_FACING_BACK }) { Icon(Icons.Default.Cameraswitch, null, tint = Color.White) }
+                        }
+                    }
                 }
             }
         }
@@ -535,30 +500,30 @@ fun CameraScreen(
 // ===================== COMPONENTS =====================
 
 @Composable
-private fun ToolbarBtn(size: Int = 44, onClick: () -> Unit, content: @Composable () -> Unit) {
+private fun ToolbarBtn(size: Int = 44, rotation: Float = 0f, onClick: () -> Unit, content: @Composable () -> Unit) {
     Box(
-        modifier = Modifier.size(size.dp).clip(CircleShape).background(ControlBg)
+        modifier = Modifier.size(size.dp).graphicsLayer(rotationZ = rotation).clip(CircleShape).background(ControlBg)
             .clickable(remember { MutableInteractionSource() }, indication = null, onClick = onClick),
         contentAlignment = Alignment.Center
     ) { content() }
 }
 
 @Composable
-private fun ZoomPill(text: String, isSelected: Boolean, onClick: () -> Unit) {
+private fun ZoomPill(text: String, isSelected: Boolean, rotation: Float = 0f, onClick: () -> Unit) {
     Surface(
         onClick = onClick, shape = CircleShape,
         color = if (isSelected) Amber else ControlBg,
         contentColor = if (isSelected) Color.Black else Color.White,
-        modifier = Modifier.size(40.dp)
+        modifier = Modifier.size(40.dp).graphicsLayer(rotationZ = rotation)
     ) { Box(contentAlignment = Alignment.Center) { Text(text, fontSize = 12.sp, fontWeight = FontWeight.Bold) } }
 }
 
 @Composable
-private fun ModeText(text: String, isSelected: Boolean, onClick: () -> Unit) {
+private fun ModeText(text: String, isSelected: Boolean, rotation: Float = 0f, onClick: () -> Unit) {
     Text(
         text = text, fontSize = 14.sp, fontWeight = FontWeight.Bold,
         color = if (isSelected) Amber else Color.White.copy(alpha = 0.4f),
-        modifier = Modifier.clickable(remember { MutableInteractionSource() }, indication = null, onClick = onClick)
+        modifier = Modifier.graphicsLayer(rotationZ = rotation).clickable(remember { MutableInteractionSource() }, indication = null, onClick = onClick)
             .padding(horizontal = 4.dp, vertical = 4.dp)
     )
 }
@@ -572,6 +537,109 @@ private fun ShutterButton(isVideo: Boolean, isRecording: Boolean, onClick: () ->
         color = Color.Transparent, border = BorderStroke(3.dp, Color.White)
     ) {
         Box(Modifier.fillMaxSize().padding(innerPad).background(if (isVideo) Color.Red else Color.White, RoundedCornerShape(corner)))
+    }
+}
+
+@Composable
+private fun ToolbarItems(
+    cameraMode: String,
+    flashMode: Int,
+    videoQuality: Quality,
+    aspectRatio: Int,
+    isGridVisible: Boolean,
+    showSettingsPanel: Boolean,
+    rotation: Float,
+    cameraState: CameraStateHolder,
+    onFlashChange: (Int) -> Unit,
+    onAspectChange: (Int) -> Unit,
+    onGridChange: (Boolean) -> Unit,
+    onSettingsChange: (Boolean) -> Unit,
+    onQualityChange: (Quality) -> Unit,
+    onClose: (() -> Unit)? = null
+) {
+    if (onClose != null) {
+        ToolbarBtn(rotation = rotation, onClick = onClose) {
+            Icon(Icons.Default.Close, stringResource(R.string.close_label), tint = Color.White, modifier = Modifier.size(22.dp))
+        }
+    }
+
+    if (cameraMode == "PHOTO") {
+        ToolbarBtn(rotation = rotation, onClick = {
+            val nextFlash = when (flashMode) {
+                ImageCapture.FLASH_MODE_OFF -> ImageCapture.FLASH_MODE_AUTO
+                ImageCapture.FLASH_MODE_AUTO -> ImageCapture.FLASH_MODE_ON
+                else -> ImageCapture.FLASH_MODE_OFF
+            }
+            onFlashChange(nextFlash)
+            cameraState.setFlashMode(nextFlash)
+        }) {
+            Icon(
+                when (flashMode) {
+                    ImageCapture.FLASH_MODE_ON -> Icons.Default.FlashOn
+                    ImageCapture.FLASH_MODE_AUTO -> Icons.Default.FlashAuto
+                    else -> Icons.Default.FlashOff
+                },
+                stringResource(R.string.flash_label),
+                tint = if (flashMode != ImageCapture.FLASH_MODE_OFF) Amber else Color.White,
+                modifier = Modifier.size(22.dp)
+            )
+        }
+    }
+
+    if (cameraMode == "VIDEO") {
+        val qt = when (videoQuality) { Quality.SD -> "SD"; Quality.HD -> "HD"; Quality.FHD -> "FHD"; Quality.UHD -> "4K"; else -> "FHD" }
+        ToolbarBtn(rotation = rotation, onClick = {
+            if (cameraState.supportedQualities.isNotEmpty()) {
+                val i = cameraState.supportedQualities.indexOf(videoQuality)
+                onQualityChange(cameraState.supportedQualities[if (i != -1) (i + 1) % cameraState.supportedQualities.size else 0])
+            }
+        }) { Text(qt, color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold) }
+    }
+
+    ToolbarBtn(rotation = rotation, onClick = {
+        onAspectChange(if (aspectRatio == AspectRatio.RATIO_4_3) AspectRatio.RATIO_16_9 else AspectRatio.RATIO_4_3)
+    }) {
+        Text(if (aspectRatio == AspectRatio.RATIO_4_3) "4:3" else "16:9",
+            color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+    }
+
+    ToolbarBtn(rotation = rotation, onClick = { onGridChange(!isGridVisible) }) {
+        Icon(Icons.Default.GridOn, stringResource(R.string.grid_label),
+            tint = if (isGridVisible) Amber else Color.White, modifier = Modifier.size(22.dp))
+    }
+    
+    ToolbarBtn(rotation = rotation, onClick = { onSettingsChange(!showSettingsPanel) }) {
+        Icon(Icons.Default.Settings, "Ayarlar",
+            tint = if (showSettingsPanel) Amber else Color.White, modifier = Modifier.size(22.dp))
+    }
+}
+
+@Composable
+private fun LevelerOverlay(angle: Float) {
+    // Show leveler when it's close to 0, 90, -90 or 180 degrees
+    val isLevel = (kotlin.math.abs(angle) < 1.5f) || (kotlin.math.abs(angle - 90f) < 1.5f) || 
+                  (kotlin.math.abs(angle + 90f) < 1.5f) || (kotlin.math.abs(kotlin.math.abs(angle) - 180f) < 1.5f)
+    
+    val color = if (isLevel) Amber else Color.White.copy(alpha = 0.3f)
+    
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        // Horizontal line
+        Box(
+            Modifier
+                .width(100.dp)
+                .height(1.5.dp)
+                .graphicsLayer(rotationZ = angle)
+                .background(color)
+        )
+        // Static central marks
+        Box(
+            Modifier
+                .width(110.dp)
+                .height(20.dp)
+        ) {
+            Box(Modifier.align(Alignment.CenterStart).size(2.dp, 10.dp).background(Color.White.copy(alpha = 0.5f)))
+            Box(Modifier.align(Alignment.CenterEnd).size(2.dp, 10.dp).background(Color.White.copy(alpha = 0.5f)))
+        }
     }
 }
 
@@ -612,8 +680,6 @@ private fun takePhoto(
     context: Context,
     imageCapture: ImageCapture?,
     executor: java.util.concurrent.ExecutorService,
-    projectName: String,
-    enableWebp: Boolean,
     onPhotoCaptured: (Uri) -> Unit
 ) {
     val cap = imageCapture ?: return
@@ -627,7 +693,7 @@ private fun takePhoto(
             }
         }
         override fun onImageSaved(output: ImageCapture.OutputFileResults) {
-            var finalUri = output.savedUri
+            val finalUri = output.savedUri
             
             Log.d("CameraScreen", "Photo saved: $finalUri")
             mainExec.execute { finalUri?.let { onPhotoCaptured(it) } }

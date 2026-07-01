@@ -8,7 +8,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.google.firebase.analytics.FirebaseAnalytics
 import com.elektrik.ui.navigation.AppNavGraph
 import com.elektrik.ui.theme.ElektrikTheme
 import com.elektrik.ui.viewmodel.AppViewModel
@@ -17,13 +16,10 @@ import androidx.hilt.navigation.compose.hiltViewModel
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-    private lateinit var firebaseAnalytics: FirebaseAnalytics
 
     override fun onCreate(savedInstanceState: Bundle?) {
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
-
-        firebaseAnalytics = FirebaseAnalytics.getInstance(this)
 
         if (intent.getBooleanExtra("CRASH_RECOVERY", false)) {
             Toast.makeText(this, getString(R.string.crash_recovery_message), Toast.LENGTH_LONG).show()

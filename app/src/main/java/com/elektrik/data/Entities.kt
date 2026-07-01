@@ -4,7 +4,15 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.ForeignKey
 
-@Entity(tableName = "projects")
+@androidx.annotation.Keep
+@androidx.compose.runtime.Stable
+@Entity(
+    tableName = "projects",
+    indices = [
+        androidx.room.Index(value = ["isDeleted"]),
+        androidx.room.Index(value = ["deletedAt"])
+    ]
+)
 data class ProjectEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
     val name: String,
@@ -13,6 +21,8 @@ data class ProjectEntity(
     val deletedAt: Long? = null
 )
 
+@androidx.annotation.Keep
+@androidx.compose.runtime.Stable
 @Entity(
     tableName = "daily_logs",
     foreignKeys = [
@@ -23,7 +33,10 @@ data class ProjectEntity(
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [androidx.room.Index(value = ["projectId"])]
+    indices = [
+        androidx.room.Index(value = ["projectId"]),
+        androidx.room.Index(value = ["date"])
+    ]
 )
 data class DailyLogEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
@@ -32,6 +45,8 @@ data class DailyLogEntity(
     val note: String
 )
 
+@androidx.annotation.Keep
+@androidx.compose.runtime.Stable
 @Entity(
     tableName = "photos",
     foreignKeys = [
@@ -42,7 +57,11 @@ data class DailyLogEntity(
             onDelete = ForeignKey.CASCADE
         )
     ],
-    indices = [androidx.room.Index(value = ["logId"])]
+    indices = [
+        androidx.room.Index(value = ["logId"]),
+        androidx.room.Index(value = ["isDeleted"]),
+        androidx.room.Index(value = ["deletedAt"])
+    ]
 )
 data class PhotoEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
@@ -53,6 +72,8 @@ data class PhotoEntity(
     val deletedAt: Long? = null
 )
 
+@androidx.annotation.Keep
+@androidx.compose.runtime.Stable
 data class LogWithPhotos(
     @androidx.room.Embedded val log: DailyLogEntity,
     @androidx.room.Relation(

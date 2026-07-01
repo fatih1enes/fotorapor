@@ -77,6 +77,8 @@ object HtmlExporter {
                     if (destFile.exists() && destFile.length() > 0) {
                         photoMap[photo.id] = "assets/$fileName"
                     }
+                } catch (e: kotlinx.coroutines.CancellationException) {
+                    throw e
                 } catch (e: Exception) {
                     Log.e("HtmlExporter", "Error processing media: ${photo.id}", e)
                 }
@@ -119,6 +121,8 @@ object HtmlExporter {
                 zipFile
             )
 
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e("HtmlExporter", "Error exporting to HTML ZIP", e)
             return@withContext null

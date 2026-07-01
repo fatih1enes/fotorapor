@@ -91,14 +91,31 @@ class ExportWorker @AssistedInject constructor(
 
             if (uri != null) {
                 showCompletionNotification(uri, format, projectName)
+                Result.success()
+            } else {
+                Result.failure(workDataOf("error" to context.getString(R.string.error_unknown)))
             }
-
-            Result.success()
-        } catch (e: Exception) {
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
+        } catch (e: Throwable) {
             Log.e("ExportWorker", "Export failed", e)
             val projectName = inputData.getString("project_name") ?: "Proje"
-            showFailureNotification(projectName, e.localizedMessage ?: context.getString(R.string.error_unknown))
-            Result.failure(workDataOf("error" to (e.localizedMessage ?: "Unknown error")))
+            
+            val isRetryable = e is java.io.IOException || e is OutOfMemoryError || e is android.database.sqlite.SQLiteException
+            
+            if (isRetryable && runAttemptCount < 3) {
+                Log.w("ExportWorker", "Retrying export due to error: ${e.message}, attempt: $runAttemptCount")
+                return@withContext Result.retry()
+            }
+
+            val errorMessage = when (e) {
+                is OutOfMemoryError -> "Cihaz belleği yetersiz."
+                is java.io.IOException -> "Depolama alanı yetersiz veya erişim hatası."
+                else -> e.localizedMessage ?: context.getString(R.string.error_unknown)
+            }
+            
+            showFailureNotification(projectName, errorMessage)
+            Result.failure(workDataOf("error" to errorMessage))
         }
     }
     

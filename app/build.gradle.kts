@@ -5,13 +5,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.hilt.android)
-}
-
-val hasGoogleServices = rootProject.file("app/google-services.json").exists()
-if (hasGoogleServices) {
-    pluginManager.apply("com.google.gms.google-services")
-    pluginManager.apply("com.google.firebase.crashlytics")
+alias(libs.plugins.hilt.android)
 }
 
 ksp {
@@ -108,6 +102,9 @@ dependencies {
     // WorkManager
     implementation(libs.androidx.work.runtime.ktx)
 
+    // DataStore
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
+
     // Hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
@@ -125,11 +122,6 @@ dependencies {
     
     // Lifecycle Compose for collectAsStateWithLifecycle
     implementation(libs.androidx.lifecycle.runtime.compose)
-
-    // Firebase
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.crashlytics)
-    implementation(libs.firebase.analytics)
 }
 
 kotlin {
