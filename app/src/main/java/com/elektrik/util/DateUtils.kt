@@ -1,4 +1,4 @@
-package com.elektrik.util
+package com.sarikaya.santiye.gunlugu.util
 
 import java.time.Instant
 import java.time.LocalDate

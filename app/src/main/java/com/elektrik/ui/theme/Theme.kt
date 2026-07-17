@@ -1,4 +1,4 @@
-package com.elektrik.ui.theme
+package com.sarikaya.santiye.gunlugu.ui.theme
 
 import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -110,7 +110,7 @@ private val AppShapes = Shapes(
 )
 
 @Composable
-fun ElektrikTheme(
+fun SantiyeGunluguTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = true,
     content: @Composable () -> Unit

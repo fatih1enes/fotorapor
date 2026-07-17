@@ -1,4 +1,4 @@
-package com.elektrik.ui.navigation
+package com.sarikaya.santiye.gunlugu.ui.navigation
 
 /**
  * Centralized navigation route constants.

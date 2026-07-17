@@ -1,4 +1,4 @@
-package com.elektrik.ui.components
+package com.sarikaya.santiye.gunlugu.ui.components
 
 import android.content.Context
 import androidx.core.net.toUri
@@ -21,10 +21,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.elektrik.R
-import com.elektrik.data.PhotoEntity
-import com.elektrik.data.ProjectEntity
-import com.elektrik.data.LogWithPhotos
+import com.sarikaya.santiye.gunlugu.R
+import com.sarikaya.santiye.gunlugu.data.PhotoEntity
+import com.sarikaya.santiye.gunlugu.data.ProjectEntity
+import com.sarikaya.santiye.gunlugu.data.LogWithPhotos
 
 enum class ExportFormat { PDF, ZIP }
 

@@ -1,4 +1,4 @@
-package com.elektrik.util
+package com.sarikaya.santiye.gunlugu.util
 
 import android.content.Context
 import android.content.Intent
@@ -6,7 +6,7 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
-import com.elektrik.R
+import com.sarikaya.santiye.gunlugu.R
 import java.io.File
 
 object MediaShareUtils {

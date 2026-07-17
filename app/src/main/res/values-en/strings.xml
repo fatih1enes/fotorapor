@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Elektrik</string>
+    <string name="app_name">Şantiye Günlüğü</string>
     <string name="widget_description">View active project and quickly take photos</string>
     <string name="project_name_label">Project Name</string>
     <string name="delete_project_title">Delete Project</string>

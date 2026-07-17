@@ -1,4 +1,4 @@
-package com.elektrik.ui.viewmodel
+package com.sarikaya.santiye.gunlugu.ui.viewmodel
 
 import android.content.Context
 import androidx.lifecycle.SavedStateHandle
@@ -7,12 +7,12 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
-import com.elektrik.data.DailyLogEntity
-import com.elektrik.data.PhotoEntity
-import com.elektrik.repository.AppRepository
-import com.elektrik.util.DateUtils
-import com.elektrik.util.groupBy
-import com.elektrik.worker.ExportWorker
+import com.sarikaya.santiye.gunlugu.data.DailyLogEntity
+import com.sarikaya.santiye.gunlugu.data.PhotoEntity
+import com.sarikaya.santiye.gunlugu.repository.AppRepository
+import com.sarikaya.santiye.gunlugu.util.DateUtils
+import com.sarikaya.santiye.gunlugu.util.groupBy
+import com.sarikaya.santiye.gunlugu.worker.ExportWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -27,7 +27,7 @@ import kotlin.time.Duration.Companion.milliseconds
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class ProjectDetailViewModel @Inject constructor(
-    @get:ApplicationContext private val appContext: Context,
+    @ApplicationContext private val appContext: Context,
     private val repository: AppRepository,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
@@ -176,7 +176,7 @@ class ProjectDetailViewModel @Inject constructor(
                             _exportState.value = UiState.Success(Unit)
                         }
                         androidx.work.WorkInfo.State.FAILED -> {
-                            val errorMsg = workInfo.outputData.getString("error") ?: context.getString(com.elektrik.R.string.error_unknown)
+                            val errorMsg = workInfo.outputData.getString("error") ?: context.getString(com.sarikaya.santiye.gunlugu.R.string.error_unknown)
                             _exportState.value = UiState.Error(errorMsg)
                         }
                         else -> {}

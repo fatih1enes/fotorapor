@@ -1,4 +1,4 @@
-package com.elektrik.ui
+package com.sarikaya.santiye.gunlugu.ui
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -33,11 +33,11 @@ import coil3.request.ImageRequest
 import coil3.request.CachePolicy
 import coil3.request.crossfade
 import coil3.video.VideoFrameDecoder
-import com.elektrik.R
+import com.sarikaya.santiye.gunlugu.R
 import androidx.compose.animation.ExperimentalSharedTransitionApi
-import com.elektrik.data.DailyLogEntity
-import com.elektrik.data.PhotoEntity
-import com.elektrik.util.DateUtils
+import com.sarikaya.santiye.gunlugu.data.DailyLogEntity
+import com.sarikaya.santiye.gunlugu.data.PhotoEntity
+import com.sarikaya.santiye.gunlugu.util.DateUtils
 
 @Suppress("SameParameterValue")
 @OptIn(ExperimentalSharedTransitionApi::class)
@@ -229,7 +229,7 @@ fun TimelineBlock(
                         coroutineScope.launch(Dispatchers.IO) {
                             var hasError = false
                             uris.forEach { uri ->
-                                val localUri = com.elektrik.util.PhotoManager.copyUriToInternalStorage(context, uri)
+                                val localUri = com.sarikaya.santiye.gunlugu.util.PhotoManager.copyUriToInternalStorage(context, uri)
                                 if (localUri != null) {
                                     withContext(Dispatchers.Main) {
                                         onImportPhotoClick(localUri)

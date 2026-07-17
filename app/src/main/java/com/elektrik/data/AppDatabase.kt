@@ -1,4 +1,4 @@
-package com.elektrik.data
+package com.sarikaya.santiye.gunlugu.data
 
 import androidx.room.Database
 import androidx.room.RoomDatabase

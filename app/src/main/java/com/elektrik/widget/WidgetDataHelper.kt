@@ -1,4 +1,4 @@
-package com.elektrik.widget
+package com.sarikaya.santiye.gunlugu.widget
 
 import android.appwidget.AppWidgetManager
 import android.content.ComponentName
@@ -11,7 +11,7 @@ import android.content.Intent
  */
 object WidgetDataHelper {
 
-    private const val PREFS_NAME = "elektrik_widget_prefs"
+    private const val PREFS_NAME = "santiye_gunlugu_widget_prefs"
     private const val KEY_PROJECT_NAME = "latest_project_name"
     private const val KEY_PROJECT_ID = "latest_project_id"
 
@@ -37,14 +37,14 @@ object WidgetDataHelper {
             .getLong(KEY_PROJECT_ID, -1L)
     }
 
-    /** Force-refresh every Elektrik widget on the home screen. */
+    /** Force-refresh every Şantiye Günlüğü widget on the home screen. */
     fun notifyWidgets(context: Context) {
         val manager = AppWidgetManager.getInstance(context)
         val ids = manager.getAppWidgetIds(
-            ComponentName(context, ElektrikWidgetProvider::class.java)
+            ComponentName(context, SantiyeGunluguWidgetProvider::class.java)
         )
         if (ids.isNotEmpty()) {
-            val intent = Intent(context, ElektrikWidgetProvider::class.java).apply {
+            val intent = Intent(context, SantiyeGunluguWidgetProvider::class.java).apply {
                 action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
             }

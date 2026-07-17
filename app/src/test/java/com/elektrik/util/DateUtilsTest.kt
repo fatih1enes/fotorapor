@@ -1,4 +1,4 @@
-package com.elektrik.util
+package com.sarikaya.santiye.gunlugu.util
 
 import org.junit.Assert.assertEquals
 import org.junit.Test

@@ -1,4 +1,4 @@
-package com.elektrik.ui.components
+package com.sarikaya.santiye.gunlugu.ui.components
 
 import android.graphics.Bitmap
 import android.net.Uri
@@ -54,7 +54,7 @@ fun ImageCropperDialog(
         withContext(Dispatchers.IO) {
             try {
                 // OOM Önlemi: Resmi tam çözünürlükte değil, ekran boyutuna uygun şekilde (max 1024x1024) yükle
-                val bmp = com.elektrik.util.ImageUtils.loadScaledBitmap(context, imageUri.toString(), 1024, 1024)
+                val bmp = com.sarikaya.santiye.gunlugu.util.ImageUtils.loadScaledBitmap(context, imageUri.toString(), 1024, 1024)
                 if (bmp != null) {
                     originalBitmap = bmp
                     imageBitmap = bmp.asImageBitmap()

@@ -1,4 +1,4 @@
-package com.elektrik.util
+package com.sarikaya.santiye.gunlugu.util
 
 import android.content.Context
 import android.graphics.Bitmap
@@ -18,8 +18,8 @@ import androidx.core.graphics.toColorInt
 import androidx.core.graphics.withSave
 import androidx.core.graphics.withTranslation
 import androidx.core.net.toUri
-import com.elektrik.data.LogWithPhotos
-import com.elektrik.data.ProjectEntity
+import com.sarikaya.santiye.gunlugu.data.LogWithPhotos
+import com.sarikaya.santiye.gunlugu.data.ProjectEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File

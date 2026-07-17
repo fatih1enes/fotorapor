@@ -1,4 +1,4 @@
-package com.elektrik.ui
+package com.sarikaya.santiye.gunlugu.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -20,9 +20,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
-import com.elektrik.data.PhotoEntity
-import com.elektrik.data.ProjectEntity
-import com.elektrik.ui.viewmodel.TrashViewModel
+import com.sarikaya.santiye.gunlugu.data.PhotoEntity
+import com.sarikaya.santiye.gunlugu.data.ProjectEntity
+import com.sarikaya.santiye.gunlugu.ui.viewmodel.TrashViewModel
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*

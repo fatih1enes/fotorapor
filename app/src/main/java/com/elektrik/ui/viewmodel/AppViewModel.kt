@@ -1,4 +1,4 @@
-package com.elektrik.ui.viewmodel
+package com.sarikaya.santiye.gunlugu.ui.viewmodel
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import com.elektrik.repository.AppRepository
+import com.sarikaya.santiye.gunlugu.repository.AppRepository
 
 @HiltViewModel
 class AppViewModel @Inject constructor(
@@ -25,7 +25,7 @@ class AppViewModel @Inject constructor(
     companion object {
         private val THEME_MODE = stringPreferencesKey("theme_mode")
         private val CAMERA_OPT = booleanPreferencesKey("camera_opt")
-        private val WEBP_ENABLED = booleanPreferencesKey("webp_enabled")
+        private val AVIF_ENABLED = booleanPreferencesKey("avif_enabled")
     }
 
     val themeMode: StateFlow<String> = dataStore.data
@@ -36,8 +36,8 @@ class AppViewModel @Inject constructor(
         .map { it[CAMERA_OPT] ?: true }
         .stateIn(viewModelScope, SharingStarted.Eagerly, initialValue = true)
 
-    val webpEnabled: StateFlow<Boolean> = dataStore.data
-        .map { it[WEBP_ENABLED] ?: true }
+    val avifEnabled: StateFlow<Boolean> = dataStore.data
+        .map { it[AVIF_ENABLED] ?: true }
         .stateIn(viewModelScope, SharingStarted.Eagerly, initialValue = true)
 
     fun setThemeMode(mode: String) {
@@ -48,11 +48,11 @@ class AppViewModel @Inject constructor(
         viewModelScope.launch { dataStore.edit { it[CAMERA_OPT] = enabled } }
     }
 
-    fun setWebpEnabled(enabled: Boolean) {
-        viewModelScope.launch { dataStore.edit { it[WEBP_ENABLED] = enabled } }
+    fun setAvifEnabled(enabled: Boolean) {
+        viewModelScope.launch { dataStore.edit { it[AVIF_ENABLED] = enabled } }
     }
 
-    fun savePhotoInBackground(uri: android.net.Uri, projectId: Long, logId: Long, enableWebp: Boolean, projectName: String) {
-        repository.processAndSavePhotoInBackground(uri, projectId, logId, enableWebp, projectName)
+    fun savePhotoInBackground(uri: android.net.Uri, projectId: Long, logId: Long, enableAvif: Boolean, projectName: String) {
+        repository.processAndSavePhotoInBackground(uri, projectId, logId, enableAvif, projectName)
     }
 }

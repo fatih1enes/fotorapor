@@ -1,4 +1,4 @@
-package com.elektrik.util
+package com.sarikaya.santiye.gunlugu.util
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow

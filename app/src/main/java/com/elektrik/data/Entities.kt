@@ -1,4 +1,4 @@
-package com.elektrik.data
+package com.sarikaya.santiye.gunlugu.data
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

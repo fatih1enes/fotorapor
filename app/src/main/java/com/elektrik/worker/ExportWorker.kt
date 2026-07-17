@@ -1,4 +1,4 @@
-package com.elektrik.worker
+package com.sarikaya.santiye.gunlugu.worker
 
 import android.content.Context
 import android.util.Log
@@ -7,10 +7,10 @@ import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
-import com.elektrik.R
-import com.elektrik.repository.AppRepository
-import com.elektrik.util.HtmlExporter
-import com.elektrik.util.PdfExporter
+import com.sarikaya.santiye.gunlugu.R
+import com.sarikaya.santiye.gunlugu.repository.AppRepository
+import com.sarikaya.santiye.gunlugu.util.HtmlExporter
+import com.sarikaya.santiye.gunlugu.util.PdfExporter
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import android.content.pm.ServiceInfo

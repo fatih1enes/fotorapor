@@ -1,4 +1,4 @@
-package com.elektrik.ui.viewmodel
+package com.sarikaya.santiye.gunlugu.ui.viewmodel
 
 /**
  * Generic UI state wrapper for operations.

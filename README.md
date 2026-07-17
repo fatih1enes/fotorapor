@@ -1,39 +1,37 @@
-# Elektrik - Electrical Project Photo Management
+# Şantiye Günlüğü - Proje Fotoğraf ve Kayıt Yönetimi
 
-Elektrik is an Android application designed for electrical engineers and technicians to document and manage project photos efficiently. It allows users to organize photos by project and date, add notes, and export project data.
+Şantiye Günlüğü, şantiye sahasında çalışan mühendis ve teknisyenlerin proje fotoğraflarını ve günlük kayıtlarını verimli bir şekilde yönetmeleri için tasarlanmış bir Android uygulamasıdır. Fotoğrafları projeye ve tarihe göre düzenlemenize, notlar eklemenize ve rapor olarak dışa aktarmanıza olanak tanır.
 
-## Features
+## Özellikler
 
-- **Project Management**: Create and organize multiple electrical projects.
-- **Daily Logging**: Group photos and notes by date for each project.
-- **Advanced Camera**: 
-    - Real-time optimization.
-    - WebP support for efficient storage.
-    - Integrated with CameraX.
-- **Photo Editing**: Basic photo rotation and management.
-- **Export Options**: Export project data and photos (supports multiple formats).
-- **Dark/Light Mode**: Full Material 3 support with theme switching.
-- **Trash System**: Recover deleted projects or permanently remove them.
+- **Proje Yönetimi**: Birden fazla projeyi kolayca oluşturun ve yönetin.
+- **Günlük Kayıtlar**: Fotoğrafları ve notları tarihe göre gruplandırın.
+- **Gelişmiş Kamera**: 
+    - Donanım bazlı gerçek zamanlı optimizasyon (HDR/Gece).
+    - Yüksek kaliteli AVIF ve WebP desteği.
+    - CameraX entegrasyonu.
+- **Fotoğraf Düzenleme**: Temel döndürme ve yönetim işlemleri.
+- **Raporlama**: Projeleri PDF (görsel döküm) veya HTML/ZIP (web arşivi) olarak dışa aktarın.
+- **Karanlık/Aydınlık Tema**: Tam Material 3 desteği.
+- **Çöp Kutusu**: Yanlışlıkla silinen kayıtları 30 gün içinde geri yükleyin.
 
-## Tech Stack
+## Teknolojiler
 
 - **UI**: Jetpack Compose (Material 3)
-- **Architecture**: MVVM with Clean Architecture principles
+- **Mimari**: MVVM & Clean Architecture
 - **Dependency Injection**: Hilt
-- **Database**: Room
-- **Navigation**: Compose Navigation
-- **Image Loading**: Coil 3
-- **Media**: CameraX & Media3
-- **Background Tasks**: WorkManager
+- **Veritabanı**: Room
+- **Navigasyon**: Compose Navigation
+- **Görüntü Yükleme**: Coil 3
+- **Medya**: CameraX & Media3
+- **Arka Plan Görevleri**: WorkManager
 
-## Getting Started
+## Başlangıç
 
-1. Clone the repository.
-2. Open in Android Studio (Ladybug or newer).
-3. Build and Run.
+1. Depoyu klonlayın.
+2. Android Studio'da açın.
+3. Derleyin ve çalıştırın.
 
-> **Note**: Make sure to configure your own `keystore.properties` for release builds.
+## Lisans
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+Bu proje MIT Lisansı ile lisanslanmıştır.

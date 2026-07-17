@@ -1,4 +1,4 @@
-package com.elektrik
+package com.sarikaya.santiye.gunlugu
 
 import org.junit.Test
 

@@ -1,4 +1,4 @@
-package com.elektrik.ui
+package com.sarikaya.santiye.gunlugu.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -29,9 +29,9 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.ui.input.pointer.positionChanged
 import androidx.core.net.toUri
-import com.elektrik.R
-import com.elektrik.data.PhotoEntity
-import com.elektrik.util.MediaShareUtils
+import com.sarikaya.santiye.gunlugu.R
+import com.sarikaya.santiye.gunlugu.data.PhotoEntity
+import com.sarikaya.santiye.gunlugu.util.MediaShareUtils
 
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 

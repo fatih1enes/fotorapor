@@ -1,4 +1,4 @@
-package com.elektrik.ui
+package com.sarikaya.santiye.gunlugu.ui
 
 import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -23,10 +23,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
-import com.elektrik.R
-import com.elektrik.ui.components.ImageCropperDialog
-import com.elektrik.ui.viewmodel.AppViewModel
-import com.elektrik.util.CompanyLogoManager
+import com.sarikaya.santiye.gunlugu.R
+import com.sarikaya.santiye.gunlugu.ui.components.ImageCropperDialog
+import com.sarikaya.santiye.gunlugu.ui.viewmodel.AppViewModel
+import com.sarikaya.santiye.gunlugu.util.CompanyLogoManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -185,7 +185,7 @@ fun SettingsScreen(
             Spacer(modifier = Modifier.weight(1f))
             
             Text(
-                "Elektrik App v${com.elektrik.BuildConfig.VERSION_NAME}",
+                "Şantiye Günlüğü v${com.sarikaya.santiye.gunlugu.BuildConfig.VERSION_NAME}",
                 modifier = Modifier.fillMaxWidth().padding(bottom = 24.dp),
                 textAlign = TextAlign.Center,
                 style = MaterialTheme.typography.labelMedium,

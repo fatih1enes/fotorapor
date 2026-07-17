@@ -1,4 +1,4 @@
-package com.elektrik.util
+package com.sarikaya.santiye.gunlugu.util
 
 import android.content.ContentValues
 import android.content.Context
@@ -13,17 +13,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.radzivon.bartoshyk.avif.coder.HeifCoder
 
 @Singleton
 class MediaProcessor @Inject constructor(
-    @get:ApplicationContext private val appContext: Context,
+    @ApplicationContext private val appContext: Context,
 ) {
-    suspend fun processAndConvertToWebpIfNeeded(
+    suspend fun processAndOptimize(
         originalUri: Uri,
-        enableWebp: Boolean,
+        enableAvif: Boolean,
         projectName: String
     ): Uri = withContext(Dispatchers.IO) {
-        if (!enableWebp || (Build.VERSION.SDK_INT < Build.VERSION_CODES.R)) {
+        if (!enableAvif) {
             return@withContext originalUri
         }
 
@@ -31,39 +32,78 @@ class MediaProcessor @Inject constructor(
             ?: return@withContext originalUri
 
         try {
-            var orientation = 0
-            var dateTime = ""
+            var oldExif: ExifInterface? = null
             appContext.contentResolver.openInputStream(originalUri)?.use { input ->
-                val oldExif = ExifInterface(input)
-                orientation = oldExif.getAttributeInt(ExifInterface.TAG_ORIENTATION, 0)
-                dateTime = oldExif.getAttribute(ExifInterface.TAG_DATETIME_ORIGINAL) ?: ""
+                oldExif = ExifInterface(input)
             }
 
             val contentValues = ContentValues().apply {
-                put(MediaStore.MediaColumns.DISPLAY_NAME, "IMG_${System.currentTimeMillis()}.webp")
-                put(MediaStore.MediaColumns.MIME_TYPE, "image/webp")
-                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DCIM + "/Elektrik")
+                put(MediaStore.MediaColumns.DISPLAY_NAME, "IMG_${System.currentTimeMillis()}.avif")
+                put(MediaStore.MediaColumns.MIME_TYPE, "image/avif")
+                put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DCIM + "/SantiyeGunlugu")
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    put(MediaStore.MediaColumns.IS_PENDING, 1)
+                }
             }
 
-            val webpUri = appContext.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
-            if (webpUri != null) {
-                appContext.contentResolver.openOutputStream(webpUri)?.use { out ->
-                    bitmapToCompress.compress(Bitmap.CompressFormat.WEBP_LOSSY, 100, out)
-                }
+            val optimizedUri = appContext.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)
+            if (optimizedUri != null) {
+                try {
+                    // Encode to AVIF using avif-coder
+                    val coder = HeifCoder()
+                    val avifBytes = coder.encodeAvif(bitmapToCompress)
+                    
+                    appContext.contentResolver.openOutputStream(optimizedUri)?.use { out ->
+                        out.write(avifBytes)
+                    }
 
-                appContext.contentResolver.openFileDescriptor(webpUri, "rw")?.use { rwPfd ->
-                    val newExif = ExifInterface(rwPfd.fileDescriptor)
-                    newExif.setAttribute(ExifInterface.TAG_ORIENTATION, orientation.toString())
-                    if (dateTime.isNotEmpty()) {
-                        newExif.setAttribute(ExifInterface.TAG_DATETIME_ORIGINAL, dateTime)
+                    // Copy all EXIF data
+                    appContext.contentResolver.openFileDescriptor(optimizedUri, "rw")?.use { rwPfd ->
+                        val newExif = ExifInterface(rwPfd.fileDescriptor)
+                        
+                        oldExif?.let { old ->
+                            // Copy essential tags
+                            val tagsToCopy = listOf(
+                                ExifInterface.TAG_ORIENTATION,
+                                ExifInterface.TAG_DATETIME_ORIGINAL,
+                                ExifInterface.TAG_DATETIME,
+                                ExifInterface.TAG_DATETIME_DIGITIZED,
+                                ExifInterface.TAG_MAKE,
+                                ExifInterface.TAG_MODEL,
+                                ExifInterface.TAG_FOCAL_LENGTH,
+                                ExifInterface.TAG_GPS_LATITUDE,
+                                ExifInterface.TAG_GPS_LONGITUDE,
+                                ExifInterface.TAG_GPS_LATITUDE_REF,
+                                ExifInterface.TAG_GPS_LONGITUDE_REF
+                            )
+                            for (tag in tagsToCopy) {
+                                old.getAttribute(tag)?.let { value ->
+                                    newExif.setAttribute(tag, value)
+                                }
+                            }
+                        }
+                        
+                        if (projectName.isNotBlank()) {
+                            newExif.setAttribute(ExifInterface.TAG_USER_COMMENT, projectName)
+                        }
+                        newExif.saveAttributes()
                     }
-                    if (projectName.isNotBlank()) {
-                        newExif.setAttribute(ExifInterface.TAG_USER_COMMENT, projectName)
+
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        val pendingValues = ContentValues().apply {
+                            put(MediaStore.MediaColumns.IS_PENDING, 0)
+                        }
+                        appContext.contentResolver.update(optimizedUri, pendingValues, null, null)
                     }
-                    newExif.saveAttributes()
+
+                    // Delete original ONLY if optimization was successful
+                    appContext.contentResolver.delete(originalUri, null, null)
+                    return@withContext optimizedUri
+                } catch (e: Exception) {
+                    // If encoding fails, delete the empty optimized file and keep original
+                    appContext.contentResolver.delete(optimizedUri, null, null)
+                    android.util.Log.e("MediaProcessor", "AVIF encoding failed", e)
                 }
-                appContext.contentResolver.delete(originalUri, null, null)
-                return@withContext webpUri
             }
         } finally {
             bitmapToCompress.recycle()

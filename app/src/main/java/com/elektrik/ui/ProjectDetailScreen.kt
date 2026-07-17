@@ -1,4 +1,4 @@
-package com.elektrik.ui
+package com.sarikaya.santiye.gunlugu.ui
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -31,12 +31,12 @@ import androidx.core.content.ContextCompat
 import android.os.Build
 import kotlinx.coroutines.launch
 import java.time.LocalDate
-import com.elektrik.R
-import com.elektrik.data.PhotoEntity
-import com.elektrik.data.ProjectEntity
-import com.elektrik.data.LogWithPhotos
-import com.elektrik.ui.components.ExportDialog
-import com.elektrik.util.DateUtils
+import com.sarikaya.santiye.gunlugu.R
+import com.sarikaya.santiye.gunlugu.data.PhotoEntity
+import com.sarikaya.santiye.gunlugu.data.ProjectEntity
+import com.sarikaya.santiye.gunlugu.data.LogWithPhotos
+import com.sarikaya.santiye.gunlugu.ui.components.ExportDialog
+import com.sarikaya.santiye.gunlugu.util.DateUtils
 import androidx.compose.animation.ExperimentalSharedTransitionApi
 import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.AnimatedVisibility

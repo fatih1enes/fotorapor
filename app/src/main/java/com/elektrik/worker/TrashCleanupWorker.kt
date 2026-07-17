@@ -1,11 +1,11 @@
-package com.elektrik.worker
+package com.sarikaya.santiye.gunlugu.worker
 
 import android.content.Context
 import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.elektrik.repository.AppRepository
+import com.sarikaya.santiye.gunlugu.repository.AppRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.Dispatchers

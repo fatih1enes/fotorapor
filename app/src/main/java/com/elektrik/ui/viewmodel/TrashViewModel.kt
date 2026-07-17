@@ -1,11 +1,11 @@
-package com.elektrik.ui.viewmodel
+package com.sarikaya.santiye.gunlugu.ui.viewmodel
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.elektrik.data.PhotoEntity
-import com.elektrik.data.ProjectEntity
-import com.elektrik.repository.AppRepository
+import com.sarikaya.santiye.gunlugu.data.PhotoEntity
+import com.sarikaya.santiye.gunlugu.data.ProjectEntity
+import com.sarikaya.santiye.gunlugu.repository.AppRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch

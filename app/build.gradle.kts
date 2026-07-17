@@ -13,7 +13,7 @@ ksp {
 }
 
 android {
-    namespace = "com.elektrik"
+    namespace = "com.sarikaya.santiye.gunlugu"
     compileSdk = 37
 
     defaultConfig {
@@ -98,6 +98,9 @@ dependencies {
     // Media3 (ExoPlayer)
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.media3.ui)
+
+    // AVIF
+    implementation(libs.avif.coder)
 
     // WorkManager
     implementation(libs.androidx.work.runtime.ktx)

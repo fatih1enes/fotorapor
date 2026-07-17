@@ -1,13 +1,13 @@
-package com.elektrik.util
+package com.sarikaya.santiye.gunlugu.util
 
 import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
-import com.elektrik.data.DailyLogEntity
-import com.elektrik.data.PhotoEntity
-import com.elektrik.data.ProjectEntity
+import com.sarikaya.santiye.gunlugu.data.DailyLogEntity
+import com.sarikaya.santiye.gunlugu.data.PhotoEntity
+import com.sarikaya.santiye.gunlugu.data.ProjectEntity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File

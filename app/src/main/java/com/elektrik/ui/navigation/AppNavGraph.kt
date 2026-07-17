@@ -1,4 +1,4 @@
-package com.elektrik.ui.navigation
+package com.sarikaya.santiye.gunlugu.ui.navigation
 
 import android.Manifest
 import android.content.Intent
@@ -31,20 +31,20 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.elektrik.R
-import com.elektrik.ui.CameraScreen
-import com.elektrik.ui.DashboardScreen
-import com.elektrik.ui.ProjectDetailScreen
-import com.elektrik.ui.SettingsScreen
-import com.elektrik.ui.TrashScreen
+import com.sarikaya.santiye.gunlugu.R
+import com.sarikaya.santiye.gunlugu.ui.CameraScreen
+import com.sarikaya.santiye.gunlugu.ui.DashboardScreen
+import com.sarikaya.santiye.gunlugu.ui.ProjectDetailScreen
+import com.sarikaya.santiye.gunlugu.ui.SettingsScreen
+import com.sarikaya.santiye.gunlugu.ui.TrashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.elektrik.ui.viewmodel.AppViewModel
-import com.elektrik.ui.viewmodel.DashboardViewModel
-import com.elektrik.ui.viewmodel.ProjectDetailViewModel
-import com.elektrik.ui.viewmodel.UiState
+import com.sarikaya.santiye.gunlugu.ui.viewmodel.AppViewModel
+import com.sarikaya.santiye.gunlugu.ui.viewmodel.DashboardViewModel
+import com.sarikaya.santiye.gunlugu.ui.viewmodel.ProjectDetailViewModel
+import com.sarikaya.santiye.gunlugu.ui.viewmodel.UiState
 
 /**
- * Main navigation graph for the Elektrik app.
+ * Main navigation graph for the Şantiye Günlüğü app.
  * Extracted from MainActivity to follow SRP — the Activity only sets up
  * the theme and calls this composable.
  */
@@ -239,7 +239,7 @@ fun AppNavGraph(
 
             val detailViewModel: ProjectDetailViewModel = hiltViewModel()
             val cameraOpt by viewModel.cameraOptimizationEnabled.collectAsStateWithLifecycle()
-            val webpEnabled by viewModel.webpEnabled.collectAsStateWithLifecycle()
+            val avifEnabled by viewModel.avifEnabled.collectAsStateWithLifecycle()
             
             val projectState by detailViewModel.selectedProject.collectAsStateWithLifecycle()
             val projectName = projectState?.name ?: ""
@@ -252,19 +252,18 @@ fun AppNavGraph(
             }
 
             CameraScreen(
-                projectName = projectName,
                 onPhotoCaptured = { uri ->
                     if (logId != -1L) {
-                        viewModel.savePhotoInBackground(uri, cameraProjectId, logId, webpEnabled, projectName)
+                        viewModel.savePhotoInBackground(uri, cameraProjectId, logId, avifEnabled, projectName)
                     } else if (cameraProjectId != -1L) {
-                        viewModel.savePhotoInBackground(uri, cameraProjectId, -1L, webpEnabled, projectName)
+                        viewModel.savePhotoInBackground(uri, cameraProjectId, -1L, avifEnabled, projectName)
                     }
                 },
                 onClose = { navController.popBackStack() },
                 enableOptimization = cameraOpt,
-                enableWebp = webpEnabled,
+                enableAvif = avifEnabled,
                 onToggleOptimization = { viewModel.setCameraOptimization(it) },
-                onToggleWebp = { viewModel.setWebpEnabled(it) }
+                onToggleAvif = { viewModel.setAvifEnabled(it) }
             )
         }
 

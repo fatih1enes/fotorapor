@@ -1,4 +1,4 @@
-package com.elektrik.ui.components
+package com.sarikaya.santiye.gunlugu.ui.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

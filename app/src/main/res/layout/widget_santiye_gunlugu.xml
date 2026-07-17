@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:padding="8dp"
+    android:gravity="center_vertical"
+    android:background="@drawable/widget_bg">
+
+    <!-- SOL: Proje İsmi → Ana Menü -->
+    <LinearLayout
+        android:id="@+id/widget_left_area"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1.5"
+        android:orientation="vertical"
+        android:gravity="center_vertical"
+        android:paddingLeft="12dp"
+        android:paddingRight="8dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="🏗️ Aktif Proje"
+            android:textSize="10sp"
+            android:textColor="#999999" />
+
+        <TextView
+            android:id="@+id/widget_project_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Proje Yok"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:layout_marginTop="2dp" />
+    </LinearLayout>
+
+    <!-- ORTA: Görseller → Proje Detay -->
+    <LinearLayout
+        android:id="@+id/widget_middle_area"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp">
+
+        <ImageView
+            android:layout_width="22dp"
+            android:layout_height="22dp"
+            android:src="@drawable/ic_widget_gallery"
+            android:contentDescription="Görseller" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Görseller"
+            android:textSize="9sp"
+            android:textColor="#AAAAAA"
+            android:layout_marginTop="1dp" />
+    </LinearLayout>
+
+    <!-- SAĞ: Kamera Butonu → Fotoğraf Çek -->
+    <FrameLayout
+        android:id="@+id/widget_camera_btn"
+        android:layout_width="52dp"
+        android:layout_height="match_parent"
+        android:layout_marginRight="4dp">
+
+        <FrameLayout
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_gravity="center"
+            android:background="@drawable/widget_camera_circle">
+
+            <ImageView
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:layout_gravity="center"
+                android:src="@drawable/ic_widget_camera"
+                android:contentDescription="Kamera" />
+        </FrameLayout>
+    </FrameLayout>
+
+</LinearLayout>

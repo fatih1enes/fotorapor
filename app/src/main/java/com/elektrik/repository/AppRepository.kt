@@ -1,8 +1,8 @@
-package com.elektrik.repository
+package com.sarikaya.santiye.gunlugu.repository
 
 import android.content.Context
 import androidx.core.net.toUri
-import com.elektrik.data.*
+import com.sarikaya.santiye.gunlugu.data.*
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -45,11 +45,11 @@ interface AppRepository {
 
 @Singleton
 class AppRepositoryImpl @Inject constructor(
-    @get:ApplicationContext private val appContext: Context,
+    @ApplicationContext private val appContext: Context,
     private val projectDao: ProjectDao,
     private val dailyLogDao: DailyLogDao,
     private val photoDao: PhotoDao,
-    private val mediaProcessor: com.elektrik.util.MediaProcessor,
+    private val mediaProcessor: com.sarikaya.santiye.gunlugu.util.MediaProcessor,
 ) : AppRepository {
 
     private val applicationScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO)
@@ -176,9 +176,9 @@ class AppRepositoryImpl @Inject constructor(
     private suspend fun refreshWidgetData() = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
         val latest = projectDao.getLatestProjectSuspend()
         if (latest != null) {
-            com.elektrik.widget.WidgetDataHelper.saveLatestProject(appContext, latest.id, latest.name)
+            com.sarikaya.santiye.gunlugu.widget.WidgetDataHelper.saveLatestProject(appContext, latest.id, latest.name)
         } else {
-            com.elektrik.widget.WidgetDataHelper.saveLatestProject(appContext, -1L, "Proje Yok")
+            com.sarikaya.santiye.gunlugu.widget.WidgetDataHelper.saveLatestProject(appContext, -1L, "Proje Yok")
         }
     }
 
@@ -223,12 +223,12 @@ class AppRepositoryImpl @Inject constructor(
     override fun processAndSavePhotoInBackground(uri: android.net.Uri, projectId: Long, logId: Long, enableWebp: Boolean, projectName: String) {
         applicationScope.launch {
             try {
-                val finalUri = mediaProcessor.processAndConvertToWebpIfNeeded(uri, enableWebp, projectName)
+                val finalUri = mediaProcessor.processAndOptimize(uri, enableWebp, projectName)
 
                 val targetLogId = if (logId != -1L) {
                     logId
                 } else {
-                    val today = com.elektrik.util.DateUtils.getStartOfDayEpochMillis()
+                    val today = com.sarikaya.santiye.gunlugu.util.DateUtils.getStartOfDayEpochMillis()
                     logCreationMutex.withLock {
                         val log = dailyLogDao.getLogForDate(projectId, today)
                         log?.id ?: dailyLogDao.insertLog(

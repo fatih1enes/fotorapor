@@ -1,4 +1,4 @@
-package com.elektrik.di
+package com.sarikaya.santiye.gunlugu.di
 
 import android.content.Context
 import androidx.datastore.core.DataStore
@@ -6,10 +6,10 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.PreferenceDataStoreFactory
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.room.Room
-import com.elektrik.data.AppDatabase
-import com.elektrik.data.DailyLogDao
-import com.elektrik.data.PhotoDao
-import com.elektrik.data.ProjectDao
+import com.sarikaya.santiye.gunlugu.data.AppDatabase
+import com.sarikaya.santiye.gunlugu.data.DailyLogDao
+import com.sarikaya.santiye.gunlugu.data.PhotoDao
+import com.sarikaya.santiye.gunlugu.data.ProjectDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -27,7 +27,7 @@ object AppModule {
         return Room.databaseBuilder(
             context,
             AppDatabase::class.java,
-            "elektrik_database"
+            "santiye_gunlugu_database"
         )
         .addMigrations(AppDatabase.MIGRATION_1_2, AppDatabase.MIGRATION_2_3, AppDatabase.MIGRATION_3_4, AppDatabase.MIGRATION_4_5)
         .setJournalMode(androidx.room.RoomDatabase.JournalMode.WRITE_AHEAD_LOGGING)
@@ -60,9 +60,9 @@ object AppModule {
         projectDao: ProjectDao,
         dailyLogDao: DailyLogDao,
         photoDao: PhotoDao,
-        mediaProcessor: com.elektrik.util.MediaProcessor
-    ): com.elektrik.repository.AppRepository {
-        return com.elektrik.repository.AppRepositoryImpl(context, projectDao, dailyLogDao, photoDao, mediaProcessor)
+        mediaProcessor: com.sarikaya.santiye.gunlugu.util.MediaProcessor
+    ): com.sarikaya.santiye.gunlugu.repository.AppRepository {
+        return com.sarikaya.santiye.gunlugu.repository.AppRepositoryImpl(context, projectDao, dailyLogDao, photoDao, mediaProcessor)
     }
 
     @Provides

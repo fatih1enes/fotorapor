@@ -1,4 +1,4 @@
-package com.elektrik
+package com.sarikaya.santiye.gunlugu
 
 import android.app.Application
 import android.content.Context
@@ -17,12 +17,12 @@ import androidx.work.Configuration
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import com.elektrik.worker.TrashCleanupWorker
+import com.sarikaya.santiye.gunlugu.worker.TrashCleanupWorker
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 @HiltAndroidApp
-class ElektrikApp : Application(), SingletonImageLoader.Factory, Configuration.Provider {
+class SantiyeGunluguApp : Application(), SingletonImageLoader.Factory, Configuration.Provider {
     
     @Inject
     lateinit var workerFactory: HiltWorkerFactory

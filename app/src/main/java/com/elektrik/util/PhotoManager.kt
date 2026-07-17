@@ -1,4 +1,4 @@
-package com.elektrik.util
+package com.sarikaya.santiye.gunlugu.util
 
 import android.content.ContentValues
 import android.content.Context
@@ -13,14 +13,19 @@ import java.io.FileOutputStream
 import java.util.UUID
 object PhotoManager {
     
-    fun getCaptureOutputOptions(context: Context): ImageCapture.OutputFileOptions {
+    fun getCaptureOutputOptions(context: Context, lensFacing: Int = androidx.camera.core.CameraSelector.LENS_FACING_BACK): ImageCapture.OutputFileOptions {
         val name = "IMG_${System.currentTimeMillis()}.jpg"
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, name)
             put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DCIM + "/Elektrik")
+            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DCIM + "/SantiyeGunlugu")
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                put(MediaStore.MediaColumns.IS_PENDING, 1)
+            }
         }
-        val metadata = ImageCapture.Metadata()
+        val metadata = ImageCapture.Metadata().apply {
+            isReversedHorizontal = lensFacing == androidx.camera.core.CameraSelector.LENS_FACING_FRONT
+        }
         return ImageCapture.OutputFileOptions.Builder(
             context.contentResolver,
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
@@ -33,7 +38,10 @@ object PhotoManager {
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, name)
             put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
-            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DCIM + "/Elektrik")
+            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DCIM + "/SantiyeGunlugu")
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                put(MediaStore.MediaColumns.IS_PENDING, 1)
+            }
         }
         return MediaStoreOutputOptions.Builder(
             context.contentResolver,
@@ -82,7 +90,7 @@ object PhotoManager {
             }
             Uri.fromFile(file)
         } catch (e: Exception) {
-            android.util.Log.e("PhotoManager", "Dosya kopyalama hatasÃƒâ€žÃ‚Â±: $uri", e)
+            android.util.Log.e("PhotoManager", "Dosya kopyalama hatası: $uri", e)
             null
         }
     }

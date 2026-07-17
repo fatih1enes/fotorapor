@@ -1,13 +1,14 @@
-package com.elektrik.ui.viewmodel
+package com.sarikaya.santiye.gunlugu.ui.viewmodel
 
 import android.content.Context
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.elektrik.R
-import com.elektrik.data.ProjectEntity
-import com.elektrik.repository.AppRepository
+import com.sarikaya.santiye.gunlugu.R
+import com.sarikaya.santiye.gunlugu.data.ProjectEntity
+import com.sarikaya.santiye.gunlugu.repository.AppRepository
+import com.sarikaya.santiye.gunlugu.ui.viewmodel.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,7 +21,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
-    @get:ApplicationContext private val appContext: Context,
+    @ApplicationContext private val appContext: Context,
     private val repository: AppRepository,
 ) : ViewModel() {
 

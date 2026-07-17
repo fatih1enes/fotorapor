@@ -1,4 +1,4 @@
-package com.elektrik.ui
+package com.sarikaya.santiye.gunlugu.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -32,11 +32,11 @@ import coil3.request.ImageRequest
 import coil3.request.CachePolicy
 import coil3.request.crossfade
 import coil3.video.VideoFrameDecoder
-import com.elektrik.R
-import com.elektrik.data.DailyLogEntity
-import com.elektrik.data.PhotoEntity
-import com.elektrik.util.DateUtils
-import com.elektrik.util.MediaShareUtils
+import com.sarikaya.santiye.gunlugu.R
+import com.sarikaya.santiye.gunlugu.data.DailyLogEntity
+import com.sarikaya.santiye.gunlugu.data.PhotoEntity
+import com.sarikaya.santiye.gunlugu.util.DateUtils
+import com.sarikaya.santiye.gunlugu.util.MediaShareUtils
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

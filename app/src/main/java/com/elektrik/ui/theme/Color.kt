@@ -1,4 +1,4 @@
-package com.elektrik.ui.theme
+package com.sarikaya.santiye.gunlugu.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

@@ -1,4 +1,4 @@
-package com.elektrik.ui
+package com.sarikaya.santiye.gunlugu.ui
 
 import android.hardware.Sensor
 import android.hardware.SensorEvent
@@ -60,8 +60,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import com.elektrik.R
-import com.elektrik.util.PhotoManager
+import com.sarikaya.santiye.gunlugu.R
+import com.sarikaya.santiye.gunlugu.util.PhotoManager
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
@@ -82,9 +82,9 @@ fun CameraScreen(
     onPhotoCaptured: (Uri) -> Unit,
     onClose: () -> Unit,
     enableOptimization: Boolean = true,
-    enableWebp: Boolean = true,
+    enableAvif: Boolean = true,
     onToggleOptimization: (Boolean) -> Unit = {},
-    onToggleWebp: (Boolean) -> Unit = {},
+    onToggleAvif: (Boolean) -> Unit = {},
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -111,6 +111,7 @@ fun CameraScreen(
     var lastCapturedUri by remember { mutableStateOf<Uri?>(null) }
     var isPaused by remember { mutableStateOf(false) }
     var showSettingsPanel by remember { mutableStateOf(false) }
+    var sessionPhotoCount by remember { mutableIntStateOf(0) }
 
     // Leveler State
     var deviceAngle by remember { mutableFloatStateOf(0f) }
@@ -208,13 +209,30 @@ fun CameraScreen(
     )
 
     val triggerShutter = {
-        if (cameraMode == "PHOTO") {
-            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-            showCaptureFeedback = true
-            scope.launch { delay(100.milliseconds); showCaptureFeedback = false }
-            takePhoto(context, cameraState.imageCapture, cameraState.executor) { uri ->
-                lastCapturedUri = uri
-                onPhotoCaptured(uri)
+        // Bind-guard: prevent capture when camera is not ready
+        if (!cameraState.isBound) {
+            android.widget.Toast.makeText(context, "Kamera hazırlanıyor…", android.widget.Toast.LENGTH_SHORT).show()
+        } else if (cameraMode == "PHOTO") {
+            if (!cameraState.isCapturing) {
+                cameraState.isCapturing = true
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                
+                // Front camera flash overlay logic
+                if (lensFacing == CameraSelector.LENS_FACING_FRONT && flashMode != ImageCapture.FLASH_MODE_OFF) {
+                    // Brighten screen for a split second
+                    showCaptureFeedback = true
+                    scope.launch { delay(250.milliseconds); showCaptureFeedback = false }
+                } else {
+                    showCaptureFeedback = true
+                    scope.launch { delay(100.milliseconds); showCaptureFeedback = false }
+                }
+
+                takePhoto(context, cameraState.imageCapture, cameraState.executor) { uri ->
+                    lastCapturedUri = uri
+                    sessionPhotoCount++
+                    onPhotoCaptured(uri)
+                    cameraState.isCapturing = false
+                }
             }
         } else {
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -375,10 +393,10 @@ fun CameraScreen(
                 
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("WebP Kayıt", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                        Text("Kaliteyi bozmadan boyutu 4 kat küçültür", color = Color.LightGray, fontSize = 10.sp)
+                        Text("AVIF Kayıt (Kayıpsız)", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                        Text("Kaliteyi bozmadan boyutu çok küçültür", color = Color.LightGray, fontSize = 10.sp)
                     }
-                    Switch(checked = enableWebp, onCheckedChange = onToggleWebp, modifier = Modifier.scale(0.8f))
+                    Switch(checked = enableAvif, onCheckedChange = onToggleAvif, modifier = Modifier.scale(0.8f))
                 }
             }
         }
@@ -436,10 +454,17 @@ fun CameraScreen(
 
                         // Gallery
                         if (lastCapturedUri != null) {
-                            AsyncImage(
-                                model = lastCapturedUri, contentDescription = null, contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-                                modifier = Modifier.size(44.dp).clip(CircleShape).border(1.dp, Color.White, CircleShape).clickable { onClose() }
-                            )
+                            Box {
+                                AsyncImage(
+                                    model = lastCapturedUri, contentDescription = null, contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                                    modifier = Modifier.size(44.dp).clip(CircleShape).border(1.dp, Color.White, CircleShape).clickable { onClose() }
+                                )
+                                if (sessionPhotoCount > 0) {
+                                    Box(Modifier.align(Alignment.TopEnd).offset(4.dp, (-4).dp).background(Amber, CircleShape).padding(horizontal = 4.dp)) {
+                                        Text(sessionPhotoCount.toString(), color = Color.Black, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                            }
                         } else Spacer(Modifier.size(44.dp))
                     }
                 }
@@ -682,7 +707,12 @@ private fun takePhoto(
     executor: java.util.concurrent.ExecutorService,
     onPhotoCaptured: (Uri) -> Unit
 ) {
-    val cap = imageCapture ?: return
+    val cap = imageCapture
+    if (cap == null) {
+        Log.w("CameraScreen", "takePhoto called but imageCapture is null")
+        android.widget.Toast.makeText(context, "Kamera henüz hazır değil, lütfen tekrar deneyin.", android.widget.Toast.LENGTH_SHORT).show()
+        return
+    }
     val opts = PhotoManager.getCaptureOutputOptions(context)
     val mainExec = ContextCompat.getMainExecutor(context)
     cap.takePicture(opts, executor, object : ImageCapture.OnImageSavedCallback {

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Elektrik</string>
+    <string name="app_name">Şantiye Günlüğü</string>
     <string name="widget_description">Aktif projeyi görüntüle ve hızlıca fotoğraf çek</string>
 
     <!-- Dashboard -->
