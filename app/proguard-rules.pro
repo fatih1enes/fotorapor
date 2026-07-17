@@ -118,3 +118,8 @@
     java.lang.Object writeReplace();
     java.lang.Object readResolve();
 }
+
+# ===========================
+# AVIF Coder
+# ===========================
+-keep class com.radzivon.bartoshyk.avif.** { *; }

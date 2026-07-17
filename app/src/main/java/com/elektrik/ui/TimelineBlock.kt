@@ -115,6 +115,8 @@ fun TimelineBlock(
                                                     .memoryCachePolicy(CachePolicy.ENABLED)
                                                     .build(),
                                                 contentDescription = null,
+                                                placeholder = androidx.compose.ui.graphics.painter.ColorPainter(Color.LightGray),
+                                                error = androidx.compose.ui.graphics.painter.ColorPainter(Color.DarkGray),
                                                 modifier = Modifier
                                                     .fillMaxSize()
                                                     .then(

@@ -25,9 +25,9 @@ class TrashViewModel @Inject constructor(
         }
     }
 
-    fun hardDeleteProject(context: Context, projectId: Long) {
+    fun hardDeleteProject(projectId: Long) {
         viewModelScope.launch {
-            repository.hardDeleteProject(context, projectId)
+            repository.hardDeleteProject(projectId)
         }
     }
 
@@ -37,9 +37,9 @@ class TrashViewModel @Inject constructor(
         }
     }
 
-    fun hardDeletePhoto(context: Context, photo: PhotoEntity) {
+    fun hardDeletePhoto(photo: PhotoEntity) {
         viewModelScope.launch {
-            repository.hardDeletePhoto(context, photo)
+            repository.hardDeletePhoto(photo)
         }
     }
 }

@@ -144,6 +144,16 @@
     <string name="settings_camera_optimization">Donanım Optimizasyonu (HDR/Gece)</string>
     <string name="settings_camera_optimization_desc">Telefon üreticisinin özel kamera yazılımını kullanarak kaliteyi artırır.</string>
 
+    <!-- Trash -->
+    <string name="trash_title">Çöp Kutusu (Son 30 Gün)</string>
+    <string name="trash_empty">Çöp kutusu boş</string>
+    <string name="trash_deleted_projects">Silinen Projeler</string>
+    <string name="trash_deleted_photos">Silinen Fotoğraflar</string>
+    <string name="unknown_date">Bilinmiyor</string>
+    <string name="trash_deleted_at">Silinme: %s</string>
+    <string name="restore_btn">Geri Yükle</string>
+    <string name="hard_delete_btn">Kalıcı Olarak Sil</string>
+    <string name="photo_label">Fotoğraf</string>
 
     <!-- Camera (hardcoded fixes) -->
     <string name="camera_error_prefix">Kamera Hatası:</string>

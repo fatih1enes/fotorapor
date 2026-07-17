@@ -189,6 +189,7 @@ fun AppNavGraph(
             ProjectDetailScreen(
                 project = project,
                 logs = currentLogs,
+                viewModel = detailViewModel,
                 onBack = { navController.popBackStack() },
                 onDeleteProject = {
                     project?.let { detailViewModel.deleteProject(it.id) }

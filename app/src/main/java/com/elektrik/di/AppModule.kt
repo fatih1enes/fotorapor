@@ -10,6 +10,7 @@ import com.sarikaya.santiye.gunlugu.data.AppDatabase
 import com.sarikaya.santiye.gunlugu.data.DailyLogDao
 import com.sarikaya.santiye.gunlugu.data.PhotoDao
 import com.sarikaya.santiye.gunlugu.data.ProjectDao
+import com.sarikaya.santiye.gunlugu.manager.*
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -60,9 +61,10 @@ object AppModule {
         projectDao: ProjectDao,
         dailyLogDao: DailyLogDao,
         photoDao: PhotoDao,
-        mediaProcessor: com.sarikaya.santiye.gunlugu.util.MediaProcessor
+        mediaProcessor: com.sarikaya.santiye.gunlugu.util.MediaProcessor,
+        fileManager: FileManager
     ): com.sarikaya.santiye.gunlugu.repository.AppRepository {
-        return com.sarikaya.santiye.gunlugu.repository.AppRepositoryImpl(context, projectDao, dailyLogDao, photoDao, mediaProcessor)
+        return com.sarikaya.santiye.gunlugu.repository.AppRepositoryImpl(context, projectDao, dailyLogDao, photoDao, mediaProcessor, fileManager)
     }
 
     @Provides
@@ -71,5 +73,23 @@ object AppModule {
         return PreferenceDataStoreFactory.create(
             produceFile = { context.preferencesDataStoreFile("settings") }
         )
+    }
+
+    @Provides
+    @Singleton
+    fun provideFileManager(localFileManager: LocalFileManager): FileManager {
+        return localFileManager
+    }
+
+    @Provides
+    @Singleton
+    fun providePdfExportManager(pdfBoxExportManager: PdfBoxExportManager): PdfExportManager {
+        return pdfBoxExportManager
+    }
+
+    @Provides
+    @Singleton
+    fun provideBackupManager(localBackupManager: LocalBackupManager): BackupManager {
+        return localBackupManager
     }
 }

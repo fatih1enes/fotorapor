@@ -19,8 +19,8 @@ interface AppRepository {
     fun getDeletedPhotos(): Flow<List<PhotoEntity>>
     suspend fun restoreProjectById(projectId: Long)
     suspend fun restorePhoto(id: Long)
-    suspend fun hardDeleteProject(context: Context, projectId: Long)
-    suspend fun hardDeletePhoto(context: Context, photo: PhotoEntity)
+    suspend fun hardDeleteProject(projectId: Long)
+    suspend fun hardDeletePhoto(photo: PhotoEntity)
     suspend fun emptyTrash()
     suspend fun cleanOldTrash(threshold: Long)
     fun getLogsForProject(projectId: Long): Flow<List<DailyLogEntity>>
@@ -50,6 +50,7 @@ class AppRepositoryImpl @Inject constructor(
     private val dailyLogDao: DailyLogDao,
     private val photoDao: PhotoDao,
     private val mediaProcessor: com.sarikaya.santiye.gunlugu.util.MediaProcessor,
+    private val fileManager: com.sarikaya.santiye.gunlugu.manager.FileManager
 ) : AppRepository {
 
     private val applicationScope = kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.IO)
@@ -77,19 +78,19 @@ class AppRepositoryImpl @Inject constructor(
     }
     override suspend fun restorePhoto(id: Long) = photoDao.restorePhoto(id)
 
-    override suspend fun hardDeleteProject(context: Context, projectId: Long) = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+    override suspend fun hardDeleteProject(projectId: Long) = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
         val logsWithPhotos = dailyLogDao.getLogsWithPhotosForProjectSuspend(projectId)
         val allPhotos = logsWithPhotos.flatMap { it.photos }
         for (photo in allPhotos) {
-            deletePhysicalFile(context, photo.filePath)
+            fileManager.deletePhysicalFile(photo.filePath)
             photoDao.hardDeletePhotoById(photo.id) // Hard delete photo from DB
         }
         projectDao.hardDeleteProjectById(projectId)
         refreshWidgetData()
     }
 
-    override suspend fun hardDeletePhoto(context: Context, photo: PhotoEntity) = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
-        deletePhysicalFile(context, photo.filePath)
+    override suspend fun hardDeletePhoto(photo: PhotoEntity) = kotlinx.coroutines.withContext(kotlinx.coroutines.Dispatchers.IO) {
+        fileManager.deletePhysicalFile(photo.filePath)
         photoDao.hardDeletePhotoById(photo.id)
     }
 
@@ -102,7 +103,7 @@ class AppRepositoryImpl @Inject constructor(
             val logsWithPhotos = dailyLogDao.getLogsWithPhotosForProjectSuspend(project.id)
             val allPhotos = logsWithPhotos.flatMap { it.photos }
             for (photo in allPhotos) {
-                deletePhysicalFile(appContext, photo.filePath)
+                fileManager.deletePhysicalFile(photo.filePath)
             }
             // 3. projectDao.hardDeleteProjectById() ile DB'den sil
             projectDao.hardDeleteProjectById(project.id)
@@ -111,7 +112,7 @@ class AppRepositoryImpl @Inject constructor(
         // 4. Ardından logla ilişkili olmayan orphan isDeleted fotoğrafları bul ve temizle
         val deletedPhotos = photoDao.getDeletedPhotos().first()
         for (photo in deletedPhotos) {
-            deletePhysicalFile(appContext, photo.filePath)
+            fileManager.deletePhysicalFile(photo.filePath)
             photoDao.hardDeletePhotoById(photo.id)
         }
 
@@ -126,7 +127,7 @@ class AppRepositoryImpl @Inject constructor(
                 val logsWithPhotos = dailyLogDao.getLogsWithPhotosForProjectSuspend(project.id)
                 val allPhotos = logsWithPhotos.flatMap { it.photos }
                 for (photo in allPhotos) {
-                    deletePhysicalFile(appContext, photo.filePath)
+                    fileManager.deletePhysicalFile(photo.filePath)
                 }
                 projectDao.hardDeleteProjectById(project.id)
             }
@@ -135,7 +136,7 @@ class AppRepositoryImpl @Inject constructor(
         val deletedPhotos = photoDao.getDeletedPhotos().first()
         for (photo in deletedPhotos) {
             if (photo.deletedAt != null && photo.deletedAt < threshold) {
-                deletePhysicalFile(appContext, photo.filePath)
+                fileManager.deletePhysicalFile(photo.filePath)
                 photoDao.hardDeletePhotoById(photo.id)
             }
         }
@@ -202,21 +203,7 @@ class AppRepositoryImpl @Inject constructor(
         }
     }
 
-    private fun deletePhysicalFile(context: Context, filePath: String): Boolean {
-        return try {
-            val uri = filePath.toUri()
-            if (uri.scheme == "content") {
-                context.contentResolver.delete(uri, null, null) > 0
-            } else {
-                val path = uri.path ?: filePath
-                val file = java.io.File(path)
-                if (file.exists()) file.delete() else true
-            }
-        } catch (_: Exception) {
-            android.util.Log.e("AppRepository", "Physical file deletion failed: $filePath")
-            false
-        }
-    }
+
 
     private val logCreationMutex = kotlinx.coroutines.sync.Mutex()
 

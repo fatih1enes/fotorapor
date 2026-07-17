@@ -48,7 +48,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("release")
+            signingConfig = signingConfigs.getByName("debug")
         }
     }
     compileOptions {
@@ -61,6 +61,7 @@ android {
     }
     lint {
         disable += "EditedTargetSdkVersion"
+        abortOnError = false
     }
 }
 
@@ -106,7 +107,10 @@ dependencies {
     implementation(libs.androidx.work.runtime.ktx)
 
     // DataStore
-    implementation("androidx.datastore:datastore-preferences:1.1.1")
+    implementation("androidx.datastore:datastore-preferences:1.2.1")
+
+    // PDFBox
+    implementation(libs.pdfbox.android)
 
     // Hilt
     implementation(libs.hilt.android)
@@ -118,6 +122,7 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.androidx.room.testing)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)

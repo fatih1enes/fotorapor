@@ -110,6 +110,8 @@ class CameraStateHolder(
     private val lifecycleOwner: LifecycleOwner,
     val executor: ExecutorService
 ) {
+    private var cameraProvider: ProcessCameraProvider? = null
+
     var camera by mutableStateOf<Camera?>(null)
         private set
 
@@ -146,7 +148,7 @@ class CameraStateHolder(
 
     // ── Main entry point ──────────────────────────────────────────
 
-    @OptIn(ExperimentalCamera2Interop::class)
+    @androidx.annotation.OptIn(ExperimentalCamera2Interop::class)
     suspend fun bindCamera(
         previewView: PreviewView,
         lensFacing: Int,
@@ -199,7 +201,7 @@ class CameraStateHolder(
 
     // ── Level 1: Optimum — all supported features enabled ─────────
 
-    @OptIn(ExperimentalCamera2Interop::class)
+    @androidx.annotation.OptIn(ExperimentalCamera2Interop::class)
     private fun tryBindLevel1(
         provider: ProcessCameraProvider,
         extensions: ExtensionsManager,
@@ -396,7 +398,7 @@ class CameraStateHolder(
 
     // ── Helpers ────────────────────────────────────────────────────
 
-    @OptIn(ExperimentalCamera2Interop::class)
+    @androidx.annotation.OptIn(ExperimentalCamera2Interop::class)
     private fun applyCamera2Optimizations(builder: ImageCapture.Builder, caps: CameraCapabilities) {
         try {
             val extender = Camera2Interop.Extender(builder)
@@ -445,14 +447,24 @@ class CameraStateHolder(
         }
     }
 
+    @Suppress("BlockingMethodInNonBlockingContext")
     private suspend fun awaitCameraProvider(): ProcessCameraProvider =
         suspendCancellableCoroutine { cont ->
+            cameraProvider?.let { 
+                cont.resume(it)
+                return@suspendCancellableCoroutine 
+            }
             val future = ProcessCameraProvider.getInstance(context)
             future.addListener({
-                if (cont.isActive) cont.resume(future.get())
+                if (cont.isActive) {
+                    val provider = future.get()
+                    cameraProvider = provider
+                    cont.resume(provider)
+                }
             }, ContextCompat.getMainExecutor(context))
         }
 
+    @Suppress("BlockingMethodInNonBlockingContext")
     private suspend fun awaitExtensionsManager(provider: ProcessCameraProvider): ExtensionsManager =
         suspendCancellableCoroutine { cont ->
             val future = ExtensionsManager.getInstanceAsync(context, provider)
@@ -495,11 +507,10 @@ class CameraStateHolder(
 
     fun unbindAll() {
         isBound = false
-        val future = ProcessCameraProvider.getInstance(context)
-        future.addListener({
-            try { future.get().unbindAll() }
-            catch (e: Exception) { Log.e(TAG, "Unbind failed", e) }
-        }, ContextCompat.getMainExecutor(context))
+        cameraProvider?.unbindAll()
+        camera = null
+        imageCapture = null
+        videoCapture = null
     }
 }
 

@@ -45,7 +45,8 @@ fun FullScreenPhotoDialog(
     onDelete: (PhotoEntity) -> Unit,
     onUpdateRotation: (Long, Float) -> Unit
 ) {
-    val pagerState = rememberPagerState(initialPage = initialIndex, pageCount = { photoList.size })
+    val currentPhotoList by rememberUpdatedState(photoList)
+    val pagerState = rememberPagerState(initialPage = initialIndex, pageCount = { currentPhotoList.size })
     var showDeleteConfirm by remember { mutableStateOf(false) }
     
     var isVisible by remember { mutableStateOf(false) }
@@ -112,40 +113,50 @@ fun FullScreenPhotoDialog(
                     val isVideo = photo.filePath.endsWith(".mp4", ignoreCase = true)
                     if (isVideo) {
                         val isPageActive = pagerState.currentPage == page
-                        if (isPageActive) {
-                            val context = LocalContext.current
-                            val exoPlayer = remember {
-                                androidx.media3.exoplayer.ExoPlayer.Builder(context).build().apply {
-                                    setMediaItem(androidx.media3.common.MediaItem.fromUri(photo.filePath.toUri()))
-                                    repeatMode = androidx.media3.common.Player.REPEAT_MODE_ALL
-                                    prepare()
-                                    playWhenReady = true
-                                }
+                        val context = LocalContext.current
+                        val exoPlayer = remember {
+                            androidx.media3.exoplayer.ExoPlayer.Builder(context).build().apply {
+                                setMediaItem(androidx.media3.common.MediaItem.fromUri(photo.filePath.toUri()))
+                                repeatMode = androidx.media3.common.Player.REPEAT_MODE_ALL
+                                prepare()
+                                playWhenReady = false
                             }
+                        }
 
-                            val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
-                            DisposableEffect(exoPlayer, lifecycleOwner) {
-                                val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
-                                    when (event) {
-                                        androidx.lifecycle.Lifecycle.Event.ON_PAUSE -> {
-                                            exoPlayer.pause()
-                                        }
-                                        androidx.lifecycle.Lifecycle.Event.ON_RESUME -> {
+                        val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+                        DisposableEffect(exoPlayer, lifecycleOwner) {
+                            val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+                                when (event) {
+                                    androidx.lifecycle.Lifecycle.Event.ON_PAUSE -> {
+                                        exoPlayer.pause()
+                                    }
+                                    androidx.lifecycle.Lifecycle.Event.ON_RESUME -> {
+                                        if (pagerState.currentPage == page) {
                                             exoPlayer.play()
                                         }
-                                        androidx.lifecycle.Lifecycle.Event.ON_DESTROY -> {
-                                            exoPlayer.release()
-                                        }
-                                        else -> {}
                                     }
-                                }
-                                lifecycleOwner.lifecycle.addObserver(observer)
-                                onDispose {
-                                    lifecycleOwner.lifecycle.removeObserver(observer)
-                                    exoPlayer.release()
+                                    androidx.lifecycle.Lifecycle.Event.ON_DESTROY -> {
+                                        exoPlayer.release()
+                                    }
+                                    else -> {}
                                 }
                             }
+                            lifecycleOwner.lifecycle.addObserver(observer)
+                            onDispose {
+                                lifecycleOwner.lifecycle.removeObserver(observer)
+                                exoPlayer.release()
+                            }
+                        }
 
+                        LaunchedEffect(isPageActive) {
+                            if (isPageActive) {
+                                exoPlayer.play()
+                            } else {
+                                exoPlayer.pause()
+                            }
+                        }
+
+                        if (isPageActive) {
                             AndroidView(
                                 factory = { ctx ->
                                     androidx.media3.ui.PlayerView(ctx).apply {
@@ -221,6 +232,8 @@ fun FullScreenPhotoDialog(
                                     .diskCachePolicy(CachePolicy.ENABLED)
                                     .build(),
                                 contentDescription = null,
+                                placeholder = androidx.compose.ui.graphics.painter.ColorPainter(Color.LightGray),
+                                error = androidx.compose.ui.graphics.painter.ColorPainter(Color.DarkGray),
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .then(

@@ -10,7 +10,8 @@ import androidx.work.workDataOf
 import com.sarikaya.santiye.gunlugu.R
 import com.sarikaya.santiye.gunlugu.repository.AppRepository
 import com.sarikaya.santiye.gunlugu.util.HtmlExporter
-import com.sarikaya.santiye.gunlugu.util.PdfExporter
+import com.sarikaya.santiye.gunlugu.manager.PdfExportManager
+import com.sarikaya.santiye.gunlugu.util.result.OperationResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import android.content.pm.ServiceInfo
@@ -25,7 +26,8 @@ import androidx.hilt.work.HiltWorker
 class ExportWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted params: WorkerParameters,
-    private val repository: AppRepository
+    private val repository: AppRepository,
+    private val pdfExportManager: PdfExportManager
 ) : CoroutineWorker(context, params) {
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
@@ -79,7 +81,8 @@ class ExportWorker @AssistedInject constructor(
             
             val uri = when (format) {
                 "PDF" -> {
-                    PdfExporter.exportToPdf(context, project, logsWithPhotos, quality)
+                    val result = pdfExportManager.exportToPdf(project, logsWithPhotos, quality)
+                    if (result is OperationResult.Success) result.data else null
                 }
                 "ZIP" -> {
                     val allPhotos = logsWithPhotos.flatMap { it.photos }

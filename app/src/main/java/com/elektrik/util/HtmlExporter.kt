@@ -285,7 +285,7 @@ object HtmlExporter {
                 """.trimIndent())
 
                 if (log.note.trim().isNotEmpty()) {
-                    builder.append("<div class=\"note-content\">${log.note}</div>")
+                    builder.append("<div class=\"note-content\">${android.text.TextUtils.htmlEncode(log.note)}</div>")
                 }
 
                 if (dayPhotos.isNotEmpty()) {

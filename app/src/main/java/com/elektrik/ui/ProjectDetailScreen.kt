@@ -61,7 +61,8 @@ fun ProjectDetailScreen(
     onUpdateRotation: (Long, Float) -> Unit,
     onAddLogForDate: (Long) -> Unit,
     onImportPhotoToLog: (Long, String) -> Unit,
-    onExportProject: (String, Int) -> Unit
+    onExportProject: (String, Int) -> Unit,
+    viewModel: com.sarikaya.santiye.gunlugu.ui.viewmodel.ProjectDetailViewModel
 ) {
     if (project == null) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -293,6 +294,7 @@ fun ProjectDetailScreen(
         ExportDialog(
             project = project,
             logs = logs,
+            viewModel = viewModel,
             onDismiss = { showExportDialog = false },
             onExportPdf = { quality ->
                 showExportDialog = false

@@ -18,6 +18,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.sarikaya.santiye.gunlugu.worker.TrashCleanupWorker
+import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -34,6 +35,9 @@ class SantiyeGunluguApp : Application(), SingletonImageLoader.Factory, Configura
 
     override fun onCreate() {
         super.onCreate()
+        
+        // Initialize PDFBox-Android
+        PDFBoxResourceLoader.init(this)
         
         val cleanupRequest = PeriodicWorkRequestBuilder<TrashCleanupWorker>(24, TimeUnit.HOURS)
             .build()

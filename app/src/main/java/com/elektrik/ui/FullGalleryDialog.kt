@@ -160,6 +160,8 @@ fun FullGalleryDialog(
                                     .memoryCachePolicy(CachePolicy.ENABLED)
                                     .build(),
                                 contentDescription = null,
+                                placeholder = androidx.compose.ui.graphics.painter.ColorPainter(Color.LightGray),
+                                error = androidx.compose.ui.graphics.painter.ColorPainter(Color.DarkGray),
                                 modifier = Modifier.fillMaxSize(),
                                 contentScale = ContentScale.Crop
                             )

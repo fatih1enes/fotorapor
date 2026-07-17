@@ -14,12 +14,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
+import com.sarikaya.santiye.gunlugu.R
 import com.sarikaya.santiye.gunlugu.data.PhotoEntity
 import com.sarikaya.santiye.gunlugu.data.ProjectEntity
 import com.sarikaya.santiye.gunlugu.ui.viewmodel.TrashViewModel
@@ -33,7 +34,6 @@ fun TrashScreen(
     onBack: () -> Unit,
     viewModel: TrashViewModel = hiltViewModel()
 ) {
-    val context = LocalContext.current
     val deletedProjects by viewModel.deletedProjects.collectAsState(initial = emptyList())
     val deletedPhotos by viewModel.deletedPhotos.collectAsState(initial = emptyList())
     val scope = rememberCoroutineScope()
@@ -41,10 +41,10 @@ fun TrashScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Çöp Kutusu (Son 30 Gün)") },
+                title = { Text(stringResource(R.string.trash_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, "Geri")
+                        Icon(Icons.Default.ArrowBack, stringResource(R.string.back_label))
                     }
                 }
             )
@@ -52,7 +52,7 @@ fun TrashScreen(
     ) { padding ->
         if (deletedProjects.isEmpty() && deletedPhotos.isEmpty()) {
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                Text("Çöp kutusu boş", fontSize = 18.sp, color = Color.Gray)
+                Text(stringResource(R.string.trash_empty), fontSize = 18.sp, color = Color.Gray)
             }
         } else {
             LazyColumn(
@@ -63,13 +63,13 @@ fun TrashScreen(
             ) {
                 if (deletedProjects.isNotEmpty()) {
                     item {
-                        Text("Silinen Projeler", fontWeight = FontWeight.Bold, fontSize = 18.sp, modifier = Modifier.padding(bottom = 8.dp))
+                        Text(stringResource(R.string.trash_deleted_projects), fontWeight = FontWeight.Bold, fontSize = 18.sp, modifier = Modifier.padding(bottom = 8.dp))
                     }
-                    items(deletedProjects) { project ->
+                    items(deletedProjects, key = { it.id }) { project ->
                         TrashProjectItem(
                             project = project,
                             onRestore = { scope.launch { viewModel.restoreProject(project.id) } },
-                            onDelete = { scope.launch { viewModel.hardDeleteProject(context, project.id) } }
+                            onDelete = { scope.launch { viewModel.hardDeleteProject(project.id) } }
                         )
                         Spacer(Modifier.height(8.dp))
                     }
@@ -78,13 +78,13 @@ fun TrashScreen(
 
                 if (deletedPhotos.isNotEmpty()) {
                     item {
-                        Text("Silinen Fotoğraflar", fontWeight = FontWeight.Bold, fontSize = 18.sp, modifier = Modifier.padding(bottom = 8.dp))
+                        Text(stringResource(R.string.trash_deleted_photos), fontWeight = FontWeight.Bold, fontSize = 18.sp, modifier = Modifier.padding(bottom = 8.dp))
                     }
-                    items(deletedPhotos) { photo ->
+                    items(deletedPhotos, key = { it.id }) { photo ->
                         TrashPhotoItem(
                             photo = photo,
                             onRestore = { scope.launch { viewModel.restorePhoto(photo.id) } },
-                            onDelete = { scope.launch { viewModel.hardDeletePhoto(context, photo) } }
+                            onDelete = { scope.launch { viewModel.hardDeletePhoto(photo) } }
                         )
                         Spacer(Modifier.height(8.dp))
                     }
@@ -97,7 +97,7 @@ fun TrashScreen(
 @Composable
 fun TrashProjectItem(project: ProjectEntity, onRestore: () -> Unit, onDelete: () -> Unit) {
     val sdf = SimpleDateFormat("dd MMM, HH:mm", Locale("tr"))
-    val dateStr = project.deletedAt?.let { sdf.format(Date(it)) } ?: "Bilinmiyor"
+    val dateStr = project.deletedAt?.let { sdf.format(Date(it)) } ?: stringResource(R.string.unknown_date)
     
     Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
         Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -105,13 +105,13 @@ fun TrashProjectItem(project: ProjectEntity, onRestore: () -> Unit, onDelete: ()
             Spacer(Modifier.width(16.dp))
             Column(Modifier.weight(1f)) {
                 Text(project.name, fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Text("Silinme: $dateStr", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.trash_deleted_at, dateStr), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             IconButton(onClick = onRestore) {
-                Icon(Icons.Default.Restore, "Geri Yükle", tint = MaterialTheme.colorScheme.primary)
+                Icon(Icons.Default.Restore, stringResource(R.string.restore_btn), tint = MaterialTheme.colorScheme.primary)
             }
             IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, "Kalıcı Olarak Sil", tint = MaterialTheme.colorScheme.error)
+                Icon(Icons.Default.Delete, stringResource(R.string.hard_delete_btn), tint = MaterialTheme.colorScheme.error)
             }
         }
     }
@@ -120,7 +120,7 @@ fun TrashProjectItem(project: ProjectEntity, onRestore: () -> Unit, onDelete: ()
 @Composable
 fun TrashPhotoItem(photo: PhotoEntity, onRestore: () -> Unit, onDelete: () -> Unit) {
     val sdf = SimpleDateFormat("dd MMM, HH:mm", Locale("tr"))
-    val dateStr = photo.deletedAt?.let { sdf.format(Date(it)) } ?: "Bilinmiyor"
+    val dateStr = photo.deletedAt?.let { sdf.format(Date(it)) } ?: stringResource(R.string.unknown_date)
     
     Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
         Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -132,14 +132,14 @@ fun TrashPhotoItem(photo: PhotoEntity, onRestore: () -> Unit, onDelete: () -> Un
             )
             Spacer(Modifier.width(16.dp))
             Column(Modifier.weight(1f)) {
-                Text("Fotoğraf", fontWeight = FontWeight.Bold, fontSize = 16.sp)
-                Text("Silinme: $dateStr", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.photo_label), fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                Text(stringResource(R.string.trash_deleted_at, dateStr), fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             IconButton(onClick = onRestore) {
-                Icon(Icons.Default.Restore, "Geri Yükle", tint = MaterialTheme.colorScheme.primary)
+                Icon(Icons.Default.Restore, stringResource(R.string.restore_btn), tint = MaterialTheme.colorScheme.primary)
             }
             IconButton(onClick = onDelete) {
-                Icon(Icons.Default.Delete, "Kalıcı Olarak Sil", tint = MaterialTheme.colorScheme.error)
+                Icon(Icons.Default.Delete, stringResource(R.string.hard_delete_btn), tint = MaterialTheme.colorScheme.error)
             }
         }
     }

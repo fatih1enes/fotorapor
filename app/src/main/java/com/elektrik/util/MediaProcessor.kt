@@ -99,7 +99,7 @@ class MediaProcessor @Inject constructor(
                     // Delete original ONLY if optimization was successful
                     appContext.contentResolver.delete(originalUri, null, null)
                     return@withContext optimizedUri
-                } catch (e: Exception) {
+                } catch (e: Throwable) {
                     // If encoding fails, delete the empty optimized file and keep original
                     appContext.contentResolver.delete(optimizedUri, null, null)
                     android.util.Log.e("MediaProcessor", "AVIF encoding failed", e)
