@@ -22,6 +22,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "SantiyeGunlugu"
+rootProject.name = "PhotoReport"
 include(":app")
 include(":baselineprofile")

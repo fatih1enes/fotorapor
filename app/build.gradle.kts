@@ -14,15 +14,16 @@ ksp {
 }
 
 android {
-    namespace = "com.sarikaya.santiye.gunlugu"
+    namespace = "com.fatihenes.photoreport"
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.sarikaya.santiye.gunlugu"
-        minSdk = 26
+        applicationId = "com.fatihenes.photoreport"
+        minSdk = 30
         targetSdk = 37
-        versionCode = 2
-        versionName = "1.1"
+        versionCode = 3
+        versionName = "2.0.0"
+        resourceConfigurations.add("tr")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -111,6 +112,9 @@ dependencies {
 
     // DataStore
     implementation(libs.androidx.datastore.preferences)
+
+    // Location (GPS Watermark)
+    implementation(libs.play.services.location)
 
     // Hilt
     implementation(libs.hilt.android)

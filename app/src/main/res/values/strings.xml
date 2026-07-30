@@ -56,7 +56,6 @@
     <string name="camera_mode_video">VİDEO</string>
     <string name="grid_label">Izgara</string>
     <string name="flash_label">Flaş</string>
-    <string name="flip_camera_label">Kamerayı Döndür</string>
 
     <!-- Sharing -->
     <string name="share_media">Medya Paylaş</string>
@@ -147,10 +146,6 @@
     <string name="settings_company_logo_desc">PDF raporlarının sağ üst köşesinde görünecek resmi seçin.</string>
     <string name="settings_remove_logo">Logoyu Kaldır</string>
 
-    <string name="settings_camera">Kamera Donanımı</string>
-    <string name="settings_camera_optimization">Donanım Optimizasyonu (HDR/Gece)</string>
-    <string name="settings_camera_optimization_desc">Telefon üreticisinin özel kamera yazılımını kullanarak kaliteyi artırır.</string>
-
     <!-- Trash -->
     <string name="trash_title">Çöp Kutusu (Son 30 Gün)</string>
     <string name="trash_empty">Çöp kutusu boş</string>
@@ -173,6 +168,11 @@
     <string name="camera_avif_desc">Kaliteyi bozmadan boyutu çok küçültür</string>
     <string name="camera_not_ready">Kamera henüz hazır değil, lütfen tekrar deneyin.</string>
     <string name="camera_save_failed">Fotoğraf kaydedilemedi: %s</string>
+
+    <string name="settings_gps_watermark">Konum Filigranı</string>
+    <string name="settings_gps_watermark_title">GPS ve Tarih Bilgisi</string>
+    <string name="settings_gps_watermark_desc">Çekilen fotoğrafların sol alt köşesine proje adı, tarih, koordinat ve adres bilgisini yazar.</string>
+    <string name="location_permission_required">GPS filigranı için konum izni gereklidir.</string>
 
     <!-- Privacy Policy (Placeholder) -->
 </resources>

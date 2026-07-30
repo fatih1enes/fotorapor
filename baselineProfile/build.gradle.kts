@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.sarikaya.santiye.gunlugu.baselineprofile"
+    namespace = "com.fatihenes.photoreport.baselineprofile"
     compileSdk = 37
 
     compileOptions {
@@ -13,7 +13,7 @@ android {
     }
 
     defaultConfig {
-        minSdk = 28
+        minSdk = 30
         targetSdk = 37
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"

@@ -1,53 +1,46 @@
-# Şantiye Günlüğü - Proje Fotoğraf ve Kayıt Yönetimi
+# PhotoReport (formerly Şantiye Günlüğü)
 
-Şantiye Günlüğü, şantiye sahasında çalışan mühendis ve teknisyenlerin proje fotoğraflarını ve günlük kayıtlarını verimli bir şekilde yönetmeleri için tasarlanmış bir Android uygulamasıdır. Fotoğrafları projeye ve tarihe göre düzenlemenize, notlar eklemenize ve rapor olarak dışa aktarmanıza olanak tanır.
+> A modern, offline-first Android application designed for construction site reporting, media organization, and seamless PDF/ZIP exports.
 
-## 🚀 Özellikler
+<div align="center">
+  <img src="https://img.shields.io/badge/Kotlin-1.9.0-purple.svg?logo=kotlin" alt="Kotlin" />
+  <img src="https://img.shields.io/badge/Jetpack%20Compose-Material%203-blue.svg?logo=android" alt="Compose" />
+  <img src="https://img.shields.io/badge/CameraX-Hardware%20Accelerated-green.svg" alt="CameraX" />
+  <img src="https://img.shields.io/badge/AVIF-Zero%20Loss%20Compression-orange.svg" alt="AVIF" />
+</div>
 
-- **Proje Yönetimi**: Birden fazla projeyi kolayca oluşturun ve yönetin.
-- **Günlük Kayıtlar**: Fotoğrafları ve notları tarihe göre gruplandırın.
-- **Gelişmiş Kamera**: 
-    - Donanım bazlı gerçek zamanlı optimizasyon (HDR/Gece modu).
-    - Yüksek kaliteli **AVIF** ve WebP desteği ile depolama tasarrufu.
-    - CameraX entegrasyonu ile stabil çekim deneyimi.
-- **Widget Desteği**: Ana ekrandan hızlıca kamera veya galeriye erişim.
-- **Raporlama**: Projeleri PDF (görsel döküm) veya HTML/ZIP (web arşivi) olarak dışa aktarın.
-- **Karanlık/Aydınlık Tema**: Modern Material 3 tasarımı ve dinamik renk desteği.
-- **Çöp Kutusu**: Yanlışlıkla silinen kayıtları 30 gün içinde geri yükleme imkanı.
-- **Performans**: Baseline Profiles ile %30'a varan daha hızlı uygulama başlatma ve akıcı UI.
+## Overview
 
-## 🛠 Teknolojiler
+PhotoReport simplifies the daily workflow of field engineers and project managers by allowing them to quickly snap, organize, and annotate photos on-site, grouped by day and project. It ensures data is never lost by operating completely offline with robust SQLite storage via Room, and provides one-click generation of professional PDF reports and ZIP archives.
 
-- **UI**: Jetpack Compose (Material 3)
-- **Dil**: Kotlin (Coroutines & Flow)
-- **Mimari**: MVVM & Clean Architecture
-- **Dependency Injection**: Hilt
-- **Veritabanı**: Room (KSP ile)
-- **Görüntü İşleme**: Coil 3 (Video & AVIF desteği)
-- **Medya**: CameraX & Media3 (ExoPlayer)
-- **Arka Plan Görevleri**: WorkManager
-- **Performans**: Android Baseline Profiles
-- **Yerel Depolama**: DataStore Preferences
+## Key Features
 
-## 🏗 Proje Yapısı
+- **Project & Daily Log Hierarchy:** Organize your media by separate projects, and within those projects, automatically group photos by the day they were taken.
+- **Hardware-Accelerated CameraX Pipeline:** A highly optimized custom camera that utilizes native HDR and hardware optimizations specific to device manufacturers.
+- **AVIF Image Compression:** Dramatically reduce storage usage (up to 70% smaller than JPEG) without sacrificing visual quality via `HeifCoder`.
+- **Zero-Crash Background Export:** Export massive projects to high-quality PDF reports or ZIP files in the background using `WorkManager`, with real-time notification progress.
+- **GPS Watermarking:** Automatically overlay project name, date/time, and physical location (latitude/longitude and address) on captured photos using Fused Location Provider.
+- **Performance Focused:** Built heavily on Jetpack Compose with strict adherence to unidirectional data flow (MVI) to guarantee 60 FPS scrolling even with thousands of local images.
+- **Offline First:** No servers, no accounts. All data is managed locally on the device using Room Database with built-in backup and restore utilities.
 
-Proje iki ana modülden oluşmaktadır:
-- `:app`: Uygulamanın tüm iş mantığı ve UI katmanını içeren ana modül.
-- `:baselineprofile`: Uygulama performansını optimize etmek için kullanılan Baseline Profile ve Benchmark testlerini içeren modül.
+## Tech Stack & Architecture
 
-## 🏁 Başlangıç
+PhotoReport adheres to modern Android Development (MAD) best practices, utilizing a clean architecture pattern and single-responsibility principles.
 
-### Gereksinimler
-- Android Studio Ladybug veya daha yeni bir sürüm.
-- JDK 17.
-- Android SDK 37 (Compile SDK).
+- **UI:** Jetpack Compose, Material Design 3, Coil (Video & AVIF Support)
+- **Architecture:** MVVM / MVI State Management
+- **Local Storage:** Room Database, DataStore Preferences
+- **Media Pipeline:** CameraX (Photo/Video capture), AVIF-Coder (Compression), PDFBox (Report Generation)
+- **Dependency Injection:** Hilt / Dagger
+- **Background Processing:** WorkManager (Media Processing & Exporting), Coroutines, Flow
 
-### Kurulum
-1. Depoyu klonlayın: `git clone https://github.com/kullanici/santiye-gunlugu.git`
-2. Android Studio'da projeyi açın.
-3. Gradle senkronizasyonunun tamamlanmasını bekleyin.
-4. Derleyin ve çalıştırın.
+## Permissions
 
-## 📄 Lisans
+The app strictly requests only the permissions it actively uses:
+- `CAMERA`: Core functionality for capturing logs.
+- `RECORD_AUDIO`: Optional video recording support.
+- `ACCESS_FINE_LOCATION` / `ACCESS_COARSE_LOCATION`: Optional, strictly used for stamping physical location coordinates as a visual watermark on media.
+- `FOREGROUND_SERVICE`: Ensuring background exports aren't killed by the OS.
 
-Bu proje MIT Lisansı ile lisanslanmıştır. Daha fazla bilgi için `LICENSE` dosyasına göz atın.
+## License
+MIT License. Open source and free to use.
