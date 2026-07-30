@@ -28,6 +28,8 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.min
 
+import androidx.core.graphics.withTranslation
+
 /**
  * Handles PDF generation operations asynchronously.
  */
@@ -48,9 +50,8 @@ interface PdfExportManager {
 }
 
 @Singleton
-class PdfBoxExportManager @Inject constructor(
-    @param:ApplicationContext private val context: Context,
-    private val fileManager: FileManager
+class NativePdfExportManager @Inject constructor(
+    @param:ApplicationContext private val context: Context
 ) : PdfExportManager {
 
     override suspend fun exportToPdf(
@@ -177,10 +178,9 @@ class PdfBoxExportManager @Inject constructor(
                         closeAndStartNewPage()
                     }
 
-                    canvas.save()
-                    canvas.translate(margin + 10f, currentY)
-                    staticLayout.draw(canvas)
-                    canvas.restore()
+                    canvas.withTranslation(margin + 10f, currentY) {
+                        staticLayout.draw(this)
+                    }
 
                     currentY += staticLayout.height + 20f
                 }
@@ -259,7 +259,7 @@ class PdfBoxExportManager @Inject constructor(
 
             val directory = context.getExternalFilesDir("PDFs")
             if (directory != null && !directory.exists()) directory.mkdirs()
-            val safeName = project.name.replace(Regex("[^a-zA-Z0-9_]"), "_")
+            val safeName = project.name.replace(Regex("[^a-zA-Z0-9_şçğüöıŞÇĞÜÖI]"), "_")
             val file = File(directory, "${safeName}_gunluk_rapor.pdf")
 
             FileOutputStream(file).use { out ->

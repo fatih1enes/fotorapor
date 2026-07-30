@@ -1,0 +1,15 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/res/layout/widget_photoreport.xml</file>
+  <line>51</line>
+  <module>PhotoReport.app.main</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/app/src/main/res/layout/widget_photoreport.xml" />
+  <problem_class id="AndroidLintUseCompatTextViewDrawableXml" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Compat compound drawable attributes should be used on TextView</problem_class>
+  <hints />
+  <description>&lt;html&gt;Use &lt;code&gt;app:drawableTopCompat&lt;/code&gt; instead of &lt;code&gt;android:drawableTop&lt;/code&gt;&lt;/html&gt;</description>
+  <highlighted_element>android:drawableTop=&quot;@drawable/ic_widget_gallery&quot;</highlighted_element>
+  <language>XML</language>
+  <offset>8</offset>
+  <length>49</length>
+</problem>
+</problems>

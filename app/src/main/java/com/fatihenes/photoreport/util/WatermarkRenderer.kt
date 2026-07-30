@@ -86,7 +86,7 @@ class WatermarkRenderer @Inject constructor() {
 
     /**
      * Draws a watermark panel onto a bitmap.
-     * The panel is positioned at the bottom-left corner.
+     * The panel is positioned in the bottom-left corner.
      */
     private fun drawWatermark(source: Bitmap, data: WatermarkData): Bitmap {
         val result = source.copy(Bitmap.Config.ARGB_8888, true)

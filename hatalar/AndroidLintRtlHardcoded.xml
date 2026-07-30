@@ -1,0 +1,41 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/res/layout/widget_photoreport.xml</file>
+  <line>19</line>
+  <module>PhotoReport.app.main</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/app/src/main/res/layout/widget_photoreport.xml" />
+  <problem_class id="AndroidLintRtlHardcoded" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Using left/right instead of start/end attributes</problem_class>
+  <hints />
+  <description>&lt;html&gt;Consider replacing &lt;code&gt;android:paddingLeft&lt;/code&gt; with &lt;code&gt;android:paddingStart=&quot;12dp&quot;&lt;/code&gt; to better support right-to-left layouts&lt;/html&gt;</description>
+  <highlighted_element>android:paddingLeft</highlighted_element>
+  <language>XML</language>
+  <offset>8</offset>
+  <length>19</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/res/layout/widget_photoreport.xml</file>
+  <line>20</line>
+  <module>PhotoReport.app.main</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/app/src/main/res/layout/widget_photoreport.xml" />
+  <problem_class id="AndroidLintRtlHardcoded" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Using left/right instead of start/end attributes</problem_class>
+  <hints />
+  <description>&lt;html&gt;Consider replacing &lt;code&gt;android:paddingRight&lt;/code&gt; with &lt;code&gt;android:paddingEnd=&quot;8dp&quot;&lt;/code&gt; to better support right-to-left layouts&lt;/html&gt;</description>
+  <highlighted_element>android:paddingRight</highlighted_element>
+  <language>XML</language>
+  <offset>8</offset>
+  <length>20</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/res/layout/widget_photoreport.xml</file>
+  <line>62</line>
+  <module>PhotoReport.app.main</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/app/src/main/res/layout/widget_photoreport.xml" />
+  <problem_class id="AndroidLintRtlHardcoded" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Using left/right instead of start/end attributes</problem_class>
+  <hints />
+  <description>&lt;html&gt;Consider replacing &lt;code&gt;android:layout_marginRight&lt;/code&gt; with &lt;code&gt;android:layout_marginEnd=&quot;4dp&quot;&lt;/code&gt; to better support right-to-left layouts&lt;/html&gt;</description>
+  <highlighted_element>android:layout_marginRight</highlighted_element>
+  <language>XML</language>
+  <offset>8</offset>
+  <length>26</length>
+</problem>
+</problems>

@@ -5,6 +5,8 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 
+import androidx.core.content.edit
+
 /**
  * Lightweight helper to bridge app data → widget via SharedPreferences.
  * No Hilt, no Room, no coroutines needed on the widget side.
@@ -17,11 +19,10 @@ object WidgetDataHelper {
 
     /** Called from the app (repository) whenever a project changes. */
     fun saveLatestProject(context: Context, projectId: Long, projectName: String) {
-        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
-            .edit()
-            .putLong(KEY_PROJECT_ID, projectId)
-            .putString(KEY_PROJECT_NAME, projectName)
-            .apply()
+        context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).edit {
+            putLong(KEY_PROJECT_ID, projectId)
+            putString(KEY_PROJECT_NAME, projectName)
+        }
 
         // Trigger widget refresh
         notifyWidgets(context)

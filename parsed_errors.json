@@ -1,0 +1,4950 @@
+{
+  "AndroidLintAndroidGradlePluginVersion": [
+    {
+      "rule": "AndroidLintAndroidGradlePluginVersion",
+      "file": "gradle/wrapper/gradle-wrapper.properties",
+      "line": "5",
+      "highlight": "https\\://services.gradle.org/distributions/gradle-9.5.0-bin.zip",
+      "desc": "<html>A newer version of Gradle than 9.5.0 is available: 9.6.1</html>",
+      "xml_file": "AndroidLintAndroidGradlePluginVersion.xml"
+    }
+  ],
+  "AndroidLintForegroundServicesPolicy": [
+    {
+      "rule": "AndroidLintForegroundServicesPolicy",
+      "file": "app/src/main/AndroidManifest.xml",
+      "line": "8",
+      "highlight": "android:name=\"android.permission.FOREGROUND_SERVICE\"",
+      "desc": "<html>Android 14+ requires Foreground Service types declaration and justification. </html>",
+      "xml_file": "AndroidLintForegroundServicesPolicy.xml"
+    }
+  ],
+  "AndroidLintGradleDependency": [
+    {
+      "rule": "AndroidLintGradleDependency",
+      "file": "gradle/libs.versions.toml",
+      "line": "24",
+      "highlight": "\"21.3.0\"",
+      "desc": "<html>A newer version of com.google.android.gms:play-services-location than 21.3.0 is available: 21.4.0</html>",
+      "xml_file": "AndroidLintGradleDependency.xml"
+    },
+    {
+      "rule": "AndroidLintGradleDependency",
+      "file": "gradle/libs.versions.toml",
+      "line": "27",
+      "highlight": "\"2.2.0\"",
+      "desc": "<html>A newer version of androidx.test.uiautomator:uiautomator than 2.2.0 is available: 2.4.0</html>",
+      "xml_file": "AndroidLintGradleDependency.xml"
+    },
+    {
+      "rule": "AndroidLintGradleDependency",
+      "file": "gradle/libs.versions.toml",
+      "line": "28",
+      "highlight": "\"1.5.0-alpha07\"",
+      "desc": "<html>A newer version of androidx.benchmark:benchmark-macro-junit4 than 1.5.0-alpha07 is available: 1.5.0-beta01</html>",
+      "xml_file": "AndroidLintGradleDependency.xml"
+    },
+    {
+      "rule": "AndroidLintGradleDependency",
+      "file": "gradle/libs.versions.toml",
+      "line": "29",
+      "highlight": "\"1.5.0-alpha07\"",
+      "desc": "<html>A newer version of androidx.baselineprofile than 1.5.0-alpha07 is available: 1.5.0-beta01</html>",
+      "xml_file": "AndroidLintGradleDependency.xml"
+    }
+  ],
+  "AndroidLintHardcodedText": [
+    {
+      "rule": "AndroidLintHardcodedText",
+      "file": "app/src/main/res/layout/widget_photoreport.xml",
+      "line": "25",
+      "highlight": "android:text=\"\ud83c\udfd7\ufe0f Aktif Proje\"",
+      "desc": "<html>Hardcoded string \"\ud83c\udfd7\ufe0f Aktif Proje\", should use <code>@string</code> resource</html>",
+      "xml_file": "AndroidLintHardcodedText.xml"
+    },
+    {
+      "rule": "AndroidLintHardcodedText",
+      "file": "app/src/main/res/layout/widget_photoreport.xml",
+      "line": "33",
+      "highlight": "android:text=\"Proje Yok\"",
+      "desc": "<html>Hardcoded string \"Proje Yok\", should use <code>@string</code> resource</html>",
+      "xml_file": "AndroidLintHardcodedText.xml"
+    },
+    {
+      "rule": "AndroidLintHardcodedText",
+      "file": "app/src/main/res/layout/widget_photoreport.xml",
+      "line": "53",
+      "highlight": "android:text=\"G\u00f6rseller\"",
+      "desc": "<html>Hardcoded string \"G\u00f6rseller\", should use <code>@string</code> resource</html>",
+      "xml_file": "AndroidLintHardcodedText.xml"
+    },
+    {
+      "rule": "AndroidLintHardcodedText",
+      "file": "app/src/main/res/layout/widget_photoreport.xml",
+      "line": "70",
+      "highlight": "android:contentDescription=\"Kamera\"",
+      "desc": "<html>Hardcoded string \"Kamera\", should use <code>@string</code> resource</html>",
+      "xml_file": "AndroidLintHardcodedText.xml"
+    }
+  ],
+  "AndroidLintInlinedApi": [
+    {
+      "rule": "AndroidLintInlinedApi",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/CameraStateHolder.kt",
+      "line": "81",
+      "highlight": "CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION",
+      "desc": "<html>Field requires API level 33 (current min is 30): <code>android.hardware.camera2.CameraMetadata#CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION</code></html>",
+      "xml_file": "AndroidLintInlinedApi.xml"
+    }
+  ],
+  "AndroidLintLocalContextGetResourceValueCall": [
+    {
+      "rule": "AndroidLintLocalContextGetResourceValueCall",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/CameraScreen.kt",
+      "line": "202",
+      "highlight": "context.getString(R.string.camera_preparing)",
+      "desc": "<html>Querying resource values using LocalContext.current</html>",
+      "xml_file": "AndroidLintLocalContextGetResourceValueCall.xml"
+    },
+    {
+      "rule": "AndroidLintLocalContextGetResourceValueCall",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/ProjectDetailScreen.kt",
+      "line": "302",
+      "highlight": "context.getString(R.string.pdf_preparing)",
+      "desc": "<html>Querying resource values using LocalContext.current</html>",
+      "xml_file": "AndroidLintLocalContextGetResourceValueCall.xml"
+    },
+    {
+      "rule": "AndroidLintLocalContextGetResourceValueCall",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/SettingsScreen.kt",
+      "line": "199",
+      "highlight": "context.getString(R.string.location_permission_required)",
+      "desc": "<html>Querying resource values using LocalContext.current</html>",
+      "xml_file": "AndroidLintLocalContextGetResourceValueCall.xml"
+    },
+    {
+      "rule": "AndroidLintLocalContextGetResourceValueCall",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/SettingsScreen.kt",
+      "line": "267",
+      "highlight": "context.getString(R.string.backup_success)",
+      "desc": "<html>Querying resource values using LocalContext.current</html>",
+      "xml_file": "AndroidLintLocalContextGetResourceValueCall.xml"
+    },
+    {
+      "rule": "AndroidLintLocalContextGetResourceValueCall",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/TimelineBlock.kt",
+      "line": "236",
+      "highlight": "context.getString(R.string.import_error)",
+      "desc": "<html>Querying resource values using LocalContext.current</html>",
+      "xml_file": "AndroidLintLocalContextGetResourceValueCall.xml"
+    },
+    {
+      "rule": "AndroidLintLocalContextGetResourceValueCall",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/components/ExportDialog.kt",
+      "line": "301",
+      "highlight": "context.getString(R.string.export_started_toast)",
+      "desc": "<html>Querying resource values using LocalContext.current</html>",
+      "xml_file": "AndroidLintLocalContextGetResourceValueCall.xml"
+    },
+    {
+      "rule": "AndroidLintLocalContextGetResourceValueCall",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/navigation/AppNavGraph.kt",
+      "line": "88",
+      "highlight": "context.getString(R.string.camera_permission_required)",
+      "desc": "<html>Querying resource values using LocalContext.current</html>",
+      "xml_file": "AndroidLintLocalContextGetResourceValueCall.xml"
+    },
+    {
+      "rule": "AndroidLintLocalContextGetResourceValueCall",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/navigation/AppNavGraph.kt",
+      "line": "145",
+      "highlight": "context.getString(R.string.project_added_success)",
+      "desc": "<html>Querying resource values using LocalContext.current</html>",
+      "xml_file": "AndroidLintLocalContextGetResourceValueCall.xml"
+    }
+  ],
+  "AndroidLintNewerVersionAvailable": [
+    {
+      "rule": "AndroidLintNewerVersionAvailable",
+      "file": "gradle/libs.versions.toml",
+      "line": "12",
+      "highlight": "\"2.2.10\"",
+      "desc": "<html>A newer version of org.jetbrains.kotlin.android than 2.2.10 is available: 2.4.10</html>",
+      "xml_file": "AndroidLintNewerVersionAvailable.xml"
+    },
+    {
+      "rule": "AndroidLintNewerVersionAvailable",
+      "file": "gradle/libs.versions.toml",
+      "line": "12",
+      "highlight": "\"2.2.10\"",
+      "desc": "<html>A newer version of org.jetbrains.kotlin.plugin.compose than 2.2.10 is available: 2.4.10</html>",
+      "xml_file": "AndroidLintNewerVersionAvailable.xml"
+    },
+    {
+      "rule": "AndroidLintNewerVersionAvailable",
+      "file": "gradle/libs.versions.toml",
+      "line": "17",
+      "highlight": "\"2.59.2\"",
+      "desc": "<html>A newer version of com.google.dagger.hilt.android than 2.59.2 is available: 2.60.1</html>",
+      "xml_file": "AndroidLintNewerVersionAvailable.xml"
+    },
+    {
+      "rule": "AndroidLintNewerVersionAvailable",
+      "file": "gradle/libs.versions.toml",
+      "line": "17",
+      "highlight": "\"2.59.2\"",
+      "desc": "<html>A newer version of com.google.dagger:hilt-android than 2.59.2 is available: 2.60.1</html>",
+      "xml_file": "AndroidLintNewerVersionAvailable.xml"
+    },
+    {
+      "rule": "AndroidLintNewerVersionAvailable",
+      "file": "gradle/libs.versions.toml",
+      "line": "17",
+      "highlight": "\"2.59.2\"",
+      "desc": "<html>A newer version of com.google.dagger:hilt-compiler than 2.59.2 is available: 2.60.1</html>",
+      "xml_file": "AndroidLintNewerVersionAvailable.xml"
+    },
+    {
+      "rule": "AndroidLintNewerVersionAvailable",
+      "file": "gradle/libs.versions.toml",
+      "line": "23",
+      "highlight": "\"2.2.0\"",
+      "desc": "<html>A newer version of io.github.awxkee:avif-coder than 2.2.0 is available: 2.2.1</html>",
+      "xml_file": "AndroidLintNewerVersionAvailable.xml"
+    },
+    {
+      "rule": "AndroidLintNewerVersionAvailable",
+      "file": "gradle/libs.versions.toml",
+      "line": "54",
+      "highlight": "\"3.4.0\"",
+      "desc": "<html>A newer version of io.coil-kt.coil3:coil-compose than 3.4.0 is available: 3.5.0</html>",
+      "xml_file": "AndroidLintNewerVersionAvailable.xml"
+    },
+    {
+      "rule": "AndroidLintNewerVersionAvailable",
+      "file": "gradle/libs.versions.toml",
+      "line": "55",
+      "highlight": "\"3.4.0\"",
+      "desc": "<html>A newer version of io.coil-kt.coil3:coil-video than 3.4.0 is available: 3.5.0</html>",
+      "xml_file": "AndroidLintNewerVersionAvailable.xml"
+    }
+  ],
+  "AndroidLintRemoveWorkManagerInitializer": [
+    {
+      "rule": "AndroidLintRemoveWorkManagerInitializer",
+      "file": "app/src/main/AndroidManifest.xml",
+      "line": "14",
+      "highlight": "<application android:name=\".PhotoReportApp\" android:allowBackup=\"false\" andr...",
+      "desc": "<html>Remove androidx.work.WorkManagerInitializer from your AndroidManifest.xml when using on-demand initialization.</html>",
+      "xml_file": "AndroidLintRemoveWorkManagerInitializer.xml"
+    }
+  ],
+  "AndroidLintRtlHardcoded": [
+    {
+      "rule": "AndroidLintRtlHardcoded",
+      "file": "app/src/main/res/layout/widget_photoreport.xml",
+      "line": "19",
+      "highlight": "android:paddingLeft",
+      "desc": "<html>Consider replacing <code>android:paddingLeft</code> with <code>android:paddingStart=\"12dp\"</code> to better support right-to-left layouts</html>",
+      "xml_file": "AndroidLintRtlHardcoded.xml"
+    },
+    {
+      "rule": "AndroidLintRtlHardcoded",
+      "file": "app/src/main/res/layout/widget_photoreport.xml",
+      "line": "20",
+      "highlight": "android:paddingRight",
+      "desc": "<html>Consider replacing <code>android:paddingRight</code> with <code>android:paddingEnd=\"8dp\"</code> to better support right-to-left layouts</html>",
+      "xml_file": "AndroidLintRtlHardcoded.xml"
+    },
+    {
+      "rule": "AndroidLintRtlHardcoded",
+      "file": "app/src/main/res/layout/widget_photoreport.xml",
+      "line": "62",
+      "highlight": "android:layout_marginRight",
+      "desc": "<html>Consider replacing <code>android:layout_marginRight</code> with <code>android:layout_marginEnd=\"4dp\"</code> to better support right-to-left layouts</html>",
+      "xml_file": "AndroidLintRtlHardcoded.xml"
+    }
+  ],
+  "AndroidLintSmallSp": [
+    {
+      "rule": "AndroidLintSmallSp",
+      "file": "app/src/main/res/layout/widget_photoreport.xml",
+      "line": "26",
+      "highlight": "android:textSize=\"10sp\"",
+      "desc": "<html>Avoid using sizes smaller than <code>11sp</code>: <code>10sp</code></html>",
+      "xml_file": "AndroidLintSmallSp.xml"
+    },
+    {
+      "rule": "AndroidLintSmallSp",
+      "file": "app/src/main/res/layout/widget_photoreport.xml",
+      "line": "54",
+      "highlight": "android:textSize=\"9sp\"",
+      "desc": "<html>Avoid using sizes smaller than <code>11sp</code>: <code>9sp</code></html>",
+      "xml_file": "AndroidLintSmallSp.xml"
+    }
+  ],
+  "AndroidLintTypographyEllipsis": [
+    {
+      "rule": "AndroidLintTypographyEllipsis",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "101",
+      "highlight": "D\u0131\u015fa aktar\u0131m arka planda ba\u015flad\u0131. L\u00fctfen bekleyin...",
+      "desc": "<html>Replace \"...\" with ellipsis character (\u2026, &amp;#8230;) ?</html>",
+      "xml_file": "AndroidLintTypographyEllipsis.xml"
+    },
+    {
+      "rule": "AndroidLintTypographyEllipsis",
+      "file": "app/src/main/res/values-en/strings.xml",
+      "line": "102",
+      "highlight": "Export started in background. Please wait...",
+      "desc": "<html>Replace \"...\" with ellipsis character (\u2026, &amp;#8230;) ?</html>",
+      "xml_file": "AndroidLintTypographyEllipsis.xml"
+    }
+  ],
+  "AndroidLintTypos": [
+    {
+      "rule": "AndroidLintTypos",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "174",
+      "highlight": "adres",
+      "desc": "<html>\"adres\" is a common misspelling; did you mean \"address\"?</html>",
+      "xml_file": "AndroidLintTypos.xml"
+    }
+  ],
+  "AndroidLintUnusedAttribute": [
+    {
+      "rule": "AndroidLintUnusedAttribute",
+      "file": "app/src/main/res/xml/widget_info_photoreport.xml",
+      "line": "5",
+      "highlight": "android:targetCellWidth=\"4\"",
+      "desc": "<html>Attribute <code>targetCellWidth</code> is only used in API level 31 and higher (current min is 30)</html>",
+      "xml_file": "AndroidLintUnusedAttribute.xml"
+    },
+    {
+      "rule": "AndroidLintUnusedAttribute",
+      "file": "app/src/main/res/xml/widget_info_photoreport.xml",
+      "line": "6",
+      "highlight": "android:targetCellHeight=\"1\"",
+      "desc": "<html>Attribute <code>targetCellHeight</code> is only used in API level 31 and higher (current min is 30)</html>",
+      "xml_file": "AndroidLintUnusedAttribute.xml"
+    },
+    {
+      "rule": "AndroidLintUnusedAttribute",
+      "file": "app/src/main/res/xml/widget_info_photoreport.xml",
+      "line": "11",
+      "highlight": "android:previewLayout=\"@layout/widget_photoreport\"",
+      "desc": "<html>Attribute <code>previewLayout</code> is only used in API level 31 and higher (current min is 30)</html>",
+      "xml_file": "AndroidLintUnusedAttribute.xml"
+    }
+  ],
+  "AndroidLintUnusedResources": [
+    {
+      "rule": "AndroidLintUnusedResources",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "105",
+      "highlight": "name=\"error_delete_failed\"",
+      "desc": "<html>The resource <code>R.string.error_delete_failed</code> appears to be unused</html>",
+      "xml_file": "AndroidLintUnusedResources.xml"
+    },
+    {
+      "rule": "AndroidLintUnusedResources",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "131",
+      "highlight": "name=\"crash_recovery_message\"",
+      "desc": "<html>The resource <code>R.string.crash_recovery_message</code> appears to be unused</html>",
+      "xml_file": "AndroidLintUnusedResources.xml"
+    }
+  ],
+  "AndroidLintUseCompatTextViewDrawableXml": [
+    {
+      "rule": "AndroidLintUseCompatTextViewDrawableXml",
+      "file": "app/src/main/res/layout/widget_photoreport.xml",
+      "line": "51",
+      "highlight": "android:drawableTop=\"@drawable/ic_widget_gallery\"",
+      "desc": "<html>Use <code>app:drawableTopCompat</code> instead of <code>android:drawableTop</code></html>",
+      "xml_file": "AndroidLintUseCompatTextViewDrawableXml.xml"
+    }
+  ],
+  "AndroidLintUseKtx": [
+    {
+      "rule": "AndroidLintUseKtx",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/BackupManager.kt",
+      "line": "85",
+      "highlight": "Uri.parse(photo.filePath)",
+      "desc": "<html>Use the KTX extension function <code>String.toUri</code> instead?</html>",
+      "xml_file": "AndroidLintUseKtx.xml"
+    },
+    {
+      "rule": "AndroidLintUseKtx",
+      "file": "app/src/main/java/com/fatihenes/photoreport/worker/PhotoProcessingWorker.kt",
+      "line": "37",
+      "highlight": "Uri.parse(uriString)",
+      "desc": "<html>Use the KTX extension function <code>String.toUri</code> instead?</html>",
+      "xml_file": "AndroidLintUseKtx.xml"
+    }
+  ],
+  "GrazieInspection": [
+    {
+      "rule": "GrazieInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/BackupManager.kt",
+      "line": "88",
+      "highlight": "or",
+      "desc": "Use a comma before 'or' if it connects two independent clauses (unless they are closely connected and short).",
+      "xml_file": "GrazieInspection.xml"
+    },
+    {
+      "rule": "GrazieInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/WatermarkRenderer.kt",
+      "line": "89",
+      "highlight": "at the bottom-left corner",
+      "desc": "The usual preposition to use with \"corner\" is \"in\", not \"on\". Did you mean 'in the bottom-left corner'?",
+      "xml_file": "GrazieInspection.xml"
+    },
+    {
+      "rule": "GrazieInspection",
+      "file": "app/src/main/res/values-en/strings.xml",
+      "line": "175",
+      "highlight": "on the bottom left corner",
+      "desc": "The usual preposition to use with \"corner\" is \"in\", not \"on\". Did you mean 'in the bottom left corner'?",
+      "xml_file": "GrazieInspection.xml"
+    },
+    {
+      "rule": "GrazieInspection",
+      "file": "baselineProfile/src/main/java/com/fatihenes/photoreport/baselineprofile/BaselineProfileGenerator.kt",
+      "line": "35",
+      "highlight": "benchmark",
+      "desc": "If a new sentence starts here, add a space and start with an uppercase letter.",
+      "xml_file": "GrazieInspection.xml"
+    },
+    {
+      "rule": "GrazieInspection",
+      "file": "build.gradle.kts",
+      "line": "1",
+      "highlight": "sub-projects",
+      "desc": "This word is normally spelled as one.",
+      "xml_file": "GrazieInspection.xml"
+    },
+    {
+      "rule": "GrazieInspection",
+      "file": "build.gradle.kts",
+      "line": "2",
+      "highlight": "sub-projects",
+      "desc": "This word is normally spelled as one.",
+      "xml_file": "GrazieInspection.xml"
+    }
+  ],
+  "GrazieStyle": [
+    {
+      "rule": "GrazieStyle",
+      "file": "app/src/test/java/com/fatihenes/photoreport/util/DateUtilsTest.kt",
+      "line": "24",
+      "highlight": "2023",
+      "desc": "Some style guides suggest that commas should set off the year in a month-day-year date.",
+      "xml_file": "GrazieStyle.xml"
+    }
+  ],
+  "HtmlDeprecatedAttribute": [
+    {
+      "rule": "HtmlDeprecatedAttribute",
+      "file": "README.md",
+      "line": "5",
+      "highlight": "align",
+      "desc": "Obsolete attribute #loc",
+      "xml_file": "HtmlDeprecatedAttribute.xml"
+    }
+  ],
+  "IgnoreFileDuplicateEntry": [
+    {
+      "rule": "IgnoreFileDuplicateEntry",
+      "file": ".gitignore",
+      "line": "44",
+      "highlight": "?",
+      "desc": "<code>?</code> pattern is defined more than once",
+      "xml_file": "IgnoreFileDuplicateEntry.xml"
+    }
+  ],
+  "KotlinUnusedImport": [
+    {
+      "rule": "KotlinUnusedImport",
+      "file": "app/src/main/java/com/fatihenes/photoreport/MainActivity.kt",
+      "line": "4",
+      "highlight": "import android.widget.Toast",
+      "desc": "Unused import directive",
+      "xml_file": "KotlinUnusedImport.xml"
+    },
+    {
+      "rule": "KotlinUnusedImport",
+      "file": "app/src/main/java/com/fatihenes/photoreport/repository/PhotoRepository.kt",
+      "line": "4",
+      "highlight": "import android.util.Log",
+      "desc": "Unused import directive",
+      "xml_file": "KotlinUnusedImport.xml"
+    },
+    {
+      "rule": "KotlinUnusedImport",
+      "file": "app/src/main/java/com/fatihenes/photoreport/repository/PhotoRepository.kt",
+      "line": "6",
+      "highlight": "import com.fatihenes.photoreport.data.DailyLogEntity",
+      "desc": "Unused import directive",
+      "xml_file": "KotlinUnusedImport.xml"
+    },
+    {
+      "rule": "KotlinUnusedImport",
+      "file": "app/src/main/java/com/fatihenes/photoreport/repository/PhotoRepository.kt",
+      "line": "9",
+      "highlight": "import com.fatihenes.photoreport.util.DateUtils",
+      "desc": "Unused import directive",
+      "xml_file": "KotlinUnusedImport.xml"
+    },
+    {
+      "rule": "KotlinUnusedImport",
+      "file": "app/src/main/java/com/fatihenes/photoreport/repository/PhotoRepository.kt",
+      "line": "17",
+      "highlight": "import kotlinx.coroutines.launch",
+      "desc": "Unused import directive",
+      "xml_file": "KotlinUnusedImport.xml"
+    },
+    {
+      "rule": "KotlinUnusedImport",
+      "file": "app/src/main/java/com/fatihenes/photoreport/repository/PhotoRepository.kt",
+      "line": "19",
+      "highlight": "import kotlinx.coroutines.sync.withLock",
+      "desc": "Unused import directive",
+      "xml_file": "KotlinUnusedImport.xml"
+    },
+    {
+      "rule": "KotlinUnusedImport",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/CameraScreen.kt",
+      "line": "68",
+      "highlight": "import androidx.compose.foundation.focusable",
+      "desc": "Unused import directive",
+      "xml_file": "KotlinUnusedImport.xml"
+    },
+    {
+      "rule": "KotlinUnusedImport",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/camera/components/CameraComponents.kt",
+      "line": "3",
+      "highlight": "import androidx.camera.core.CameraSelector",
+      "desc": "Unused import directive",
+      "xml_file": "KotlinUnusedImport.xml"
+    },
+    {
+      "rule": "KotlinUnusedImport",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/components/ExportDialog.kt",
+      "line": "3",
+      "highlight": "import android.content.Context",
+      "desc": "Unused import directive",
+      "xml_file": "KotlinUnusedImport.xml"
+    },
+    {
+      "rule": "KotlinUnusedImport",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/components/ExportDialog.kt",
+      "line": "4",
+      "highlight": "import androidx.core.net.toUri",
+      "desc": "Unused import directive",
+      "xml_file": "KotlinUnusedImport.xml"
+    },
+    {
+      "rule": "KotlinUnusedImport",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/components/ExportDialog.kt",
+      "line": "25",
+      "highlight": "import com.fatihenes.photoreport.data.PhotoEntity",
+      "desc": "Unused import directive",
+      "xml_file": "KotlinUnusedImport.xml"
+    },
+    {
+      "rule": "KotlinUnusedImport",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/components/ExportDialog.kt",
+      "line": "29",
+      "highlight": "import com.fatihenes.photoreport.ui.viewmodel.FileSizeInfo",
+      "desc": "Unused import directive",
+      "xml_file": "KotlinUnusedImport.xml"
+    },
+    {
+      "rule": "KotlinUnusedImport",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/viewmodel/ProjectDetailViewModel.kt",
+      "line": "14",
+      "highlight": "import com.fatihenes.photoreport.util.DateUtils",
+      "desc": "Unused import directive",
+      "xml_file": "KotlinUnusedImport.xml"
+    },
+    {
+      "rule": "KotlinUnusedImport",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/viewmodel/ProjectDetailViewModel.kt",
+      "line": "23",
+      "highlight": "import kotlinx.coroutines.sync.Mutex",
+      "desc": "Unused import directive",
+      "xml_file": "KotlinUnusedImport.xml"
+    },
+    {
+      "rule": "KotlinUnusedImport",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/viewmodel/ProjectDetailViewModel.kt",
+      "line": "24",
+      "highlight": "import kotlinx.coroutines.sync.withLock",
+      "desc": "Unused import directive",
+      "xml_file": "KotlinUnusedImport.xml"
+    },
+    {
+      "rule": "KotlinUnusedImport",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/viewmodel/TrashViewModel.kt",
+      "line": "3",
+      "highlight": "import android.content.Context",
+      "desc": "Unused import directive",
+      "xml_file": "KotlinUnusedImport.xml"
+    },
+    {
+      "rule": "KotlinUnusedImport",
+      "file": "app/src/test/java/com/fatihenes/photoreport/manager/BackupManagerTest.kt",
+      "line": "16",
+      "highlight": "import org.mockito.ArgumentMatchers.anyString",
+      "desc": "Unused import directive",
+      "xml_file": "KotlinUnusedImport.xml"
+    }
+  ],
+  "LatestMinorVersion": [
+    {
+      "rule": "LatestMinorVersion",
+      "file": "gradle/wrapper/gradle-wrapper.properties",
+      "line": "5",
+      "highlight": "9.5.0",
+      "desc": "A newer minor version of Gradle is available",
+      "xml_file": "LatestMinorVersion.xml"
+    }
+  ],
+  "PrivatePropertyName": [
+    {
+      "rule": "PrivatePropertyName",
+      "file": "app/src/androidTest/java/com/fatihenes/photoreport/data/MigrationTest.kt",
+      "line": "15",
+      "highlight": "TEST_DB",
+      "desc": "Private property name <code>TEST_DB</code> should not contain underscores in the middle or the end",
+      "xml_file": "PrivatePropertyName.xml"
+    }
+  ],
+  "RedundantSuppression": [
+    {
+      "rule": "RedundantSuppression",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/result/OperationResult.kt",
+      "line": "32",
+      "highlight": "Loading",
+      "desc": "Redundant suppression",
+      "xml_file": "RedundantSuppression.xml"
+    }
+  ],
+  "RemoveExplicitTypeArguments": [
+    {
+      "rule": "RemoveExplicitTypeArguments",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/ProjectDetailScreen.kt",
+      "line": "317",
+      "highlight": "<Float>",
+      "desc": "Explicit type arguments can be inferred",
+      "xml_file": "RemoveExplicitTypeArguments.xml"
+    },
+    {
+      "rule": "RemoveExplicitTypeArguments",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/ProjectDetailScreen.kt",
+      "line": "318",
+      "highlight": "<Float>",
+      "desc": "Explicit type arguments can be inferred",
+      "xml_file": "RemoveExplicitTypeArguments.xml"
+    }
+  ],
+  "SpellCheckingInspection": [
+    {
+      "rule": "SpellCheckingInspection",
+      "file": ".artifacts/ad3bc841-9d7c-49eb-a22c-c348083d313a/walkthrough.artifact.md",
+      "line": "7",
+      "highlight": "elektrik",
+      "desc": "Typo: In word 'elektrik'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": ".artifacts/ad3bc841-9d7c-49eb-a22c-c348083d313a/walkthrough.artifact.md",
+      "line": "9",
+      "highlight": "fatihenes",
+      "desc": "Typo: In word 'fatihenes'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "README.md",
+      "line": "9",
+      "highlight": "AVIF",
+      "desc": "Typo: In word 'AVIF'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/AndroidManifest.xml",
+      "line": "39",
+      "highlight": "fileprovider",
+      "desc": "Typo: In word 'fileprovider'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/data/AppDatabase.kt",
+      "line": "24",
+      "highlight": "Versiyon",
+      "desc": "Typo: In word 'Versiyon'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/data/AppDatabase.kt",
+      "line": "24",
+      "highlight": "ge\u00e7i\u015f",
+      "desc": "Typo: In word 'ge\u00e7i\u015f'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/data/AppDatabase.kt",
+      "line": "24",
+      "highlight": "Performans",
+      "desc": "Typo: In word 'Performans'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/data/AppDatabase.kt",
+      "line": "24",
+      "highlight": "i\u00e7in",
+      "desc": "Typo: In word 'i\u00e7in'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/data/AppDatabase.kt",
+      "line": "24",
+      "highlight": "eklenmesi",
+      "desc": "Typo: In word 'eklenmesi'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/data/AppDatabase.kt",
+      "line": "31",
+      "highlight": "Versiyon",
+      "desc": "Typo: In word 'Versiyon'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/data/AppDatabase.kt",
+      "line": "31",
+      "highlight": "ge\u00e7i\u015f",
+      "desc": "Typo: In word 'ge\u00e7i\u015f'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/data/AppDatabase.kt",
+      "line": "31",
+      "highlight": "Kutusu",
+      "desc": "Typo: In word 'Kutusu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/data/AppDatabase.kt",
+      "line": "31",
+      "highlight": "i\u00e7in",
+      "desc": "Typo: In word 'i\u00e7in'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/data/AppDatabase.kt",
+      "line": "31",
+      "highlight": "alanlar\u0131",
+      "desc": "Typo: In word 'alanlar\u0131'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/data/AppDatabase.kt",
+      "line": "31",
+      "highlight": "eklendi",
+      "desc": "Typo: In word 'eklendi'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/data/AppDatabase.kt",
+      "line": "42",
+      "highlight": "Versiyon",
+      "desc": "Typo: In word 'Versiyon'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/data/AppDatabase.kt",
+      "line": "42",
+      "highlight": "ge\u00e7i\u015f",
+      "desc": "Typo: In word 'ge\u00e7i\u015f'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/data/AppDatabase.kt",
+      "line": "42",
+      "highlight": "Performans",
+      "desc": "Typo: In word 'Performans'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/data/AppDatabase.kt",
+      "line": "42",
+      "highlight": "i\u00e7in",
+      "desc": "Typo: In word 'i\u00e7in'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/data/AppDatabase.kt",
+      "line": "42",
+      "highlight": "yeni",
+      "desc": "Typo: In word 'yeni'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/data/AppDatabase.kt",
+      "line": "42",
+      "highlight": "indeksler",
+      "desc": "Typo: In word 'indeksler'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/data/AppDatabase.kt",
+      "line": "42",
+      "highlight": "eklendi",
+      "desc": "Typo: In word 'eklendi'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/BackupManager.kt",
+      "line": "120",
+      "highlight": "Hedef",
+      "desc": "Typo: In word 'Hedef'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/BackupManager.kt",
+      "line": "120",
+      "highlight": "dosya",
+      "desc": "Typo: In word 'dosya'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/BackupManager.kt",
+      "line": "120",
+      "highlight": "a\u00e7\u0131lamad\u0131",
+      "desc": "Typo: In word 'a\u00e7\u0131lamad\u0131'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/BackupManager.kt",
+      "line": "124",
+      "highlight": "Yedekleme",
+      "desc": "Typo: In word 'Yedekleme'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/BackupManager.kt",
+      "line": "124",
+      "highlight": "ba\u015far\u0131s\u0131z",
+      "desc": "Typo: In word 'ba\u015far\u0131s\u0131z'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/BackupManager.kt",
+      "line": "124",
+      "highlight": "oldu",
+      "desc": "Typo: In word 'oldu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/BackupManager.kt",
+      "line": "134",
+      "highlight": "Ge\u00e7ici",
+      "desc": "Typo: In word 'Ge\u00e7ici'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/BackupManager.kt",
+      "line": "134",
+      "highlight": "klas\u00f6r",
+      "desc": "Typo: In word 'klas\u00f6r'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/BackupManager.kt",
+      "line": "134",
+      "highlight": "olu\u015fturulamad\u0131",
+      "desc": "Typo: In word 'olu\u015fturulamad\u0131'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/BackupManager.kt",
+      "line": "155",
+      "highlight": "Yedek",
+      "desc": "Typo: In word 'Yedek'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/BackupManager.kt",
+      "line": "155",
+      "highlight": "dosyas\u0131",
+      "desc": "Typo: In word 'dosyas\u0131'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/BackupManager.kt",
+      "line": "155",
+      "highlight": "okunamad\u0131",
+      "desc": "Typo: In word 'okunamad\u0131'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/FileManager.kt",
+      "line": "77",
+      "highlight": "Dosya",
+      "desc": "Typo: In word 'Dosya'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/FileManager.kt",
+      "line": "77",
+      "highlight": "silinirken",
+      "desc": "Typo: In word 'silinirken'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/FileManager.kt",
+      "line": "77",
+      "highlight": "hata",
+      "desc": "Typo: In word 'hata'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/FileManager.kt",
+      "line": "77",
+      "highlight": "olu\u015ftu",
+      "desc": "Typo: In word 'olu\u015ftu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/FileManager.kt",
+      "line": "107",
+      "highlight": "Dosya",
+      "desc": "Typo: In word 'Dosya'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/FileManager.kt",
+      "line": "107",
+      "highlight": "kopyalanamad\u0131",
+      "desc": "Typo: In word 'kopyalanamad\u0131'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/FileManager.kt",
+      "line": "110",
+      "highlight": "Dosya",
+      "desc": "Typo: In word 'Dosya'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/FileManager.kt",
+      "line": "110",
+      "highlight": "kopyalan\u0131rken",
+      "desc": "Typo: In word 'kopyalan\u0131rken'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/FileManager.kt",
+      "line": "110",
+      "highlight": "hata",
+      "desc": "Typo: In word 'hata'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/FileManager.kt",
+      "line": "110",
+      "highlight": "olu\u015ftu",
+      "desc": "Typo: In word 'olu\u015ftu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/FileManager.kt",
+      "line": "118",
+      "highlight": "Ge\u00e7ici",
+      "desc": "Typo: In word 'Ge\u00e7ici'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/FileManager.kt",
+      "line": "118",
+      "highlight": "klas\u00f6r",
+      "desc": "Typo: In word 'klas\u00f6r'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/FileManager.kt",
+      "line": "118",
+      "highlight": "olu\u015fturulamad\u0131",
+      "desc": "Typo: In word 'olu\u015fturulamad\u0131'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/FileManager.kt",
+      "line": "132",
+      "highlight": "Klas\u00f6r",
+      "desc": "Typo: In word 'Klas\u00f6r'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/FileManager.kt",
+      "line": "132",
+      "highlight": "temizlenirken",
+      "desc": "Typo: In word 'temizlenirken'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/FileManager.kt",
+      "line": "132",
+      "highlight": "hata",
+      "desc": "Typo: In word 'hata'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/FileManager.kt",
+      "line": "132",
+      "highlight": "olu\u015ftu",
+      "desc": "Typo: In word 'olu\u015ftu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/PdfExportManager.kt",
+      "line": "138",
+      "highlight": "Sayfa",
+      "desc": "Typo: In word 'Sayfa'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/PdfExportManager.kt",
+      "line": "164",
+      "highlight": "Tarih",
+      "desc": "Typo: In word 'Tarih'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/PdfExportManager.kt",
+      "line": "253",
+      "highlight": "Sayfa",
+      "desc": "Typo: In word 'Sayfa'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/PdfExportManager.kt",
+      "line": "269",
+      "highlight": "fileprovider",
+      "desc": "Typo: In word 'fileprovider'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/PdfExportManager.kt",
+      "line": "272",
+      "highlight": "olu\u015fturulurken",
+      "desc": "Typo: In word 'olu\u015fturulurken'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/PdfExportManager.kt",
+      "line": "272",
+      "highlight": "hata",
+      "desc": "Typo: In word 'hata'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/PdfExportManager.kt",
+      "line": "272",
+      "highlight": "olu\u015ftu",
+      "desc": "Typo: In word 'olu\u015ftu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/repository/PhotoRepository.kt",
+      "line": "84",
+      "highlight": "enableAvif",
+      "desc": "Typo: In word 'enableAvif'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/CameraScreen.kt",
+      "line": "81",
+      "highlight": "Avif",
+      "desc": "Typo: In word 'Avif'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/CameraScreen.kt",
+      "line": "83",
+      "highlight": "Avif",
+      "desc": "Typo: In word 'Avif'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/CameraStateHolder.kt",
+      "line": "391",
+      "highlight": "Kamera",
+      "desc": "Typo: In word 'Kamera'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/CameraStateHolder.kt",
+      "line": "391",
+      "highlight": "ba\u015flat\u0131lamad\u0131",
+      "desc": "Typo: In word 'ba\u015flat\u0131lamad\u0131'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/DashboardScreen.kt",
+      "line": "78",
+      "highlight": "Sim\u00fcle",
+      "desc": "Typo: In word 'Sim\u00fcle'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/DashboardScreen.kt",
+      "line": "78",
+      "highlight": "edilmi\u015f",
+      "desc": "Typo: In word 'edilmi\u015f'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/DashboardScreen.kt",
+      "line": "78",
+      "highlight": "yenileme",
+      "desc": "Typo: In word 'yenileme'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/DashboardScreen.kt",
+      "line": "78",
+      "highlight": "efekti",
+      "desc": "Typo: In word 'efekti'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/DashboardScreen.kt",
+      "line": "120",
+      "highlight": "Kutusu",
+      "desc": "Typo: In word 'Kutusu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/ProjectDetailScreen.kt",
+      "line": "87",
+      "highlight": "Bildirim",
+      "desc": "Typo: In word 'Bildirim'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/ProjectDetailScreen.kt",
+      "line": "87",
+      "highlight": "izni",
+      "desc": "Typo: In word 'izni'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/ProjectDetailScreen.kt",
+      "line": "87",
+      "highlight": "verilmedi\u00c3",
+      "desc": "Typo: In word 'verilmedi\u00c3'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/ProjectDetailScreen.kt",
+      "line": "87",
+      "highlight": "arkaplan",
+      "desc": "Typo: In word 'arkaplan'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/ProjectDetailScreen.kt",
+      "line": "87",
+      "highlight": "lemi",
+      "desc": "Typo: In word 'lemi'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/ProjectDetailScreen.kt",
+      "line": "87",
+      "highlight": "durumu",
+      "desc": "Typo: In word 'durumu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/ProjectDetailScreen.kt",
+      "line": "87",
+      "highlight": "sterilemeyecek",
+      "desc": "Typo: In word 'sterilemeyecek'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/ProjectDetailScreen.kt",
+      "line": "260",
+      "highlight": "galeride",
+      "desc": "Typo: In word 'galeride'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/ProjectDetailScreen.kt",
+      "line": "260",
+      "highlight": "oldu\u011fumuzu",
+      "desc": "Typo: In word 'oldu\u011fumuzu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/ProjectDetailScreen.kt",
+      "line": "260",
+      "highlight": "hat\u0131rla",
+      "desc": "Typo: In word 'hat\u0131rla'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/ProjectDetailScreen.kt",
+      "line": "302",
+      "highlight": "Arka",
+      "desc": "Typo: In word 'Arka'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/ProjectDetailScreen.kt",
+      "line": "307",
+      "highlight": "Bildirimleri",
+      "desc": "Typo: In word 'Bildirimleri'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/ProjectDetailScreen.kt",
+      "line": "307",
+      "highlight": "kontrol",
+      "desc": "Typo: In word 'kontrol'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/ProjectDetailScreen.kt",
+      "line": "307",
+      "highlight": "edin",
+      "desc": "Typo: In word 'edin'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/ProjectDetailScreen.kt",
+      "line": "326",
+      "highlight": "galeriden",
+      "desc": "Typo: In word 'galeriden'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/ProjectDetailScreen.kt",
+      "line": "326",
+      "highlight": "geldiysek",
+      "desc": "Typo: In word 'geldiysek'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/ProjectDetailScreen.kt",
+      "line": "326",
+      "highlight": "foto\u011fraf\u0131",
+      "desc": "Typo: In word 'foto\u011fraf\u0131'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/ProjectDetailScreen.kt",
+      "line": "326",
+      "highlight": "kapat\u0131nca",
+      "desc": "Typo: In word 'kapat\u0131nca'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/ProjectDetailScreen.kt",
+      "line": "326",
+      "highlight": "galeriyi",
+      "desc": "Typo: In word 'galeriyi'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/ProjectDetailScreen.kt",
+      "line": "326",
+      "highlight": "geri",
+      "desc": "Typo: In word 'geri'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/SettingsScreen.kt",
+      "line": "62",
+      "highlight": "\u00f6nlemi",
+      "desc": "Typo: In word '\u00f6nlemi'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/camera/components/CameraComponents.kt",
+      "line": "157",
+      "highlight": "Ayarlar",
+      "desc": "Typo: In word 'Ayarlar'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/components/ExportDialog.kt",
+      "line": "78",
+      "highlight": "Ba\u015fl\u0131k",
+      "desc": "Typo: In word 'Ba\u015fl\u0131k'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/components/ExportDialog.kt",
+      "line": "107",
+      "highlight": "Se\u00e7imi",
+      "desc": "Typo: In word 'Se\u00e7imi'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/components/ExportDialog.kt",
+      "line": "134",
+      "highlight": "Dosya",
+      "desc": "Typo: In word 'Dosya'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/components/ExportDialog.kt",
+      "line": "134",
+      "highlight": "bilgileri",
+      "desc": "Typo: In word 'bilgileri'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/components/ExportDialog.kt",
+      "line": "141",
+      "highlight": "S\u0131k\u0131\u015ft\u0131rma",
+      "desc": "Typo: In word 'S\u0131k\u0131\u015ft\u0131rma'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/components/ExportDialog.kt",
+      "line": "141",
+      "highlight": "Se\u00e7enekleri",
+      "desc": "Typo: In word 'Se\u00e7enekleri'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/components/ExportDialog.kt",
+      "line": "175",
+      "highlight": "\u0130\u00e7erik",
+      "desc": "Typo: In word '\u0130\u00e7erik'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/components/ExportDialog.kt",
+      "line": "175",
+      "highlight": "\u00f6zeti",
+      "desc": "Typo: In word '\u00f6zeti'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/components/ExportDialog.kt",
+      "line": "212",
+      "highlight": "adet",
+      "desc": "Typo: In word 'adet'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/components/ExportDialog.kt",
+      "line": "215",
+      "highlight": "adet",
+      "desc": "Typo: In word 'adet'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/components/ExportDialog.kt",
+      "line": "215",
+      "highlight": "Oynat\u0131lamaz",
+      "desc": "Typo: In word 'Oynat\u0131lamaz'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/components/ExportDialog.kt",
+      "line": "215",
+      "highlight": "Dahil",
+      "desc": "Typo: In word 'Dahil'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/components/ExportDialog.kt",
+      "line": "215",
+      "highlight": "edilmez",
+      "desc": "Typo: In word 'edilmez'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/components/ExportDialog.kt",
+      "line": "217",
+      "highlight": "adet",
+      "desc": "Typo: In word 'adet'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/components/ExportDialog.kt",
+      "line": "217",
+      "highlight": "Oynat\u0131labilir",
+      "desc": "Typo: In word 'Oynat\u0131labilir'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/components/ExportDialog.kt",
+      "line": "225",
+      "highlight": "boyut",
+      "desc": "Typo: In word 'boyut'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/components/ExportDialog.kt",
+      "line": "225",
+      "highlight": "tahmini",
+      "desc": "Typo: In word 'tahmini'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/components/ExportDialog.kt",
+      "line": "256",
+      "highlight": "boyut",
+      "desc": "Typo: In word 'boyut'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/components/ExportDialog.kt",
+      "line": "256",
+      "highlight": "tahmini",
+      "desc": "Typo: In word 'tahmini'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/components/ExportDialog.kt",
+      "line": "285",
+      "highlight": "Butonlar",
+      "desc": "Typo: In word 'Butonlar'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/components/ImageCropperDialog.kt",
+      "line": "56",
+      "highlight": "uygun",
+      "desc": "Typo: In word 'uygun'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/components/ImageCropperDialog.kt",
+      "line": "56",
+      "highlight": "\u015fekilde",
+      "desc": "Typo: In word '\u015fekilde'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/components/ImageCropperDialog.kt",
+      "line": "56",
+      "highlight": "y\u00fckle",
+      "desc": "Typo: In word 'y\u00fckle'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/components/ImageCropperDialog.kt",
+      "line": "203",
+      "highlight": "ptal",
+      "desc": "Typo: In word 'ptal'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/components/ImageCropperDialog.kt",
+      "line": "206",
+      "highlight": "Logoyu",
+      "desc": "Typo: In word 'Logoyu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/components/ImageCropperDialog.kt",
+      "line": "210",
+      "highlight": "obmp",
+      "desc": "Typo: In word 'obmp'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/components/ImageCropperDialog.kt",
+      "line": "256",
+      "highlight": "Kaydet",
+      "desc": "Typo: In word 'Kaydet'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/navigation/AppNavGraph.kt",
+      "line": "47",
+      "highlight": "\u015eantiye",
+      "desc": "Typo: In word '\u015eantiye'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/navigation/AppNavGraph.kt",
+      "line": "47",
+      "highlight": "G\u00fcnl\u00fc\u011f\u00fc",
+      "desc": "Typo: In word 'G\u00fcnl\u00fc\u011f\u00fc'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/viewmodel/AppViewModel.kt",
+      "line": "33",
+      "highlight": "AVIF",
+      "desc": "Typo: In word 'AVIF'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/viewmodel/AppViewModel.kt",
+      "line": "33",
+      "highlight": "avif",
+      "desc": "Typo: In word 'avif'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/viewmodel/AppViewModel.kt",
+      "line": "61",
+      "highlight": "Avif",
+      "desc": "Typo: In word 'Avif'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/viewmodel/AppViewModel.kt",
+      "line": "69",
+      "highlight": "Avif",
+      "desc": "Typo: In word 'Avif'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/CompanyLogoManager.kt",
+      "line": "26",
+      "highlight": "olarak",
+      "desc": "Typo: In word 'olarak'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/CompanyLogoManager.kt",
+      "line": "26",
+      "highlight": "verebiliriz",
+      "desc": "Typo: In word 'verebiliriz'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/CompanyLogoManager.kt",
+      "line": "26",
+      "highlight": "direkt",
+      "desc": "Typo: In word 'direkt'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/CompanyLogoManager.kt",
+      "line": "26",
+      "highlight": "verebiliriz",
+      "desc": "Typo: In word 'verebiliriz'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/CompanyLogoManager.kt",
+      "line": "27",
+      "highlight": "yeterli",
+      "desc": "Typo: In word 'yeterli'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "62",
+      "highlight": "Videolar\u00c3",
+      "desc": "Typo: In word 'Videolar\u00c3'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "62",
+      "highlight": "rudan",
+      "desc": "Typo: In word 'rudan'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "62",
+      "highlight": "kopyal\u00c3",
+      "desc": "Typo: In word 'kopyal\u00c3'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "62",
+      "highlight": "yoruz",
+      "desc": "Typo: In word 'yoruz'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "66",
+      "highlight": "Orijinal",
+      "desc": "Typo: In word 'Orijinal'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "66",
+      "highlight": "kaliteyi",
+      "desc": "Typo: In word 'kaliteyi'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "66",
+      "highlight": "erisinde",
+      "desc": "Typo: In word 'erisinde'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "66",
+      "highlight": "eksiksiz",
+      "desc": "Typo: In word 'eksiksiz'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "66",
+      "highlight": "aktar",
+      "desc": "Typo: In word 'aktar'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "69",
+      "highlight": "ildiyse",
+      "desc": "Typo: In word 'ildiyse'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "69",
+      "highlight": "kullan",
+      "desc": "Typo: In word 'kullan'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "72",
+      "highlight": "olursa",
+      "desc": "Typo: In word 'olursa'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "72",
+      "highlight": "orijinali",
+      "desc": "Typo: In word 'orijinali'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "72",
+      "highlight": "kopyala",
+      "desc": "Typo: In word 'kopyala'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "94",
+      "highlight": "Eskisini",
+      "desc": "Typo: In word 'Eskisini'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "98",
+      "highlight": "\u0153nce",
+      "desc": "Typo: In word '\u0153nce'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "98",
+      "highlight": "ekle",
+      "desc": "Typo: In word 'ekle'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "98",
+      "highlight": "opsiyonel",
+      "desc": "Typo: In word 'opsiyonel'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "98",
+      "highlight": "zenli",
+      "desc": "Typo: In word 'zenli'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "98",
+      "highlight": "olur",
+      "desc": "Typo: In word 'olur'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "104",
+      "highlight": "Sonra",
+      "desc": "Typo: In word 'Sonra'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "104",
+      "highlight": "indekileri",
+      "desc": "Typo: In word 'indekileri'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "104",
+      "highlight": "ekle",
+      "desc": "Typo: In word 'ekle'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "121",
+      "highlight": "fileprovider",
+      "desc": "Typo: In word 'fileprovider'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "150",
+      "highlight": "Rapor",
+      "desc": "Typo: In word 'Rapor'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "171",
+      "highlight": "Segoe",
+      "desc": "Typo: In word 'Segoe'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "243",
+      "highlight": "minmax",
+      "desc": "Typo: In word 'minmax'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "269",
+      "highlight": "Rapor",
+      "desc": "Typo: In word 'Rapor'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "269",
+      "highlight": "Tarihi",
+      "desc": "Typo: In word 'Tarihi'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "271",
+      "highlight": "irket",
+      "desc": "Typo: In word 'irket'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "271",
+      "highlight": "Logosu",
+      "desc": "Typo: In word 'Logosu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "302",
+      "highlight": "Kullan\u00c3",
+      "desc": "Typo: In word 'Kullan\u00c3'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "302",
+      "highlight": "galeride",
+      "desc": "Typo: In word 'galeride'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "302",
+      "highlight": "yapt\u00c3",
+      "desc": "Typo: In word 'yapt\u00c3'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "302",
+      "highlight": "lemini",
+      "desc": "Typo: In word 'lemini'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "302",
+      "highlight": "uyguluyoruz",
+      "desc": "Typo: In word 'uyguluyoruz'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "302",
+      "highlight": "orijinal",
+      "desc": "Typo: In word 'orijinal'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "302",
+      "highlight": "dosyay\u00c3",
+      "desc": "Typo: In word 'dosyay\u00c3'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "302",
+      "highlight": "bozmadan",
+      "desc": "Typo: In word 'bozmadan'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "304",
+      "highlight": "Foto\u00c3",
+      "desc": "Typo: In word 'Foto\u00c3'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "331",
+      "highlight": "\u0153ncelik",
+      "desc": "Typo: In word '\u0153ncelik'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "343",
+      "highlight": "rudan",
+      "desc": "Typo: In word 'rudan'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "343",
+      "highlight": "dosya",
+      "desc": "Typo: In word 'dosya'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "343",
+      "highlight": "olarak",
+      "desc": "Typo: In word 'olarak'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "360",
+      "highlight": "fallbackPath'i",
+      "desc": "Typo: In word 'fallbackPath'i'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "360",
+      "highlight": "rudan",
+      "desc": "Typo: In word 'rudan'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "360",
+      "highlight": "dosya",
+      "desc": "Typo: In word 'dosya'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/HtmlExporter.kt",
+      "line": "360",
+      "highlight": "olarak",
+      "desc": "Typo: In word 'olarak'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/LocationManager.kt",
+      "line": "117",
+      "highlight": "addr",
+      "desc": "Typo: In word 'addr'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/MediaProcessor.kt",
+      "line": "22",
+      "highlight": "Avif",
+      "desc": "Typo: In word 'Avif'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/MediaShareUtils.kt",
+      "line": "17",
+      "highlight": "fileprovider",
+      "desc": "Typo: In word 'fileprovider'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/util/MediaShareUtils.kt",
+      "line": "42",
+      "highlight": "fileprovider",
+      "desc": "Typo: In word 'fileprovider'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/widget/PhotoReportWidgetProvider.kt",
+      "line": "31",
+      "highlight": "ismine",
+      "desc": "Typo: In word 'ismine'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/widget/PhotoReportWidgetProvider.kt",
+      "line": "31",
+      "highlight": "t\u0131klay\u0131nca",
+      "desc": "Typo: In word 't\u0131klay\u0131nca'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/widget/PhotoReportWidgetProvider.kt",
+      "line": "44",
+      "highlight": "G\u00f6rsellere",
+      "desc": "Typo: In word 'G\u00f6rsellere'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/widget/PhotoReportWidgetProvider.kt",
+      "line": "44",
+      "highlight": "t\u0131klay\u0131nca",
+      "desc": "Typo: In word 't\u0131klay\u0131nca'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/widget/PhotoReportWidgetProvider.kt",
+      "line": "44",
+      "highlight": "Detay",
+      "desc": "Typo: In word 'Detay'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/widget/PhotoReportWidgetProvider.kt",
+      "line": "58",
+      "highlight": "Kameraya",
+      "desc": "Typo: In word 'Kameraya'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/widget/WidgetDataHelper.kt",
+      "line": "33",
+      "highlight": "Proje",
+      "desc": "Typo: In word 'Proje'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/widget/WidgetDataHelper.kt",
+      "line": "33",
+      "highlight": "Proje",
+      "desc": "Typo: In word 'Proje'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/widget/WidgetDataHelper.kt",
+      "line": "41",
+      "highlight": "\u015eantiye",
+      "desc": "Typo: In word '\u015eantiye'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/widget/WidgetDataHelper.kt",
+      "line": "41",
+      "highlight": "G\u00fcnl\u00fc\u011f\u00fc",
+      "desc": "Typo: In word 'G\u00fcnl\u00fc\u011f\u00fc'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/worker/ExportWorker.kt",
+      "line": "33",
+      "highlight": "Proje",
+      "desc": "Typo: In word 'Proje'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/worker/ExportWorker.kt",
+      "line": "67",
+      "highlight": "Proje",
+      "desc": "Typo: In word 'Proje'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/worker/ExportWorker.kt",
+      "line": "100",
+      "highlight": "Proje",
+      "desc": "Typo: In word 'Proje'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/worker/PhotoProcessingWorker.kt",
+      "line": "40",
+      "highlight": "Avif",
+      "desc": "Typo: In word 'Avif'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/java/com/fatihenes/photoreport/worker/PhotoProcessingWorker.kt",
+      "line": "40",
+      "highlight": "enableAvif",
+      "desc": "Typo: In word 'enableAvif'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/drawable/ic_stat_logo.xml",
+      "line": "7",
+      "highlight": "Defterin",
+      "desc": "Typo: In word 'Defterin'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/drawable/ic_stat_logo.xml",
+      "line": "7",
+      "highlight": "\u00e7izgisi",
+      "desc": "Typo: In word '\u00e7izgisi'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/drawable/ic_stat_logo.xml",
+      "line": "12",
+      "highlight": "Defterin",
+      "desc": "Typo: In word 'Defterin'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/drawable/ic_stat_logo.xml",
+      "line": "12",
+      "highlight": "taraf\u0131ndaki",
+      "desc": "Typo: In word 'taraf\u0131ndaki'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/drawable/ic_stat_logo.xml",
+      "line": "12",
+      "highlight": "cilt",
+      "desc": "Typo: In word 'cilt'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/drawable/ic_stat_logo.xml",
+      "line": "12",
+      "highlight": "spiraller",
+      "desc": "Typo: In word 'spiraller'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/drawable/ic_stat_logo.xml",
+      "line": "17",
+      "highlight": "Defterin",
+      "desc": "Typo: In word 'Defterin'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/drawable/ic_stat_logo.xml",
+      "line": "17",
+      "highlight": "ortas\u0131ndaki",
+      "desc": "Typo: In word 'ortas\u0131ndaki'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/drawable/ic_stat_logo.xml",
+      "line": "17",
+      "highlight": "\u015fim\u015fek",
+      "desc": "Typo: In word '\u015fim\u015fek'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/layout/widget_photoreport.xml",
+      "line": "11",
+      "highlight": "Proje",
+      "desc": "Typo: In word 'Proje'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/layout/widget_photoreport.xml",
+      "line": "11",
+      "highlight": "\u0130smi",
+      "desc": "Typo: In word '\u0130smi'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/layout/widget_photoreport.xml",
+      "line": "25",
+      "highlight": "Aktif",
+      "desc": "Typo: In word 'Aktif'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/layout/widget_photoreport.xml",
+      "line": "25",
+      "highlight": "Proje",
+      "desc": "Typo: In word 'Proje'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/layout/widget_photoreport.xml",
+      "line": "33",
+      "highlight": "Proje",
+      "desc": "Typo: In word 'Proje'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/layout/widget_photoreport.xml",
+      "line": "42",
+      "highlight": "ORTA",
+      "desc": "Typo: In word 'ORTA'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/layout/widget_photoreport.xml",
+      "line": "42",
+      "highlight": "G\u00f6rseller",
+      "desc": "Typo: In word 'G\u00f6rseller'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/layout/widget_photoreport.xml",
+      "line": "42",
+      "highlight": "Proje",
+      "desc": "Typo: In word 'Proje'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/layout/widget_photoreport.xml",
+      "line": "42",
+      "highlight": "Detay",
+      "desc": "Typo: In word 'Detay'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/layout/widget_photoreport.xml",
+      "line": "53",
+      "highlight": "G\u00f6rseller",
+      "desc": "Typo: In word 'G\u00f6rseller'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/layout/widget_photoreport.xml",
+      "line": "57",
+      "highlight": "Kamera",
+      "desc": "Typo: In word 'Kamera'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/layout/widget_photoreport.xml",
+      "line": "57",
+      "highlight": "Butonu",
+      "desc": "Typo: In word 'Butonu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/layout/widget_photoreport.xml",
+      "line": "57",
+      "highlight": "Foto\u011fraf",
+      "desc": "Typo: In word 'Foto\u011fraf'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/layout/widget_photoreport.xml",
+      "line": "70",
+      "highlight": "Kamera",
+      "desc": "Typo: In word 'Kamera'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "2",
+      "highlight": "\u015eantiye",
+      "desc": "Typo: In word '\u015eantiye'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "2",
+      "highlight": "G\u00fcnl\u00fc\u011f\u00fc",
+      "desc": "Typo: In word 'G\u00fcnl\u00fc\u011f\u00fc'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "3",
+      "highlight": "Aktif",
+      "desc": "Typo: In word 'Aktif'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "6",
+      "highlight": "Aktif",
+      "desc": "Typo: In word 'Aktif'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "6",
+      "highlight": "Projeler",
+      "desc": "Typo: In word 'Projeler'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "8",
+      "highlight": "Dosya",
+      "desc": "Typo: In word 'Dosya'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "9",
+      "highlight": "Dosya",
+      "desc": "Typo: In word 'Dosya'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "11",
+      "highlight": "\u015eantiye",
+      "desc": "Typo: In word '\u015eantiye'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "11",
+      "highlight": "G\u00fcnl\u00fc\u011f\u00fc",
+      "desc": "Typo: In word 'G\u00fcnl\u00fc\u011f\u00fc'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "12",
+      "highlight": "Hen\u00fcz",
+      "desc": "Typo: In word 'Hen\u00fcz'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "12",
+      "highlight": "Proje",
+      "desc": "Typo: In word 'Proje'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "15",
+      "highlight": "Yeni",
+      "desc": "Typo: In word 'Yeni'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "15",
+      "highlight": "Proje",
+      "desc": "Typo: In word 'Proje'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "15",
+      "highlight": "Ba\u015flat",
+      "desc": "Typo: In word 'Ba\u015flat'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "16",
+      "highlight": "Proje",
+      "desc": "Typo: In word 'Proje'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "16",
+      "highlight": "\u0130smi",
+      "desc": "Typo: In word '\u0130smi'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "17",
+      "highlight": "\u0130ptal",
+      "desc": "Typo: In word '\u0130ptal'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "20",
+      "highlight": "Proje",
+      "desc": "Typo: In word 'Proje'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "20",
+      "highlight": "Detaylar\u0131",
+      "desc": "Typo: In word 'Detaylar\u0131'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "21",
+      "highlight": "T\u00fcneli",
+      "desc": "Typo: In word 'T\u00fcneli'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "22",
+      "highlight": "G\u00fcn\u00fcn",
+      "desc": "Typo: In word 'G\u00fcn\u00fcn'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "22",
+      "highlight": "\u00f6zetini",
+      "desc": "Typo: In word '\u00f6zetini'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "22",
+      "highlight": "buraya",
+      "desc": "Typo: In word 'buraya'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "22",
+      "highlight": "yaz\u0131n",
+      "desc": "Typo: In word 'yaz\u0131n'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "23",
+      "highlight": "Dosya",
+      "desc": "Typo: In word 'Dosya'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "23",
+      "highlight": "Olarak",
+      "desc": "Typo: In word 'Olarak'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "23",
+      "highlight": "Payla\u015f",
+      "desc": "Typo: In word 'Payla\u015f'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "24",
+      "highlight": "Haz\u0131rlan\u0131yor",
+      "desc": "Typo: In word 'Haz\u0131rlan\u0131yor'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "25",
+      "highlight": "Tarih",
+      "desc": "Typo: In word 'Tarih'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "25",
+      "highlight": "Kart\u0131",
+      "desc": "Typo: In word 'Kart\u0131'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "25",
+      "highlight": "Ekle",
+      "desc": "Typo: In word 'Ekle'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "26",
+      "highlight": "Y\u00fckleniyor",
+      "desc": "Typo: In word 'Y\u00fckleniyor'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "27",
+      "highlight": "Kamera",
+      "desc": "Typo: In word 'Kamera'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "29",
+      "highlight": "Ekle",
+      "desc": "Typo: In word 'Ekle'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "39",
+      "highlight": "Toplu",
+      "desc": "Typo: In word 'Toplu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "40",
+      "highlight": "Projeyi",
+      "desc": "Typo: In word 'Projeyi'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "43",
+      "highlight": "Projeyi",
+      "desc": "Typo: In word 'Projeyi'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "44",
+      "highlight": "projesini",
+      "desc": "Typo: In word 'projesini'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "44",
+      "highlight": "kay\u0131tlar\u0131n\u0131",
+      "desc": "Typo: In word 'kay\u0131tlar\u0131n\u0131'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "44",
+      "highlight": "silmek",
+      "desc": "Typo: In word 'silmek'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "44",
+      "highlight": "istedi\u011finize",
+      "desc": "Typo: In word 'istedi\u011finize'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "44",
+      "highlight": "emin",
+      "desc": "Typo: In word 'emin'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "44",
+      "highlight": "misiniz",
+      "desc": "Typo: In word 'misiniz'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "45",
+      "highlight": "Foto\u011fraf\u0131",
+      "desc": "Typo: In word 'Foto\u011fraf\u0131'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "48",
+      "highlight": "emin",
+      "desc": "Typo: In word 'emin'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "48",
+      "highlight": "misiniz",
+      "desc": "Typo: In word 'misiniz'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "49",
+      "highlight": "emin",
+      "desc": "Typo: In word 'emin'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "49",
+      "highlight": "misiniz",
+      "desc": "Typo: In word 'misiniz'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "54",
+      "highlight": "Kamera",
+      "desc": "Typo: In word 'Kamera'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "54",
+      "highlight": "izni",
+      "desc": "Typo: In word 'izni'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "54",
+      "highlight": "gerekli",
+      "desc": "Typo: In word 'gerekli'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "57",
+      "highlight": "Izgara",
+      "desc": "Typo: In word 'Izgara'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "58",
+      "highlight": "Fla\u015f",
+      "desc": "Typo: In word 'Fla\u015f'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "61",
+      "highlight": "Medya",
+      "desc": "Typo: In word 'Medya'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "61",
+      "highlight": "Payla\u015f",
+      "desc": "Typo: In word 'Payla\u015f'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "62",
+      "highlight": "Se\u00e7ilenleri",
+      "desc": "Typo: In word 'Se\u00e7ilenleri'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "62",
+      "highlight": "Payla\u015f",
+      "desc": "Typo: In word 'Payla\u015f'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "63",
+      "highlight": "Payla\u015f",
+      "desc": "Typo: In word 'Payla\u015f'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "64",
+      "highlight": "Payla\u015f\u0131m",
+      "desc": "Typo: In word 'Payla\u015f\u0131m'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "64",
+      "highlight": "ba\u015flat\u0131lamad\u0131",
+      "desc": "Typo: In word 'ba\u015flat\u0131lamad\u0131'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "65",
+      "highlight": "Payla\u015f\u0131lacak",
+      "desc": "Typo: In word 'Payla\u015f\u0131lacak'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "65",
+      "highlight": "dosya",
+      "desc": "Typo: In word 'dosya'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "65",
+      "highlight": "bulunamad\u0131",
+      "desc": "Typo: In word 'bulunamad\u0131'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "66",
+      "highlight": "Baz\u0131",
+      "desc": "Typo: In word 'Baz\u0131'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "66",
+      "highlight": "dosyalar",
+      "desc": "Typo: In word 'dosyalar'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "66",
+      "highlight": "aktar\u0131lamad\u0131",
+      "desc": "Typo: In word 'aktar\u0131lamad\u0131'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "70",
+      "highlight": "Kapat",
+      "desc": "Typo: In word 'Kapat'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "71",
+      "highlight": "D\u00f6nd\u00fcr",
+      "desc": "Typo: In word 'D\u00f6nd\u00fcr'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "74",
+      "highlight": "Se\u00e7ildi",
+      "desc": "Typo: In word 'Se\u00e7ildi'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "75",
+      "highlight": "Se\u00e7ildi",
+      "desc": "Typo: In word 'Se\u00e7ildi'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "79",
+      "highlight": "Projeyi",
+      "desc": "Typo: In word 'Projeyi'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "79",
+      "highlight": "Payla\u015f",
+      "desc": "Typo: In word 'Payla\u015f'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "80",
+      "highlight": "S\u0131k\u0131\u015ft\u0131rma",
+      "desc": "Typo: In word 'S\u0131k\u0131\u015ft\u0131rma'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "80",
+      "highlight": "Kalitesi",
+      "desc": "Typo: In word 'Kalitesi'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "81",
+      "highlight": "Orijinal",
+      "desc": "Typo: In word 'Orijinal'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "82",
+      "highlight": "Kay\u0131ps\u0131z",
+      "desc": "Typo: In word 'Kay\u0131ps\u0131z'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "83",
+      "highlight": "Y\u00fcksek",
+      "desc": "Typo: In word 'Y\u00fcksek'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "84",
+      "highlight": "Tavsiye",
+      "desc": "Typo: In word 'Tavsiye'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "85",
+      "highlight": "Standart",
+      "desc": "Typo: In word 'Standart'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "86",
+      "highlight": "H\u0131zl\u0131",
+      "desc": "Typo: In word 'H\u0131zl\u0131'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "86",
+      "highlight": "Aktar\u0131m",
+      "desc": "Typo: In word 'Aktar\u0131m'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "87",
+      "highlight": "\u0130\u00e7erik",
+      "desc": "Typo: In word '\u0130\u00e7erik'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "87",
+      "highlight": "\u00d6zeti",
+      "desc": "Typo: In word '\u00d6zeti'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "88",
+      "highlight": "Boyutlar",
+      "desc": "Typo: In word 'Boyutlar'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "88",
+      "highlight": "hesaplan\u0131yor",
+      "desc": "Typo: In word 'hesaplan\u0131yor'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "89",
+      "highlight": "G\u00f6rsel",
+      "desc": "Typo: In word 'G\u00f6rsel'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "89",
+      "highlight": "rapor",
+      "desc": "Typo: In word 'rapor'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "89",
+      "highlight": "Videolar",
+      "desc": "Typo: In word 'Videolar'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "89",
+      "highlight": "oynat\u0131lamaz",
+      "desc": "Typo: In word 'oynat\u0131lamaz'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "90",
+      "highlight": "raporu",
+      "desc": "Typo: In word 'raporu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "90",
+      "highlight": "Videolar",
+      "desc": "Typo: In word 'Videolar'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "90",
+      "highlight": "dahil",
+      "desc": "Typo: In word 'dahil'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "90",
+      "highlight": "edilir",
+      "desc": "Typo: In word 'edilir'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "91",
+      "highlight": "Foto\u011fraf",
+      "desc": "Typo: In word 'Foto\u011fraf'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "93",
+      "highlight": "Kayd\u0131",
+      "desc": "Typo: In word 'Kayd\u0131'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "94",
+      "highlight": "Payla\u015f",
+      "desc": "Typo: In word 'Payla\u015f'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "95",
+      "highlight": "\u0130ptal",
+      "desc": "Typo: In word '\u0130ptal'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "96",
+      "highlight": "format\u0131nda",
+      "desc": "Typo: In word 'format\u0131nda'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "96",
+      "highlight": "videolar",
+      "desc": "Typo: In word 'videolar'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "96",
+      "highlight": "oynat\u0131lamaz",
+      "desc": "Typo: In word 'oynat\u0131lamaz'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "96",
+      "highlight": "sadece",
+      "desc": "Typo: In word 'sadece'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "96",
+      "highlight": "izleme",
+      "desc": "Typo: In word 'izleme'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "96",
+      "highlight": "g\u00f6r\u00fcnt\u00fcs\u00fc",
+      "desc": "Typo: In word 'g\u00f6r\u00fcnt\u00fcs\u00fc'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "96",
+      "highlight": "eklenir",
+      "desc": "Typo: In word 'eklenir'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "97",
+      "highlight": "Foto\u011fraf",
+      "desc": "Typo: In word 'Foto\u011fraf'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "97",
+      "highlight": "videolar",
+      "desc": "Typo: In word 'videolar'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "97",
+      "highlight": "orijinal",
+      "desc": "Typo: In word 'orijinal'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "97",
+      "highlight": "kalitede",
+      "desc": "Typo: In word 'kalitede'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "97",
+      "highlight": "kay\u0131ps\u0131z",
+      "desc": "Typo: In word 'kay\u0131ps\u0131z'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "97",
+      "highlight": "olarak",
+      "desc": "Typo: In word 'olarak'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "97",
+      "highlight": "ar\u015five",
+      "desc": "Typo: In word 'ar\u015five'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "97",
+      "highlight": "eklenir",
+      "desc": "Typo: In word 'eklenir'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "98",
+      "highlight": "G\u00f6rseller",
+      "desc": "Typo: In word 'G\u00f6rseller'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "98",
+      "highlight": "optimizasyonundan",
+      "desc": "Typo: In word 'optimizasyonundan'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "98",
+      "highlight": "ge\u00e7er",
+      "desc": "Typo: In word 'ge\u00e7er'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "99",
+      "highlight": "Tahmini",
+      "desc": "Typo: In word 'Tahmini'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "99",
+      "highlight": "Boyutu",
+      "desc": "Typo: In word 'Boyutu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "100",
+      "highlight": "Tahmini",
+      "desc": "Typo: In word 'Tahmini'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "100",
+      "highlight": "Boyutu",
+      "desc": "Typo: In word 'Boyutu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "101",
+      "highlight": "bekleyin",
+      "desc": "Typo: In word 'bekleyin'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "104",
+      "highlight": "Bilinmeyen",
+      "desc": "Typo: In word 'Bilinmeyen'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "104",
+      "highlight": "hata",
+      "desc": "Typo: In word 'hata'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "104",
+      "highlight": "olu\u015ftu",
+      "desc": "Typo: In word 'olu\u015ftu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "105",
+      "highlight": "Silme",
+      "desc": "Typo: In word 'Silme'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "105",
+      "highlight": "i\u015flemi",
+      "desc": "Typo: In word 'i\u015flemi'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "105",
+      "highlight": "ba\u015far\u0131s\u0131z",
+      "desc": "Typo: In word 'ba\u015far\u0131s\u0131z'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "108",
+      "highlight": "D\u0131\u015fa",
+      "desc": "Typo: In word 'D\u0131\u015fa'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "108",
+      "highlight": "Aktar\u0131l\u0131yor",
+      "desc": "Typo: In word 'Aktar\u0131l\u0131yor'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "109",
+      "highlight": "haz\u0131rlan\u0131rken",
+      "desc": "Typo: In word 'haz\u0131rlan\u0131rken'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "109",
+      "highlight": "l\u00fctfen",
+      "desc": "Typo: In word 'l\u00fctfen'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "109",
+      "highlight": "bekleyin",
+      "desc": "Typo: In word 'bekleyin'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "110",
+      "highlight": "Raporu",
+      "desc": "Typo: In word 'Raporu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "110",
+      "highlight": "Payla\u015f",
+      "desc": "Typo: In word 'Payla\u015f'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "111",
+      "highlight": "D\u0131\u015fa",
+      "desc": "Typo: In word 'D\u0131\u015fa'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "111",
+      "highlight": "Aktar\u0131m",
+      "desc": "Typo: In word 'Aktar\u0131m'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "111",
+      "highlight": "Tamamland\u0131",
+      "desc": "Typo: In word 'Tamamland\u0131'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "112",
+      "highlight": "Payla\u015f\u0131ma",
+      "desc": "Typo: In word 'Payla\u015f\u0131ma'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "112",
+      "highlight": "Haz\u0131r",
+      "desc": "Typo: In word 'Haz\u0131r'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "113",
+      "highlight": "payla\u015f\u0131ma",
+      "desc": "Typo: In word 'payla\u015f\u0131ma'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "113",
+      "highlight": "haz\u0131r",
+      "desc": "Typo: In word 'haz\u0131r'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "114",
+      "highlight": "Hemen",
+      "desc": "Typo: In word 'Hemen'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "114",
+      "highlight": "Payla\u015f",
+      "desc": "Typo: In word 'Payla\u015f'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "115",
+      "highlight": "d\u00f6k\u00fcm\u00fc",
+      "desc": "Typo: In word 'd\u00f6k\u00fcm\u00fc'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "116",
+      "highlight": "ar\u015fivi",
+      "desc": "Typo: In word 'ar\u015fivi'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "119",
+      "highlight": "D\u0131\u015fa",
+      "desc": "Typo: In word 'D\u0131\u015fa'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "119",
+      "highlight": "Aktar\u0131m",
+      "desc": "Typo: In word 'Aktar\u0131m'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "119",
+      "highlight": "Ba\u015far\u0131s\u0131z",
+      "desc": "Typo: In word 'Ba\u015far\u0131s\u0131z'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "120",
+      "highlight": "d\u0131\u015fa",
+      "desc": "Typo: In word 'd\u0131\u015fa'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "120",
+      "highlight": "aktar\u0131lamad\u0131",
+      "desc": "Typo: In word 'aktar\u0131lamad\u0131'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "121",
+      "highlight": "Cihaz",
+      "desc": "Typo: In word 'Cihaz'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "121",
+      "highlight": "belle\u011fi",
+      "desc": "Typo: In word 'belle\u011fi'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "121",
+      "highlight": "yetersiz",
+      "desc": "Typo: In word 'yetersiz'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "122",
+      "highlight": "Depolama",
+      "desc": "Typo: In word 'Depolama'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "123",
+      "highlight": "D\u0131\u015fa",
+      "desc": "Typo: In word 'D\u0131\u015fa'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "123",
+      "highlight": "Aktar\u0131m",
+      "desc": "Typo: In word 'Aktar\u0131m'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "123",
+      "highlight": "Hatalar\u0131",
+      "desc": "Typo: In word 'Hatalar\u0131'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "126",
+      "highlight": "Kamera",
+      "desc": "Typo: In word 'Kamera'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "126",
+      "highlight": "\u0130zni",
+      "desc": "Typo: In word '\u0130zni'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "126",
+      "highlight": "Gerekli",
+      "desc": "Typo: In word 'Gerekli'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "127",
+      "highlight": "Kamera",
+      "desc": "Typo: In word 'Kamera'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "127",
+      "highlight": "izni",
+      "desc": "Typo: In word 'izni'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "127",
+      "highlight": "vermeniz",
+      "desc": "Typo: In word 'vermeniz'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "127",
+      "highlight": "gerekmektedir",
+      "desc": "Typo: In word 'gerekmektedir'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "128",
+      "highlight": "Ayarlara",
+      "desc": "Typo: In word 'Ayarlara'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "131",
+      "highlight": "Beklenmeyen",
+      "desc": "Typo: In word 'Beklenmeyen'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "131",
+      "highlight": "hata",
+      "desc": "Typo: In word 'hata'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "131",
+      "highlight": "olu\u015ftu",
+      "desc": "Typo: In word 'olu\u015ftu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "131",
+      "highlight": "uygulama",
+      "desc": "Typo: In word 'uygulama'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "134",
+      "highlight": "Projelerim",
+      "desc": "Typo: In word 'Projelerim'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "135",
+      "highlight": "Projeyi",
+      "desc": "Typo: In word 'Projeyi'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "135",
+      "highlight": "Ba\u015flat",
+      "desc": "Typo: In word 'Ba\u015flat'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "136",
+      "highlight": "Proje",
+      "desc": "Typo: In word 'Proje'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "136",
+      "highlight": "ba\u015far\u0131yla",
+      "desc": "Typo: In word 'ba\u015far\u0131yla'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "136",
+      "highlight": "eklendi",
+      "desc": "Typo: In word 'eklendi'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "139",
+      "highlight": "Ayarlar",
+      "desc": "Typo: In word 'Ayarlar'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "140",
+      "highlight": "G\u00f6r\u00fcn\u00fcm",
+      "desc": "Typo: In word 'G\u00f6r\u00fcn\u00fcm'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "141",
+      "highlight": "Sistem",
+      "desc": "Typo: In word 'Sistem'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "141",
+      "highlight": "Varsay\u0131lan\u0131",
+      "desc": "Typo: In word 'Varsay\u0131lan\u0131'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "142",
+      "highlight": "A\u00e7\u0131k",
+      "desc": "Typo: In word 'A\u00e7\u0131k'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "143",
+      "highlight": "Karanl\u0131k",
+      "desc": "Typo: In word 'Karanl\u0131k'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "144",
+      "highlight": "Rapor",
+      "desc": "Typo: In word 'Rapor'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "144",
+      "highlight": "Ayarlar\u0131",
+      "desc": "Typo: In word 'Ayarlar\u0131'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "145",
+      "highlight": "Logosu",
+      "desc": "Typo: In word 'Logosu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "147",
+      "highlight": "Logoyu",
+      "desc": "Typo: In word 'Logoyu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "147",
+      "highlight": "Kald\u0131r",
+      "desc": "Typo: In word 'Kald\u0131r'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "150",
+      "highlight": "Kutusu",
+      "desc": "Typo: In word 'Kutusu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "151",
+      "highlight": "kutusu",
+      "desc": "Typo: In word 'kutusu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "152",
+      "highlight": "Silinen",
+      "desc": "Typo: In word 'Silinen'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "152",
+      "highlight": "Projeler",
+      "desc": "Typo: In word 'Projeler'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "153",
+      "highlight": "Silinen",
+      "desc": "Typo: In word 'Silinen'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "153",
+      "highlight": "Foto\u011fraflar",
+      "desc": "Typo: In word 'Foto\u011fraflar'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "154",
+      "highlight": "Bilinmiyor",
+      "desc": "Typo: In word 'Bilinmiyor'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "155",
+      "highlight": "Silinme",
+      "desc": "Typo: In word 'Silinme'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "157",
+      "highlight": "Kal\u0131c\u0131",
+      "desc": "Typo: In word 'Kal\u0131c\u0131'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "157",
+      "highlight": "Olarak",
+      "desc": "Typo: In word 'Olarak'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "158",
+      "highlight": "Foto\u011fraf",
+      "desc": "Typo: In word 'Foto\u011fraf'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "161",
+      "highlight": "Kamera",
+      "desc": "Typo: In word 'Kamera'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "161",
+      "highlight": "Hatas\u0131",
+      "desc": "Typo: In word 'Hatas\u0131'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "162",
+      "highlight": "Tekrar",
+      "desc": "Typo: In word 'Tekrar'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "163",
+      "highlight": "Kamera",
+      "desc": "Typo: In word 'Kamera'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "163",
+      "highlight": "haz\u0131rlan\u0131yor",
+      "desc": "Typo: In word 'haz\u0131rlan\u0131yor'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "164",
+      "highlight": "Kamera",
+      "desc": "Typo: In word 'Kamera'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "164",
+      "highlight": "Ayarlar\u0131",
+      "desc": "Typo: In word 'Ayarlar\u0131'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "165",
+      "highlight": "Donan\u0131m",
+      "desc": "Typo: In word 'Donan\u0131m'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "167",
+      "highlight": "Kay\u0131t",
+      "desc": "Typo: In word 'Kay\u0131t'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "167",
+      "highlight": "Kay\u0131ps\u0131z",
+      "desc": "Typo: In word 'Kay\u0131ps\u0131z'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "168",
+      "highlight": "Kaliteyi",
+      "desc": "Typo: In word 'Kaliteyi'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "168",
+      "highlight": "bozmadan",
+      "desc": "Typo: In word 'bozmadan'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "168",
+      "highlight": "boyutu",
+      "desc": "Typo: In word 'boyutu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "168",
+      "highlight": "k\u00fc\u00e7\u00fclt\u00fcr",
+      "desc": "Typo: In word 'k\u00fc\u00e7\u00fclt\u00fcr'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "170",
+      "highlight": "Foto\u011fraf",
+      "desc": "Typo: In word 'Foto\u011fraf'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "170",
+      "highlight": "kaydedilemedi",
+      "desc": "Typo: In word 'kaydedilemedi'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "172",
+      "highlight": "Konum",
+      "desc": "Typo: In word 'Konum'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "172",
+      "highlight": "Filigran\u0131",
+      "desc": "Typo: In word 'Filigran\u0131'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "173",
+      "highlight": "Tarih",
+      "desc": "Typo: In word 'Tarih'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "173",
+      "highlight": "Bilgisi",
+      "desc": "Typo: In word 'Bilgisi'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "174",
+      "highlight": "koordinat",
+      "desc": "Typo: In word 'koordinat'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "174",
+      "highlight": "adres",
+      "desc": "Typo: In word 'adres'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "174",
+      "highlight": "bilgisini",
+      "desc": "Typo: In word 'bilgisini'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "174",
+      "highlight": "yazar",
+      "desc": "Typo: In word 'yazar'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "175",
+      "highlight": "filigran\u0131",
+      "desc": "Typo: In word 'filigran\u0131'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "175",
+      "highlight": "i\u00e7in",
+      "desc": "Typo: In word 'i\u00e7in'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "175",
+      "highlight": "konum",
+      "desc": "Typo: In word 'konum'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "175",
+      "highlight": "izni",
+      "desc": "Typo: In word 'izni'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "175",
+      "highlight": "gereklidir",
+      "desc": "Typo: In word 'gereklidir'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "178",
+      "highlight": "Yedekleme",
+      "desc": "Typo: In word 'Yedekleme'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "179",
+      "highlight": "Yedek",
+      "desc": "Typo: In word 'Yedek'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "179",
+      "highlight": "Olu\u015ftur",
+      "desc": "Typo: In word 'Olu\u015ftur'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "180",
+      "highlight": "proje",
+      "desc": "Typo: In word 'proje'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "180",
+      "highlight": "foto\u011fraflar\u0131n\u0131z\u0131",
+      "desc": "Typo: In word 'foto\u011fraflar\u0131n\u0131z\u0131'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "180",
+      "highlight": "dosyas\u0131na",
+      "desc": "Typo: In word 'dosyas\u0131na'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "180",
+      "highlight": "yedekleyin",
+      "desc": "Typo: In word 'yedekleyin'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "182",
+      "highlight": "geri",
+      "desc": "Typo: In word 'geri'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "182",
+      "highlight": "y\u00fckleyin",
+      "desc": "Typo: In word 'y\u00fckleyin'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "183",
+      "highlight": "\u0130\u015flem",
+      "desc": "Typo: In word '\u0130\u015flem'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "183",
+      "highlight": "ba\u015far\u0131yla",
+      "desc": "Typo: In word 'ba\u015far\u0131yla'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values/strings.xml",
+      "line": "183",
+      "highlight": "tamamland\u0131",
+      "desc": "Typo: In word 'tamamland\u0131'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/values-en/strings.xml",
+      "line": "168",
+      "highlight": "AVIF",
+      "desc": "Typo: In word 'AVIF'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/xml/backup_rules.xml",
+      "line": "4",
+      "highlight": "santiye",
+      "desc": "Typo: In word 'santiye'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/xml/backup_rules.xml",
+      "line": "4",
+      "highlight": "gunlugu",
+      "desc": "Typo: In word 'gunlugu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/xml/backup_rules.xml",
+      "line": "5",
+      "highlight": "santiye",
+      "desc": "Typo: In word 'santiye'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/xml/backup_rules.xml",
+      "line": "5",
+      "highlight": "gunlugu",
+      "desc": "Typo: In word 'gunlugu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/xml/backup_rules.xml",
+      "line": "6",
+      "highlight": "santiye",
+      "desc": "Typo: In word 'santiye'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/xml/backup_rules.xml",
+      "line": "6",
+      "highlight": "gunlugu",
+      "desc": "Typo: In word 'gunlugu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/xml/data_extraction_rules.xml",
+      "line": "4",
+      "highlight": "santiye",
+      "desc": "Typo: In word 'santiye'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/xml/data_extraction_rules.xml",
+      "line": "4",
+      "highlight": "gunlugu",
+      "desc": "Typo: In word 'gunlugu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/xml/data_extraction_rules.xml",
+      "line": "5",
+      "highlight": "santiye",
+      "desc": "Typo: In word 'santiye'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/xml/data_extraction_rules.xml",
+      "line": "5",
+      "highlight": "gunlugu",
+      "desc": "Typo: In word 'gunlugu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/xml/data_extraction_rules.xml",
+      "line": "6",
+      "highlight": "santiye",
+      "desc": "Typo: In word 'santiye'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/xml/data_extraction_rules.xml",
+      "line": "6",
+      "highlight": "gunlugu",
+      "desc": "Typo: In word 'gunlugu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/xml/data_extraction_rules.xml",
+      "line": "10",
+      "highlight": "santiye",
+      "desc": "Typo: In word 'santiye'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/xml/data_extraction_rules.xml",
+      "line": "10",
+      "highlight": "gunlugu",
+      "desc": "Typo: In word 'gunlugu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/xml/data_extraction_rules.xml",
+      "line": "11",
+      "highlight": "santiye",
+      "desc": "Typo: In word 'santiye'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/xml/data_extraction_rules.xml",
+      "line": "11",
+      "highlight": "gunlugu",
+      "desc": "Typo: In word 'gunlugu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/xml/data_extraction_rules.xml",
+      "line": "12",
+      "highlight": "santiye",
+      "desc": "Typo: In word 'santiye'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/main/res/xml/data_extraction_rules.xml",
+      "line": "12",
+      "highlight": "gunlugu",
+      "desc": "Typo: In word 'gunlugu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/test/java/com/fatihenes/photoreport/manager/BackupManagerTest.kt",
+      "line": "43",
+      "highlight": "santiye",
+      "desc": "Typo: In word 'santiye'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/test/java/com/fatihenes/photoreport/manager/BackupManagerTest.kt",
+      "line": "43",
+      "highlight": "gunlugu",
+      "desc": "Typo: In word 'gunlugu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/test/java/com/fatihenes/photoreport/util/DateUtilsTest.kt",
+      "line": "25",
+      "highlight": "Ekim",
+      "desc": "Typo: In word 'Ekim'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "app/src/test/java/com/fatihenes/photoreport/util/DateUtilsTest.kt",
+      "line": "25",
+      "highlight": "Pazar",
+      "desc": "Typo: In word 'Pazar'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "gradle/gradle-daemon-jvm.properties",
+      "line": "2",
+      "highlight": "AARCH",
+      "desc": "Typo: In word 'AARCH'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "gradle/gradle-daemon-jvm.properties",
+      "line": "4",
+      "highlight": "AARCH",
+      "desc": "Typo: In word 'AARCH'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "gradle/gradle-daemon-jvm.properties",
+      "line": "6",
+      "highlight": "AARCH",
+      "desc": "Typo: In word 'AARCH'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "gradle/gradle-daemon-jvm.properties",
+      "line": "8",
+      "highlight": "AARCH",
+      "desc": "Typo: In word 'AARCH'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "gradle/gradle-daemon-jvm.properties",
+      "line": "10",
+      "highlight": "AARCH",
+      "desc": "Typo: In word 'AARCH'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "gradlew.bat",
+      "line": "16",
+      "highlight": "SPDX",
+      "desc": "Typo: In word 'SPDX'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "gradlew.bat",
+      "line": "27",
+      "highlight": "setlocal",
+      "desc": "Typo: In word 'setlocal'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "gradlew.bat",
+      "line": "46",
+      "highlight": "ERRORLEVEL",
+      "desc": "Typo: In word 'ERRORLEVEL'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "gradlew.bat",
+      "line": "77",
+      "highlight": "Dorg",
+      "desc": "Typo: In word 'Dorg'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "gradlew.bat",
+      "line": "77",
+      "highlight": "appname",
+      "desc": "Typo: In word 'appname'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "gradlew.bat",
+      "line": "92",
+      "highlight": "endlocal",
+      "desc": "Typo: In word 'endlocal'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "keystore.properties",
+      "line": "1",
+      "highlight": "\u015fifrelerinizi",
+      "desc": "Typo: In word '\u015fifrelerinizi'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "keystore.properties",
+      "line": "1",
+      "highlight": "dosya",
+      "desc": "Typo: In word 'dosya'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "keystore.properties",
+      "line": "1",
+      "highlight": "yolunu",
+      "desc": "Typo: In word 'yolunu'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "keystore.properties",
+      "line": "4",
+      "highlight": "sifreniz",
+      "desc": "Typo: In word 'sifreniz'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "keystore.properties",
+      "line": "4",
+      "highlight": "buraya",
+      "desc": "Typo: In word 'buraya'",
+      "xml_file": "SpellCheckingInspection.xml"
+    },
+    {
+      "rule": "SpellCheckingInspection",
+      "file": "keystore.properties",
+      "line": "5",
+      "highlight": "adiniz",
+      "desc": "Typo: In word 'adiniz'",
+      "xml_file": "SpellCheckingInspection.xml"
+    }
+  ],
+  "UnstableApiUsage": [
+    {
+      "rule": "UnstableApiUsage",
+      "file": "baselineProfile/build.gradle.kts",
+      "line": "44",
+      "highlight": "testedApks",
+      "desc": "'getTestedApks()' is marked unstable with @Incubating",
+      "xml_file": "UnstableApiUsage.xml"
+    },
+    {
+      "rule": "UnstableApiUsage",
+      "file": "settings.gradle.kts",
+      "line": "18",
+      "highlight": "repositoriesMode",
+      "desc": "'getRepositoriesMode()' is marked unstable with @Incubating",
+      "xml_file": "UnstableApiUsage.xml"
+    },
+    {
+      "rule": "UnstableApiUsage",
+      "file": "settings.gradle.kts",
+      "line": "18",
+      "highlight": "RepositoriesMode",
+      "desc": "'org.gradle.api.initialization.resolve.RepositoriesMode' is marked unstable with @Incubating",
+      "xml_file": "UnstableApiUsage.xml"
+    },
+    {
+      "rule": "UnstableApiUsage",
+      "file": "settings.gradle.kts",
+      "line": "18",
+      "highlight": "FAIL_ON_PROJECT_REPOS",
+      "desc": "'FAIL_ON_PROJECT_REPOS' is declared in unstable enum 'org.gradle.api.initialization.resolve.RepositoriesMode' marked with @Incubating",
+      "xml_file": "UnstableApiUsage.xml"
+    },
+    {
+      "rule": "UnstableApiUsage",
+      "file": "settings.gradle.kts",
+      "line": "19",
+      "highlight": "repositories",
+      "desc": "'repositories(org.gradle.api.Action<? super org.gradle.api.artifacts.dsl.RepositoryHandler>)' is marked unstable with @Incubating",
+      "xml_file": "UnstableApiUsage.xml"
+    }
+  ],
+  "UnusedSymbol": [
+    {
+      "rule": "UnusedSymbol",
+      "file": "app/src/main/java/com/fatihenes/photoreport/repository/PhotoRepository.kt",
+      "line": "43",
+      "highlight": "dailyLogDao",
+      "desc": "Property \"dailyLogDao\" is never used",
+      "xml_file": "UnusedSymbol.xml"
+    },
+    {
+      "rule": "UnusedSymbol",
+      "file": "app/src/main/java/com/fatihenes/photoreport/repository/PhotoRepository.kt",
+      "line": "44",
+      "highlight": "mediaProcessor",
+      "desc": "Property \"mediaProcessor\" is never used",
+      "xml_file": "UnusedSymbol.xml"
+    },
+    {
+      "rule": "UnusedSymbol",
+      "file": "app/src/main/java/com/fatihenes/photoreport/repository/PhotoRepository.kt",
+      "line": "45",
+      "highlight": "watermarkRenderer",
+      "desc": "Property \"watermarkRenderer\" is never used",
+      "xml_file": "UnusedSymbol.xml"
+    },
+    {
+      "rule": "UnusedSymbol",
+      "file": "app/src/main/java/com/fatihenes/photoreport/repository/PhotoRepository.kt",
+      "line": "48",
+      "highlight": "applicationScope",
+      "desc": "Property \"applicationScope\" is never used",
+      "xml_file": "UnusedSymbol.xml"
+    },
+    {
+      "rule": "UnusedSymbol",
+      "file": "app/src/main/java/com/fatihenes/photoreport/repository/PhotoRepository.kt",
+      "line": "49",
+      "highlight": "logCreationMutex",
+      "desc": "Property \"logCreationMutex\" is never used",
+      "xml_file": "UnusedSymbol.xml"
+    },
+    {
+      "rule": "UnusedSymbol",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/viewmodel/ProjectDetailViewModel.kt",
+      "line": "52",
+      "highlight": "exportState",
+      "desc": "Property \"exportState\" is never used",
+      "xml_file": "UnusedSymbol.xml"
+    },
+    {
+      "rule": "UnusedSymbol",
+      "file": "app/src/main/java/com/fatihenes/photoreport/ui/viewmodel/ProjectDetailViewModel.kt",
+      "line": "54",
+      "highlight": "resetExportState",
+      "desc": "Function \"resetExportState\" is never used",
+      "xml_file": "UnusedSymbol.xml"
+    }
+  ],
+  "UnusedVariable": [
+    {
+      "rule": "UnusedVariable",
+      "file": "app/src/main/java/com/fatihenes/photoreport/manager/BackupManager.kt",
+      "line": "86",
+      "highlight": "fileName",
+      "desc": "Unused variable",
+      "xml_file": "UnusedVariable.xml"
+    }
+  ],
+  "UnusedVersionCatalogEntry": [
+    {
+      "rule": "UnusedVersionCatalogEntry",
+      "file": "gradle/libs.versions.toml",
+      "line": "2",
+      "highlight": "agp",
+      "desc": "Version reference 'agp' is not used in build scripts",
+      "xml_file": "UnusedVersionCatalogEntry.xml"
+    },
+    {
+      "rule": "UnusedVersionCatalogEntry",
+      "file": "gradle/libs.versions.toml",
+      "line": "3",
+      "highlight": "coreKtx",
+      "desc": "Version reference 'coreKtx' is not used in build scripts",
+      "xml_file": "UnusedVersionCatalogEntry.xml"
+    },
+    {
+      "rule": "UnusedVersionCatalogEntry",
+      "file": "gradle/libs.versions.toml",
+      "line": "4",
+      "highlight": "junit",
+      "desc": "Version reference 'junit' is not used in build scripts",
+      "xml_file": "UnusedVersionCatalogEntry.xml"
+    },
+    {
+      "rule": "UnusedVersionCatalogEntry",
+      "file": "gradle/libs.versions.toml",
+      "line": "5",
+      "highlight": "junitVersion",
+      "desc": "Version reference 'junitVersion' is not used in build scripts",
+      "xml_file": "UnusedVersionCatalogEntry.xml"
+    },
+    {
+      "rule": "UnusedVersionCatalogEntry",
+      "file": "gradle/libs.versions.toml",
+      "line": "6",
+      "highlight": "espressoCore",
+      "desc": "Version reference 'espressoCore' is not used in build scripts",
+      "xml_file": "UnusedVersionCatalogEntry.xml"
+    },
+    {
+      "rule": "UnusedVersionCatalogEntry",
+      "file": "gradle/libs.versions.toml",
+      "line": "7",
+      "highlight": "appcompat",
+      "desc": "Version reference 'appcompat' is not used in build scripts",
+      "xml_file": "UnusedVersionCatalogEntry.xml"
+    },
+    {
+      "rule": "UnusedVersionCatalogEntry",
+      "file": "gradle/libs.versions.toml",
+      "line": "8",
+      "highlight": "material",
+      "desc": "Version reference 'material' is not used in build scripts",
+      "xml_file": "UnusedVersionCatalogEntry.xml"
+    },
+    {
+      "rule": "UnusedVersionCatalogEntry",
+      "file": "gradle/libs.versions.toml",
+      "line": "9",
+      "highlight": "composeBom",
+      "desc": "Version reference 'composeBom' is not used in build scripts",
+      "xml_file": "UnusedVersionCatalogEntry.xml"
+    },
+    {
+      "rule": "UnusedVersionCatalogEntry",
+      "file": "gradle/libs.versions.toml",
+      "line": "10",
+      "highlight": "navigationCompose",
+      "desc": "Version reference 'navigationCompose' is not used in build scripts",
+      "xml_file": "UnusedVersionCatalogEntry.xml"
+    },
+    {
+      "rule": "UnusedVersionCatalogEntry",
+      "file": "gradle/libs.versions.toml",
+      "line": "11",
+      "highlight": "room",
+      "desc": "Version reference 'room' is not used in build scripts",
+      "xml_file": "UnusedVersionCatalogEntry.xml"
+    },
+    {
+      "rule": "UnusedVersionCatalogEntry",
+      "file": "gradle/libs.versions.toml",
+      "line": "12",
+      "highlight": "kotlin",
+      "desc": "Version reference 'kotlin' is not used in build scripts",
+      "xml_file": "UnusedVersionCatalogEntry.xml"
+    },
+    {
+      "rule": "UnusedVersionCatalogEntry",
+      "file": "gradle/libs.versions.toml",
+      "line": "13",
+      "highlight": "exifinterface",
+      "desc": "Version reference 'exifinterface' is not used in build scripts",
+      "xml_file": "UnusedVersionCatalogEntry.xml"
+    },
+    {
+      "rule": "UnusedVersionCatalogEntry",
+      "file": "gradle/libs.versions.toml",
+      "line": "14",
+      "highlight": "lifecycleRuntimeCompose",
+      "desc": "Version reference 'lifecycleRuntimeCompose' is not used in build scripts",
+      "xml_file": "UnusedVersionCatalogEntry.xml"
+    },
+    {
+      "rule": "UnusedVersionCatalogEntry",
+      "file": "gradle/libs.versions.toml",
+      "line": "15",
+      "highlight": "media3",
+      "desc": "Version reference 'media3' is not used in build scripts",
+      "xml_file": "UnusedVersionCatalogEntry.xml"
+    },
+    {
+      "rule": "UnusedVersionCatalogEntry",
+      "file": "gradle/libs.versions.toml",
+      "line": "16",
+      "highlight": "work",
+      "desc": "Version reference 'work' is not used in build scripts",
+      "xml_file": "UnusedVersionCatalogEntry.xml"
+    },
+    {
+      "rule": "UnusedVersionCatalogEntry",
+      "file": "gradle/libs.versions.toml",
+      "line": "17",
+      "highlight": "hilt",
+      "desc": "Version reference 'hilt' is not used in build scripts",
+      "xml_file": "UnusedVersionCatalogEntry.xml"
+    },
+    {
+      "rule": "UnusedVersionCatalogEntry",
+      "file": "gradle/libs.versions.toml",
+      "line": "18",
+      "highlight": "androidxHilt",
+      "desc": "Version reference 'androidxHilt' is not used in build scripts",
+      "xml_file": "UnusedVersionCatalogEntry.xml"
+    },
+    {
+      "rule": "UnusedVersionCatalogEntry",
+      "file": "gradle/libs.versions.toml",
+      "line": "19",
+      "highlight": "robolectric",
+      "desc": "Version reference 'robolectric' is not used in build scripts",
+      "xml_file": "UnusedVersionCatalogEntry.xml"
+    },
+    {
+      "rule": "UnusedVersionCatalogEntry",
+      "file": "gradle/libs.versions.toml",
+      "line": "20",
+      "highlight": "mockito",
+      "desc": "Version reference 'mockito' is not used in build scripts",
+      "xml_file": "UnusedVersionCatalogEntry.xml"
+    },
+    {
+      "rule": "UnusedVersionCatalogEntry",
+      "file": "gradle/libs.versions.toml",
+      "line": "21",
+      "highlight": "kotlinxCoroutines",
+      "desc": "Version reference 'kotlinxCoroutines' is not used in build scripts",
+      "xml_file": "UnusedVersionCatalogEntry.xml"
+    },
+    {
+      "rule": "UnusedVersionCatalogEntry",
+      "file": "gradle/libs.versions.toml",
+      "line": "22",
+      "highlight": "androidxTestCore",
+      "desc": "Version reference 'androidxTestCore' is not used in build scripts",
+      "xml_file": "UnusedVersionCatalogEntry.xml"
+    },
+    {
+      "rule": "UnusedVersionCatalogEntry",
+      "file": "gradle/libs.versions.toml",
+      "line": "23",
+      "highlight": "avifCoder",
+      "desc": "Version reference 'avifCoder' is not used in build scripts",
+      "xml_file": "UnusedVersionCatalogEntry.xml"
+    },
+    {
+      "rule": "UnusedVersionCatalogEntry",
+      "file": "gradle/libs.versions.toml",
+      "line": "24",
+      "highlight": "playServicesLocation",
+      "desc": "Version reference 'playServicesLocation' is not used in build scripts",
+      "xml_file": "UnusedVersionCatalogEntry.xml"
+    },
+    {
+      "rule": "UnusedVersionCatalogEntry",
+      "file": "gradle/libs.versions.toml",
+      "line": "26",
+      "highlight": "datastore",
+      "desc": "Version reference 'datastore' is not used in build scripts",
+      "xml_file": "UnusedVersionCatalogEntry.xml"
+    },
+    {
+      "rule": "UnusedVersionCatalogEntry",
+      "file": "gradle/libs.versions.toml",
+      "line": "27",
+      "highlight": "uiautomator",
+      "desc": "Version reference 'uiautomator' is not used in build scripts",
+      "xml_file": "UnusedVersionCatalogEntry.xml"
+    },
+    {
+      "rule": "UnusedVersionCatalogEntry",
+      "file": "gradle/libs.versions.toml",
+      "line": "28",
+      "highlight": "benchmarkMacroJunit4",
+      "desc": "Version reference 'benchmarkMacroJunit4' is not used in build scripts",
+      "xml_file": "UnusedVersionCatalogEntry.xml"
+    },
+    {
+      "rule": "UnusedVersionCatalogEntry",
+      "file": "gradle/libs.versions.toml",
+      "line": "29",
+      "highlight": "baselineprofile",
+      "desc": "Version reference 'baselineprofile' is not used in build scripts",
+      "xml_file": "UnusedVersionCatalogEntry.xml"
+    },
+    {
+      "rule": "UnusedVersionCatalogEntry",
+      "file": "gradle/libs.versions.toml",
+      "line": "30",
+      "highlight": "profileinstaller",
+      "desc": "Version reference 'profileinstaller' is not used in build scripts",
+      "xml_file": "UnusedVersionCatalogEntry.xml"
+    }
+  ]
+}

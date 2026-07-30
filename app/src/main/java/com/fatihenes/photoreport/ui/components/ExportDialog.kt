@@ -1,7 +1,6 @@
+@file:Suppress("LocalContextGetResourceValueCall")
 package com.fatihenes.photoreport.ui.components
 
-import android.content.Context
-import androidx.core.net.toUri
 import androidx.compose.animation.*
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -22,11 +21,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.fatihenes.photoreport.R
-import com.fatihenes.photoreport.data.PhotoEntity
 import com.fatihenes.photoreport.data.ProjectEntity
 import com.fatihenes.photoreport.data.LogWithPhotos
 
-import com.fatihenes.photoreport.ui.viewmodel.FileSizeInfo
 import com.fatihenes.photoreport.ui.viewmodel.ProjectDetailViewModel
 
 enum class ExportFormat { PDF, ZIP }

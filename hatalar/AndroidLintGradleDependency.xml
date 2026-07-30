@@ -1,0 +1,54 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/gradle/libs.versions.toml</file>
+  <line>24</line>
+  <module>PhotoReport</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/gradle/libs.versions.toml" />
+  <problem_class id="AndroidLintGradleDependency" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Obsolete Gradle Dependency</problem_class>
+  <hints />
+  <description>&lt;html&gt;A newer version of com.google.android.gms:play-services-location than 21.3.0 is available: 21.4.0&lt;/html&gt;</description>
+  <highlighted_element>&quot;21.3.0&quot;</highlighted_element>
+  <language>TOML</language>
+  <offset>23</offset>
+  <length>8</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/gradle/libs.versions.toml</file>
+  <line>27</line>
+  <module>PhotoReport</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/gradle/libs.versions.toml" />
+  <problem_class id="AndroidLintGradleDependency" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Obsolete Gradle Dependency</problem_class>
+  <hints />
+  <description>&lt;html&gt;A newer version of androidx.test.uiautomator:uiautomator than 2.2.0 is available: 2.4.0&lt;/html&gt;</description>
+  <highlighted_element>&quot;2.2.0&quot;</highlighted_element>
+  <language>TOML</language>
+  <offset>14</offset>
+  <length>7</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/gradle/libs.versions.toml</file>
+  <line>28</line>
+  <module>PhotoReport</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/gradle/libs.versions.toml" />
+  <problem_class id="AndroidLintGradleDependency" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Obsolete Gradle Dependency</problem_class>
+  <hints />
+  <description>&lt;html&gt;A newer version of androidx.benchmark:benchmark-macro-junit4 than 1.5.0-alpha07 is available: 1.5.0-beta01&lt;/html&gt;</description>
+  <highlighted_element>&quot;1.5.0-alpha07&quot;</highlighted_element>
+  <language>TOML</language>
+  <offset>23</offset>
+  <length>15</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/gradle/libs.versions.toml</file>
+  <line>29</line>
+  <module>PhotoReport</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/gradle/libs.versions.toml" />
+  <problem_class id="AndroidLintGradleDependency" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Obsolete Gradle Dependency</problem_class>
+  <hints />
+  <description>&lt;html&gt;A newer version of androidx.baselineprofile than 1.5.0-alpha07 is available: 1.5.0-beta01&lt;/html&gt;</description>
+  <highlighted_element>&quot;1.5.0-alpha07&quot;</highlighted_element>
+  <language>TOML</language>
+  <offset>18</offset>
+  <length>15</length>
+</problem>
+</problems>

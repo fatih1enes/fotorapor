@@ -106,7 +106,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providePdfExportManager(pdfBoxExportManager: PdfBoxExportManager): PdfExportManager = pdfBoxExportManager
+    fun providePdfExportManager(nativePdfExportManager: NativePdfExportManager): PdfExportManager = nativePdfExportManager
 
     @Provides
     @Singleton

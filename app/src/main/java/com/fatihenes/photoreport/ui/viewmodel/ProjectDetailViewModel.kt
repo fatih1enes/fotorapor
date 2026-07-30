@@ -11,7 +11,6 @@ import androidx.work.workDataOf
 import com.fatihenes.photoreport.data.DailyLogEntity
 import com.fatihenes.photoreport.data.PhotoEntity
 import com.fatihenes.photoreport.repository.AppRepository
-import com.fatihenes.photoreport.util.DateUtils
 import com.fatihenes.photoreport.util.groupBy
 import com.fatihenes.photoreport.worker.ExportWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -20,8 +19,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -48,9 +45,11 @@ class ProjectDetailViewModel @Inject constructor(
         }
     }
 
+    @Suppress("unused")
     private val _exportState = MutableStateFlow<UiState<Unit>?>(null)
     val exportState: StateFlow<UiState<Unit>?> = _exportState
 
+    @Suppress("unused")
     fun resetExportState() {
         _exportState.value = null
     }
@@ -102,24 +101,6 @@ class ProjectDetailViewModel @Inject constructor(
             viewModelScope.launch { repository.updateNote(logId, note) }
         }
     }
-
-    // Mutex for safe concurrent log creation
-    private val logCreationMutex = Mutex()
-
-    fun addPhotoToToday(projectId: Long, filePath: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            val today = DateUtils.getStartOfDayEpochMillis()
-            // 3. Race Condition Önlemi: Aynı anda çoklu tıklamada mükerrer gün oluşumunu Mutex ile engelle
-            val logId = logCreationMutex.withLock {
-                val log = repository.getLogForDate(projectId, today)
-                log?.id ?: repository.insertLog(
-                    DailyLogEntity(projectId = projectId, date = today, note = "")
-                )
-            }
-            repository.insertPhoto(PhotoEntity(logId = logId, filePath = filePath))
-        }
-    }
-
 
     fun addPhotoToLog(logId: Long, filePath: String) {
         viewModelScope.launch(Dispatchers.IO) {

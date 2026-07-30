@@ -1,0 +1,28 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/res/values/strings.xml</file>
+  <line>101</line>
+  <module>PhotoReport.app.main</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/app/src/main/res/values/strings.xml" />
+  <problem_class id="AndroidLintTypographyEllipsis" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Ellipsis string can be replaced with ellipsis character</problem_class>
+  <hints />
+  <description>&lt;html&gt;Replace &quot;...&quot; with ellipsis character (…, &amp;amp;#8230;) ?&lt;/html&gt;</description>
+  <highlighted_element>Dışa aktarım arka planda başladı. Lütfen bekleyin...</highlighted_element>
+  <language>XML</language>
+  <offset>40</offset>
+  <length>52</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/res/values-en/strings.xml</file>
+  <line>102</line>
+  <module>PhotoReport.app.main</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/app/src/main/res/values-en/strings.xml" />
+  <problem_class id="AndroidLintTypographyEllipsis" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Ellipsis string can be replaced with ellipsis character</problem_class>
+  <hints />
+  <description>&lt;html&gt;Replace &quot;...&quot; with ellipsis character (…, &amp;amp;#8230;) ?&lt;/html&gt;</description>
+  <highlighted_element>Export started in background. Please wait...</highlighted_element>
+  <language>XML</language>
+  <offset>40</offset>
+  <length>44</length>
+</problem>
+</problems>

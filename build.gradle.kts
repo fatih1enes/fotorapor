@@ -1,10 +1,5 @@
-// Top-level build file where you can add configuration options common to all sub-projects/modules.
-buildscript {
-    dependencies {
-        classpath("com.google.gms:google-services:4.5.0")
-        classpath("com.google.firebase:firebase-crashlytics-gradle:3.0.7")
-    }
-}
+// Top-level build file where you can add configuration options common to all subprojects/modules.
+// Top-level build file where you can add configuration options common to all subprojects/modules.
 plugins {
     alias(libs.plugins.android.application) apply false
     alias(libs.plugins.kotlin.android) apply false

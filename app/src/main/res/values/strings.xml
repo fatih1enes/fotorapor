@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">Şantiye Günlüğü</string>
     <string name="widget_description">Aktif projeyi görüntüle ve hızlıca fotoğraf çek</string>
 
@@ -98,11 +98,10 @@
     <string name="export_zip_compressed_desc">Görseller web optimizasyonundan geçer.</string>
     <string name="export_pdf_estimate">📄 Tahmini PDF Boyutu: ~%s</string>
     <string name="export_zip_estimate">📦 Tahmini ZIP Boyutu: ~%s</string>
-    <string name="export_started_toast">Dışa aktarım arka planda başladı. Lütfen bekleyin...</string>
+    <string name="export_started_toast">Dışa aktarım arka planda başladı. Lütfen bekleyin…</string>
 
     <!-- AppViewModel Errors -->
     <string name="error_unknown">Bilinmeyen bir hata oluştu</string>
-    <string name="error_delete_failed">Silme işlemi başarısız</string>
 
     <!-- ExportWorker Notifications -->
     <string name="export_notif_title">Dışa Aktarılıyor</string>
@@ -128,7 +127,6 @@
     <string name="camera_permission_go_settings">Ayarlara Git</string>
 
     <!-- Crash Recovery -->
-    <string name="crash_recovery_message">Beklenmeyen bir hata oluştu ve uygulama güvenli moda döndü. Verileriniz güvende.</string>
 
     <!-- Dashboard (hardcoded fixes) -->
     <string name="my_projects_title">Projelerim</string>
@@ -174,5 +172,17 @@
     <string name="settings_gps_watermark_desc">Çekilen fotoğrafların sol alt köşesine proje adı, tarih, koordinat ve adres bilgisini yazar.</string>
     <string name="location_permission_required">GPS filigranı için konum izni gereklidir.</string>
 
+    <!-- Backup and Restore -->
+    <string name="settings_backup_title">Yedekleme ve Geri Yükleme</string>
+    <string name="settings_backup_create">Yedek Oluştur</string>
+    <string name="settings_backup_create_desc">Tüm proje ve fotoğraflarınızı bir ZIP dosyasına yedekleyin.</string>
+    <string name="settings_backup_restore">Geri Yükle</string>
+    <string name="settings_backup_restore_desc">Önceden aldığınız bir yedeği (.zip) cihaza geri yükleyin.</string>
+    <string name="backup_success">İşlem başarıyla tamamlandı.</string>
+
     <!-- Privacy Policy (Placeholder) -->
+    <string name="widget_active_project">🏗️ Aktif Proje</string>
+    <string name="widget_no_project">Proje Yok</string>
+    <string name="widget_images">Görseller</string>
+    <string name="widget_camera_desc">Kamera</string>
 </resources>

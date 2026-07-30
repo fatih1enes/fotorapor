@@ -6,7 +6,4 @@
     <include domain="database" path="santiye_gunlugu_database-shm" />
     <!-- Include internal files (photos, videos, logos) -->
     <include domain="file" path="." />
-    <!-- Exclude caches and temp files -->
-    <exclude domain="cache" path="." />
-    <exclude domain="sharedpref" path="device.xml" />
 </full-backup-content>

@@ -99,4 +99,7 @@ interface PhotoDao {
 
     @Query("DELETE FROM photos WHERE id IN (:photoIds)")
     suspend fun hardDeletePhotosByIds(photoIds: List<Long>)
+
+    @Query("SELECT * FROM photos")
+    suspend fun getAllPhotosSuspend(): List<PhotoEntity>
 }

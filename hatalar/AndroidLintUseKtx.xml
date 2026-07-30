@@ -1,0 +1,30 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/manager/BackupManager.kt</file>
+  <line>85</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.manager</package>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/manager/BackupManager.kt" />
+  <problem_class id="AndroidLintUseKtx" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Use KTX extension function</problem_class>
+  <hints />
+  <description>&lt;html&gt;Use the KTX extension function &lt;code&gt;String.toUri&lt;/code&gt; instead?&lt;/html&gt;</description>
+  <highlighted_element>Uri.parse(photo.filePath)</highlighted_element>
+  <language>kotlin</language>
+  <offset>26</offset>
+  <length>25</length>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/worker/PhotoProcessingWorker.kt</file>
+  <line>37</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.worker</package>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/worker/PhotoProcessingWorker.kt" />
+  <problem_class id="AndroidLintUseKtx" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Use KTX extension function</problem_class>
+  <hints />
+  <description>&lt;html&gt;Use the KTX extension function &lt;code&gt;String.toUri&lt;/code&gt; instead?&lt;/html&gt;</description>
+  <highlighted_element>Uri.parse(uriString)</highlighted_element>
+  <language>kotlin</language>
+  <offset>18</offset>
+  <length>20</length>
+</problem>
+</problems>

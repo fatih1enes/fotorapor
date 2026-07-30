@@ -1,3 +1,4 @@
+@file:Suppress("LocalContextGetResourceValueCall")
 package com.fatihenes.photoreport.ui.navigation
 
 import android.Manifest

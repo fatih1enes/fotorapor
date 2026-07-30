@@ -1,3 +1,4 @@
+@file:Suppress("LocalContextGetResourceValueCall")
 package com.fatihenes.photoreport.ui
 
 import androidx.compose.foundation.BorderStroke
@@ -43,7 +44,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.core.tween
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -315,8 +315,8 @@ fun ProjectDetailScreen(
 
         AnimatedVisibility(
             visible = selectedPhotoForFullView != null,
-            enter = fadeIn(tween(300)) + scaleIn(initialScale = 0.9f, animationSpec = tween(300)),
-            exit = fadeOut(tween(300)) + scaleOut(targetScale = 0.9f, animationSpec = tween(300)),
+            enter = fadeIn(tween(300)) + scaleIn(initialScale = 0.9f, animationSpec = tween<Float>(300)),
+            exit = fadeOut(tween(300)) + scaleOut(targetScale = 0.9f, animationSpec = tween<Float>(300)),
             modifier = Modifier.fillMaxSize()
         ) {
             FullScreenPhotoDialog(

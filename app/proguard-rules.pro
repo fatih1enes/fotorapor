@@ -1,5 +1,5 @@
 # ===========================
-# Elektrik - ProGuard/R8 Rules
+# PhotoReport - ProGuard/R8 Rules
 # Production-ready configuration
 # ===========================
 
@@ -17,7 +17,6 @@
 # Hilt / Dagger
 # ===========================
 -dontwarn dagger.hilt.**
--keep class dagger.hilt.** { *; }
 -keep class javax.inject.** { *; }
 -keep class * extends dagger.hilt.android.internal.managers.ViewComponentManager$FragmentContextWrapper { *; }
 # Keep Hilt generated components
@@ -112,11 +111,3 @@
 # AVIF Coder
 # ===========================
 -keep class com.radzivon.bartoshyk.avif.** { *; }
-
-# ===========================
-# PDFBox-Android
-# ===========================
--keep class com.tom_roush.pdfbox.** { *; }
--dontwarn com.tom_roush.pdfbox.**
--dontwarn org.apache.fontbox.**
--dontwarn org.apache.pdfbox.**

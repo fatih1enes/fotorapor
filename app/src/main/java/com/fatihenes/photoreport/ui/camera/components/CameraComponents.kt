@@ -1,6 +1,5 @@
 package com.fatihenes.photoreport.ui.camera.components
 
-import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.video.Quality
 import androidx.compose.animation.*

@@ -47,22 +47,6 @@ class DashboardViewModel @Inject constructor(
         }
     }
 
-    fun deleteProject(projectId: Long) {
-        viewModelScope.launch {
-            _projectActionState.value = UiState.Loading
-            try {
-                repository.deleteProjectById(projectId)
-                _projectActionState.value = UiState.Success(Unit)
-            } catch (e: kotlinx.coroutines.CancellationException) {
-                throw e
-            } catch (e: Exception) {
-                _projectActionState.value = UiState.Error(
-                    e.message ?: appContext.getString(R.string.error_delete_failed)
-                )
-            }
-        }
-    }
-
     fun resetProjectActionState() {
         _projectActionState.value = null
     }

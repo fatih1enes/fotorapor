@@ -1,0 +1,18 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/util/result/OperationResult.kt</file>
+  <line>32</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.util.result</package>
+  <entry_point TYPE="class" FQNAME="com.fatihenes.photoreport.util.result.OperationResult.Loading" />
+  <problem_class id="RedundantSuppression" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Redundant suppression</problem_class>
+  <hints>
+    <hint value="unused;kotlin" />
+  </hints>
+  <description>Redundant suppression</description>
+  <highlighted_element>Loading</highlighted_element>
+  <language>kotlin</language>
+  <offset>15</offset>
+  <length>7</length>
+</problem>
+</problems>

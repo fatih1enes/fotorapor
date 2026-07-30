@@ -1,6 +1,6 @@
 package com.fatihenes.photoreport.baselineprofile
 
-import androidx.benchmark.macro.junit4.BaselineProfileRule
+import androidx.Benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry
@@ -25,14 +25,14 @@ import org.junit.runner.RunWith
  * ```
  * The run configuration runs the Gradle task and applies filtering to run only the generators.
  *
- * Check [documentation](https://d.android.com/topic/performance/benchmarking/macrobenchmark-instrumentation-args)
+ * Check [documentation](https://d.android.com/topic/performance/Benchmarking/macroBenchmark-instrumentation-args)
  * for more information about available instrumentation arguments.
  *
- * After you run the generator, you can verify the improvements running the [StartupBenchmarks] benchmark.
+ * After you run the generator, you can verify the improvements running the [StartupBenchmarks] Benchmark.
  *
  * When using this class to generate a baseline profile, only API 33+ or rooted API 28+ are supported.
  *
- * The minimum required version of androidx.benchmark to generate a baseline profile is 1.2.0.
+ * The minimum required version of androidx.Benchmark to generate a baseline profile is 1.2.0.
  **/
 @RunWith(AndroidJUnit4::class)
 @LargeTest

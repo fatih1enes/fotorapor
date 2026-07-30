@@ -1,0 +1,16 @@
+import json
+
+with open('parsed_errors.json', 'r', encoding='utf-8') as f:
+    data = json.load(f)
+
+rules = [
+    'UnstableApiUsage',
+    'GrazieInspection',
+    'GrazieStyle'
+]
+
+with open('unstable.txt', 'w', encoding='utf-8') as out:
+    for r in rules:
+        out.write(f'\n--- {r} ---\n')
+        for i in data.get(r, []):
+            out.write(f"{i['file']}:{i['line']} -> {i['highlight']} ({i['desc']})\n")

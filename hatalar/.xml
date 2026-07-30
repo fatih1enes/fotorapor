@@ -1,0 +1,920 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/androidTest/java/com/fatihenes/photoreport/ExampleInstrumentedTest.kt</file>
+  <line>11</line>
+  <module>PhotoReport.app.androidTest</module>
+  <package>com.fatihenes.photoreport</package>
+  <entry_point TYPE="class" FQNAME="com.fatihenes.photoreport.ExampleInstrumentedTest" />
+  <language>kotlin</language>
+  <offset>0</offset>
+  <length>3</length>
+  <highlighted_element>/**</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Class is not instantiated.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/androidTest/java/com/fatihenes/photoreport/ExampleInstrumentedTest.kt</file>
+  <line>18</line>
+  <module>PhotoReport.app.androidTest</module>
+  <package>com.fatihenes.photoreport</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.ExampleInstrumentedTest void useAppContext()" />
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>5</length>
+  <highlighted_element>@Test</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Method is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/androidTest/java/com/fatihenes/photoreport/data/MigrationTest.kt</file>
+  <line>12</line>
+  <module>PhotoReport.app.androidTest</module>
+  <package>com.fatihenes.photoreport.data</package>
+  <entry_point TYPE="class" FQNAME="com.fatihenes.photoreport.data.MigrationTest" />
+  <language>kotlin</language>
+  <offset>0</offset>
+  <length>30</length>
+  <highlighted_element>@RunWith(AndroidJUnit4::class)</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Class is not instantiated.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/androidTest/java/com/fatihenes/photoreport/data/MigrationTest.kt</file>
+  <line>24</line>
+  <module>PhotoReport.app.androidTest</module>
+  <package>com.fatihenes.photoreport.data</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.data.MigrationTest void migrate1To2()" />
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>5</length>
+  <highlighted_element>@Test</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Method is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/androidTest/java/com/fatihenes/photoreport/data/MigrationTest.kt</file>
+  <line>40</line>
+  <module>PhotoReport.app.androidTest</module>
+  <package>com.fatihenes.photoreport.data</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.data.MigrationTest void migrate2To3()" />
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>5</length>
+  <highlighted_element>@Test</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Method is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/androidTest/java/com/fatihenes/photoreport/data/MigrationTest.kt</file>
+  <line>49</line>
+  <module>PhotoReport.app.androidTest</module>
+  <package>com.fatihenes.photoreport.data</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.data.MigrationTest void migrate3To4()" />
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>5</length>
+  <highlighted_element>@Test</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Method is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/androidTest/java/com/fatihenes/photoreport/data/MigrationTest.kt</file>
+  <line>67</line>
+  <module>PhotoReport.app.androidTest</module>
+  <package>com.fatihenes.photoreport.data</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.data.MigrationTest void migrate4To5()" />
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>5</length>
+  <highlighted_element>@Test</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Method is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/androidTest/java/com/fatihenes/photoreport/data/MigrationTest.kt</file>
+  <line>76</line>
+  <module>PhotoReport.app.androidTest</module>
+  <package>com.fatihenes.photoreport.data</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.data.MigrationTest void migrateAll()" />
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>5</length>
+  <highlighted_element>@Test</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Method is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/MainActivity.kt</file>
+  <line>17</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport</package>
+  <entry_point TYPE="class" FQNAME="com.fatihenes.photoreport.MainActivity" />
+  <language>kotlin</language>
+  <offset>0</offset>
+  <length>18</length>
+  <highlighted_element>@AndroidEntryPoint</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Class is not instantiated.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/PhotoReportApp.kt</file>
+  <line>25</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport</package>
+  <entry_point TYPE="class" FQNAME="com.fatihenes.photoreport.PhotoReportApp" />
+  <language>kotlin</language>
+  <offset>0</offset>
+  <length>15</length>
+  <highlighted_element>@HiltAndroidApp</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Class is not instantiated.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/PhotoReportApp.kt</file>
+  <line>28</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport</package>
+  <entry_point TYPE="field" FQNAME="com.fatihenes.photoreport.PhotoReportApp workerFactory" />
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>7</length>
+  <highlighted_element>@Inject</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Field is never assigned.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/data/Entities.kt</file>
+  <line>77</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.data</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.data.LogWithPhotos LogWithPhotos(com.fatihenes.photoreport.data.DailyLogEntity log, java.util.List&lt;com.fatihenes.photoreport.data.PhotoEntity&gt; photos)" />
+  <language>kotlin</language>
+  <offset>24</offset>
+  <length>1</length>
+  <highlighted_element>(</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Constructor is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/di/AppModule.kt</file>
+  <line>23</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.di</package>
+  <entry_point TYPE="class" FQNAME="com.fatihenes.photoreport.di.AppModule" />
+  <language>kotlin</language>
+  <offset>0</offset>
+  <length>7</length>
+  <highlighted_element>@Module</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Class is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/di/AppModule.kt</file>
+  <line>27</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.di</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.di.AppModule com.fatihenes.photoreport.data.AppDatabase provideAppDatabase(android.content.Context context)" />
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>9</length>
+  <highlighted_element>@Provides</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Method is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/di/AppModule.kt</file>
+  <line>41</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.di</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.di.AppModule com.fatihenes.photoreport.data.ProjectDao provideProjectDao(com.fatihenes.photoreport.data.AppDatabase database)" />
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>9</length>
+  <highlighted_element>@Provides</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Method is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/di/AppModule.kt</file>
+  <line>45</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.di</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.di.AppModule com.fatihenes.photoreport.data.DailyLogDao provideDailyLogDao(com.fatihenes.photoreport.data.AppDatabase database)" />
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>9</length>
+  <highlighted_element>@Provides</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Method is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/di/AppModule.kt</file>
+  <line>49</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.di</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.di.AppModule com.fatihenes.photoreport.data.PhotoDao providePhotoDao(com.fatihenes.photoreport.data.AppDatabase database)" />
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>9</length>
+  <highlighted_element>@Provides</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Method is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/di/AppModule.kt</file>
+  <line>53</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.di</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.di.AppModule com.fatihenes.photoreport.repository.ProjectRepository provideProjectRepository(android.content.Context context, com.fatihenes.photoreport.data.ProjectDao projectDao)" />
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>9</length>
+  <highlighted_element>@Provides</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Method is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/di/AppModule.kt</file>
+  <line>60</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.di</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.di.AppModule com.fatihenes.photoreport.repository.LogRepository provideLogRepository(com.fatihenes.photoreport.data.DailyLogDao dailyLogDao)" />
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>9</length>
+  <highlighted_element>@Provides</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Method is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/di/AppModule.kt</file>
+  <line>66</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.di</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.di.AppModule com.fatihenes.photoreport.repository.PhotoRepository providePhotoRepository(android.content.Context context, com.fatihenes.photoreport.data.PhotoDao photoDao, com.fatihenes.photoreport.data.DailyLogDao dailyLogDao, com.fatihenes.photoreport.util.MediaProcessor mediaProcessor, com.fatihenes.photoreport.util.WatermarkRenderer watermarkRenderer)" />
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>9</length>
+  <highlighted_element>@Provides</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Method is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/di/AppModule.kt</file>
+  <line>76</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.di</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.di.AppModule com.fatihenes.photoreport.repository.TrashRepository provideTrashRepository(com.fatihenes.photoreport.data.ProjectDao projectDao, com.fatihenes.photoreport.data.DailyLogDao dailyLogDao, com.fatihenes.photoreport.data.PhotoDao photoDao, com.fatihenes.photoreport.manager.FileManager fileManager, com.fatihenes.photoreport.repository.ProjectRepository projectRepository)" />
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>9</length>
+  <highlighted_element>@Provides</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Method is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/di/AppModule.kt</file>
+  <line>86</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.di</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.di.AppModule com.fatihenes.photoreport.repository.AppRepository provideAppRepository(com.fatihenes.photoreport.repository.ProjectRepository projectRepository, com.fatihenes.photoreport.repository.LogRepository logRepository, com.fatihenes.photoreport.repository.PhotoRepository photoRepository, com.fatihenes.photoreport.repository.TrashRepository trashRepository)" />
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>9</length>
+  <highlighted_element>@Provides</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Method is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/di/AppModule.kt</file>
+  <line>95</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.di</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.di.AppModule androidx.datastore.core.DataStore&lt;androidx.datastore.preferences.core.Preferences&gt; provideDataStore(android.content.Context context)" />
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>9</length>
+  <highlighted_element>@Provides</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Method is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/di/AppModule.kt</file>
+  <line>103</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.di</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.di.AppModule com.fatihenes.photoreport.manager.FileManager provideFileManager(com.fatihenes.photoreport.manager.LocalFileManager localFileManager)" />
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>9</length>
+  <highlighted_element>@Provides</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Method is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/di/AppModule.kt</file>
+  <line>107</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.di</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.di.AppModule com.fatihenes.photoreport.manager.PdfExportManager providePdfExportManager(com.fatihenes.photoreport.manager.NativePdfExportManager nativePdfExportManager)" />
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>9</length>
+  <highlighted_element>@Provides</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Method is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/di/AppModule.kt</file>
+  <line>111</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.di</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.di.AppModule com.fatihenes.photoreport.manager.BackupManager provideBackupManager(com.fatihenes.photoreport.manager.LocalBackupManager localBackupManager)" />
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>9</length>
+  <highlighted_element>@Provides</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Method is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/manager/FileManager.kt</file>
+  <line>61</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.manager</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.manager.LocalFileManager LocalFileManager(android.content.Context context)" />
+  <language>kotlin</language>
+  <offset>23</offset>
+  <length>20</length>
+  <highlighted_element>@Inject constructor(</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Constructor is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/manager/PdfExportManager.kt</file>
+  <line>53</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.manager</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.manager.NativePdfExportManager NativePdfExportManager(android.content.Context context)" />
+  <language>kotlin</language>
+  <offset>29</offset>
+  <length>20</length>
+  <highlighted_element>@Inject constructor(</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Constructor is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/ui/viewmodel/AppViewModel.kt</file>
+  <line>23</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.ui.viewmodel</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.ui.viewmodel.AppViewModel AppViewModel(androidx.datastore.core.DataStore&lt;androidx.datastore.preferences.core.Preferences&gt; dataStore, com.fatihenes.photoreport.repository.AppRepository repository, com.fatihenes.photoreport.util.LocationManager locationManager, com.fatihenes.photoreport.manager.BackupManager backupManager)" />
+  <language>kotlin</language>
+  <offset>19</offset>
+  <length>20</length>
+  <highlighted_element>@Inject constructor(</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Constructor is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/ui/viewmodel/CameraViewModel.kt</file>
+  <line>18</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.ui.viewmodel</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.ui.viewmodel.CameraViewModel CameraViewModel()" />
+  <language>kotlin</language>
+  <offset>22</offset>
+  <length>21</length>
+  <highlighted_element>@Inject constructor()</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Constructor is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/ui/viewmodel/DashboardViewModel.kt</file>
+  <line>22</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.ui.viewmodel</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.ui.viewmodel.DashboardViewModel DashboardViewModel(android.content.Context appContext, com.fatihenes.photoreport.repository.AppRepository repository)" />
+  <language>kotlin</language>
+  <offset>25</offset>
+  <length>20</length>
+  <highlighted_element>@Inject constructor(</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Constructor is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/ui/viewmodel/ProjectDetailViewModel.kt</file>
+  <line>30</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.ui.viewmodel</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.ui.viewmodel.ProjectDetailViewModel ProjectDetailViewModel(android.content.Context appContext, com.fatihenes.photoreport.repository.AppRepository repository, androidx.lifecycle.SavedStateHandle savedStateHandle)" />
+  <language>kotlin</language>
+  <offset>29</offset>
+  <length>20</length>
+  <highlighted_element>@Inject constructor(</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Constructor is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/ui/viewmodel/TrashViewModel.kt</file>
+  <line>15</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.ui.viewmodel</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.ui.viewmodel.TrashViewModel TrashViewModel(com.fatihenes.photoreport.repository.AppRepository repository)" />
+  <language>kotlin</language>
+  <offset>21</offset>
+  <length>20</length>
+  <highlighted_element>@Inject constructor(</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Constructor is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/util/LocationManager.kt</file>
+  <line>39</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.util</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.util.LocationManager LocationManager(android.content.Context context)" />
+  <language>kotlin</language>
+  <offset>22</offset>
+  <length>20</length>
+  <highlighted_element>@Inject constructor(</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Constructor is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/util/MediaProcessor.kt</file>
+  <line>17</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.util</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.util.MediaProcessor MediaProcessor(android.content.Context appContext)" />
+  <language>kotlin</language>
+  <offset>21</offset>
+  <length>20</length>
+  <highlighted_element>@Inject constructor(</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Constructor is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/util/WatermarkRenderer.kt</file>
+  <line>27</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.util</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.util.WatermarkRenderer WatermarkRenderer()" />
+  <language>kotlin</language>
+  <offset>24</offset>
+  <length>21</length>
+  <highlighted_element>@Inject constructor()</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Constructor is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/widget/PhotoReportWidgetProvider.kt</file>
+  <line>12</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.widget</package>
+  <entry_point TYPE="class" FQNAME="com.fatihenes.photoreport.widget.PhotoReportWidgetProvider" />
+  <language>kotlin</language>
+  <offset>0</offset>
+  <length>3</length>
+  <highlighted_element>/**</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Class is not instantiated.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/worker/ExportWorker.kt</file>
+  <line>25</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.worker</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.worker.ExportWorker ExportWorker(android.content.Context context, androidx.work.WorkerParameters params, com.fatihenes.photoreport.repository.AppRepository repository, com.fatihenes.photoreport.manager.PdfExportManager pdfExportManager)" />
+  <language>kotlin</language>
+  <offset>19</offset>
+  <length>28</length>
+  <highlighted_element>@AssistedInject constructor(</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Constructor is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/worker/PhotoProcessingWorker.kt</file>
+  <line>22</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.worker</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.worker.PhotoProcessingWorker PhotoProcessingWorker(android.content.Context appContext, androidx.work.WorkerParameters workerParams, com.fatihenes.photoreport.data.PhotoDao photoDao, com.fatihenes.photoreport.data.DailyLogDao dailyLogDao, com.fatihenes.photoreport.util.MediaProcessor mediaProcessor, com.fatihenes.photoreport.util.WatermarkRenderer watermarkRenderer)" />
+  <language>kotlin</language>
+  <offset>28</offset>
+  <length>28</length>
+  <highlighted_element>@AssistedInject constructor(</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Constructor is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/worker/TrashCleanupWorker.kt</file>
+  <line>15</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.worker</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.worker.TrashCleanupWorker TrashCleanupWorker(android.content.Context context, androidx.work.WorkerParameters params, com.fatihenes.photoreport.repository.TrashRepository trashRepository)" />
+  <language>kotlin</language>
+  <offset>25</offset>
+  <length>28</length>
+  <highlighted_element>@AssistedInject constructor(</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Constructor is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/test/java/com/fatihenes/photoreport/ExampleUnitTest.kt</file>
+  <line>7</line>
+  <module>PhotoReport.app.unitTest</module>
+  <package>com.fatihenes.photoreport</package>
+  <entry_point TYPE="class" FQNAME="com.fatihenes.photoreport.ExampleUnitTest" />
+  <language>kotlin</language>
+  <offset>0</offset>
+  <length>3</length>
+  <highlighted_element>/**</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Class is not instantiated.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/test/java/com/fatihenes/photoreport/ExampleUnitTest.kt</file>
+  <line>13</line>
+  <module>PhotoReport.app.unitTest</module>
+  <package>com.fatihenes.photoreport</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.ExampleUnitTest void addition_isCorrect()" />
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>5</length>
+  <highlighted_element>@Test</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Method is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/test/java/com/fatihenes/photoreport/manager/BackupManagerTest.kt</file>
+  <line>22</line>
+  <module>PhotoReport.app.unitTest</module>
+  <package>com.fatihenes.photoreport.manager</package>
+  <entry_point TYPE="class" FQNAME="com.fatihenes.photoreport.manager.BackupManagerTest" />
+  <language>kotlin</language>
+  <offset>0</offset>
+  <length>25</length>
+  <highlighted_element>class BackupManagerTest {</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Class is not instantiated.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/test/java/com/fatihenes/photoreport/manager/BackupManagerTest.kt</file>
+  <line>33</line>
+  <module>PhotoReport.app.unitTest</module>
+  <package>com.fatihenes.photoreport.manager</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.manager.BackupManagerTest void setup()" />
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>7</length>
+  <highlighted_element>@Before</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Method is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/test/java/com/fatihenes/photoreport/manager/BackupManagerTest.kt</file>
+  <line>54</line>
+  <module>PhotoReport.app.unitTest</module>
+  <package>com.fatihenes.photoreport.manager</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.manager.BackupManagerTest void testBackupCreationEmitsStates()" />
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>5</length>
+  <highlighted_element>@Test</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Method is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/test/java/com/fatihenes/photoreport/util/DateUtilsTest.kt</file>
+  <line>9</line>
+  <module>PhotoReport.app.unitTest</module>
+  <package>com.fatihenes.photoreport.util</package>
+  <entry_point TYPE="class" FQNAME="com.fatihenes.photoreport.util.DateUtilsTest" />
+  <language>kotlin</language>
+  <offset>0</offset>
+  <length>21</length>
+  <highlighted_element>class DateUtilsTest {</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Class is not instantiated.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/test/java/com/fatihenes/photoreport/util/DateUtilsTest.kt</file>
+  <line>11</line>
+  <module>PhotoReport.app.unitTest</module>
+  <package>com.fatihenes.photoreport.util</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.util.DateUtilsTest void testGetStartOfDayEpochMillis()" />
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>5</length>
+  <highlighted_element>@Test</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Method is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/test/java/com/fatihenes/photoreport/util/DateUtilsTest.kt</file>
+  <line>19</line>
+  <module>PhotoReport.app.unitTest</module>
+  <package>com.fatihenes.photoreport.util</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.util.DateUtilsTest void testFormatDate()" />
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>5</length>
+  <highlighted_element>@Test</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Method is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/test/java/com/fatihenes/photoreport/util/DateUtilsTest.kt</file>
+  <line>28</line>
+  <module>PhotoReport.app.unitTest</module>
+  <package>com.fatihenes.photoreport.util</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.util.DateUtilsTest void testGetStartOfDayWithCalendar()" />
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>5</length>
+  <highlighted_element>@Test</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Method is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/baselineProfile/src/main/java/com/fatihenes/photoreport/baselineprofile/BaselineProfileGenerator.kt</file>
+  <line>14</line>
+  <module>PhotoReport.baselineprofile.main</module>
+  <package>com.fatihenes.photoreport.baselineprofile</package>
+  <entry_point TYPE="class" FQNAME="com.fatihenes.photoreport.baselineprofile.BaselineProfileGenerator" />
+  <language>kotlin</language>
+  <offset>0</offset>
+  <length>3</length>
+  <highlighted_element>/**</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Class is not instantiated.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/baselineProfile/src/main/java/com/fatihenes/photoreport/baselineprofile/BaselineProfileGenerator.kt</file>
+  <line>44</line>
+  <module>PhotoReport.baselineprofile.main</module>
+  <package>com.fatihenes.photoreport.baselineprofile</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.baselineprofile.BaselineProfileGenerator void generate()" />
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>5</length>
+  <highlighted_element>@Test</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Method is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/baselineProfile/src/main/java/com/fatihenes/photoreport/baselineprofile/StartupBenchmarks.kt</file>
+  <line>18</line>
+  <module>PhotoReport.baselineprofile.main</module>
+  <package>com.fatihenes.photoreport.baselineprofile</package>
+  <entry_point TYPE="class" FQNAME="com.fatihenes.photoreport.baselineprofile.StartupBenchmarks" />
+  <language>kotlin</language>
+  <offset>0</offset>
+  <length>3</length>
+  <highlighted_element>/**</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Class is not instantiated.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/baselineProfile/src/main/java/com/fatihenes/photoreport/baselineprofile/StartupBenchmarks.kt</file>
+  <line>45</line>
+  <module>PhotoReport.baselineprofile.main</module>
+  <package>com.fatihenes.photoreport.baselineprofile</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.baselineprofile.StartupBenchmarks void startupCompilationNone()" />
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>5</length>
+  <highlighted_element>@Test</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Method is never used.</description>
+</problem>
+<problem>
+  <file>file://$PROJECT_DIR$/baselineProfile/src/main/java/com/fatihenes/photoreport/baselineprofile/StartupBenchmarks.kt</file>
+  <line>49</line>
+  <module>PhotoReport.baselineprofile.main</module>
+  <package>com.fatihenes.photoreport.baselineprofile</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.baselineprofile.StartupBenchmarks void startupCompilationBaselineProfiles()" />
+  <language>kotlin</language>
+  <offset>4</offset>
+  <length>5</length>
+  <highlighted_element>@Test</highlighted_element>
+  <problem_class id="" severity="WARNING" attribute_key="NOT_USED_ELEMENT_ATTRIBUTES">unused declaration</problem_class>
+  <hints>
+    <hint value="comment" />
+    <hint value="delete" />
+  </hints>
+  <description>Method is never used.</description>
+</problem>
+</problems>

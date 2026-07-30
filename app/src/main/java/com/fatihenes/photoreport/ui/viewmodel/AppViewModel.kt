@@ -9,18 +9,22 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.fatihenes.photoreport.repository.AppRepository
+import com.fatihenes.photoreport.manager.BackupManager
+import com.fatihenes.photoreport.util.result.OperationResult
 
 @HiltViewModel
 class AppViewModel @Inject constructor(
     private val dataStore: DataStore<Preferences>,
     private val repository: AppRepository,
-    private val locationManager: com.fatihenes.photoreport.util.LocationManager
+    private val locationManager: com.fatihenes.photoreport.util.LocationManager,
+    private val backupManager: BackupManager
 ) : ViewModel() {
 
     companion object {
@@ -72,5 +76,27 @@ class AppViewModel @Inject constructor(
             }
             repository.processAndSavePhotoInBackground(uri, projectId, logId, enableAvif, projectName, watermarkData)
         }
+    }
+
+    val backupState = MutableStateFlow<OperationResult<Unit>?>(null)
+
+    fun createBackup(uri: android.net.Uri) {
+        viewModelScope.launch {
+            backupManager.createBackup(uri).collect { result ->
+                backupState.value = result
+            }
+        }
+    }
+
+    fun restoreBackup(uri: android.net.Uri) {
+        viewModelScope.launch {
+            backupManager.restoreBackup(uri).collect { result ->
+                backupState.value = result
+            }
+        }
+    }
+
+    fun resetBackupState() {
+        backupState.value = null
     }
 }

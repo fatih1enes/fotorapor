@@ -18,6 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.toColorInt
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.fatihenes.photoreport.R
@@ -101,7 +102,7 @@ fun TrashProjectItem(project: ProjectEntity, onRestore: () -> Unit, onDelete: ()
 
     Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
         Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(40.dp).background(Color(android.graphics.Color.parseColor(project.colorHex)), androidx.compose.foundation.shape.CircleShape))
+            Box(Modifier.size(40.dp).background(Color(project.colorHex.toColorInt()), androidx.compose.foundation.shape.CircleShape))
             Spacer(Modifier.width(16.dp))
             Column(Modifier.weight(1f)) {
                 Text(project.name, fontWeight = FontWeight.Bold, fontSize = 16.sp)

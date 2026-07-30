@@ -51,10 +51,6 @@ class CameraViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    fun toggleGridVisible() {
-        _uiState.update { it.copy(isGridVisible = !it.isGridVisible) }
-    }
-
     fun setGridVisible(visible: Boolean) {
         _uiState.update { it.copy(isGridVisible = visible) }
     }
@@ -65,10 +61,6 @@ class CameraViewModel @Inject constructor() : ViewModel() {
 
     fun setShowExposure(show: Boolean) {
         _uiState.update { it.copy(showExposure = show) }
-    }
-
-    fun toggleSettingsPanel() {
-        _uiState.update { it.copy(showSettingsPanel = !it.showSettingsPanel) }
     }
 
     fun setShowSettingsPanel(show: Boolean) {

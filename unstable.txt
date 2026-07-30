@@ -1,0 +1,18 @@
+
+--- UnstableApiUsage ---
+baselineProfile/build.gradle.kts:44 -> testedApks ('getTestedApks()' is marked unstable with @Incubating)
+settings.gradle.kts:18 -> repositoriesMode ('getRepositoriesMode()' is marked unstable with @Incubating)
+settings.gradle.kts:18 -> RepositoriesMode ('org.gradle.api.initialization.resolve.RepositoriesMode' is marked unstable with @Incubating)
+settings.gradle.kts:18 -> FAIL_ON_PROJECT_REPOS ('FAIL_ON_PROJECT_REPOS' is declared in unstable enum 'org.gradle.api.initialization.resolve.RepositoriesMode' marked with @Incubating)
+settings.gradle.kts:19 -> repositories ('repositories(org.gradle.api.Action<? super org.gradle.api.artifacts.dsl.RepositoryHandler>)' is marked unstable with @Incubating)
+
+--- GrazieInspection ---
+app/src/main/java/com/fatihenes/photoreport/manager/BackupManager.kt:88 -> or (Use a comma before 'or' if it connects two independent clauses (unless they are closely connected and short).)
+app/src/main/java/com/fatihenes/photoreport/util/WatermarkRenderer.kt:89 -> at the bottom-left corner (The usual preposition to use with "corner" is "in", not "on". Did you mean 'in the bottom-left corner'?)
+app/src/main/res/values-en/strings.xml:175 -> on the bottom left corner (The usual preposition to use with "corner" is "in", not "on". Did you mean 'in the bottom left corner'?)
+baselineProfile/src/main/java/com/fatihenes/photoreport/baselineprofile/BaselineProfileGenerator.kt:35 -> benchmark (If a new sentence starts here, add a space and start with an uppercase letter.)
+build.gradle.kts:1 -> sub-projects (This word is normally spelled as one.)
+build.gradle.kts:2 -> sub-projects (This word is normally spelled as one.)
+
+--- GrazieStyle ---
+app/src/test/java/com/fatihenes/photoreport/util/DateUtilsTest.kt:24 -> 2023 (Some style guides suggest that commas should set off the year in a month-day-year date.)

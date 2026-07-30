@@ -1,0 +1,16 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/ui/CameraStateHolder.kt</file>
+  <line>81</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.ui</package>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/ui/CameraStateHolder.kt" />
+  <problem_class id="AndroidLintInlinedApi" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Using inlined constants on older versions</problem_class>
+  <hints />
+  <description>&lt;html&gt;Field requires API level 33 (current min is 30): &lt;code&gt;android.hardware.camera2.CameraMetadata#CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION&lt;/code&gt;&lt;/html&gt;</description>
+  <highlighted_element>CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION</highlighted_element>
+  <language>kotlin</language>
+  <offset>34</offset>
+  <length>76</length>
+</problem>
+</problems>

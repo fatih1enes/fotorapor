@@ -1,17 +1,105 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Şantiye Günlüğü</string>
+    <string name="app_name">PhotoReport</string>
     <string name="widget_description">View active project and quickly take photos</string>
+
+    <!-- Dashboard -->
+    <string name="active_projects">Active Projects</string>
+    <plurals name="project_files">
+        <item quantity="one">%d File</item>
+        <item quantity="other">%d Files</item>
+    </plurals>
+    <string name="folder_summary">PhotoReport</string>
+    <string name="empty_state_title">No Projects Yet</string>
+
+    <!-- Add Project Dialog -->
+    <string name="start_new_project">Start New Project</string>
     <string name="project_name_label">Project Name</string>
+    <string name="cancel_btn">Cancel</string>
+
+    <!-- Project Detail -->
+    <string name="project_details_label">Project Details</string>
+    <string name="timeline_label">Timeline</string>
+    <string name="note_placeholder">Write the day\'s summary here…</string>
+    <string name="share_as_file">Share as File</string>
+    <string name="pdf_preparing">Preparing PDF…</string>
+    <string name="add_date_card">Add Date Card</string>
+    <string name="loading">Loading…</string>
+    <string name="camera_btn">Camera</string>
+    <string name="gallery_btn">Gallery</string>
+    <string name="add_btn">Add</string>
+    <string name="day_mon">Mon</string>
+    <string name="day_tue">Tue</string>
+    <string name="day_wed">Wed</string>
+    <string name="day_thu">Thu</string>
+    <string name="day_fri">Fri</string>
+    <string name="day_sat">Sat</string>
+    <string name="day_sun">Sun</string>
+
+    <!-- Options Menu -->
+    <string name="bulk_select_delete">Bulk Select &amp; Delete</string>
+    <string name="delete_project_menu">Delete Project</string>
+
+    <!-- Confirmation Dialogs -->
     <string name="delete_project_title">Delete Project</string>
+    <string name="delete_project_desc">Are you sure you want to delete the project \'%s\' and all its records? This cannot be undone.</string>
+    <string name="delete_photo_title">Delete Photo</string>
+    <string name="delete_photo_desc">Do you want to permanently delete this photo?</string>
+    <plurals name="delete_bulk_desc">
+        <item quantity="one">Are you sure you want to permanently delete %d selected photo?</item>
+        <item quantity="other">Are you sure you want to permanently delete %d selected photos?</item>
+    </plurals>
+    <string name="delete_confirm_btn">Delete</string>
+
+    <!-- Camera -->
+    <string name="camera_permission_required">Camera permission required</string>
+    <string name="camera_mode_photo">PHOTO</string>
+    <string name="camera_mode_video">VIDEO</string>
+    <string name="grid_label">Grid</string>
+    <string name="flash_label">Flash</string>
+
+    <!-- Sharing -->
+    <string name="share_media">Share Media</string>
+    <string name="share_selected">Share Selected</string>
+    <string name="share_label">Share</string>
+    <string name="share_failed">Failed to start sharing</string>
+    <string name="share_no_files">No files found to share</string>
+    <string name="import_error">Some files could not be imported</string>
+
+    <!-- Common -->
+    <string name="back_label">Back</string>
+    <string name="close_label">Close</string>
+    <string name="rotate_label">Rotate</string>
+    <string name="delete_label">Delete</string>
+    <plurals name="selected_count">
+        <item quantity="one">%d Selected</item>
+        <item quantity="other">%d Selected</item>
+    </plurals>
+
+    <!-- Export Dialog -->
+    <string name="export_share_project">Share Project</string>
+    <string name="export_compression_quality">Compression Quality</string>
+    <string name="export_quality_original">Original</string>
+    <string name="export_quality_original_sub">Lossless</string>
+    <string name="export_quality_high">High</string>
+    <string name="export_quality_high_sub">Recommended</string>
+    <string name="export_quality_standard">Standard</string>
+    <string name="export_quality_standard_sub">Fast Transfer</string>
+    <string name="export_content_summary">Content Summary</string>
+    <string name="export_calculating">Calculating sizes…</string>
     <string name="export_pdf_desc">Consolidates photos and notes chronologically into an A4 PDF document. Best for printing or quick sharing.</string>
     <string name="export_zip_desc">Creates an HTML web page containing photos and notes in their original format. Best for viewing videos.</string>
+    <string name="export_photo_label">📸 Photo</string>
+    <string name="export_video_label">🎬 Video</string>
+    <string name="export_day_label">📅 Daily Log</string>
+    <string name="export_share_btn">Share</string>
+    <string name="export_cancel_btn">Cancel</string>
     <string name="export_pdf_video_warning">Videos cannot be played in PDF format; only a preview image is included.</string>
     <string name="export_zip_original_desc">Photos and videos are added to the archive in their original quality without loss.</string>
     <string name="export_zip_compressed_desc">Images undergo web optimization.</string>
     <string name="export_pdf_estimate">📄 Estimated PDF Size: ~%s</string>
     <string name="export_zip_estimate">📦 Estimated ZIP Size: ~%s</string>
-    <string name="export_started_toast">Export started in background. Please wait...</string>
+    <string name="export_started_toast">Export started in background. Please wait…</string>
 
     <!-- AppViewModel Errors -->
     <string name="error_unknown">An unknown error occurred</string>
@@ -27,6 +115,13 @@
     <string name="export_share_action">Share Now</string>
     <string name="export_format_pdf">daily log</string>
     <string name="export_format_zip">web archive</string>
+
+    <!-- ExportWorker Error Notifications -->
+    <string name="export_failed_title">Export Failed</string>
+    <string name="export_failed_text">%1$s could not be exported: %2$s</string>
+    <string name="error_out_of_memory">Device memory is insufficient.</string>
+    <string name="error_storage_access">Insufficient storage space or access error.</string>
+    <string name="export_error_channel_name">Export Errors</string>
 
     <!-- Camera Permission -->
     <string name="camera_permission_rationale_title">Camera Permission Required</string>
@@ -52,9 +147,39 @@
     <string name="settings_company_logo_desc">Select the image to appear in the top right corner of PDF reports.</string>
     <string name="settings_remove_logo">Remove Logo</string>
 
+    <!-- Trash -->
+    <string name="trash_title">Trash (Last 30 Days)</string>
+    <string name="trash_empty">Trash is empty</string>
+    <string name="trash_deleted_projects">Deleted Projects</string>
+    <string name="trash_deleted_photos">Deleted Photos</string>
+    <string name="unknown_date">Unknown</string>
+    <string name="trash_deleted_at">Deleted at: %s</string>
+    <string name="restore_btn">Restore</string>
+    <string name="hard_delete_btn">Delete Permanently</string>
+    <string name="photo_label">Photo</string>
+
     <!-- Camera (hardcoded fixes) -->
     <string name="camera_error_prefix">Camera Error:</string>
     <string name="camera_retry_btn">Retry</string>
+    <string name="camera_preparing">Preparing camera…</string>
+    <string name="camera_settings_title">Camera Settings</string>
+    <string name="camera_hdr_title">Hardware HDR</string>
+    <string name="camera_hdr_desc">Captures clearer and smoother photos</string>
+    <string name="camera_avif_title">AVIF Recording (Lossless)</string>
+    <string name="camera_avif_desc">Reduces size significantly without losing quality</string>
+    <string name="camera_not_ready">Camera is not ready yet, please try again.</string>
+    <string name="camera_save_failed">Failed to save photo: %s</string>
 
+    <string name="settings_gps_watermark">Location Watermark</string>
+    <string name="settings_gps_watermark_title">GPS and Date Info</string>
+    <string name="settings_gps_watermark_desc">Prints project name, date, coordinate, and address info in the bottom left corner of captured photos.</string>
+    <string name="location_permission_required">Location permission is required for the GPS watermark.</string>
 
+    <!-- Backup and Restore -->
+    <string name="settings_backup_title">Backup and Restore</string>
+    <string name="settings_backup_create">Create Backup</string>
+    <string name="settings_backup_create_desc">Backup all your projects and photos into a ZIP file.</string>
+    <string name="settings_backup_restore">Restore Backup</string>
+    <string name="settings_backup_restore_desc">Restore a previously taken backup (.zip) to your device.</string>
+    <string name="backup_success">Operation completed successfully.</string>
 </resources>

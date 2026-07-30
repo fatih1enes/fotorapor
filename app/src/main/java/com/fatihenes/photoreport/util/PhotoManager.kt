@@ -45,29 +45,6 @@ object PhotoManager {
         ).setContentValues(contentValues).build()
     }
 
-    fun createPhotoUri(context: Context): Uri {
-        val file = File(context.filesDir, "IMG_${System.currentTimeMillis()}.jpg")
-        return Uri.fromFile(file)
-    }
-
-    fun copyUriToFile(context: Context, uri: Uri): String? {
-        return try {
-            val isVideo = context.contentResolver.getType(uri)?.contains("video") == true
-            val extension = if (isVideo) ".mp4" else ".jpg"
-            val prefix = if (isVideo) "VID_" else "IMG_"
-            val destFile = File(context.filesDir, "${prefix}${System.currentTimeMillis()}$extension")
-
-            context.contentResolver.openInputStream(uri)?.use { input ->
-                destFile.outputStream().use { output ->
-                    input.copyTo(output)
-                }
-            }
-            destFile.absolutePath
-        } catch (e: Exception) {
-            null
-        }
-    }
-
     fun copyUriToInternalStorage(context: Context, uri: Uri): Uri? {
         return try {
             val inputStream = context.contentResolver.openInputStream(uri) ?: return null

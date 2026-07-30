@@ -28,13 +28,6 @@ object CompanyLogoManager {
         return Uri.fromFile(file)
     }
 
-    fun getLogoBitmap(context: Context): Bitmap? {
-        val file = getLogoFile(context)
-        if (!file.exists()) return null
-        // OOM önlemi: Logo küçük olsa bile güvenlik amaçlı en fazla 512x512 yüklüyoruz
-        return ImageUtils.loadScaledBitmap(context, file.absolutePath, 512, 512)
-    }
-
     fun hasLogo(context: Context): Boolean {
         return getLogoFile(context).exists()
     }

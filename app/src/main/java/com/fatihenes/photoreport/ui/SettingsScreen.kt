@@ -1,3 +1,4 @@
+@file:Suppress("LocalContextGetResourceValueCall")
 package com.fatihenes.photoreport.ui
 
 import android.net.Uri
@@ -235,6 +236,82 @@ fun SettingsScreen(
                                 }
                             }
                         )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Backup Section
+            SettingsSectionTitle(stringResource(R.string.settings_backup_title))
+            SettingsCard {
+                val backupState by viewModel.backupState.collectAsStateWithLifecycle()
+                
+                val createBackupLauncher = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.CreateDocument("application/zip")
+                ) { uri ->
+                    if (uri != null) {
+                        viewModel.createBackup(uri)
+                    }
+                }
+                
+                val restoreBackupLauncher = rememberLauncherForActivityResult(
+                    contract = ActivityResultContracts.OpenDocument()
+                ) { uri ->
+                    if (uri != null) {
+                        viewModel.restoreBackup(uri)
+                    }
+                }
+                
+                LaunchedEffect(backupState) {
+                    if (backupState is com.fatihenes.photoreport.util.result.OperationResult.Success) {
+                        android.widget.Toast.makeText(context, context.getString(R.string.backup_success), android.widget.Toast.LENGTH_SHORT).show()
+                        viewModel.resetBackupState()
+                    } else if (backupState is com.fatihenes.photoreport.util.result.OperationResult.Error) {
+                        android.widget.Toast.makeText(context, (backupState as com.fatihenes.photoreport.util.result.OperationResult.Error).message, android.widget.Toast.LENGTH_LONG).show()
+                        viewModel.resetBackupState()
+                    }
+                }
+
+                Column(modifier = Modifier.padding(16.dp)) {
+                    if (backupState is com.fatihenes.photoreport.util.result.OperationResult.Loading) {
+                        val progress = (backupState as com.fatihenes.photoreport.util.result.OperationResult.Loading).progress ?: 0
+                        LinearProgressIndicator(
+                            progress = { progress / 100f },
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+                        )
+                    }
+                    
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { createBackupLauncher.launch("Santiye_Gunlugu_Yedek.zip") }
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(Icons.Default.Backup, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Column {
+                            Text(stringResource(R.string.settings_backup_create), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.settings_backup_create_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                    
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
+                    
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { restoreBackupLauncher.launch(arrayOf("application/zip")) }
+                            .padding(vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(Icons.Default.Restore, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Column {
+                            Text(stringResource(R.string.settings_backup_restore), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
+                            Text(stringResource(R.string.settings_backup_restore_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
                     }
                 }
             }

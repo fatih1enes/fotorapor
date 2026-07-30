@@ -4,6 +4,7 @@ import android.content.Context
 import com.fatihenes.photoreport.data.ProjectDao
 import com.fatihenes.photoreport.data.ProjectEntity
 import com.fatihenes.photoreport.widget.WidgetDataHelper
+import com.fatihenes.photoreport.R
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -51,7 +52,7 @@ class ProjectRepositoryImpl @Inject constructor(
         if (latest != null) {
             WidgetDataHelper.saveLatestProject(appContext, latest.id, latest.name)
         } else {
-            WidgetDataHelper.saveLatestProject(appContext, -1L, "Proje Yok")
+            WidgetDataHelper.saveLatestProject(appContext, -1L, appContext.getString(R.string.empty_state_title))
         }
     }
 }

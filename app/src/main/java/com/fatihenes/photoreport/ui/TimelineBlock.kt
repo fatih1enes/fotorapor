@@ -1,3 +1,4 @@
+@file:Suppress("LocalContextGetResourceValueCall")
 package com.fatihenes.photoreport.ui
 
 import android.net.Uri
@@ -31,7 +32,6 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.CachePolicy
-import coil3.request.crossfade
 import coil3.video.VideoFrameDecoder
 import com.fatihenes.photoreport.R
 import com.fatihenes.photoreport.data.DailyLogEntity

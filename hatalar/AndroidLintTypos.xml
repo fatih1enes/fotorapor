@@ -1,0 +1,15 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/res/values/strings.xml</file>
+  <line>174</line>
+  <module>PhotoReport.app.main</module>
+  <entry_point TYPE="file" FQNAME="file://$PROJECT_DIR$/app/src/main/res/values/strings.xml" />
+  <problem_class id="AndroidLintTypos" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Spelling error</problem_class>
+  <hints />
+  <description>&lt;html&gt;&quot;adres&quot; is a common misspelling; did you mean &quot;address&quot;?&lt;/html&gt;</description>
+  <highlighted_element>adres</highlighted_element>
+  <language>XML</language>
+  <offset>117</offset>
+  <length>5</length>
+</problem>
+</problems>

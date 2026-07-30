@@ -1,0 +1,18 @@
+<problems>
+<problem>
+  <file>file://$PROJECT_DIR$/app/src/main/java/com/fatihenes/photoreport/ui/viewmodel/UiState.kt</file>
+  <line>9</line>
+  <module>PhotoReport.app.main</module>
+  <package>com.fatihenes.photoreport.ui.viewmodel</package>
+  <entry_point TYPE="method" FQNAME="com.fatihenes.photoreport.ui.viewmodel.UiState.Success Success(T data)" />
+  <problem_class id="unused" severity="WARNING" attribute_key="WARNING_ATTRIBUTES">Unused declaration</problem_class>
+  <hints>
+    <hint value="data" />
+  </hints>
+  <description>Parameter &lt;code&gt;data&lt;/code&gt; is not used</description>
+  <highlighted_element>data</highlighted_element>
+  <language>kotlin</language>
+  <offset>30</offset>
+  <length>4</length>
+</problem>
+</problems>

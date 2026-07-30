@@ -1,12 +1,13 @@
+@file:Suppress("LocalContextGetResourceValueCall")
 package com.fatihenes.photoreport.ui
+import androidx.compose.foundation.focusable
 
+import android.content.Context
+import kotlinx.coroutines.isActive
 import android.hardware.Sensor
 import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
-import androidx.compose.ui.graphics.graphicsLayer
-import kotlinx.coroutines.isActive
-import android.content.Context
 import android.net.Uri
 import android.util.Log
 import android.view.OrientationEventListener
@@ -18,26 +19,19 @@ import androidx.camera.video.*
 import androidx.camera.view.PreviewView
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Cameraswitch
 import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.FlashAuto
-import androidx.compose.material.icons.filled.FlashOff
-import androidx.compose.material.icons.filled.FlashOn
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.GridOn
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.WbSunny
 import coil3.compose.AsyncImage
 import androidx.compose.material3.*
@@ -46,12 +40,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -66,21 +66,12 @@ import com.fatihenes.photoreport.ui.camera.components.*
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
-import androidx.compose.ui.input.key.onKeyEvent
-import androidx.compose.ui.input.key.key
-import androidx.compose.ui.input.key.Key
-import androidx.compose.ui.input.key.type
-import androidx.compose.ui.input.key.KeyEventType
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
-import androidx.compose.foundation.focusable
 
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.fatihenes.photoreport.ui.viewmodel.CameraViewModel
 
 private val Amber = Color(0xFFFFD60A)
-private val ControlBg = Color(0x66000000)
 
 @Composable
 fun CameraScreen(
@@ -179,7 +170,7 @@ fun CameraScreen(
 
     LaunchedEffect(uiState.isRecording) {
         if (uiState.isRecording) {
-            while (uiState.isRecording && isActive) {
+            while (isActive) {
                 delay(1000.milliseconds)
                 cameraViewModel.incrementRecordingDuration()
             }
@@ -524,15 +515,14 @@ private fun takePhoto(
     executor: java.util.concurrent.ExecutorService,
     onPhotoCaptured: (Uri) -> Unit
 ) {
-    val cap = imageCapture
-    if (cap == null) {
+    if (imageCapture == null) {
         Log.w("CameraScreen", "takePhoto called but imageCapture is null")
         android.widget.Toast.makeText(context, context.getString(R.string.camera_not_ready), android.widget.Toast.LENGTH_SHORT).show()
         return
     }
     val opts = PhotoManager.getCaptureOutputOptions(context)
     val mainExec = ContextCompat.getMainExecutor(context)
-    cap.takePicture(opts, executor, object : ImageCapture.OnImageSavedCallback {
+    imageCapture.takePicture(opts, executor, object : ImageCapture.OnImageSavedCallback {
         override fun onError(exc: ImageCaptureException) {
             Log.e("CameraScreen", "Capture failed", exc)
             mainExec.execute {

@@ -5,6 +5,7 @@ import android.net.Uri
 import android.util.Log
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
+import androidx.core.text.htmlEncode
 import com.fatihenes.photoreport.data.DailyLogEntity
 import com.fatihenes.photoreport.data.PhotoEntity
 import com.fatihenes.photoreport.data.ProjectEntity
@@ -285,7 +286,7 @@ object HtmlExporter {
                 """.trimIndent())
 
                 if (log.note.trim().isNotEmpty()) {
-                    builder.append("<div class=\"note-content\">${android.text.TextUtils.htmlEncode(log.note)}</div>")
+                    builder.append("<div class=\"note-content\">${log.note.htmlEncode()}</div>")
                 }
 
                 if (dayPhotos.isNotEmpty()) {
