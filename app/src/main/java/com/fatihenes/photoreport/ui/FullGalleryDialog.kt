@@ -101,10 +101,11 @@ fun FullGalleryDialog(
                     actions = {
                         if (isSelectionMode) {
                             val context = LocalContext.current
+                            val snackbarHost = com.fatihenes.photoreport.ui.navigation.LocalSnackbarHostState.current
                             IconButton(onClick = {
                                 if (selectedIds.isNotEmpty()) {
                                     val selectedPaths = photos.filter { selectedIds.contains(it.id) }.map { it.filePath }
-                                    MediaShareUtils.shareMultipleMedia(context, selectedPaths)
+                                    MediaShareUtils.shareMultipleMedia(context, selectedPaths) { msg -> coroutineScope.launch { snackbarHost.showSnackbar(msg) } }
                                 }
                             }) {
                                 Icon(Icons.Default.Share, contentDescription = null, tint = MaterialTheme.colorScheme.primary)

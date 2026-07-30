@@ -39,10 +39,10 @@ class BackupManagerTest {
         mockOpenHelper = mock(SupportSQLiteOpenHelper::class.java)
         mockDb = mock(SupportSQLiteDatabase::class.java)
 
-        val tempDbFile = File.createTempFile("santiye_gunlugu", ".db")
+        val tempDbFile = File.createTempFile("photoreport", ".db")
         tempDbFile.deleteOnExit()
 
-        `when`(context.getDatabasePath("santiye_gunlugu.db")).thenReturn(tempDbFile)
+        `when`(context.getDatabasePath("photoreport.db")).thenReturn(tempDbFile)
         `when`(context.contentResolver).thenReturn(mockContentResolver)
         `when`(mockDatabase.openHelper).thenReturn(mockOpenHelper)
         `when`(mockOpenHelper.writableDatabase).thenReturn(mockDb)

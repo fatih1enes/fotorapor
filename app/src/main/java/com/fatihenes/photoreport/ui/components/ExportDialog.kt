@@ -25,6 +25,8 @@ import com.fatihenes.photoreport.data.ProjectEntity
 import com.fatihenes.photoreport.data.LogWithPhotos
 
 import com.fatihenes.photoreport.ui.viewmodel.ProjectDetailViewModel
+import kotlinx.coroutines.launch
+import com.fatihenes.photoreport.ui.navigation.LocalSnackbarHostState
 
 enum class ExportFormat { PDF, ZIP }
 
@@ -44,6 +46,8 @@ fun ExportDialog(
     var selectedFormat by remember { mutableStateOf<ExportFormat?>(null) }
     var selectedQuality by remember { mutableIntStateOf(100) } // 100, 85, 75
     var isExporting by remember { mutableStateOf(false) }
+    val snackbarHost = LocalSnackbarHostState.current
+    val coroutineScope = rememberCoroutineScope()
 
     val fileSizes by viewModel.fileSizeInfo.collectAsState()
     val isCalculatingSizes = fileSizes == null
@@ -295,7 +299,7 @@ fun ExportDialog(
                     Button(
                         onClick = {
                             isExporting = true
-                            android.widget.Toast.makeText(context, context.getString(R.string.export_started_toast), android.widget.Toast.LENGTH_LONG).show()
+                            coroutineScope.launch { snackbarHost.showSnackbar(context.getString(R.string.export_started_toast)) }
                             when (selectedFormat) {
                                 ExportFormat.PDF -> onExportPdf(selectedQuality)
                                 ExportFormat.ZIP -> onExportZip(selectedQuality)

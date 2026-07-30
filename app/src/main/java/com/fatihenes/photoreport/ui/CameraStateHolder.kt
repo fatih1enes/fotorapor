@@ -53,6 +53,7 @@ private data class CameraCapabilities(
  * Query real capabilities from Camera2 for the requested lens.
  * Returns a safe default (everything disabled) if anything goes wrong.
  */
+@android.annotation.SuppressLint("InlinedApi")
 private fun queryCameraCapabilities(context: Context, lensFacing: Int): CameraCapabilities {
     return try {
         val cm = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager

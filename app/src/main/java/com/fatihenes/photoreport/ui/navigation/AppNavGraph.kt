@@ -6,15 +6,12 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
-import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInHorizontally
-import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -43,9 +40,21 @@ import com.fatihenes.photoreport.ui.viewmodel.AppViewModel
 import com.fatihenes.photoreport.ui.viewmodel.DashboardViewModel
 import com.fatihenes.photoreport.ui.viewmodel.ProjectDetailViewModel
 import com.fatihenes.photoreport.ui.viewmodel.UiState
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.ui.Alignment
+import kotlinx.coroutines.launch
+
+val LocalSnackbarHostState = staticCompositionLocalOf<SnackbarHostState> {
+    error("No SnackbarHostState provided")
+}
 
 /**
- * Main navigation graph for the Şantiye Günlüğü app.
+ * Main navigation graph for the PhotoReport app.
  * Extracted from MainActivity to follow SRP — the Activity only sets up
  * the theme and calls this composable.
  */
@@ -55,8 +64,12 @@ fun AppNavGraph(
     initialCameraProjectId: Long = -1L,
     initialProjectDetailId: Long = -1L
 ) {
-    val navController = rememberNavController()
-    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    CompositionLocalProvider(LocalSnackbarHostState provides snackbarHostState) {
+        val navController = rememberNavController()
+        val context = LocalContext.current
+        val scope = rememberCoroutineScope()
 
     // --- Permission Handling ---
     var pendingLogId by remember { mutableStateOf<Long?>(null) }
@@ -86,7 +99,9 @@ fun AppNavGraph(
             if (activity != null && !ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.CAMERA)) {
                 showPermissionRationale = true
             } else {
-                Toast.makeText(context, context.getString(R.string.camera_permission_required), Toast.LENGTH_SHORT).show()
+                scope.launch {
+                    snackbarHostState.showSnackbar(context.getString(R.string.camera_permission_required))
+                }
             }
         }
         pendingLogId = null
@@ -107,52 +122,47 @@ fun AppNavGraph(
     }
 
     // --- Navigation Host ---
-    NavHost(
-        navController = navController,
+    Box(modifier = Modifier.fillMaxSize()) {
+        NavHost(
+            navController = navController,
         startDestination = Routes.DASHBOARD,
         modifier = Modifier,
         enterTransition = {
-            slideInHorizontally(
-                initialOffsetX = { it },
-                animationSpec = tween(400, easing = FastOutSlowInEasing)
-            ) + fadeIn(animationSpec = tween(400))
+            fadeIn(animationSpec = tween(300, easing = FastOutSlowInEasing)) +
+            androidx.compose.animation.scaleIn(initialScale = 0.95f, animationSpec = tween(300, easing = FastOutSlowInEasing))
         },
         exitTransition = {
-            slideOutHorizontally(
-                targetOffsetX = { -it / 3 },
-                animationSpec = tween(400, easing = FastOutSlowInEasing)
-            ) + fadeOut(animationSpec = tween(400))
+            fadeOut(animationSpec = tween(250, easing = FastOutSlowInEasing)) +
+            androidx.compose.animation.scaleOut(targetScale = 1.05f, animationSpec = tween(250, easing = FastOutSlowInEasing))
         },
         popEnterTransition = {
-            slideInHorizontally(
-                initialOffsetX = { -it / 3 },
-                animationSpec = tween(400, easing = FastOutSlowInEasing)
-            ) + fadeIn(animationSpec = tween(400))
+            fadeIn(animationSpec = tween(300, easing = FastOutSlowInEasing)) +
+            androidx.compose.animation.scaleIn(initialScale = 1.05f, animationSpec = tween(300, easing = FastOutSlowInEasing))
         },
         popExitTransition = {
-            slideOutHorizontally(
-                targetOffsetX = { it },
-                animationSpec = tween(400, easing = FastOutSlowInEasing)
-            ) + fadeOut(animationSpec = tween(400))
+            fadeOut(animationSpec = tween(250, easing = FastOutSlowInEasing)) +
+            androidx.compose.animation.scaleOut(targetScale = 0.95f, animationSpec = tween(250, easing = FastOutSlowInEasing))
         }
     ) {
         composable(Routes.DASHBOARD) {
             val dashboardViewModel: DashboardViewModel = hiltViewModel()
             val projects by dashboardViewModel.projects.collectAsStateWithLifecycle()
             val actionState by dashboardViewModel.projectActionState.collectAsStateWithLifecycle()
+            val isTrashNotEmpty by dashboardViewModel.isTrashNotEmpty.collectAsStateWithLifecycle()
 
             LaunchedEffect(actionState) {
                 if (actionState is UiState.Success) {
-                    Toast.makeText(context, context.getString(R.string.project_added_success), Toast.LENGTH_SHORT).show()
+                    scope.launch { snackbarHostState.showSnackbar(context.getString(R.string.project_added_success)) }
                     dashboardViewModel.resetProjectActionState()
                 } else if (actionState is UiState.Error) {
-                    Toast.makeText(context, (actionState as UiState.Error).message, Toast.LENGTH_SHORT).show()
+                    scope.launch { snackbarHostState.showSnackbar((actionState as UiState.Error).message) }
                     dashboardViewModel.resetProjectActionState()
                 }
             }
 
             DashboardScreen(
                 projects = projects,
+                isTrashNotEmpty = isTrashNotEmpty,
                 onProjectClick = { project ->
                     navController.navigate(Routes.detail(project.id))
                 },
@@ -275,6 +285,17 @@ fun AppNavGraph(
             )
         }
     }
+    
+    // Global SnackbarHost over the NavHost
+    SnackbarHost(
+        hostState = snackbarHostState,
+        modifier = Modifier
+            .align(Alignment.BottomCenter)
+            .imePadding()
+            .navigationBarsPadding()
+    )
+    } // End of Box
+    } // End of CompositionLocalProvider
 }
 
 /**

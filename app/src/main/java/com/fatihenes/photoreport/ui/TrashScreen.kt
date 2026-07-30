@@ -10,6 +10,10 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.scaleIn
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,6 +42,9 @@ fun TrashScreen(
     val deletedProjects by viewModel.deletedProjects.collectAsState(initial = emptyList())
     val deletedPhotos by viewModel.deletedPhotos.collectAsState(initial = emptyList())
     val scope = rememberCoroutineScope()
+    
+    var showDeleteConfirmProject by remember { mutableStateOf<Long?>(null) }
+    var showDeleteConfirmPhoto by remember { mutableStateOf<PhotoEntity?>(null) }
 
     Scaffold(
         topBar = {
@@ -53,7 +60,28 @@ fun TrashScreen(
     ) { padding ->
         if (deletedProjects.isEmpty() && deletedPhotos.isEmpty()) {
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                Text(stringResource(R.string.trash_empty), fontSize = 18.sp, color = Color.Gray)
+                var isVisible by remember { mutableStateOf(false) }
+                LaunchedEffect(Unit) { isVisible = true }
+                AnimatedVisibility(
+                    visible = isVisible,
+                    enter = fadeIn(tween(500)) + scaleIn(tween(500), initialScale = 0.8f)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                            modifier = Modifier.size(80.dp)
+                        )
+                        Spacer(Modifier.height(16.dp))
+                        Text(
+                            stringResource(R.string.trash_empty),
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                        )
+                    }
+                }
             }
         } else {
             LazyColumn(
@@ -70,7 +98,7 @@ fun TrashScreen(
                         TrashProjectItem(
                             project = project,
                             onRestore = { scope.launch { viewModel.restoreProject(project.id) } },
-                            onDelete = { scope.launch { viewModel.hardDeleteProject(project.id) } }
+                            onDelete = { showDeleteConfirmProject = project.id }
                         )
                         Spacer(Modifier.height(8.dp))
                     }
@@ -85,13 +113,57 @@ fun TrashScreen(
                         TrashPhotoItem(
                             photo = photo,
                             onRestore = { scope.launch { viewModel.restorePhoto(photo.id) } },
-                            onDelete = { scope.launch { viewModel.hardDeletePhoto(photo) } }
+                            onDelete = { showDeleteConfirmPhoto = photo }
                         )
                         Spacer(Modifier.height(8.dp))
                     }
                 }
             }
         }
+    }
+
+    if (showDeleteConfirmProject != null) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirmProject = null },
+            title = { Text(stringResource(R.string.delete_photo_title)) },
+            text = { Text("Bu projeyi tamamen silmek istediğinize emin misiniz? Bu işlem geri alınamaz.") },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        scope.launch { viewModel.hardDeleteProject(showDeleteConfirmProject!!) }
+                        showDeleteConfirmProject = null
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error, contentColor = Color.White)
+                ) {
+                    Text(stringResource(R.string.delete_confirm_btn), color = Color.White)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirmProject = null }) { Text(stringResource(R.string.cancel_btn)) }
+            }
+        )
+    }
+
+    if (showDeleteConfirmPhoto != null) {
+        AlertDialog(
+            onDismissRequest = { showDeleteConfirmPhoto = null },
+            title = { Text(stringResource(R.string.delete_photo_title)) },
+            text = { Text(stringResource(R.string.delete_photo_desc)) },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        scope.launch { viewModel.hardDeletePhoto(showDeleteConfirmPhoto!!) }
+                        showDeleteConfirmPhoto = null
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error, contentColor = Color.White)
+                ) {
+                    Text(stringResource(R.string.delete_confirm_btn), color = Color.White)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteConfirmPhoto = null }) { Text(stringResource(R.string.cancel_btn)) }
+            }
+        )
     }
 }
 

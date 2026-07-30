@@ -1,0 +1,23 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="200dp"
+    android:height="80dp"
+    android:viewportWidth="200"
+    android:viewportHeight="80">
+
+    <!-- Premium Crown -->
+    <path
+        android:fillColor="#4F46E5"
+        android:pathData="M88,44 L84,22 L95,32 L100,20 L105,32 L116,22 L112,44 Z" />
+    <path
+        android:fillColor="#3730A3"
+        android:pathData="M88,46 L112,46 L112,50 L88,50 Z" />
+        
+    <!-- Tiny decorative stars -->
+    <path
+        android:fillColor="#FCD34D"
+        android:pathData="M90,16 L92,20 L96,20 L93,23 L94,27 L90,25 L86,27 L87,23 L84,20 L88,20 Z" />
+    <path
+        android:fillColor="#FCD34D"
+        android:pathData="M110,16 L112,20 L116,20 L113,23 L114,27 L110,25 L106,27 L107,23 L104,20 L108,20 Z" />
+
+</vector>

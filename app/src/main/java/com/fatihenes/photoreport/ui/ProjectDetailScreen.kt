@@ -31,6 +31,7 @@ import androidx.core.graphics.toColorInt
 import androidx.core.content.ContextCompat
 import android.os.Build
 import kotlinx.coroutines.launch
+import com.fatihenes.photoreport.ui.navigation.LocalSnackbarHostState
 import java.time.LocalDate
 import com.fatihenes.photoreport.R
 import com.fatihenes.photoreport.data.PhotoEntity
@@ -74,6 +75,7 @@ fun ProjectDetailScreen(
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    val snackbarHost = LocalSnackbarHostState.current
     var showMenu by remember { mutableStateOf(false) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
     var showExportDialog by remember { mutableStateOf(false) }
@@ -85,7 +87,7 @@ fun ProjectDetailScreen(
         contract = androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (!isGranted) {
-            android.widget.Toast.makeText(context, "Bildirim izni verilmediÃƒâ€Ã…Â¸i iÃƒÆ’Ã‚Â§in arkaplan iÃƒâ€¦Ã…Â¸lemi durumu gÃƒÆ’Ã‚Â¶sterilemeyecek.", android.widget.Toast.LENGTH_LONG).show()
+            coroutineScope.launch { snackbarHost.showSnackbar("Bildirim izni verilmediği için arkaplan işlemi durumu gösterilemeyecek.") }
         }
         showExportDialog = true
     }
@@ -162,8 +164,13 @@ fun ProjectDetailScreen(
 
         LazyColumn(
             state = listState,
-            modifier = Modifier.fillMaxSize().padding(padding),
-            contentPadding = PaddingValues(start = 16.dp, top = 16.dp, end = 16.dp, bottom = 100.dp)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(horizontal = 16.dp)
+                .padding(padding)
+                .consumeWindowInsets(padding)
+                .imePadding(),
+            contentPadding = PaddingValues(top = 16.dp)
         ) {
             item(key = "week_calendar") {
                 WeekCalendar(
@@ -246,6 +253,7 @@ fun ProjectDetailScreen(
                     }
                 )
             }
+            item { Spacer(modifier = Modifier.height(100.dp)) }
         }
     }
 
@@ -300,12 +308,12 @@ fun ProjectDetailScreen(
             onExportPdf = { quality ->
                 showExportDialog = false
                 onExportProject("PDF", quality)
-                android.widget.Toast.makeText(context, context.getString(R.string.pdf_preparing) + " (Arka plan)", android.widget.Toast.LENGTH_LONG).show()
+                coroutineScope.launch { snackbarHost.showSnackbar(context.getString(R.string.pdf_preparing) + " (Arka plan)") }
             },
             onExportZip = { quality ->
                 showExportDialog = false
                 onExportProject("ZIP", quality)
-                android.widget.Toast.makeText(context, "ZIP dışa aktarımı arka planda başlatıldı. Bildirimleri kontrol edin.", android.widget.Toast.LENGTH_LONG).show()
+                coroutineScope.launch { snackbarHost.showSnackbar("ZIP dışa aktarımı arka planda başlatıldı. Bildirimleri kontrol edin.") }
             }
         )
     }
@@ -315,8 +323,8 @@ fun ProjectDetailScreen(
 
         AnimatedVisibility(
             visible = selectedPhotoForFullView != null,
-            enter = fadeIn(tween(300)) + scaleIn(initialScale = 0.9f, animationSpec = tween<Float>(300)),
-            exit = fadeOut(tween(300)) + scaleOut(targetScale = 0.9f, animationSpec = tween<Float>(300)),
+            enter = fadeIn(tween(300)) + scaleIn(initialScale = 0.9f, animationSpec = tween(300)),
+            exit = fadeOut(tween(300)) + scaleOut(targetScale = 0.9f, animationSpec = tween(300)),
             modifier = Modifier.fillMaxSize()
         ) {
             FullScreenPhotoDialog(

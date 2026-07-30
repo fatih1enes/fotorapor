@@ -28,7 +28,6 @@ sealed class OperationResult<out T> {
      *
      * @property progress Optional progress percentage (0-100).
      */
-    @Suppress("unused")
     data class Loading(val progress: Int? = null) : OperationResult<Nothing>()
 
     /**

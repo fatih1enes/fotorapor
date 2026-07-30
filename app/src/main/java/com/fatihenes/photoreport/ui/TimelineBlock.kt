@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import com.fatihenes.photoreport.ui.navigation.LocalSnackbarHostState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -213,6 +214,7 @@ fun TimelineBlock(
                 val context = LocalContext.current
                 var isImporting by remember { mutableStateOf(false) }
                 val coroutineScope = rememberCoroutineScope()
+                val snackbarHost = LocalSnackbarHostState.current
 
                 val galleryLauncher = rememberLauncherForActivityResult(
                     contract = ActivityResultContracts.PickMultipleVisualMedia()
@@ -234,7 +236,7 @@ fun TimelineBlock(
                             withContext(Dispatchers.Main) {
                                 isImporting = false
                                 if (hasError) {
-                                    android.widget.Toast.makeText(context, context.getString(R.string.import_error), android.widget.Toast.LENGTH_SHORT).show()
+                                    coroutineScope.launch { snackbarHost.showSnackbar(context.getString(R.string.import_error)) }
                                 }
                             }
                         }

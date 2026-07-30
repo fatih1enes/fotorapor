@@ -3,7 +3,6 @@ package com.fatihenes.photoreport.util
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.widget.Toast
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import com.fatihenes.photoreport.R
@@ -11,7 +10,7 @@ import java.io.File
 
 object MediaShareUtils {
 
-    fun shareSingleMedia(context: Context, filePath: String) {
+    fun shareSingleMedia(context: Context, filePath: String, onShowMessage: (String) -> Unit) {
         try {
             val resolvedFile = resolveFile(context, filePath)
             val authority = "${context.packageName}.fileprovider"
@@ -32,11 +31,11 @@ object MediaShareUtils {
             chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(chooser)
         } catch (e: Exception) {
-            Toast.makeText(context, context.getString(R.string.share_failed), Toast.LENGTH_SHORT).show()
+            onShowMessage(context.getString(R.string.share_failed))
         }
     }
 
-    fun shareMultipleMedia(context: Context, filePaths: List<String>) {
+    fun shareMultipleMedia(context: Context, filePaths: List<String>, onShowMessage: (String) -> Unit) {
         try {
             val uris = ArrayList<Uri>()
             val authority = "${context.packageName}.fileprovider"
@@ -50,7 +49,7 @@ object MediaShareUtils {
             }
 
             if (uris.isEmpty()) {
-                Toast.makeText(context, context.getString(R.string.share_no_files), Toast.LENGTH_SHORT).show()
+                onShowMessage(context.getString(R.string.share_no_files))
                 return
             }
 
@@ -64,7 +63,7 @@ object MediaShareUtils {
             chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(chooser)
         } catch (e: Exception) {
-            Toast.makeText(context, context.getString(R.string.share_failed), Toast.LENGTH_SHORT).show()
+            onShowMessage(context.getString(R.string.share_failed))
         }
     }
 

@@ -13,4 +13,16 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">false</item>
     </style>
+
+    <!-- Splash Screen Theme (Android 12+) - Dark Mode -->
+    <style name="Theme.App.Starting" parent="Theme.SplashScreen">
+        <!-- Background color of the splash screen -->
+        <item name="windowSplashScreenBackground">#020617</item>
+        <!-- Center icon -->
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
+        <!-- Splash screen duration (optional) -->
+        <item name="windowSplashScreenAnimationDuration">1000</item>
+        <!-- Post-splash theme (the main app theme) -->
+        <item name="postSplashScreenTheme">@style/Theme.PhotoReport</item>
+    </style>
 </resources>

@@ -8,20 +8,23 @@ import androidx.lifecycle.viewModelScope
 import com.fatihenes.photoreport.R
 import com.fatihenes.photoreport.data.ProjectEntity
 import com.fatihenes.photoreport.repository.AppRepository
+import com.fatihenes.photoreport.repository.TrashRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.util.Locale
 import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
-    @param:ApplicationContext private val appContext: Context,
+    @Suppress("CanBeParameter") @param:ApplicationContext private val appContext: Context,
     private val repository: AppRepository,
+    private val trashRepository: TrashRepository
 ) : ViewModel() {
 
     private val _projectActionState = MutableStateFlow<UiState<Unit>?>(null)
@@ -29,6 +32,13 @@ class DashboardViewModel @Inject constructor(
 
     val projects = repository.getAllProjects()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val isTrashNotEmpty: StateFlow<Boolean> = combine(
+        trashRepository.getDeletedProjects(),
+        trashRepository.getDeletedPhotos()
+    ) { projects, photos ->
+        projects.isNotEmpty() || photos.isNotEmpty()
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
 
     fun addProject(name: String, color: Color) {
         viewModelScope.launch {

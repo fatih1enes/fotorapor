@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import kotlinx.coroutines.launch
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
@@ -71,6 +72,8 @@ fun FullScreenPhotoDialog(
                         },
                     actions = {
                         val context = LocalContext.current
+                        val snackbarHost = com.fatihenes.photoreport.ui.navigation.LocalSnackbarHostState.current
+                        val scope = rememberCoroutineScope()
                         IconButton(onClick = {
                             val currentPhoto = if (pagerState.currentPage < photoList.size) photoList[pagerState.currentPage] else null
                             currentPhoto?.let { onUpdateRotation(it.id, (it.rotation + 90f) % 360f) }
@@ -79,7 +82,7 @@ fun FullScreenPhotoDialog(
                         }
                         IconButton(onClick = {
                             val currentPhoto = if (pagerState.currentPage < photoList.size) photoList[pagerState.currentPage] else null
-                            currentPhoto?.let { MediaShareUtils.shareSingleMedia(context, it.filePath) }
+                            currentPhoto?.let { MediaShareUtils.shareSingleMedia(context, it.filePath) { msg -> scope.launch { snackbarHost.showSnackbar(msg) } } }
                         }) {
                             Icon(Icons.Default.Share, contentDescription = stringResource(R.string.share_label), tint = Color.White)
                         }

@@ -60,6 +60,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
+import com.fatihenes.photoreport.ui.navigation.LocalSnackbarHostState
 import com.fatihenes.photoreport.R
 import com.fatihenes.photoreport.util.PhotoManager
 import com.fatihenes.photoreport.ui.camera.components.*
@@ -86,6 +87,7 @@ fun CameraScreen(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val haptic = LocalHapticFeedback.current
+    val snackbarHost = LocalSnackbarHostState.current
     val cameraState = rememberCameraStateHolder()
     var activeRecording: Recording? by remember { mutableStateOf(null) }
     DisposableEffect(Unit) { onDispose { activeRecording?.stop() } }
@@ -199,7 +201,7 @@ fun CameraScreen(
     val triggerShutter = {
         // Bind-guard: prevent capture when camera is not ready
         if (!cameraState.isBound) {
-            android.widget.Toast.makeText(context, context.getString(R.string.camera_preparing), android.widget.Toast.LENGTH_SHORT).show()
+            scope.launch { snackbarHost.showSnackbar(context.getString(R.string.camera_preparing)) }
         } else if (uiState.cameraMode == "PHOTO") {
             if (!cameraState.isCapturing) {
                 cameraState.isCapturing = true
@@ -214,7 +216,7 @@ fun CameraScreen(
                     scope.launch { delay(100.milliseconds); showCaptureFeedback = false }
                 }
 
-                takePhoto(context, cameraState.imageCapture, cameraState.executor) { uri ->
+                takePhoto(context, cameraState.imageCapture, cameraState.executor, onShowError = { err -> scope.launch { snackbarHost.showSnackbar(err) } }) { uri ->
                     cameraViewModel.onPhotoCaptured(uri)
                     onPhotoCaptured(uri)
                     cameraState.isCapturing = false
@@ -513,11 +515,12 @@ private fun takePhoto(
     context: Context,
     imageCapture: ImageCapture?,
     executor: java.util.concurrent.ExecutorService,
+    onShowError: (String) -> Unit,
     onPhotoCaptured: (Uri) -> Unit
 ) {
     if (imageCapture == null) {
         Log.w("CameraScreen", "takePhoto called but imageCapture is null")
-        android.widget.Toast.makeText(context, context.getString(R.string.camera_not_ready), android.widget.Toast.LENGTH_SHORT).show()
+        onShowError(context.getString(R.string.camera_not_ready))
         return
     }
     val opts = PhotoManager.getCaptureOutputOptions(context)
@@ -526,7 +529,7 @@ private fun takePhoto(
         override fun onError(exc: ImageCaptureException) {
             Log.e("CameraScreen", "Capture failed", exc)
             mainExec.execute {
-                android.widget.Toast.makeText(context, context.getString(R.string.camera_save_failed, exc.message ?: ""), android.widget.Toast.LENGTH_SHORT).show()
+                onShowError(context.getString(R.string.camera_save_failed, exc.message ?: ""))
             }
         }
         override fun onImageSaved(output: ImageCapture.OutputFileResults) {

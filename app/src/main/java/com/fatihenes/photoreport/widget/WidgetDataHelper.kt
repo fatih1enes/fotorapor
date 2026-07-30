@@ -13,7 +13,7 @@ import androidx.core.content.edit
  */
 object WidgetDataHelper {
 
-    private const val PREFS_NAME = "santiye_gunlugu_widget_prefs"
+    private const val PREFS_NAME = "photoreport_widget_prefs"
     private const val KEY_PROJECT_NAME = "latest_project_name"
     private const val KEY_PROJECT_ID = "latest_project_id"
 
@@ -38,7 +38,7 @@ object WidgetDataHelper {
             .getLong(KEY_PROJECT_ID, -1L)
     }
 
-    /** Force-refresh every Şantiye Günlüğü widget on the home screen. */
+    /** Force-refresh every PhotoReport widget on the home screen. */
     fun notifyWidgets(context: Context) {
         val manager = AppWidgetManager.getInstance(context)
         val ids = manager.getAppWidgetIds(

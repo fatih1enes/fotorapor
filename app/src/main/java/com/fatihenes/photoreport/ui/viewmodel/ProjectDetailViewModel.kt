@@ -45,14 +45,6 @@ class ProjectDetailViewModel @Inject constructor(
         }
     }
 
-    @Suppress("unused")
-    private val _exportState = MutableStateFlow<UiState<Unit>?>(null)
-    val exportState: StateFlow<UiState<Unit>?> = _exportState
-
-    @Suppress("unused")
-    fun resetExportState() {
-        _exportState.value = null
-    }
 
     val selectedProject = projectIdFlow.flatMapLatest { id ->
         if (id == null) flowOf(null)
@@ -161,25 +153,6 @@ class ProjectDetailViewModel @Inject constructor(
         val workManager = WorkManager.getInstance(context)
         workManager.enqueue(workRequest)
 
-        viewModelScope.launch {
-            workManager.getWorkInfoByIdFlow(workRequest.id).collect { workInfo ->
-                if (workInfo != null) {
-                    when (workInfo.state) {
-                        androidx.work.WorkInfo.State.ENQUEUED, androidx.work.WorkInfo.State.RUNNING -> {
-                            _exportState.value = UiState.Loading
-                        }
-                        androidx.work.WorkInfo.State.SUCCEEDED -> {
-                            _exportState.value = UiState.Success(Unit)
-                        }
-                        androidx.work.WorkInfo.State.FAILED -> {
-                            val errorMsg = workInfo.outputData.getString("error") ?: context.getString(com.fatihenes.photoreport.R.string.error_unknown)
-                            _exportState.value = UiState.Error(errorMsg)
-                        }
-                        else -> {}
-                    }
-                }
-            }
-        }
     }
 
     fun deleteProject(projectId: Long) {

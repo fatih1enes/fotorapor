@@ -26,6 +26,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import kotlinx.coroutines.launch
+import com.fatihenes.photoreport.ui.navigation.LocalSnackbarHostState
 import com.fatihenes.photoreport.R
 import com.fatihenes.photoreport.ui.components.ImageCropperDialog
 import com.fatihenes.photoreport.ui.viewmodel.AppViewModel
@@ -66,6 +68,9 @@ fun SettingsScreen(
             }
         )
     }
+
+    val snackbarHost = LocalSnackbarHostState.current
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -201,7 +206,7 @@ fun SettingsScreen(
                     if (isGranted) {
                         viewModel.setGpsWatermarkEnabled(true)
                     } else {
-                        android.widget.Toast.makeText(context, context.getString(R.string.location_permission_required), android.widget.Toast.LENGTH_SHORT).show()
+                        scope.launch { snackbarHost.showSnackbar(context.getString(R.string.location_permission_required)) }
                     }
                 }
 
@@ -269,10 +274,10 @@ fun SettingsScreen(
                 
                 LaunchedEffect(backupState) {
                     if (backupState is com.fatihenes.photoreport.util.result.OperationResult.Success) {
-                        android.widget.Toast.makeText(context, context.getString(R.string.backup_success), android.widget.Toast.LENGTH_SHORT).show()
+                        scope.launch { snackbarHost.showSnackbar(context.getString(R.string.backup_success)) }
                         viewModel.resetBackupState()
                     } else if (backupState is com.fatihenes.photoreport.util.result.OperationResult.Error) {
-                        android.widget.Toast.makeText(context, (backupState as com.fatihenes.photoreport.util.result.OperationResult.Error).message, android.widget.Toast.LENGTH_LONG).show()
+                        scope.launch { snackbarHost.showSnackbar((backupState as com.fatihenes.photoreport.util.result.OperationResult.Error).message ?: "Bilinmeyen Hata") }
                         viewModel.resetBackupState()
                     }
                 }
@@ -289,7 +294,7 @@ fun SettingsScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable { createBackupLauncher.launch("Santiye_Gunlugu_Yedek.zip") }
+                            .clickable { createBackupLauncher.launch("PhotoReport_Yedek.zip") }
                             .padding(vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {

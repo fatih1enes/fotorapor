@@ -13,11 +13,17 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.core.graphics.toColorInt
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -44,6 +50,7 @@ fun DashboardScreen(
     onSettingsClick: () -> Unit,
     onTrashClick: () -> Unit,
     activityDots: Map<LocalDate, List<Color>> = emptyMap(),
+    isTrashNotEmpty: Boolean = false,
 ) {
     val haptic = LocalHapticFeedback.current
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
@@ -83,11 +90,12 @@ fun DashboardScreen(
             modifier = Modifier.fillMaxSize()
         ) {
             LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(
-                    top = padding.calculateTopPadding(),
-                    bottom = padding.calculateBottomPadding() + 100.dp
-                )
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .consumeWindowInsets(padding)
+                    .imePadding(),
+                contentPadding = PaddingValues(0.dp)
             ) {
             item {
                 Row(
@@ -116,11 +124,22 @@ fun DashboardScreen(
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
-                                    Icons.Default.DeleteOutline,
+                                    imageVector = if (isTrashNotEmpty) Icons.Default.Delete else Icons.Default.DeleteOutline,
                                     contentDescription = "Çöp Kutusu",
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    tint = if (isTrashNotEmpty) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.size(22.dp)
                                 )
+                                if (isTrashNotEmpty) {
+                                    Box(
+                                        modifier = Modifier
+                                            .align(Alignment.TopEnd)
+                                            .offset(x = 4.dp, y = (-4).dp)
+                                            .size(8.dp)
+                                            .background(MaterialTheme.colorScheme.error,
+                                                CircleShape
+                                            )
+                                    )
+                                }
                             }
                         }
 
@@ -191,24 +210,44 @@ fun DashboardScreen(
 
             if (projects.isEmpty()) {
                 item {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = 64.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
+                    androidx.compose.animation.AnimatedVisibility(
+                        visible = true,
+                        enter = fadeIn(tween(800)) + androidx.compose.animation.scaleIn(initialScale = 0.9f)
                     ) {
-                        Icon(
-                            Icons.Default.FolderOpen,
-                            contentDescription = null,
-                            modifier = Modifier.size(48.dp),
-                            tint = MaterialTheme.colorScheme.outline
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(
-                            text = stringResource(R.string.empty_state_title),
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 80.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
+                            Surface(
+                                shape = CircleShape,
+                                color = MaterialTheme.colorScheme.primaryContainer,
+                                modifier = Modifier.size(80.dp)
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        Icons.Default.FolderOpen,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(40.dp),
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(24.dp))
+                            Text(
+                                text = stringResource(R.string.empty_state_title),
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.Bold,
+                                color = MaterialTheme.colorScheme.onBackground
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "Yeni bir rapor klasörü oluşturun",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
             }
@@ -220,6 +259,7 @@ fun DashboardScreen(
                     modifier = Modifier.animateItem()
                 )
             }
+            item { Spacer(modifier = Modifier.height(100.dp)) }
             }
         }
     }
@@ -239,13 +279,24 @@ fun DashboardScreen(
 private fun ProjectFolderItem(project: ProjectEntity, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val projectColor = Color(project.colorHex.toColorInt())
     val haptic = LocalHapticFeedback.current
+    
+    val interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by androidx.compose.animation.core.animateFloatAsState(
+        targetValue = if (isPressed) 0.96f else 1f,
+        animationSpec = androidx.compose.animation.core.spring(dampingRatio = 0.6f, stiffness = 400f)
+    )
 
     Surface(
         modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp, vertical = 8.dp)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
             .shadow(4.dp, MaterialTheme.shapes.extraLarge, spotColor = Color.Black.copy(alpha = 0.1f))
-            .clickable {
+            .clickable(interactionSource = interactionSource, indication = ripple()) {
                 haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 onClick()
             },

@@ -1,6 +1,6 @@
 package com.fatihenes.photoreport.baselineprofile
 
-import androidx.Benchmark.macro.junit4.BaselineProfileRule
+import androidx.benchmark.macro.junit4.BaselineProfileRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.LargeTest
 import androidx.test.platform.app.InstrumentationRegistry

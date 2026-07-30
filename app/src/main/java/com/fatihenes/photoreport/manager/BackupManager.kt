@@ -30,7 +30,7 @@ interface BackupManager {
      * Creates a backup of the entire app state (Database, Preferences, and Media Files)
      * and streams it to the given [destUri].
      *
-     * @param destUri The destination URI to write the .santiye zip archive.
+     * @param destUri The destination URI to write the backup zip archive.
      * @return A Flow emitting [OperationResult.Loading] with progress, and finally [OperationResult.Success].
      */
     fun createBackup(destUri: Uri): Flow<OperationResult<Unit>>
@@ -39,7 +39,7 @@ interface BackupManager {
      * Restores the app state from a given backup [sourceUri].
      * Handles Room Database schema version checks and safe media extraction.
      *
-     * @param sourceUri The URI of the .santiye backup file.
+     * @param sourceUri The URI of the backup file.
      * @return A Flow emitting [OperationResult.Loading] with progress, and finally [OperationResult.Success].
      */
     fun restoreBackup(sourceUri: Uri): Flow<OperationResult<Unit>>
@@ -58,7 +58,7 @@ class LocalBackupManager @Inject constructor(
 
         try {
             // Checkpoint database to ensure WAL is flushed
-            val dbPath = context.getDatabasePath("santiye_gunlugu_database").absolutePath
+            val dbPath = context.getDatabasePath("photoreport_database").absolutePath
             database.openHelper.writableDatabase.query("PRAGMA wal_checkpoint(FULL)").close()
 
             val filesToZip = mutableListOf<Pair<String, Any>>() // Can be File or Uri
@@ -68,9 +68,9 @@ class LocalBackupManager @Inject constructor(
             val dbShm = File("$dbPath-shm")
             val dbWal = File("$dbPath-wal")
 
-            if (dbFile.exists()) filesToZip.add(Pair("database/santiye_gunlugu_database", dbFile))
-            if (dbShm.exists()) filesToZip.add(Pair("database/santiye_gunlugu_database-shm", dbShm))
-            if (dbWal.exists()) filesToZip.add(Pair("database/santiye_gunlugu_database-wal", dbWal))
+            if (dbFile.exists()) filesToZip.add(Pair("database/photoreport_database", dbFile))
+            if (dbShm.exists()) filesToZip.add(Pair("database/photoreport_database-shm", dbShm))
+            if (dbWal.exists()) filesToZip.add(Pair("database/photoreport_database-wal", dbWal))
 
             // Add SharedPreferences
             val prefsDir = File(context.applicationInfo.dataDir, "shared_prefs")
@@ -158,22 +158,22 @@ class LocalBackupManager @Inject constructor(
             emit(OperationResult.Loading(50))
 
             // Restore Database
-            val extractedDb = File(tempDir, "database/santiye_gunlugu_database")
+            val extractedDb = File(tempDir, "database/photoreport_database")
             if (extractedDb.exists()) {
                 // Close current DB connections securely
                 database.close()
-                val dbPath = context.getDatabasePath("santiye_gunlugu_database").absolutePath
+                val dbPath = context.getDatabasePath("photoreport_database").absolutePath
                 val currentDb = File(dbPath)
                 val currentShm = File("$dbPath-shm")
                 val currentWal = File("$dbPath-wal")
 
                 extractedDb.copyTo(currentDb, overwrite = true)
 
-                val extractedShm = File(tempDir, "database/santiye_gunlugu_database-shm")
+                val extractedShm = File(tempDir, "database/photoreport_database-shm")
                 if (extractedShm.exists()) extractedShm.copyTo(currentShm, overwrite = true)
                 else currentShm.delete()
 
-                val extractedWal = File(tempDir, "database/santiye_gunlugu_database-wal")
+                val extractedWal = File(tempDir, "database/photoreport_database-wal")
                 if (extractedWal.exists()) extractedWal.copyTo(currentWal, overwrite = true)
                 else currentWal.delete()
             }
@@ -195,7 +195,7 @@ class LocalBackupManager @Inject constructor(
                 appMediaDir.mkdirs()
                 
                 // We need to update the DB paths to point to the restored files
-                val dbPath = context.getDatabasePath("santiye_gunlugu_database").absolutePath
+                val dbPath = context.getDatabasePath("photoreport_database").absolutePath
                 val sqliteDb = android.database.sqlite.SQLiteDatabase.openDatabase(dbPath, null, android.database.sqlite.SQLiteDatabase.OPEN_READWRITE)
                 
                 extractedMediaDir.listFiles()?.forEach { mediaFile ->

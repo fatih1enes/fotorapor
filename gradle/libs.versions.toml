@@ -9,24 +9,25 @@ material = "1.14.0"
 composeBom = "2026.06.01"
 navigationCompose = "2.9.8"
 room = "2.8.4"
-kotlin = "2.2.10"
+kotlin = "2.4.10"
 exifinterface = "1.4.2"
 lifecycleRuntimeCompose = "2.11.0"
 media3 = "1.10.1"
 work = "2.11.2"
-hilt = "2.59.2"
+hilt = "2.60.1"
 androidxHilt = "1.4.0"
 robolectric = "4.16.1"
 mockito = "5.23.0"
 kotlinxCoroutines = "1.11.0"
 androidxTestCore = "1.7.0"
-avifCoder = "2.2.0"
-playServicesLocation = "21.3.0"
+avifCoder = "2.2.1"
+playServicesLocation = "21.4.0"
+coreSplashscreen = "1.2.0"
 
 datastore = "1.2.1"
-uiautomator = "2.2.0"
-benchmarkMacroJunit4 = "1.5.0-alpha07"
-baselineprofile = "1.5.0-alpha07"
+uiautomator = "2.4.0"
+benchmarkMacroJunit4 = "1.5.0-beta01"
+baselineprofile = "1.5.0-beta01"
 profileinstaller = "1.4.1"
 
 [libraries]
@@ -51,8 +52,8 @@ androidx-room-testing = { group = "androidx.room", name = "room-testing", versio
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version = "1.13.0" }
 androidx-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
 androidx-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
-coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version = "3.4.0" }
-coil-video = { group = "io.coil-kt.coil3", name = "coil-video", version = "3.4.0" }
+coil-compose = { group = "io.coil-kt.coil3", name = "coil-compose", version = "3.5.0" }
+coil-video = { group = "io.coil-kt.coil3", name = "coil-video", version = "3.5.0" }
 androidx-camera-core = { group = "androidx.camera", name = "camera-core", version = "1.6.1" }
 androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version = "1.6.1" }
 androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version = "1.6.1" }
@@ -79,6 +80,7 @@ androidx-uiautomator = { group = "androidx.test.uiautomator", name = "uiautomato
 androidx-benchmark-macro-junit4 = { group = "androidx.benchmark", name = "benchmark-macro-junit4", version.ref = "benchmarkMacroJunit4" }
 androidx-profileinstaller = { group = "androidx.profileinstaller", name = "profileinstaller", version.ref = "profileinstaller" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
+androidx-core-splashscreen = { group = "androidx.core", name = "core-splashscreen", version.ref = "coreSplashscreen" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

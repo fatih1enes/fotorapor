@@ -1,8 +1,8 @@
 # PhotoReport
 
-> A modern, offline-first Android application designed for construction site reporting, media organization, and seamless PDF/ZIP exports.
+> A modern, offline-first Android application designed for field documentation, media organization, and seamless PDF/ZIP exports.
 
-<div align="center">
+<div>
   <img src="https://img.shields.io/badge/Kotlin-1.9.0-purple.svg?logo=kotlin" alt="Kotlin" />
   <img src="https://img.shields.io/badge/Jetpack%20Compose-Material%203-blue.svg?logo=android" alt="Compose" />
   <img src="https://img.shields.io/badge/CameraX-Hardware%20Accelerated-green.svg" alt="CameraX" />
@@ -11,7 +11,7 @@
 
 ## Overview
 
-PhotoReport simplifies the daily workflow of field engineers and project managers by allowing them to quickly snap, organize, and annotate photos on-site, grouped by day and project. It ensures data is never lost by operating completely offline with robust SQLite storage via Room, and provides one-click generation of professional PDF reports and ZIP archives.
+PhotoReport simplifies the daily workflow of professionals and teams by allowing them to quickly snap, organize, and annotate photos, grouped by day and project. It ensures data is never lost by operating completely offline with robust SQLite storage via Room, and provides one-click generation of professional PDF reports and ZIP archives.
 
 ## Key Features
 

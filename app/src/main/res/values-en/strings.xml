@@ -103,8 +103,6 @@
 
     <!-- AppViewModel Errors -->
     <string name="error_unknown">An unknown error occurred</string>
-    <string name="error_delete_failed">Deletion failed</string>
-
     <!-- ExportWorker Notifications -->
     <string name="export_notif_title">Exporting</string>
     <string name="export_notif_text">Please wait while %s is being prepared…</string>
@@ -129,7 +127,6 @@
     <string name="camera_permission_go_settings">Go to Settings</string>
 
     <!-- Crash Recovery -->
-    <string name="crash_recovery_message">An unexpected error occurred and the app recovered safely. Your data is safe.</string>
 
     <!-- Dashboard (hardcoded fixes) -->
     <string name="my_projects_title">My Projects</string>
@@ -182,4 +179,10 @@
     <string name="settings_backup_restore">Restore Backup</string>
     <string name="settings_backup_restore_desc">Restore a previously taken backup (.zip) to your device.</string>
     <string name="backup_success">Operation completed successfully.</string>
+    
+    <!-- Privacy Policy (Placeholder) -->
+    <string name="widget_active_project">🏗️ Active Project</string>
+    <string name="widget_no_project">No Project</string>
+    <string name="widget_images">Images</string>
+    <string name="widget_camera_desc">Camera</string>
 </resources>

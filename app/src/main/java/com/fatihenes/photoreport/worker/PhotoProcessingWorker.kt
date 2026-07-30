@@ -2,7 +2,6 @@ package com.fatihenes.photoreport.worker
 
 import androidx.core.net.toUri
 import android.content.Context
-import android.net.Uri
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
