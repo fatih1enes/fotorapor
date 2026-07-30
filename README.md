@@ -1,4 +1,4 @@
-# PhotoReport (formerly Şantiye Günlüğü)
+# PhotoReport
 
 > A modern, offline-first Android application designed for construction site reporting, media organization, and seamless PDF/ZIP exports.
 
