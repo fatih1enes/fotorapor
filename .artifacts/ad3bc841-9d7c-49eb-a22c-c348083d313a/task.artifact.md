@@ -1,0 +1,4 @@
+- [x] Fix scrolling in `SettingsScreen.kt`
+- [x] Delete unnecessary development scripts and files
+- [x] Verify build and UI
+- [x] Create walkthrough
