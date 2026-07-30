@@ -18,10 +18,16 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.`when`
 import org.robolectric.annotation.Config
 import java.io.File
+import java.util.Locale
 
 @RunWith(AndroidJUnit4::class)
 @Config(manifest = Config.NONE)
 class BackupManagerTest {
+
+    @Before
+    fun setUp() {
+        Locale.setDefault(Locale.US)
+    }
 
     private lateinit var context: Context
     private lateinit var backupManager: LocalBackupManager

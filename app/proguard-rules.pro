@@ -59,11 +59,6 @@
 # ===========================
 -keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
 -keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
--keepclassmembers class kotlinx.coroutines.** {
-    volatile <fields>;
-}
--keep class kotlin.coroutines.Continuation
--dontwarn kotlinx.coroutines.**
 
 # ===========================
 # Coil & Media3
@@ -73,17 +68,13 @@
 # ===========================
 # CameraX
 # ===========================
--keep class androidx.camera.** { *; }
 -dontwarn androidx.camera.**
 
 # ===========================
 # AndroidX / Jetpack
 # ===========================
--keep class androidx.work.** { *; }
 -dontwarn androidx.work.**
--keep class androidx.startup.** { *; }
 -dontwarn androidx.startup.**
--keep class androidx.lifecycle.** { *; }
 -dontwarn androidx.lifecycle.**
 
 # ===========================
@@ -95,13 +86,11 @@
 # Compose Navigation
 # ===========================
 -keep class androidx.navigation.compose.** { *; }
--keep class androidx.navigation.** { *; }
 
 # ===========================
 # Okio (used by Coil)
 # ===========================
 -dontwarn okio.**
--keep class okio.** { *; }
 
 # ===========================
 # General Android
@@ -123,3 +112,11 @@
 # AVIF Coder
 # ===========================
 -keep class com.radzivon.bartoshyk.avif.** { *; }
+
+# ===========================
+# PDFBox-Android
+# ===========================
+-keep class com.tom_roush.pdfbox.** { *; }
+-dontwarn com.tom_roush.pdfbox.**
+-dontwarn org.apache.fontbox.**
+-dontwarn org.apache.pdfbox.**

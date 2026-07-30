@@ -33,10 +33,8 @@ import com.sarikaya.santiye.gunlugu.R
 import com.sarikaya.santiye.gunlugu.data.PhotoEntity
 import com.sarikaya.santiye.gunlugu.util.MediaShareUtils
 
-import androidx.compose.animation.ExperimentalSharedTransitionApi
-
 @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FullScreenPhotoDialog(
     photoList: List<PhotoEntity>,
@@ -89,7 +87,7 @@ fun FullScreenPhotoDialog(
                             Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete_label), tint = Color.White)
                         }
                     },
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = Color.Transparent)
+                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
                 )
             }
         ) { padding ->
@@ -221,32 +219,23 @@ fun FullScreenPhotoDialog(
                                 },
                             contentAlignment = Alignment.Center
                         ) {
-                            val sharedTransitionScope = LocalSharedTransitionScope.current
-                            val animatedVisibilityScope = LocalAnimatedVisibilityScope.current
-
-                            AsyncImage(
-                                model = ImageRequest.Builder(LocalContext.current)
+                            val context = LocalContext.current
+                            val request = remember(photo.filePath) {
+                                ImageRequest.Builder(context)
                                     .data(photo.filePath)
-                                    .size(coil3.size.Size.ORIGINAL)
+                                    .size(2400)
                                     .memoryCachePolicy(CachePolicy.ENABLED)
                                     .diskCachePolicy(CachePolicy.ENABLED)
-                                    .build(),
+                                    .build()
+                            }
+                            
+                            AsyncImage(
+                                model = request,
                                 contentDescription = null,
                                 placeholder = androidx.compose.ui.graphics.painter.ColorPainter(Color.LightGray),
                                 error = androidx.compose.ui.graphics.painter.ColorPainter(Color.DarkGray),
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .then(
-                                        if (sharedTransitionScope != null && animatedVisibilityScope != null) {
-                                            with(sharedTransitionScope) {
-                                                Modifier.sharedElement(
-                                                    sharedContentState = rememberSharedContentState(key = "photo-${photo.id}"),
-                                                    animatedVisibilityScope = animatedVisibilityScope,
-                                                    boundsTransform = { _, _ -> androidx.compose.animation.core.tween(300) }
-                                                )
-                                            }
-                                        } else Modifier
-                                    )
                                     .graphicsLayer(
                                         scaleX = scale,
                                         scaleY = scale,

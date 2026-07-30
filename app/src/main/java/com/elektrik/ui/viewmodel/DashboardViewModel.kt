@@ -8,7 +8,6 @@ import androidx.lifecycle.viewModelScope
 import com.sarikaya.santiye.gunlugu.R
 import com.sarikaya.santiye.gunlugu.data.ProjectEntity
 import com.sarikaya.santiye.gunlugu.repository.AppRepository
-import com.sarikaya.santiye.gunlugu.ui.viewmodel.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +20,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
-    @ApplicationContext private val appContext: Context,
+    @param:ApplicationContext private val appContext: Context,
     private val repository: AppRepository,
 ) : ViewModel() {
 

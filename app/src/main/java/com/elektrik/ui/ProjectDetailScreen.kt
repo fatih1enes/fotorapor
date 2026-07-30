@@ -37,8 +37,6 @@ import com.sarikaya.santiye.gunlugu.data.ProjectEntity
 import com.sarikaya.santiye.gunlugu.data.LogWithPhotos
 import com.sarikaya.santiye.gunlugu.ui.components.ExportDialog
 import com.sarikaya.santiye.gunlugu.util.DateUtils
-import androidx.compose.animation.ExperimentalSharedTransitionApi
-import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -46,8 +44,9 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.core.tween
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalSharedTransitionApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ProjectDetailScreen(
     project: ProjectEntity?,
@@ -80,6 +79,7 @@ fun ProjectDetailScreen(
     var showExportDialog by remember { mutableStateOf(false) }
     var selectedPhotoForFullView by remember { mutableStateOf<Long?>(null) }
     var showFullGalleryByLogId by remember { mutableStateOf<Long?>(null) }
+    var returnToGalleryLogId by remember { mutableStateOf<Long?>(null) }
     
     val notificationPermissionLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
         contract = androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
@@ -91,14 +91,10 @@ fun ProjectDetailScreen(
     }
 
     // Compute allProjectPhotos from logs, memoized properly
-    val allProjectPhotos = remember(logs) { logs.flatMap { it.photos.sortedByDescending { p -> p.id } } }
+    val allProjectPhotos by viewModel.allProjectPhotos.collectAsStateWithLifecycle()
     val listState = rememberLazyListState()
 
-    SharedTransitionLayout {
-        CompositionLocalProvider(
-            LocalSharedTransitionScope provides this
-        ) {
-            Box(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize()) {
                 Scaffold(
                     containerColor = MaterialTheme.colorScheme.background,
         topBar = {
@@ -230,9 +226,12 @@ fun ProjectDetailScreen(
                 Spacer(modifier = Modifier.height(16.dp))
             }
             items(logs, key = { it.log.id }) { logWithPhotos ->
+                val sortedPhotos = remember(logWithPhotos.photos) {
+                    logWithPhotos.photos.sortedByDescending { it.id }
+                }
                 TimelineBlock(
                     log = logWithPhotos.log,
-                    photos = logWithPhotos.photos.sortedByDescending { it.id },
+                    photos = sortedPhotos,
                     projectColor = projectColor,
                     isSelectionMode = false,
                     selectedPhotoIds = emptyList(),
@@ -259,6 +258,8 @@ fun ProjectDetailScreen(
                 photos = logWithPhotos.photos,
                 onDismiss = { showFullGalleryByLogId = null },
                 onPhotoClick = { photo ->
+                    returnToGalleryLogId = showFullGalleryByLogId // Hangi galeride olduğumuzu hatırla
+                    showFullGalleryByLogId = null
                     selectedPhotoForFullView = photo.id
                 },
                 onDeletePhotos = { ids ->
@@ -318,24 +319,25 @@ fun ProjectDetailScreen(
             exit = fadeOut(tween(300)) + scaleOut(targetScale = 0.9f, animationSpec = tween(300)),
             modifier = Modifier.fillMaxSize()
         ) {
-            CompositionLocalProvider(
-                LocalAnimatedVisibilityScope provides this@AnimatedVisibility
-            ) {
-                FullScreenPhotoDialog(
-                    photoList = allProjectPhotos,
+            FullScreenPhotoDialog(
+                photoList = allProjectPhotos,
                     initialIndex = index,
-                    onDismiss = { selectedPhotoForFullView = null },
+                    onDismiss = { 
+                        selectedPhotoForFullView = null 
+                        // Eğer bir galeriden geldiysek, fotoğrafı kapatınca o galeriyi geri aç
+                        returnToGalleryLogId?.let { logId ->
+                            showFullGalleryByLogId = logId
+                            returnToGalleryLogId = null
+                        }
+                    },
                     onDelete = { photo -> 
                         onDeletePhoto(photo)
                     },
                     onUpdateRotation = onUpdateRotation
                 )
-            }
         }
     }
             } // Box end
-        } // CompositionLocalProvider end
-    } // SharedTransitionLayout end
 }
 
 @Composable

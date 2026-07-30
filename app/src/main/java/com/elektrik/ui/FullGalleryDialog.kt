@@ -151,14 +151,21 @@ fun FullGalleryDialog(
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Box {
-                            AsyncImage(
-                                model = ImageRequest.Builder(LocalContext.current)
+                            val context = LocalContext.current
+                            val request = remember(photo.filePath) {
+                                ImageRequest.Builder(context)
                                     .data(photo.filePath)
-                                    .decoderFactory(VideoFrameDecoder.Factory())
-                                    .crossfade(true)
+                                    .apply {
+                                        if (isVideo) {
+                                            decoderFactory(VideoFrameDecoder.Factory())
+                                        }
+                                    }
                                     .size(256)
                                     .memoryCachePolicy(CachePolicy.ENABLED)
-                                    .build(),
+                                    .build()
+                            }
+                            AsyncImage(
+                                model = request,
                                 contentDescription = null,
                                 placeholder = androidx.compose.ui.graphics.painter.ColorPainter(Color.LightGray),
                                 error = androidx.compose.ui.graphics.painter.ColorPainter(Color.DarkGray),

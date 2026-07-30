@@ -11,6 +11,8 @@ import com.sarikaya.santiye.gunlugu.data.DailyLogDao
 import com.sarikaya.santiye.gunlugu.data.PhotoDao
 import com.sarikaya.santiye.gunlugu.data.ProjectDao
 import com.sarikaya.santiye.gunlugu.manager.*
+import com.sarikaya.santiye.gunlugu.repository.*
+import com.sarikaya.santiye.gunlugu.util.MediaProcessor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -38,34 +40,55 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideProjectDao(database: AppDatabase): ProjectDao {
-        return database.projectDao()
-    }
+    fun provideProjectDao(database: AppDatabase): ProjectDao = database.projectDao()
 
     @Provides
     @Singleton
-    fun provideDailyLogDao(database: AppDatabase): DailyLogDao {
-        return database.dailyLogDao()
-    }
+    fun provideDailyLogDao(database: AppDatabase): DailyLogDao = database.dailyLogDao()
 
     @Provides
     @Singleton
-    fun providePhotoDao(database: AppDatabase): PhotoDao {
-        return database.photoDao()
-    }
+    fun providePhotoDao(database: AppDatabase): PhotoDao = database.photoDao()
+
+    @Provides
+    @Singleton
+    fun provideProjectRepository(
+        @ApplicationContext context: Context,
+        projectDao: ProjectDao
+    ): ProjectRepository = ProjectRepositoryImpl(context, projectDao)
+
+    @Provides
+    @Singleton
+    fun provideLogRepository(
+        dailyLogDao: DailyLogDao
+    ): LogRepository = LogRepositoryImpl(dailyLogDao)
+
+    @Provides
+    @Singleton
+    fun providePhotoRepository(
+        photoDao: PhotoDao,
+        dailyLogDao: DailyLogDao,
+        mediaProcessor: MediaProcessor
+    ): PhotoRepository = PhotoRepositoryImpl(photoDao, dailyLogDao, mediaProcessor)
+
+    @Provides
+    @Singleton
+    fun provideTrashRepository(
+        projectDao: ProjectDao,
+        dailyLogDao: DailyLogDao,
+        photoDao: PhotoDao,
+        fileManager: FileManager,
+        projectRepository: ProjectRepository
+    ): TrashRepository = TrashRepositoryImpl(projectDao, dailyLogDao, photoDao, fileManager, projectRepository)
 
     @Provides
     @Singleton
     fun provideAppRepository(
-        @ApplicationContext context: Context,
-        projectDao: ProjectDao,
-        dailyLogDao: DailyLogDao,
-        photoDao: PhotoDao,
-        mediaProcessor: com.sarikaya.santiye.gunlugu.util.MediaProcessor,
-        fileManager: FileManager
-    ): com.sarikaya.santiye.gunlugu.repository.AppRepository {
-        return com.sarikaya.santiye.gunlugu.repository.AppRepositoryImpl(context, projectDao, dailyLogDao, photoDao, mediaProcessor, fileManager)
-    }
+        projectRepository: ProjectRepository,
+        logRepository: LogRepository,
+        photoRepository: PhotoRepository,
+        trashRepository: TrashRepository
+    ): AppRepository = AppRepositoryImpl(projectRepository, logRepository, photoRepository, trashRepository)
 
     @Provides
     @Singleton
@@ -77,19 +100,13 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideFileManager(localFileManager: LocalFileManager): FileManager {
-        return localFileManager
-    }
+    fun provideFileManager(localFileManager: LocalFileManager): FileManager = localFileManager
 
     @Provides
     @Singleton
-    fun providePdfExportManager(pdfBoxExportManager: PdfBoxExportManager): PdfExportManager {
-        return pdfBoxExportManager
-    }
+    fun providePdfExportManager(pdfBoxExportManager: PdfBoxExportManager): PdfExportManager = pdfBoxExportManager
 
     @Provides
     @Singleton
-    fun provideBackupManager(localBackupManager: LocalBackupManager): BackupManager {
-        return localBackupManager
-    }
+    fun provideBackupManager(localBackupManager: LocalBackupManager): BackupManager = localBackupManager
 }

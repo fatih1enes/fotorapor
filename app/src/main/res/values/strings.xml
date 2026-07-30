@@ -116,6 +116,13 @@
     <string name="export_format_pdf">gün dökümü</string>
     <string name="export_format_zip">web arşivi</string>
 
+    <!-- ExportWorker Error Notifications -->
+    <string name="export_failed_title">Dışa Aktarım Başarısız</string>
+    <string name="export_failed_text">%1$s dışa aktarılamadı: %2$s</string>
+    <string name="error_out_of_memory">Cihaz belleği yetersiz.</string>
+    <string name="error_storage_access">Depolama alanı yetersiz veya erişim hatası.</string>
+    <string name="export_error_channel_name">Dışa Aktarım Hataları</string>
+
     <!-- Camera Permission -->
     <string name="camera_permission_rationale_title">Kamera İzni Gerekli</string>
     <string name="camera_permission_rationale_desc">Kamera izni kalıcı olarak reddedildi. Fotoğraf çekebilmek için ayarlardan izin vermeniz gerekmektedir.</string>
@@ -158,6 +165,14 @@
     <!-- Camera (hardcoded fixes) -->
     <string name="camera_error_prefix">Kamera Hatası:</string>
     <string name="camera_retry_btn">Tekrar Dene</string>
+    <string name="camera_preparing">Kamera hazırlanıyor…</string>
+    <string name="camera_settings_title">Kamera Ayarları</string>
+    <string name="camera_hdr_title">Donanım HDR</string>
+    <string name="camera_hdr_desc">Daha net ve pürüzsüz fotoğraflar çeker</string>
+    <string name="camera_avif_title">AVIF Kayıt (Kayıpsız)</string>
+    <string name="camera_avif_desc">Kaliteyi bozmadan boyutu çok küçültür</string>
+    <string name="camera_not_ready">Kamera henüz hazır değil, lütfen tekrar deneyin.</string>
+    <string name="camera_save_failed">Fotoğraf kaydedilemedi: %s</string>
 
     <!-- Privacy Policy (Placeholder) -->
 </resources>

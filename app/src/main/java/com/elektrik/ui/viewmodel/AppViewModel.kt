@@ -30,15 +30,15 @@ class AppViewModel @Inject constructor(
 
     val themeMode: StateFlow<String> = dataStore.data
         .map { it[THEME_MODE] ?: "system" }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, "system")
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "system")
 
     val cameraOptimizationEnabled: StateFlow<Boolean> = dataStore.data
         .map { it[CAMERA_OPT] ?: true }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, initialValue = true)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), initialValue = true)
 
     val avifEnabled: StateFlow<Boolean> = dataStore.data
         .map { it[AVIF_ENABLED] ?: true }
-        .stateIn(viewModelScope, SharingStarted.Eagerly, initialValue = true)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), initialValue = true)
 
     fun setThemeMode(mode: String) {
         viewModelScope.launch { dataStore.edit { it[THEME_MODE] = mode } }

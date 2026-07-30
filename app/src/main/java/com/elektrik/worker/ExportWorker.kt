@@ -112,8 +112,8 @@ class ExportWorker @AssistedInject constructor(
             }
 
             val errorMessage = when (e) {
-                is OutOfMemoryError -> "Cihaz belleği yetersiz."
-                is java.io.IOException -> "Depolama alanı yetersiz veya erişim hatası."
+                is OutOfMemoryError -> context.getString(R.string.error_out_of_memory)
+                is java.io.IOException -> context.getString(R.string.error_storage_access)
                 else -> e.localizedMessage ?: context.getString(R.string.error_unknown)
             }
             
@@ -126,15 +126,15 @@ class ExportWorker @AssistedInject constructor(
         val channelId = "export_error_channel"
         val channel = android.app.NotificationChannel(
             channelId,
-            "Hata",
+            context.getString(R.string.export_error_channel_name),
             android.app.NotificationManager.IMPORTANCE_HIGH
         )
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
         notificationManager.createNotificationChannel(channel)
         
         val notification = NotificationCompat.Builder(context, channelId)
-            .setContentTitle("Dışa Aktarım Başarısız")
-            .setContentText("$projectName dışa aktarılamadı: $errorMessage")
+            .setContentTitle(context.getString(R.string.export_failed_title))
+            .setContentText(context.getString(R.string.export_failed_text, projectName, errorMessage))
             .setSmallIcon(R.drawable.ic_stat_logo)
             .setAutoCancel(true)
             .build()

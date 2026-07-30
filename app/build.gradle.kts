@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt.android)
+    alias(libs.plugins.baselineprofile)
 }
 
 ksp {
@@ -48,7 +49,7 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            signingConfig = signingConfigs.getByName("debug")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {
@@ -68,6 +69,7 @@ android {
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.profileinstaller)
     implementation(libs.material)
     implementation(libs.androidx.icons.extended)
     
@@ -85,6 +87,7 @@ dependencies {
     // Room
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
+    "baselineProfile"(project(":baselineprofile"))
     ksp(libs.androidx.room.compiler)
 
     // CameraX
@@ -108,9 +111,6 @@ dependencies {
 
     // DataStore
     implementation(libs.androidx.datastore.preferences)
-
-    // PDFBox
-    implementation(libs.pdfbox.android)
 
     // Hilt
     implementation(libs.hilt.android)

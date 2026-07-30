@@ -10,6 +10,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -217,20 +218,12 @@ fun DashboardScreen(
                 }
             }
 
-            itemsIndexed(projects, key = { _, project -> project.id }) { index, project ->
-                val visible = remember(project.id) { mutableStateOf(false) }
-                LaunchedEffect(project.id) { visible.value = true }
-
-                AnimatedVisibility(
-                    visible = visible.value,
-                    enter = fadeIn(tween(400, delayMillis = (index * 80).coerceAtMost(400))) +
-                            slideInVertically(tween(400, delayMillis = (index * 80).coerceAtMost(400))) { it / 4 }
-                ) {
-                    ProjectFolderItem(
-                        project = project,
-                        onClick = { onProjectClick(project) }
-                    )
-                }
+            items(projects, key = { project -> project.id }) { project ->
+                ProjectFolderItem(
+                    project = project,
+                    onClick = { onProjectClick(project) },
+                    modifier = Modifier.animateItem()
+                )
             }
             }
         }
@@ -248,12 +241,12 @@ fun DashboardScreen(
 }
 
 @Composable
-private fun ProjectFolderItem(project: ProjectEntity, onClick: () -> Unit) {
+private fun ProjectFolderItem(project: ProjectEntity, onClick: () -> Unit, modifier: Modifier = Modifier) {
     val projectColor = Color(project.colorHex.toColorInt())
     val haptic = LocalHapticFeedback.current
     
     Surface(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp, vertical = 8.dp)
             .shadow(4.dp, MaterialTheme.shapes.extraLarge, spotColor = Color.Black.copy(alpha = 0.1f))

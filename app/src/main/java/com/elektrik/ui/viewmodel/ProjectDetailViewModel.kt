@@ -66,6 +66,11 @@ class ProjectDetailViewModel @Inject constructor(
         else repository.getLogsWithPhotosForProjectFlow(id)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    val allProjectPhotos = currentProjectLogs.map { logs ->
+        logs.flatMap { it.photos }.sortedByDescending { it.id }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+
     // --- Note Update Debouncing ---
     private val _noteUpdates = MutableSharedFlow<Pair<Long, String>>(extraBufferCapacity = 10)
 

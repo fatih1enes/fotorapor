@@ -34,13 +34,11 @@ import coil3.request.CachePolicy
 import coil3.request.crossfade
 import coil3.video.VideoFrameDecoder
 import com.sarikaya.santiye.gunlugu.R
-import androidx.compose.animation.ExperimentalSharedTransitionApi
 import com.sarikaya.santiye.gunlugu.data.DailyLogEntity
 import com.sarikaya.santiye.gunlugu.data.PhotoEntity
 import com.sarikaya.santiye.gunlugu.util.DateUtils
 
 @Suppress("SameParameterValue")
-@OptIn(ExperimentalSharedTransitionApi::class)
 @Composable
 fun TimelineBlock(
     log: DailyLogEntity,
@@ -102,34 +100,27 @@ fun TimelineBlock(
                                             .then(if (isSelectionMode && isSelected) Modifier.border(3.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(16.dp)) else Modifier),
                                         shape = RoundedCornerShape(16.dp)
                                     ) {
-                                        val sharedTransitionScope = LocalSharedTransitionScope.current
-                                        val animatedVisibilityScope = LocalAnimatedVisibilityScope.current
+                                        val context = LocalContext.current
+                                        val request = remember(photo.filePath) {
+                                            ImageRequest.Builder(context)
+                                                .data(photo.filePath)
+                                                .apply {
+                                                    if (isVideo) {
+                                                        decoderFactory(VideoFrameDecoder.Factory())
+                                                    }
+                                                }
+                                                .size(256)
+                                                .memoryCachePolicy(CachePolicy.ENABLED)
+                                                .build()
+                                        }
                                         
                                         Box(modifier = Modifier.fillMaxSize()) {
                                             AsyncImage(
-                                                model = ImageRequest.Builder(LocalContext.current)
-                                                    .data(photo.filePath)
-                                                    .decoderFactory(VideoFrameDecoder.Factory())
-                                                    .crossfade(true)
-                                                    .size(256)
-                                                    .memoryCachePolicy(CachePolicy.ENABLED)
-                                                    .build(),
+                                                model = request,
                                                 contentDescription = null,
                                                 placeholder = androidx.compose.ui.graphics.painter.ColorPainter(Color.LightGray),
                                                 error = androidx.compose.ui.graphics.painter.ColorPainter(Color.DarkGray),
-                                                modifier = Modifier
-                                                    .fillMaxSize()
-                                                    .then(
-                                                        if (sharedTransitionScope != null && animatedVisibilityScope != null) {
-                                                            with(sharedTransitionScope) {
-                                                                Modifier.sharedElement(
-                                                                    sharedContentState = rememberSharedContentState(key = "photo-${photo.id}"),
-                                                                    animatedVisibilityScope = animatedVisibilityScope,
-                                                                    boundsTransform = { _, _ -> androidx.compose.animation.core.tween(300) }
-                                                                )
-                                                            }
-                                                        } else Modifier
-                                                    ),
+                                                modifier = Modifier.fillMaxSize(),
                                                 contentScale = ContentScale.Crop
                                             )
                                             if (isVideo && !isLast) {

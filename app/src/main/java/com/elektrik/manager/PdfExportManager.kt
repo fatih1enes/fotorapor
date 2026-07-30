@@ -3,7 +3,15 @@ package com.sarikaya.santiye.gunlugu.manager
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.RectF
+import android.graphics.Typeface
+import android.graphics.pdf.PdfDocument
 import android.net.Uri
+import android.text.Layout
+import android.text.StaticLayout
+import android.text.TextPaint
 import androidx.core.content.FileProvider
 import com.sarikaya.santiye.gunlugu.data.LogWithPhotos
 import com.sarikaya.santiye.gunlugu.data.ProjectEntity
@@ -11,16 +19,11 @@ import com.sarikaya.santiye.gunlugu.util.CompanyLogoManager
 import com.sarikaya.santiye.gunlugu.util.DateUtils
 import com.sarikaya.santiye.gunlugu.util.ImageUtils
 import com.sarikaya.santiye.gunlugu.util.result.OperationResult
-import com.tom_roush.pdfbox.pdmodel.PDDocument
-import com.tom_roush.pdfbox.pdmodel.PDPage
-import com.tom_roush.pdfbox.pdmodel.PDPageContentStream
-import com.tom_roush.pdfbox.pdmodel.common.PDRectangle
-import com.tom_roush.pdfbox.pdmodel.font.PDType1Font
-import com.tom_roush.pdfbox.pdmodel.graphics.image.JPEGFactory
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileOutputStream
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.min
@@ -30,7 +33,7 @@ import kotlin.math.min
  */
 interface PdfExportManager {
     /**
-     * Exports the project and its logs to a PDF file using chunked generation to prevent OOM.
+     * Exports the project and its logs to a PDF file with full native UTF-8 (Turkish) character support.
      * 
      * @param project The project to export.
      * @param logs The chronological list of logs and their photos.
@@ -46,7 +49,7 @@ interface PdfExportManager {
 
 @Singleton
 class PdfBoxExportManager @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
     private val fileManager: FileManager
 ) : PdfExportManager {
 
@@ -55,83 +58,92 @@ class PdfBoxExportManager @Inject constructor(
         logs: List<LogWithPhotos>,
         quality: Int
     ): OperationResult<Uri> = withContext(Dispatchers.IO) {
-        var document: PDDocument? = null
+        var pdfDocument: PdfDocument? = null
         try {
-            document = PDDocument()
+            pdfDocument = PdfDocument()
             val sortedLogs = logs.sortedBy { it.log.date }
-            
-            // A4 Size in points (1 pt = 1/72 inch) -> 595 x 842
-            val pageWidth: Float = PDRectangle.A4.width
-            val pageHeight: Float = PDRectangle.A4.height
-            var pageNumber = 1
-            
+
+            val pageWidth = 595 // A4 width at 72 DPI
+            val pageHeight = 842 // A4 height at 72 DPI
             val margin = 40f
-            var currentY: Float = pageHeight - margin
-            
-            // Pre-load company logo if exists
-            val companyLogoPath = CompanyLogoManager.getLogoUri(context)?.path
-            var logoImage: com.tom_roush.pdfbox.pdmodel.graphics.image.PDImageXObject? = null
-            companyLogoPath?.let { path ->
-                val f = File(path)
-                if (f.exists()) {
-                    val bmp = BitmapFactory.decodeFile(path)
-                    if (bmp != null) {
-                        logoImage = JPEGFactory.createFromImage(document, bmp)
-                        bmp.recycle()
-                    }
-                }
+            var pageNumber = 1
+
+            // Paints
+            val titlePaint = TextPaint().apply {
+                color = Color.BLACK
+                textSize = 22f
+                typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                isAntiAlias = true
             }
 
-            var currentPage = PDPage(PDRectangle.A4)
-            document.addPage(currentPage)
-            var contentStream = PDPageContentStream(document, currentPage)
+            val headerLinePaint = Paint().apply {
+                color = Color.LTGRAY
+                strokeWidth = 1.5f
+                isAntiAlias = true
+            }
+
+            val datePaint = TextPaint().apply {
+                color = Color.DKGRAY
+                textSize = 14f
+                typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                isAntiAlias = true
+            }
+
+            val notePaint = TextPaint().apply {
+                color = Color.BLACK
+                textSize = 11f
+                typeface = Typeface.DEFAULT
+                isAntiAlias = true
+            }
+
+            val pageNumPaint = TextPaint().apply {
+                color = Color.GRAY
+                textSize = 10f
+                typeface = Typeface.DEFAULT
+                isAntiAlias = true
+            }
+
+            // Preload logo bitmap
+            val logoPath = CompanyLogoManager.getLogoUri(context)?.path
+            val logoBmp: Bitmap? = if (logoPath != null && File(logoPath).exists()) {
+                BitmapFactory.decodeFile(logoPath)
+            } else null
+
+            var pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
+            var currentPage = pdfDocument.startPage(pageInfo)
+            var canvas = currentPage.canvas
+            var currentY = margin
 
             fun drawHeader() {
-                // Title
-                contentStream.beginText()
-                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 24f)
-                // Note: PDFBox standard fonts don't support Turkish chars well.
-                // For a production app, TTF fonts should be embedded. Here we map or strip if needed, 
-                // but for simplicity we rely on Helvetica.
-                val safeTitle = project.name.replace("ı", "i").replace("ğ", "g")
-                    .replace("ü", "u").replace("ş", "s").replace("ö", "o").replace("ç", "c")
-                    .replace("İ", "I").replace("Ğ", "G").replace("Ü", "U")
-                    .replace("Ş", "S").replace("Ö", "O").replace("Ç", "C")
-                
-                val titleWidth = PDType1Font.HELVETICA_BOLD.getStringWidth(safeTitle) / 1000 * 24f
-                contentStream.newLineAtOffset((pageWidth - titleWidth) / 2, pageHeight - margin - 24f)
-                contentStream.showText(safeTitle)
-                contentStream.endText()
-                
-                currentY = pageHeight - margin - 50f
-                
-                // Draw Line
-                contentStream.moveTo(margin, currentY)
-                contentStream.lineTo(pageWidth - margin, currentY)
-                contentStream.stroke()
-                currentY -= 20f
+                val title = project.name
+                val titleWidth = titlePaint.measureText(title)
+                val startX = (pageWidth - titleWidth) / 2f
+                canvas.drawText(title, startX, margin + 20f, titlePaint)
 
-                // Draw Logo
-                logoImage?.let {
-                    val scale = 40f / it.height
-                    val w = it.width * scale
-                    contentStream.drawImage(it, pageWidth - margin - w, pageHeight - margin - 30f, w, 40f)
+                currentY = margin + 40f
+                canvas.drawLine(margin, currentY, pageWidth - margin, currentY, headerLinePaint)
+                currentY += 20f
+
+                logoBmp?.let { logo ->
+                    val logoHeight = 35f
+                    val scale = logoHeight / logo.height
+                    val logoWidth = logo.width * scale
+                    val rect = RectF(pageWidth - margin - logoWidth, margin, pageWidth - margin, margin + logoHeight)
+                    canvas.drawBitmap(logo, null, rect, null)
                 }
             }
 
             fun closeAndStartNewPage() {
-                contentStream.beginText()
-                contentStream.setFont(PDType1Font.HELVETICA, 10f)
-                contentStream.newLineAtOffset(pageWidth / 2 - 15f, margin / 2)
-                contentStream.showText("Sayfa $pageNumber")
-                contentStream.endText()
-                contentStream.close()
-                
+                val footerText = "Sayfa $pageNumber"
+                val footerWidth = pageNumPaint.measureText(footerText)
+                canvas.drawText(footerText, (pageWidth - footerWidth) / 2f, pageHeight - margin / 2f, pageNumPaint)
+
+                pdfDocument.finishPage(currentPage)
                 pageNumber++
-                currentPage = PDPage(PDRectangle.A4)
-                document.addPage(currentPage)
-                contentStream = PDPageContentStream(document, currentPage)
-                currentY = pageHeight - margin
+                pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
+                currentPage = pdfDocument.startPage(pageInfo)
+                canvas = currentPage.canvas
+                currentY = margin
                 drawHeader()
             }
 
@@ -141,133 +153,125 @@ class PdfBoxExportManager @Inject constructor(
             for (logWithPhotos in sortedLogs) {
                 val log = logWithPhotos.log
                 val photos = logWithPhotos.photos
-                
+
                 if (!isFirstLog) {
                     closeAndStartNewPage()
                 }
                 isFirstLog = false
 
-                val dateStr = DateUtils.formatDate(log.date)
-                contentStream.beginText()
-                contentStream.setFont(PDType1Font.HELVETICA_BOLD, 14f)
-                contentStream.newLineAtOffset(margin, currentY)
-                contentStream.showText("Tarih: $dateStr")
-                contentStream.endText()
-                currentY -= 30f
-                
+                // Date
+                val dateStr = "Tarih: ${DateUtils.formatDate(log.date)}"
+                canvas.drawText(dateStr, margin, currentY + 14f, datePaint)
+                currentY += 30f
+
+                // Note with multi-line wrapping and native Turkish character support
                 if (log.note.isNotBlank()) {
-                    val safeNote = log.note.replace("ı", "i").replace("ğ", "g")
-                        .replace("ü", "u").replace("ş", "s").replace("ö", "o").replace("ç", "c")
-                        .replace("İ", "I").replace("Ğ", "G").replace("Ü", "U")
-                        .replace("Ş", "S").replace("Ö", "O").replace("Ç", "C")
-                    
-                    contentStream.beginText()
-                    contentStream.setFont(PDType1Font.HELVETICA, 12f)
-                    contentStream.newLineAtOffset(margin + 10f, currentY)
-                    // Simplified: We assume short notes for now. In full implementation, text wrapping is needed.
-                    // To keep it memory safe and simple:
-                    val chunks = safeNote.chunked(70)
-                    for (chunk in chunks) {
-                        if (currentY < margin + 40f) {
-                            contentStream.endText()
-                            closeAndStartNewPage()
-                            contentStream.beginText()
-                            contentStream.setFont(PDType1Font.HELVETICA, 12f)
-                            contentStream.newLineAtOffset(margin + 10f, currentY)
-                        }
-                        contentStream.showText(chunk.replace("\n", " "))
-                        contentStream.newLineAtOffset(0f, -14f)
-                        currentY -= 14f
+                    val noteWidth = (pageWidth - (margin * 2) - 20).toInt()
+                    val staticLayout = StaticLayout.Builder
+                        .obtain(log.note, 0, log.note.length, notePaint, noteWidth)
+                        .setAlignment(Layout.Alignment.ALIGN_NORMAL)
+                        .setLineSpacing(0f, 1.15f)
+                        .build()
+
+                    if (currentY + staticLayout.height > pageHeight - margin - 50f) {
+                        closeAndStartNewPage()
                     }
-                    contentStream.endText()
-                    currentY -= 20f
+
+                    canvas.save()
+                    canvas.translate(margin + 10f, currentY)
+                    staticLayout.draw(canvas)
+                    canvas.restore()
+
+                    currentY += staticLayout.height + 20f
                 }
-                
+
+                // Photos grid (2 columns)
                 if (photos.isNotEmpty()) {
                     var col = 0
                     val imgWidth = 230f
-                    val imgHeight = 300f
-                    val spacing = 20f
-                    
+                    val imgHeight = 280f
+                    val spacing = 15f
+
                     for (photo in photos) {
-                        val isVideo = photo.filePath.endsWith(".mp4", ignoreCase = true)
-                        if (isVideo) continue // Skip videos in PDF to save memory/processing
-                        
-                        if (currentY - imgHeight < margin + 30f) {
+                        if (photo.filePath.endsWith(".mp4", ignoreCase = true)) continue
+
+                        if (currentY + imgHeight > pageHeight - margin - 30f) {
                             closeAndStartNewPage()
                             col = 0
                         }
-                        
+
                         val x = margin + col * (imgWidth + spacing)
-                        
+
+                        var activeBitmap: Bitmap? = null
                         try {
-                            // Memory efficient loading
                             val reqDim = if (quality == 100) 1200 else 800
-                            var bmp = ImageUtils.loadScaledBitmap(context, photo.filePath, reqDim, reqDim)
-                            if (bmp != null) {
-                                // PDFBox rotation
+                            val loadedBmp = ImageUtils.loadScaledBitmap(context, photo.filePath, reqDim, reqDim)
+                            if (loadedBmp != null) {
+                                activeBitmap = loadedBmp
                                 val exifRotation = ImageUtils.getExifRotation(context, photo.filePath)
                                 val totalRotation = (exifRotation + photo.rotation) % 360f
-                                
+
                                 if (totalRotation != 0f) {
-                                    val matrix = android.graphics.Matrix()
-                                    matrix.postRotate(totalRotation)
-                                    val rotated = Bitmap.createBitmap(bmp, 0, 0, bmp.width, bmp.height, matrix, true)
-                                    if (rotated != bmp) {
-                                        bmp.recycle()
-                                        bmp = rotated
+                                    val matrix = android.graphics.Matrix().apply { postRotate(totalRotation) }
+                                    val rotated = Bitmap.createBitmap(loadedBmp, 0, 0, loadedBmp.width, loadedBmp.height, matrix, true)
+                                    if (rotated !== loadedBmp) {
+                                        loadedBmp.recycle()
+                                        activeBitmap = rotated
                                     }
                                 }
-                                
-                                val pdfImage = JPEGFactory.createFromImage(document, bmp, 0.75f)
-                                bmp.recycle()
-                                
-                                val scale = min(imgWidth / pdfImage.width, imgHeight / pdfImage.height)
-                                val w = pdfImage.width * scale
-                                val h = pdfImage.height * scale
-                                
-                                val drawX = x + (imgWidth - w) / 2
-                                val drawY = currentY - imgHeight + (imgHeight - h) / 2
-                                
-                                contentStream.drawImage(pdfImage, drawX, drawY, w, h)
+
+                                activeBitmap?.let { bmp ->
+                                    val scale = min(imgWidth / bmp.width, imgHeight / bmp.height)
+                                    val w = bmp.width * scale
+                                    val h = bmp.height * scale
+                                    val drawX = x + (imgWidth - w) / 2f
+                                    val drawY = currentY + (imgHeight - h) / 2f
+                                    val destRect = RectF(drawX, drawY, drawX + w, drawY + h)
+                                    canvas.drawBitmap(bmp, null, destRect, null)
+                                }
                             }
                         } catch (e: Exception) {
-                            android.util.Log.e("PdfBox", "Image draw failed", e)
+                            android.util.Log.e("PdfExport", "Photo rendering failed", e)
+                        } finally {
+                            activeBitmap?.recycle()
                         }
-                        
+
                         col++
                         if (col > 1) {
                             col = 0
-                            currentY -= (imgHeight + spacing)
+                            currentY += (imgHeight + spacing)
                         }
                     }
-                    
+
                     if (col > 0) {
-                        currentY -= (imgHeight + spacing)
+                        currentY += (imgHeight + spacing)
                     }
                 }
             }
 
-            contentStream.beginText()
-            contentStream.setFont(PDType1Font.HELVETICA, 10f)
-            contentStream.newLineAtOffset(pageWidth / 2 - 15f, margin / 2)
-            contentStream.showText("Sayfa $pageNumber")
-            contentStream.endText()
-            contentStream.close()
-            
+            // Footer for final page
+            val footerText = "Sayfa $pageNumber"
+            val footerWidth = pageNumPaint.measureText(footerText)
+            canvas.drawText(footerText, (pageWidth - footerWidth) / 2f, pageHeight - margin / 2f, pageNumPaint)
+
+            pdfDocument.finishPage(currentPage)
+            logoBmp?.recycle()
+
             val directory = context.getExternalFilesDir("PDFs")
             if (directory != null && !directory.exists()) directory.mkdirs()
-            val safeName = project.name.replace(Regex("[^a-zA-Z0-9]"), "_")
+            val safeName = project.name.replace(Regex("[^a-zA-Z0-9_]"), "_")
             val file = File(directory, "${safeName}_gunluk_rapor.pdf")
-            
-            document.save(file)
-            
+
+            FileOutputStream(file).use { out ->
+                pdfDocument.writeTo(out)
+            }
+
             val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
             OperationResult.Success(uri)
         } catch (e: Exception) {
-            OperationResult.Error(e, "PDF oluşturulurken kritik bir hata oluştu.")
+            OperationResult.Error(e, "PDF oluşturulurken bir hata oluştu.")
         } finally {
-            (document as? java.io.Closeable)?.close()
+            pdfDocument?.close()
         }
     }
 }

@@ -112,7 +112,7 @@ private val AppShapes = Shapes(
 @Composable
 fun SantiyeGunluguTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val context = androidx.compose.ui.platform.LocalContext.current

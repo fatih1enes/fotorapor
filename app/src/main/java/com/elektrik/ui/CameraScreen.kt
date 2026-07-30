@@ -75,6 +75,10 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.foundation.focusable
 
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.hilt.navigation.compose.hiltViewModel
+import com.sarikaya.santiye.gunlugu.ui.viewmodel.CameraViewModel
+
 private val Amber = Color(0xFFFFD60A)
 private val ControlBg = Color(0x66000000)
 
@@ -86,6 +90,7 @@ fun CameraScreen(
     enableAvif: Boolean = true,
     onToggleOptimization: (Boolean) -> Unit = {},
     onToggleAvif: (Boolean) -> Unit = {},
+    cameraViewModel: CameraViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -94,25 +99,12 @@ fun CameraScreen(
     var activeRecording: Recording? by remember { mutableStateOf(null) }
     DisposableEffect(Unit) { onDispose { activeRecording?.stop() } }
 
-    // State
-    var cameraMode by remember { mutableStateOf("PHOTO") }
-    var isRecording by remember { mutableStateOf(value = false) }
-    var recordingDuration by remember { mutableIntStateOf(0) }
-    var flashMode by remember { mutableIntStateOf(ImageCapture.FLASH_MODE_OFF) }
-    var videoQuality by remember { mutableStateOf(Quality.FHD) }
-    var aspectRatio by remember { mutableIntStateOf(AspectRatio.RATIO_4_3) }
-    var zoomRatio by remember { mutableFloatStateOf(1f) }
+    val uiState by cameraViewModel.uiState.collectAsStateWithLifecycle()
+
+    // Local UI states (view-specific / gestures / sensors)
     var showCaptureFeedback by remember { mutableStateOf(false) }
-    var lensFacing by remember { mutableIntStateOf(CameraSelector.LENS_FACING_BACK) }
-    var isGridVisible by remember { mutableStateOf(false) }
-    var showExposure by remember { mutableStateOf(false) }
-    var exposureValue by remember { mutableFloatStateOf(0f) }
     var tapOffset by remember { mutableStateOf<Offset?>(null) }
     var currentRotation by remember { mutableIntStateOf(Surface.ROTATION_0) }
-    var lastCapturedUri by remember { mutableStateOf<Uri?>(null) }
-    var isPaused by remember { mutableStateOf(false) }
-    var showSettingsPanel by remember { mutableStateOf(false) }
-    var sessionPhotoCount by remember { mutableIntStateOf(0) }
 
     // Leveler State
     var deviceAngle by remember { mutableFloatStateOf(0f) }
@@ -124,9 +116,7 @@ fun CameraScreen(
                 if (event.sensor.type == Sensor.TYPE_ACCELEROMETER) {
                     val ax = event.values[0]
                     val ay = event.values[1]
-                    // Calculate angle in degrees
                     val angle = Math.toDegrees(kotlin.math.atan2(ax.toDouble(), ay.toDouble())).toFloat()
-                    // Normalize to -180 to 180 and handle landscape
                     deviceAngle = -angle
                 }
             }
@@ -137,8 +127,8 @@ fun CameraScreen(
     }
 
     // Auto-hide exposure
-    LaunchedEffect(showExposure, exposureValue) {
-        if (showExposure) { delay(4000.milliseconds); showExposure = false }
+    LaunchedEffect(uiState.showExposure, uiState.exposureValue) {
+        if (uiState.showExposure) { delay(4000.milliseconds); cameraViewModel.setShowExposure(false) }
     }
 
     // Orientation listener
@@ -164,37 +154,43 @@ fun CameraScreen(
 
     val audioLauncher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { _ -> }
 
-    LaunchedEffect(cameraMode) {
-        if (cameraMode == "VIDEO") {
+    LaunchedEffect(uiState.cameraMode) {
+        if (uiState.cameraMode == "VIDEO") {
             val p = android.Manifest.permission.RECORD_AUDIO
             if (ContextCompat.checkSelfPermission(context, p) != android.content.pm.PackageManager.PERMISSION_GRANTED)
                 audioLauncher.launch(p)
         }
     }
 
-    LaunchedEffect(lensFacing, aspectRatio, cameraMode, videoQuality, enableOptimization) {
+    LaunchedEffect(uiState.lensFacing, uiState.aspectRatio, uiState.cameraMode, uiState.videoQuality, enableOptimization) {
         cameraState.bindCamera(
             previewView = previewView,
-            lensFacing = lensFacing,
-            aspectRatio = aspectRatio,
-            cameraMode = cameraMode,
-            videoQuality = videoQuality,
+            lensFacing = uiState.lensFacing,
+            aspectRatio = uiState.aspectRatio,
+            cameraMode = uiState.cameraMode,
+            videoQuality = uiState.videoQuality,
             currentRotation = currentRotation,
-            flashMode = flashMode,
+            flashMode = uiState.flashMode,
             enableOptimization = enableOptimization,
         )
-        zoomRatio = 1f; exposureValue = 0f
+        cameraViewModel.setZoomRatio(1f)
+        cameraViewModel.setExposureValue(0f)
     }
 
-    LaunchedEffect(isRecording) {
-        if (isRecording) { recordingDuration = 0; while (isRecording && isActive) { delay(1000.milliseconds); recordingDuration++ } }
+    LaunchedEffect(uiState.isRecording) {
+        if (uiState.isRecording) {
+            while (uiState.isRecording && isActive) {
+                delay(1000.milliseconds)
+                cameraViewModel.incrementRecordingDuration()
+            }
+        }
     }
 
-    val durText = remember(recordingDuration) {
-        String.format(java.util.Locale.US, "%02d:%02d", recordingDuration / 60, recordingDuration % 60)
+    val durText = remember(uiState.recordingDuration) {
+        String.format(java.util.Locale.US, "%02d:%02d", uiState.recordingDuration / 60, uiState.recordingDuration % 60)
     }
 
-    val previewAspect = if (aspectRatio == AspectRatio.RATIO_4_3) 3f / 4f else 9f / 16f
+    val previewAspect = if (uiState.aspectRatio == AspectRatio.RATIO_4_3) 3f / 4f else 9f / 16f
     
     // Orientation helpers
     val isLandscape = (currentRotation == Surface.ROTATION_90) || (currentRotation == Surface.ROTATION_270)
@@ -212,15 +208,14 @@ fun CameraScreen(
     val triggerShutter = {
         // Bind-guard: prevent capture when camera is not ready
         if (!cameraState.isBound) {
-            android.widget.Toast.makeText(context, "Kamera hazırlanıyor…", android.widget.Toast.LENGTH_SHORT).show()
-        } else if (cameraMode == "PHOTO") {
+            android.widget.Toast.makeText(context, context.getString(R.string.camera_preparing), android.widget.Toast.LENGTH_SHORT).show()
+        } else if (uiState.cameraMode == "PHOTO") {
             if (!cameraState.isCapturing) {
                 cameraState.isCapturing = true
                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                 
                 // Front camera flash overlay logic
-                if (lensFacing == CameraSelector.LENS_FACING_FRONT && flashMode != ImageCapture.FLASH_MODE_OFF) {
-                    // Brighten screen for a split second
+                if (uiState.lensFacing == CameraSelector.LENS_FACING_FRONT && uiState.flashMode != ImageCapture.FLASH_MODE_OFF) {
                     showCaptureFeedback = true
                     scope.launch { delay(250.milliseconds); showCaptureFeedback = false }
                 } else {
@@ -229,15 +224,14 @@ fun CameraScreen(
                 }
 
                 takePhoto(context, cameraState.imageCapture, cameraState.executor) { uri ->
-                    lastCapturedUri = uri
-                    sessionPhotoCount++
+                    cameraViewModel.onPhotoCaptured(uri)
                     onPhotoCaptured(uri)
                     cameraState.isCapturing = false
                 }
             }
         } else {
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-            if (isRecording) { activeRecording?.stop(); activeRecording = null }
+            if (uiState.isRecording) { activeRecording?.stop(); activeRecording = null }
             else {
                 cameraState.videoCapture?.let { vc ->
                     val opts = PhotoManager.getVideoOutputOptions(context)
@@ -245,15 +239,13 @@ fun CameraScreen(
                     val pending = vc.output.prepareRecording(context, opts)
                     if (hasAudio) { try { pending.withAudioEnabled() } catch (_: SecurityException) {} }
                     else audioLauncher.launch(android.Manifest.permission.RECORD_AUDIO)
-                    isRecording = true
-                    isPaused = false
+                    cameraViewModel.setIsRecording(true)
                     activeRecording = pending.start(ContextCompat.getMainExecutor(context)) { ev ->
                         if (ev is VideoRecordEvent.Finalize) {
-                            isRecording = false
-                            isPaused = false
+                            cameraViewModel.setIsRecording(false)
                             val uri = ev.outputResults.outputUri
                             if (!ev.hasError()) {
-                                lastCapturedUri = uri
+                                cameraViewModel.onPhotoCaptured(uri)
                                 onPhotoCaptured(uri)
                             }
                             else Log.e("CameraScreen", "Video err: ${ev.error}")
@@ -289,7 +281,7 @@ fun CameraScreen(
                         Text("${stringResource(R.string.camera_error_prefix)} ${cameraState.initializationError}",
                             color = Color.White, textAlign = TextAlign.Center, modifier = Modifier.padding(16.dp))
                         Spacer(Modifier.height(12.dp))
-                        Button(onClick = { scope.launch { cameraState.bindCamera(previewView, lensFacing, aspectRatio, cameraMode, videoQuality, currentRotation, flashMode) } }) {
+                        Button(onClick = { scope.launch { cameraState.bindCamera(previewView, uiState.lensFacing, uiState.aspectRatio, uiState.cameraMode, uiState.videoQuality, currentRotation, uiState.flashMode) } }) {
                             Text(stringResource(R.string.camera_retry_btn))
                         }
                     }
@@ -300,23 +292,24 @@ fun CameraScreen(
                     modifier = Modifier.fillMaxSize()
                         .pointerInput(cameraState.camera) {
                             detectTransformGestures { _, _, zoom, _ ->
-                                val nz = (zoomRatio * zoom).coerceIn(cameraState.minZoom, cameraState.maxZoom)
-                                if (kotlin.math.floor(zoomRatio) != kotlin.math.floor(nz)) {
+                                val nz = (uiState.zoomRatio * zoom).coerceIn(cameraState.minZoom, cameraState.maxZoom)
+                                if (kotlin.math.floor(uiState.zoomRatio) != kotlin.math.floor(nz)) {
                                     haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                                 }
-                                zoomRatio = nz; cameraState.setZoom(nz)
+                                cameraViewModel.setZoomRatio(nz)
+                                cameraState.setZoom(nz)
                             }
                         }
                         .pointerInput(cameraState.camera) {
                             detectTapGestures { 
                                 tapOffset = it
-                                exposureValue = 0f 
+                                cameraViewModel.setExposureValue(0f)
                                 cameraState.focusAndMeter(it, previewView) 
                             }
                         }
                 )
             }
-            if (isGridVisible) GridOverlay()
+            if (uiState.isGridVisible) GridOverlay()
             LevelerOverlay(deviceAngle)
             tapOffset?.let { FocusRing(it) }
         }
@@ -329,7 +322,7 @@ fun CameraScreen(
 
         // 3) TOP TOOLBAR — always accessible, overlays on top
         AnimatedVisibility(
-            visible = !isRecording, enter = fadeIn(), exit = fadeOut(),
+            visible = !uiState.isRecording, enter = fadeIn(), exit = fadeOut(),
             modifier = Modifier.align(if (isLandscape) Alignment.CenterStart else Alignment.TopCenter)
         ) {
             val toolbarPadding = if (isLandscape) Modifier.padding(start = 16.dp) else Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 16.dp, vertical = 10.dp)
@@ -342,8 +335,8 @@ fun CameraScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             ToolbarItems(
-                                cameraMode, flashMode, videoQuality, aspectRatio, isGridVisible, showSettingsPanel, iconRotateAngle, cameraState,
-                                { flashMode = it }, { aspectRatio = it }, { isGridVisible = it }, { showSettingsPanel = it }, { videoQuality = it }, onClose
+                                uiState.cameraMode, uiState.flashMode, uiState.videoQuality, uiState.aspectRatio, uiState.isGridVisible, uiState.showSettingsPanel, iconRotateAngle, cameraState,
+                                { cameraViewModel.setFlashMode(it) }, { cameraViewModel.setAspectRatio(it) }, { cameraViewModel.setGridVisible(it) }, { cameraViewModel.setShowSettingsPanel(it) }, { cameraViewModel.setVideoQuality(it) }, onClose
                             )
                         }
                     } else {
@@ -357,8 +350,8 @@ fun CameraScreen(
                             }
                             Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
                                 ToolbarItems(
-                                    cameraMode, flashMode, videoQuality, aspectRatio, isGridVisible, showSettingsPanel, iconRotateAngle, cameraState,
-                                    { flashMode = it }, { aspectRatio = it }, { isGridVisible = it }, { showSettingsPanel = it }, { videoQuality = it }, null
+                                    uiState.cameraMode, uiState.flashMode, uiState.videoQuality, uiState.aspectRatio, uiState.isGridVisible, uiState.showSettingsPanel, iconRotateAngle, cameraState,
+                                    { cameraViewModel.setFlashMode(it) }, { cameraViewModel.setAspectRatio(it) }, { cameraViewModel.setGridVisible(it) }, { cameraViewModel.setShowSettingsPanel(it) }, { cameraViewModel.setVideoQuality(it) }, null
                                 )
                             }
                         }
@@ -367,7 +360,7 @@ fun CameraScreen(
 
         // 3.5) SETTINGS PANEL (Glassmorphism overlay)
         AnimatedVisibility(
-            visible = showSettingsPanel && !isRecording,
+            visible = uiState.showSettingsPanel && !uiState.isRecording,
             enter = fadeIn() + expandVertically(expandFrom = Alignment.Top),
             exit = fadeOut() + shrinkVertically(shrinkTowards = Alignment.Top),
             modifier = Modifier
@@ -382,20 +375,20 @@ fun CameraScreen(
                     .background(Color.Black.copy(alpha = 0.6f))
                     .padding(16.dp)
             ) {
-                Text("Kamera Ayarları", color = Color.White, fontWeight = FontWeight.Bold, fontSize = 15.sp, modifier = Modifier.padding(bottom = 8.dp))
+                Text(stringResource(R.string.camera_settings_title), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 15.sp, modifier = Modifier.padding(bottom = 8.dp))
                 
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("Donanım HDR", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                        Text("Daha net ve pürüzsüz fotoğraflar çeker", color = Color.LightGray, fontSize = 10.sp)
+                        Text(stringResource(R.string.camera_hdr_title), color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.camera_hdr_desc), color = Color.LightGray, fontSize = 10.sp)
                     }
                     Switch(checked = enableOptimization, onCheckedChange = onToggleOptimization, modifier = Modifier.scale(0.8f))
                 }
                 
                 Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp), horizontalArrangement = Arrangement.SpaceBetween) {
                     Column(modifier = Modifier.weight(1f)) {
-                        Text("AVIF Kayıt (Kayıpsız)", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
-                        Text("Kaliteyi bozmadan boyutu çok küçültür", color = Color.LightGray, fontSize = 10.sp)
+                        Text(stringResource(R.string.camera_avif_title), color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
+                        Text(stringResource(R.string.camera_avif_desc), color = Color.LightGray, fontSize = 10.sp)
                     }
                     Switch(checked = enableAvif, onCheckedChange = onToggleAvif, modifier = Modifier.scale(0.8f))
                 }
@@ -403,7 +396,7 @@ fun CameraScreen(
         }
 
         // 4) RECORDING INDICATOR
-        if (isRecording) {
+        if (uiState.isRecording) {
             Row(
                 modifier = Modifier.align(Alignment.TopCenter).statusBarsPadding()
                     .padding(top = 12.dp)
@@ -437,32 +430,32 @@ fun CameraScreen(
                         modifier = Modifier.fillMaxHeight().padding(vertical = 20.dp)
                     ) {
                         // Flip / Pause
-                        if (isRecording) {
+                        if (uiState.isRecording) {
                             ToolbarBtn(rotation = iconRotateAngle, size = 44, onClick = {
-                                if (isPaused) { activeRecording?.resume(); isPaused = false }
-                                else { activeRecording?.pause(); isPaused = true }
+                                if (uiState.isPaused) { activeRecording?.resume(); cameraViewModel.setIsPaused(false) }
+                                else { activeRecording?.pause(); cameraViewModel.setIsPaused(true) }
                             }) {
-                                Icon(if (isPaused) Icons.Default.PlayArrow else Icons.Default.Pause, "Pause", tint = Color.White)
+                                Icon(if (uiState.isPaused) Icons.Default.PlayArrow else Icons.Default.Pause, "Pause", tint = Color.White)
                             }
                         } else {
                             ToolbarBtn(rotation = iconRotateAngle, size = 44, onClick = {
-                                lensFacing = if (lensFacing == CameraSelector.LENS_FACING_BACK) CameraSelector.LENS_FACING_FRONT else CameraSelector.LENS_FACING_BACK
+                                cameraViewModel.toggleLensFacing()
                             }) { Icon(Icons.Default.Cameraswitch, null, tint = Color.White) }
                         }
 
                         // Shutter
-                        ShutterButton(isVideo = cameraMode == "VIDEO", isRecording = isRecording) { triggerShutter() }
+                        ShutterButton(isVideo = uiState.cameraMode == "VIDEO", isRecording = uiState.isRecording) { triggerShutter() }
 
                         // Gallery
-                        if (lastCapturedUri != null) {
+                        if (uiState.lastCapturedUri != null) {
                             Box {
                                 AsyncImage(
-                                    model = lastCapturedUri, contentDescription = null, contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                                    model = uiState.lastCapturedUri, contentDescription = null, contentScale = androidx.compose.ui.layout.ContentScale.Crop,
                                     modifier = Modifier.size(44.dp).clip(CircleShape).border(1.dp, Color.White, CircleShape).clickable { onClose() }
                                 )
-                                if (sessionPhotoCount > 0) {
+                                if (uiState.sessionPhotoCount > 0) {
                                     Box(Modifier.align(Alignment.TopEnd).offset(4.dp, (-4).dp).background(Amber, CircleShape).padding(horizontal = 4.dp)) {
-                                        Text(sessionPhotoCount.toString(), color = Color.Black, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                                        Text(uiState.sessionPhotoCount.toString(), color = Color.Black, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                                     }
                                 }
                             }
@@ -473,10 +466,10 @@ fun CameraScreen(
                 // PORTRAIT UI: Existing column
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     // Exposure slider
-                    androidx.compose.animation.AnimatedVisibility(visible = showExposure) {
+                    androidx.compose.animation.AnimatedVisibility(visible = uiState.showExposure) {
                         Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 4.dp), verticalAlignment = Alignment.CenterVertically) {
                             Icon(Icons.Default.WbSunny, null, tint = Color.White.copy(alpha = 0.5f), modifier = Modifier.size(16.dp))
-                            Slider(value = exposureValue, onValueChange = { exposureValue = it; cameraState.setExposure(it.toInt()); showExposure = true }, valueRange = cameraState.exposureRange, modifier = Modifier.weight(1f).padding(horizontal = 8.dp), colors = SliderDefaults.colors(thumbColor = Amber, activeTrackColor = Amber.copy(alpha = 0.6f), inactiveTrackColor = Color.White.copy(alpha = 0.2f)))
+                            Slider(value = uiState.exposureValue, onValueChange = { cameraViewModel.setExposureValue(it); cameraState.setExposure(it.toInt()); cameraViewModel.setShowExposure(true) }, valueRange = cameraState.exposureRange, modifier = Modifier.weight(1f).padding(horizontal = 8.dp), colors = SliderDefaults.colors(thumbColor = Amber, activeTrackColor = Amber.copy(alpha = 0.6f), inactiveTrackColor = Color.White.copy(alpha = 0.2f)))
                             Icon(Icons.Default.WbSunny, null, tint = Amber, modifier = Modifier.size(20.dp))
                         }
                     }
@@ -485,36 +478,36 @@ fun CameraScreen(
                     }
                     // Zoom pills
                     Row(horizontalArrangement = Arrangement.Center, verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 8.dp)) {
-                        ZoomPill("☀", showExposure, iconRotateAngle) { showExposure = !showExposure }
+                        ZoomPill("☀", uiState.showExposure, iconRotateAngle) { cameraViewModel.setShowExposure(!uiState.showExposure) }
                         Spacer(Modifier.width(12.dp))
                         if (cameraState.maxZoom > cameraState.minZoom) {
                             if (cameraState.minZoom < 1f) {
-                                ZoomPill(String.format(java.util.Locale.US, "%.1fx", cameraState.minZoom), zoomRatio < 0.9f, iconRotateAngle) { zoomRatio = cameraState.minZoom; cameraState.setZoom(cameraState.minZoom) }
+                                ZoomPill(String.format(java.util.Locale.US, "%.1fx", cameraState.minZoom), uiState.zoomRatio < 0.9f, iconRotateAngle) { cameraViewModel.setZoomRatio(cameraState.minZoom); cameraState.setZoom(cameraState.minZoom) }
                                 Spacer(Modifier.width(8.dp))
                             }
-                            ZoomPill("1x", zoomRatio in 0.9f..1.1f, iconRotateAngle) { zoomRatio = 1f; cameraState.setZoom(1f) }
-                            if (cameraState.maxZoom >= 2f) { Spacer(Modifier.width(8.dp)); ZoomPill("2x", zoomRatio in 1.9f..2.1f, iconRotateAngle) { zoomRatio = 2f; cameraState.setZoom(2f) } }
-                            if (cameraState.maxZoom >= 5f) { Spacer(Modifier.width(8.dp)); ZoomPill("5x", zoomRatio in 4.9f..5.1f, iconRotateAngle) { zoomRatio = 5f; cameraState.setZoom(5f) } }
+                            ZoomPill("1x", uiState.zoomRatio in 0.9f..1.1f, iconRotateAngle) { cameraViewModel.setZoomRatio(1f); cameraState.setZoom(1f) }
+                            if (cameraState.maxZoom >= 2f) { Spacer(Modifier.width(8.dp)); ZoomPill("2x", uiState.zoomRatio in 1.9f..2.1f, iconRotateAngle) { cameraViewModel.setZoomRatio(2f); cameraState.setZoom(2f) } }
+                            if (cameraState.maxZoom >= 5f) { Spacer(Modifier.width(8.dp)); ZoomPill("5x", uiState.zoomRatio in 4.9f..5.1f, iconRotateAngle) { cameraViewModel.setZoomRatio(5f); cameraState.setZoom(5f) } }
                         }
                     }
                     // Mode selector
-                    androidx.compose.animation.AnimatedVisibility(visible = !isRecording) {
+                    androidx.compose.animation.AnimatedVisibility(visible = !uiState.isRecording) {
                         Row(horizontalArrangement = Arrangement.Center, modifier = Modifier.fillMaxWidth().padding(bottom = 14.dp, top = 4.dp)) {
-                            ModeText(stringResource(R.string.camera_mode_photo), cameraMode == "PHOTO", iconRotateAngle) { if (!isRecording) cameraMode = "PHOTO" }
+                            ModeText(stringResource(R.string.camera_mode_photo), uiState.cameraMode == "PHOTO", iconRotateAngle) { if (!uiState.isRecording) cameraViewModel.setCameraMode("PHOTO") }
                             Spacer(Modifier.width(32.dp))
-                            ModeText(stringResource(R.string.camera_mode_video), cameraMode == "VIDEO", iconRotateAngle) { if (!isRecording) cameraMode = "VIDEO" }
+                            ModeText(stringResource(R.string.camera_mode_video), uiState.cameraMode == "VIDEO", iconRotateAngle) { if (!uiState.isRecording) cameraViewModel.setCameraMode("VIDEO") }
                         }
                     }
                     // Shutter row
                     Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 44.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
-                        if (lastCapturedUri != null) {
-                            AsyncImage(model = lastCapturedUri, contentDescription = null, contentScale = androidx.compose.ui.layout.ContentScale.Crop, modifier = Modifier.size(44.dp).clip(CircleShape).border(1.dp, Color.White, CircleShape).clickable { onClose() })
+                        if (uiState.lastCapturedUri != null) {
+                            AsyncImage(model = uiState.lastCapturedUri, contentDescription = null, contentScale = androidx.compose.ui.layout.ContentScale.Crop, modifier = Modifier.size(44.dp).clip(CircleShape).border(1.dp, Color.White, CircleShape).clickable { onClose() })
                         } else Spacer(Modifier.size(44.dp))
-                        ShutterButton(isVideo = cameraMode == "VIDEO", isRecording = isRecording) { triggerShutter() }
-                        if (isRecording) {
-                            ToolbarBtn(rotation = iconRotateAngle, size = 44, onClick = { if (isPaused) { activeRecording?.resume(); isPaused = false } else { activeRecording?.pause(); isPaused = true } }) { Icon(if (isPaused) Icons.Default.PlayArrow else Icons.Default.Pause, null, tint = Color.White) }
+                        ShutterButton(isVideo = uiState.cameraMode == "VIDEO", isRecording = uiState.isRecording) { triggerShutter() }
+                        if (uiState.isRecording) {
+                            ToolbarBtn(rotation = iconRotateAngle, size = 44, onClick = { if (uiState.isPaused) { activeRecording?.resume(); cameraViewModel.setIsPaused(false) } else { activeRecording?.pause(); cameraViewModel.setIsPaused(true) } }) { Icon(if (uiState.isPaused) Icons.Default.PlayArrow else Icons.Default.Pause, null, tint = Color.White) }
                         } else {
-                            ToolbarBtn(rotation = iconRotateAngle, size = 44, onClick = { lensFacing = if (lensFacing == CameraSelector.LENS_FACING_BACK) CameraSelector.LENS_FACING_FRONT else CameraSelector.LENS_FACING_BACK }) { Icon(Icons.Default.Cameraswitch, null, tint = Color.White) }
+                            ToolbarBtn(rotation = iconRotateAngle, size = 44, onClick = { cameraViewModel.toggleLensFacing() }) { Icon(Icons.Default.Cameraswitch, null, tint = Color.White) }
                         }
                     }
                 }
@@ -534,7 +527,7 @@ private fun takePhoto(
     val cap = imageCapture
     if (cap == null) {
         Log.w("CameraScreen", "takePhoto called but imageCapture is null")
-        android.widget.Toast.makeText(context, "Kamera henüz hazır değil, lütfen tekrar deneyin.", android.widget.Toast.LENGTH_SHORT).show()
+        android.widget.Toast.makeText(context, context.getString(R.string.camera_not_ready), android.widget.Toast.LENGTH_SHORT).show()
         return
     }
     val opts = PhotoManager.getCaptureOutputOptions(context)
@@ -543,7 +536,7 @@ private fun takePhoto(
         override fun onError(exc: ImageCaptureException) { 
             Log.e("CameraScreen", "Capture failed", exc) 
             mainExec.execute {
-                android.widget.Toast.makeText(context, "Fotoğraf kaydedilemedi: ${exc.message}", android.widget.Toast.LENGTH_SHORT).show()
+                android.widget.Toast.makeText(context, context.getString(R.string.camera_save_failed, exc.message ?: ""), android.widget.Toast.LENGTH_SHORT).show()
             }
         }
         override fun onImageSaved(output: ImageCapture.OutputFileResults) {
