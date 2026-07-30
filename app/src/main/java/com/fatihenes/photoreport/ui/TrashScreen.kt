@@ -29,7 +29,6 @@ import com.fatihenes.photoreport.R
 import com.fatihenes.photoreport.data.PhotoEntity
 import com.fatihenes.photoreport.data.ProjectEntity
 import com.fatihenes.photoreport.ui.viewmodel.TrashViewModel
-import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -41,7 +40,6 @@ fun TrashScreen(
 ) {
     val deletedProjects by viewModel.deletedProjects.collectAsState(initial = emptyList())
     val deletedPhotos by viewModel.deletedPhotos.collectAsState(initial = emptyList())
-    val scope = rememberCoroutineScope()
     
     var showDeleteConfirmProject by remember { mutableStateOf<Long?>(null) }
     var showDeleteConfirmPhoto by remember { mutableStateOf<PhotoEntity?>(null) }
@@ -97,7 +95,7 @@ fun TrashScreen(
                     items(deletedProjects, key = { it.id }) { project ->
                         TrashProjectItem(
                             project = project,
-                            onRestore = { scope.launch { viewModel.restoreProject(project.id) } },
+                            onRestore = { viewModel.restoreProject(project.id) },
                             onDelete = { showDeleteConfirmProject = project.id }
                         )
                         Spacer(Modifier.height(8.dp))
@@ -112,7 +110,7 @@ fun TrashScreen(
                     items(deletedPhotos, key = { it.id }) { photo ->
                         TrashPhotoItem(
                             photo = photo,
-                            onRestore = { scope.launch { viewModel.restorePhoto(photo.id) } },
+                            onRestore = { viewModel.restorePhoto(photo.id) },
                             onDelete = { showDeleteConfirmPhoto = photo }
                         )
                         Spacer(Modifier.height(8.dp))
@@ -130,7 +128,9 @@ fun TrashScreen(
             confirmButton = {
                 Button(
                     onClick = {
-                        scope.launch { viewModel.hardDeleteProject(showDeleteConfirmProject!!) }
+                        showDeleteConfirmProject?.let { id ->
+                            viewModel.hardDeleteProject(id)
+                        }
                         showDeleteConfirmProject = null
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error, contentColor = Color.White)
@@ -152,7 +152,9 @@ fun TrashScreen(
             confirmButton = {
                 Button(
                     onClick = {
-                        scope.launch { viewModel.hardDeletePhoto(showDeleteConfirmPhoto!!) }
+                        showDeleteConfirmPhoto?.let { photo ->
+                            viewModel.hardDeletePhoto(photo)
+                        }
                         showDeleteConfirmPhoto = null
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error, contentColor = Color.White)
