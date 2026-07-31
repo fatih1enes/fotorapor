@@ -179,7 +179,28 @@
     <string name="settings_backup_restore">Restore Backup</string>
     <string name="settings_backup_restore_desc">Restore a previously taken backup (.zip) to your device.</string>
     <string name="backup_success">Operation completed successfully.</string>
-    
+
+    <!-- Accessibility Labels -->
+    <string name="acc_add_project">Add new project</string>
+    <string name="acc_open_trash">Open trash</string>
+    <string name="acc_open_settings">Open settings</string>
+    <string name="acc_flip_camera">Switch camera</string>
+    <string name="acc_shutter">Take photo or video</string>
+    <string name="acc_gallery">Open gallery</string>
+    <string name="acc_close">Close</string>
+    <string name="acc_share">Share</string>
+    <string name="acc_delete">Delete</string>
+    <string name="acc_rotate">Rotate</string>
+    <string name="acc_more_options">More options</string>
+    <string name="acc_calendar">Select date</string>
+    <string name="acc_expand">Expand</string>
+
+    <!-- Privacy Disclosure -->
+    <string name="disclosure_title">Service Usage &amp; Permissions</string>
+    <string name="disclosure_location_desc">PhotoReport uses location data (coordinates and address) to add watermarks to your captured photos. This process happens entirely on your device, and your data is never sent to any server.</string>
+    <string name="disclosure_camera_desc">Camera access is required to take photos and videos for your reports.</string>
+    <string name="disclosure_button">Understand &amp; Continue</string>
+
     <!-- Privacy Policy (Placeholder) -->
     <string name="widget_active_project">🏗️ Active Project</string>
     <string name="widget_no_project">No Project</string>

@@ -89,8 +89,9 @@ class LocalFileManager @Inject constructor(
             }
 
             // Fallback to absolute path if content resolver fails
-            if (!success && sourceUri.path != null) {
-                val f = File(sourceUri.path!!)
+            val sourcePath = sourceUri.path
+            if (!success && sourcePath != null) {
+                val f = File(sourcePath)
                 if (f.exists()) {
                     f.inputStream().use { input ->
                         FileOutputStream(destFile).use { output ->

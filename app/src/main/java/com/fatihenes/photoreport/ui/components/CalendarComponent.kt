@@ -15,9 +15,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.fatihenes.photoreport.R
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
@@ -54,7 +56,7 @@ fun MonthlyCalendar(
                     onClick = { currentMonth = currentMonth.minusMonths(1) },
                     colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                 ) {
-                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = stringResource(R.string.back_label), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
 
                 Text(
@@ -68,7 +70,7 @@ fun MonthlyCalendar(
                     onClick = { currentMonth = currentMonth.plusMonths(1) },
                     colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
                 ) {
-                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = stringResource(R.string.acc_expand), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
 

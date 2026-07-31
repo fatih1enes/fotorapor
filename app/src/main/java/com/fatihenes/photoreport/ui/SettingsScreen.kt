@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import com.fatihenes.photoreport.ui.navigation.LocalSnackbarHostState
 import com.fatihenes.photoreport.R
 import com.fatihenes.photoreport.ui.components.ImageCropperDialog
@@ -255,6 +256,7 @@ fun SettingsScreen(
             SettingsSectionTitle(stringResource(R.string.settings_backup_title))
             SettingsCard {
                 val backupState by viewModel.backupState.collectAsStateWithLifecycle()
+                val restoreState by viewModel.restoreState.collectAsStateWithLifecycle()
                 
                 val createBackupLauncher = rememberLauncherForActivityResult(
                     contract = ActivityResultContracts.CreateDocument("application/zip")
@@ -282,9 +284,32 @@ fun SettingsScreen(
                     }
                 }
 
+                LaunchedEffect(restoreState) {
+                    if (restoreState is com.fatihenes.photoreport.util.result.OperationResult.Success) {
+                        scope.launch { 
+                            snackbarHost.showSnackbar("Geri yükleme başarılı. Uygulama yeniden başlatılıyor...")
+                            delay(2000)
+                            val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
+                            intent?.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                            context.startActivity(intent)
+                            Runtime.getRuntime().exit(0)
+                        }
+                    } else if (restoreState is com.fatihenes.photoreport.util.result.OperationResult.Error) {
+                        scope.launch { snackbarHost.showSnackbar((restoreState as com.fatihenes.photoreport.util.result.OperationResult.Error).message ?: "Geri yükleme hatası") }
+                        viewModel.resetRestoreState()
+                    }
+                }
+
                 Column(modifier = Modifier.padding(16.dp)) {
                     if (backupState is com.fatihenes.photoreport.util.result.OperationResult.Loading) {
                         val progress = (backupState as com.fatihenes.photoreport.util.result.OperationResult.Loading).progress ?: 0
+                        LinearProgressIndicator(
+                            progress = { progress / 100f },
+                            modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+                        )
+                    }
+                    if (restoreState is com.fatihenes.photoreport.util.result.OperationResult.Loading) {
+                        val progress = (restoreState as com.fatihenes.photoreport.util.result.OperationResult.Loading).progress ?: 0
                         LinearProgressIndicator(
                             progress = { progress / 100f },
                             modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
@@ -298,7 +323,7 @@ fun SettingsScreen(
                             .padding(vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(Icons.Default.Backup, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                        Icon(Icons.Default.Backup, contentDescription = stringResource(R.string.acc_expand), tint = MaterialTheme.colorScheme.primary)
                         Spacer(modifier = Modifier.width(16.dp))
                         Column {
                             Text(stringResource(R.string.settings_backup_create), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
@@ -315,7 +340,7 @@ fun SettingsScreen(
                             .padding(vertical = 8.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(Icons.Default.Restore, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                        Icon(Icons.Default.Restore, contentDescription = stringResource(R.string.acc_expand), tint = MaterialTheme.colorScheme.primary)
                         Spacer(modifier = Modifier.width(16.dp))
                         Column {
                             Text(stringResource(R.string.settings_backup_restore), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
@@ -387,7 +412,7 @@ private fun ThemeOption(
             )
         }
         if (isSelected) {
-            Icon(Icons.Default.Check, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+            Icon(Icons.Default.Check, contentDescription = stringResource(R.string.acc_close), tint = MaterialTheme.colorScheme.primary)
         }
     }
 }

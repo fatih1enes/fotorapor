@@ -40,6 +40,7 @@ import com.fatihenes.photoreport.ui.viewmodel.AppViewModel
 import com.fatihenes.photoreport.ui.viewmodel.DashboardViewModel
 import com.fatihenes.photoreport.ui.viewmodel.ProjectDetailViewModel
 import com.fatihenes.photoreport.ui.viewmodel.UiState
+import com.fatihenes.photoreport.ui.components.DisclosureDialog
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.foundation.layout.Box
@@ -70,6 +71,11 @@ fun AppNavGraph(
         val navController = rememberNavController()
         val context = LocalContext.current
         val scope = rememberCoroutineScope()
+
+        val disclosureShown by viewModel.disclosureShown.collectAsStateWithLifecycle()
+        if (!disclosureShown) {
+            DisclosureDialog(onDismiss = { viewModel.setDisclosureShown(true) })
+        }
 
     // --- Permission Handling ---
     var pendingLogId by remember { mutableStateOf<Long?>(null) }
@@ -149,6 +155,7 @@ fun AppNavGraph(
             val projects by dashboardViewModel.projects.collectAsStateWithLifecycle()
             val actionState by dashboardViewModel.projectActionState.collectAsStateWithLifecycle()
             val isTrashNotEmpty by dashboardViewModel.isTrashNotEmpty.collectAsStateWithLifecycle()
+            val isRefreshing by dashboardViewModel.isRefreshing.collectAsStateWithLifecycle()
 
             LaunchedEffect(actionState) {
                 if (actionState is UiState.Success) {
@@ -163,6 +170,7 @@ fun AppNavGraph(
             DashboardScreen(
                 projects = projects,
                 isTrashNotEmpty = isTrashNotEmpty,
+                isRefreshing = isRefreshing,
                 onProjectClick = { project ->
                     navController.navigate(Routes.detail(project.id))
                 },
@@ -172,7 +180,8 @@ fun AppNavGraph(
                 onSettingsClick = {
                     navController.navigate(Routes.SETTINGS)
                 },
-                onTrashClick = { navController.navigate(Routes.TRASH) }
+                onTrashClick = { navController.navigate(Routes.TRASH) },
+                onRefresh = { dashboardViewModel.refresh() }
             )
         }
 

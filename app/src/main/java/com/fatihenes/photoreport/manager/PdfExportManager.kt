@@ -17,6 +17,7 @@ import com.fatihenes.photoreport.data.LogWithPhotos
 import com.fatihenes.photoreport.data.ProjectEntity
 import com.fatihenes.photoreport.util.CompanyLogoManager
 import com.fatihenes.photoreport.util.DateUtils
+import com.fatihenes.photoreport.util.FileNameUtils
 import com.fatihenes.photoreport.util.ImageUtils
 import com.fatihenes.photoreport.util.result.OperationResult
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -60,6 +61,7 @@ class NativePdfExportManager @Inject constructor(
         quality: Int
     ): OperationResult<Uri> = withContext(Dispatchers.IO) {
         var pdfDocument: PdfDocument? = null
+        var logoBmp: Bitmap? = null
         try {
             pdfDocument = PdfDocument()
             val sortedLogs = logs.sortedBy { it.log.date }
@@ -104,11 +106,17 @@ class NativePdfExportManager @Inject constructor(
                 isAntiAlias = true
             }
 
+            val bitmapPaint = Paint().apply {
+                isFilterBitmap = true
+                isAntiAlias = true
+                isDither = true
+            }
+
             // Preload logo bitmap
-            val logoPath = CompanyLogoManager.getLogoUri(context)?.path
-            val logoBmp: Bitmap? = if (logoPath != null && File(logoPath).exists()) {
-                BitmapFactory.decodeFile(logoPath)
-            } else null
+            val logoUri = CompanyLogoManager.getLogoUri(context)
+            if (logoUri != null) {
+                logoBmp = ImageUtils.loadScaledBitmap(context, logoUri.toString(), 500, 500)
+            }
 
             var pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
             var currentPage = pdfDocument.startPage(pageInfo)
@@ -130,7 +138,7 @@ class NativePdfExportManager @Inject constructor(
                     val scale = logoHeight / logo.height
                     val logoWidth = logo.width * scale
                     val rect = RectF(pageWidth - margin - logoWidth, margin, pageWidth - margin, margin + logoHeight)
-                    canvas.drawBitmap(logo, null, rect, null)
+                    canvas.drawBitmap(logo, null, rect, bitmapPaint)
                 }
             }
 
@@ -227,7 +235,7 @@ class NativePdfExportManager @Inject constructor(
                                     val drawX = x + (imgWidth - w) / 2f
                                     val drawY = currentY + (imgHeight - h) / 2f
                                     val destRect = RectF(drawX, drawY, drawX + w, drawY + h)
-                                    canvas.drawBitmap(bmp, null, destRect, null)
+                                    canvas.drawBitmap(bmp, null, destRect, bitmapPaint)
                                 }
                             }
                         } catch (e: Exception) {
@@ -255,12 +263,11 @@ class NativePdfExportManager @Inject constructor(
             canvas.drawText(footerText, (pageWidth - footerWidth) / 2f, pageHeight - margin / 2f, pageNumPaint)
 
             pdfDocument.finishPage(currentPage)
-            logoBmp?.recycle()
 
             val directory = context.getExternalFilesDir("PDFs")
             if (directory != null && !directory.exists()) directory.mkdirs()
-            val safeName = project.name.replace(Regex("[^a-zA-Z0-9_şçğüöıŞÇĞÜÖI]"), "_")
-            val file = File(directory, "${safeName}_gunluk_rapor.pdf")
+            val sanitizedProjectName = FileNameUtils.sanitize(project.name, "proje")
+            val file = File(directory, "${sanitizedProjectName}_gunluk_rapor.pdf")
 
             FileOutputStream(file).use { out ->
                 pdfDocument.writeTo(out)
@@ -271,6 +278,7 @@ class NativePdfExportManager @Inject constructor(
         } catch (e: Exception) {
             OperationResult.Error(e, "PDF oluşturulurken bir hata oluştu.")
         } finally {
+            logoBmp?.recycle()
             pdfDocument?.close()
         }
     }

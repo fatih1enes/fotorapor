@@ -49,14 +49,14 @@ fun DashboardScreen(
     onAddProject: (String, Color) -> Unit,
     onSettingsClick: () -> Unit,
     onTrashClick: () -> Unit,
+    onRefresh: () -> Unit,
+    isRefreshing: Boolean = false,
     activityDots: Map<LocalDate, List<Color>> = emptyMap(),
     isTrashNotEmpty: Boolean = false,
 ) {
     val haptic = LocalHapticFeedback.current
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
     var showAddDialog by remember { mutableStateOf(false) }
-    val scope = rememberCoroutineScope()
-    var isRefreshing by remember { mutableStateOf(false) }
 
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
@@ -73,20 +73,13 @@ fun DashboardScreen(
                     .padding(bottom = 8.dp)
                     .size(60.dp)
             ) {
-                Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(28.dp))
+                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.acc_add_project), modifier = Modifier.size(28.dp))
             }
         }
     ) { padding ->
         PullToRefreshBox(
             isRefreshing = isRefreshing,
-            onRefresh = {
-                isRefreshing = true
-                scope.launch {
-                    // Simüle edilmiş yenileme efekti
-                    delay(1200.milliseconds)
-                    isRefreshing = false
-                }
-            },
+            onRefresh = onRefresh,
             modifier = Modifier.fillMaxSize()
         ) {
             LazyColumn(
@@ -125,7 +118,7 @@ fun DashboardScreen(
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
                                     imageVector = if (isTrashNotEmpty) Icons.Default.Delete else Icons.Default.DeleteOutline,
-                                    contentDescription = "Çöp Kutusu",
+                                    contentDescription = stringResource(R.string.acc_open_trash),
                                     tint = if (isTrashNotEmpty) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.size(22.dp)
                                 )
@@ -158,7 +151,7 @@ fun DashboardScreen(
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
                                     Icons.Default.Settings,
-                                    contentDescription = stringResource(R.string.settings_title),
+                                    contentDescription = stringResource(R.string.acc_open_settings),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                     modifier = Modifier.size(22.dp)
                                 )

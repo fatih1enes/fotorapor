@@ -207,53 +207,55 @@ fun ImageCropperDialog(
 
                 IconButton(
                     onClick = {
-                        val obmp = originalBitmap!!
-                        val imgW = obmp.width.toFloat()
-                        val imgH = obmp.height.toFloat()
+                        originalBitmap?.let { obmp ->
+                            val imgW = obmp.width.toFloat()
+                            val imgH = obmp.height.toFloat()
 
-                        val baseScale = max(canvasWidth / imgW, canvasHeight / imgH)
-                        val finalScale = baseScale * scale
+                            val baseScale = max(canvasWidth / imgW, canvasHeight / imgH)
+                            val finalScale = baseScale * scale
 
-                        val imgDrawWidth = imgW * finalScale
-                        val imgDrawHeight = imgH * finalScale
+                            val imgDrawWidth = imgW * finalScale
+                            val imgDrawHeight = imgH * finalScale
 
-                        val imgLeft = (canvasWidth - imgDrawWidth) / 2f + offset.x
-                        val imgTop = (canvasHeight - imgDrawHeight) / 2f + offset.y
+                            val imgLeft = (canvasWidth - imgDrawWidth) / 2f + offset.x
+                            val imgTop = (canvasHeight - imgDrawHeight) / 2f + offset.y
 
-                        val cropBoxWidth = canvasWidth * 0.8f
-                        val cropBoxHeight = cropBoxWidth / aspectRatio
-                        val cropBoxLeft = (canvasWidth - cropBoxWidth) / 2f
-                        val cropBoxTop = (canvasHeight - cropBoxHeight) / 2f
+                            val cropBoxWidth = canvasWidth * 0.8f
+                            val cropBoxHeight = cropBoxWidth / aspectRatio
+                            val cropBoxLeft = (canvasWidth - cropBoxWidth) / 2f
+                            val cropBoxTop = (canvasHeight - cropBoxHeight) / 2f
 
-                        val targetW = 512
-                        val targetH = (512 / aspectRatio).toInt()
+                            val targetW = 512
+                            val targetH = (512 / aspectRatio).toInt()
 
-                        val finalSized = createBitmap(targetW, targetH, Bitmap.Config.ARGB_8888)
-                        val canvas = android.graphics.Canvas(finalSized)
+                            val finalSized = createBitmap(targetW, targetH, Bitmap.Config.ARGB_8888)
+                            val canvas = android.graphics.Canvas(finalSized)
 
-                        // Transparent background is default for ARGB_8888
+                            // Transparent background is default for ARGB_8888
 
-                        // Calculate transformation
-                        val scaleFactor = targetW.toFloat() / cropBoxWidth
-                        val drawX = imgLeft - cropBoxLeft
-                        val drawY = imgTop - cropBoxTop
+                            // Calculate transformation
+                            val scaleFactor = targetW.toFloat() / cropBoxWidth
+                            val drawX = imgLeft - cropBoxLeft
+                            val drawY = imgTop - cropBoxTop
 
-                        val matrix = android.graphics.Matrix()
-                        matrix.postScale(finalScale * scaleFactor, finalScale * scaleFactor)
-                        matrix.postTranslate(drawX * scaleFactor, drawY * scaleFactor)
+                            val matrix = android.graphics.Matrix()
+                            matrix.postScale(finalScale * scaleFactor, finalScale * scaleFactor)
+                            matrix.postTranslate(drawX * scaleFactor, drawY * scaleFactor)
 
-                        // Use a paint with filtering for better downscaling quality
-                        val paint = android.graphics.Paint().apply {
-                            isFilterBitmap = true
-                            isAntiAlias = true
+                            // Use a paint with filtering for better downscaling quality
+                            val paint = android.graphics.Paint().apply {
+                                isFilterBitmap = true
+                                isAntiAlias = true
+                            }
+
+                            canvas.drawBitmap(obmp, matrix, paint)
+
+                            onCropSuccess(finalSized)
                         }
-
-                        canvas.drawBitmap(obmp, matrix, paint)
-
-                        onCropSuccess(finalSized)
-                    }
+                    },
+                    enabled = originalBitmap != null
                 ) {
-                    Icon(Icons.Default.Check, contentDescription = "Kaydet", tint = Color.White)
+                    Icon(Icons.Default.Check, contentDescription = "Kaydet", tint = if (originalBitmap != null) Color.White else Color.Gray)
                 }
             }
 

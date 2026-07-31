@@ -2,6 +2,7 @@ package com.fatihenes.photoreport.manager
 
 import android.content.Context
 import android.net.Uri
+import android.webkit.MimeTypeMap
 import androidx.core.net.toUri
 import com.fatihenes.photoreport.data.AppDatabase
 import com.fatihenes.photoreport.data.PhotoDao
@@ -84,13 +85,13 @@ class LocalBackupManager @Inject constructor(
             val allPhotos = photoDao.getAllPhotosSuspend()
             allPhotos.forEach { photo ->
                 val uri = photo.filePath.toUri()
-                // val fileName = photo.filePath.substringAfterLast("/") // Not perfect for Content URIs, but ZipEntry needs a name. We can generate a unique name , or rely on MediaStore display name. Wait, MediaStore URI doesn't have filename at the end of the path usually. It's like content://media/external/images/media/123.
-                // Let's use "media/${photo.id}_media" or similar if we can't get the name easily. Or just extract the ID.
-                // Actually, restoring needs the same path or we update the DB. This is tricky.
-                // If we extract media, how do we update the DB's filePaths?
-                // Wait, if it's MediaStore, restoring it means re-inserting to MediaStore and updating DB.
-                // Let's just create a unique name for zip: "media/${photo.id}"
-                filesToZip.add(Pair("media/${photo.id}", uri))
+                val extension = if (uri.scheme == "content") {
+                    val type = context.contentResolver.getType(uri)
+                    MimeTypeMap.getSingleton().getExtensionFromMimeType(type) ?: "jpg"
+                } else {
+                    photo.filePath.substringAfterLast(".", "avif")
+                }
+                filesToZip.add(Pair("media/${photo.id}.$extension", uri))
             }
 
             emit(OperationResult.Loading(20))
@@ -129,6 +130,9 @@ class LocalBackupManager @Inject constructor(
     override fun restoreBackup(sourceUri: Uri): Flow<OperationResult<Unit>> = flow {
         emit(OperationResult.Loading(0))
         try {
+            // Stop background workers
+            androidx.work.WorkManager.getInstance(context).cancelAllWork()
+
             // Extract to temp folder
             val tempDirResult = fileManager.createTempDirectory("restore")
             if (tempDirResult !is OperationResult.Success) {
@@ -192,6 +196,7 @@ class LocalBackupManager @Inject constructor(
             val extractedMediaDir = File(tempDir, "media")
             if (extractedMediaDir.exists() && extractedMediaDir.isDirectory) {
                 val appMediaDir = File(context.filesDir, "restored_media")
+                if (appMediaDir.exists()) appMediaDir.deleteRecursively()
                 appMediaDir.mkdirs()
                 
                 // We need to update the DB paths to point to the restored files
@@ -199,14 +204,13 @@ class LocalBackupManager @Inject constructor(
                 val sqliteDb = android.database.sqlite.SQLiteDatabase.openDatabase(dbPath, null, android.database.sqlite.SQLiteDatabase.OPEN_READWRITE)
                 
                 extractedMediaDir.listFiles()?.forEach { mediaFile ->
-                    // File name is the photo ID
-                    val destFile = File(appMediaDir, "${mediaFile.name}.avif") // Append extension so other parts can read it easily
+                    val destFile = File(appMediaDir, mediaFile.name)
                     mediaFile.copyTo(destFile, overwrite = true)
                     
-                    val photoId = mediaFile.name.toLongOrNull()
+                    val photoId = mediaFile.name.substringBefore(".").toLongOrNull()
                     if (photoId != null) {
                         val newPath = destFile.absolutePath
-                        sqliteDb.execSQL("UPDATE photos SET filePath = ? WHERE id = ?", arrayOf(newPath, photoId))
+                        sqliteDb.execSQL("UPDATE photos SET filePath = ? WHERE id = ?", arrayOf<Any>(newPath, photoId))
                     }
                 }
                 sqliteDb.close()

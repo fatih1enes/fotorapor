@@ -80,7 +80,7 @@ fun ExportDialog(
             Spacer(modifier = Modifier.height(8.dp))
                 Icon(
                     imageVector = Icons.Default.Share,
-                    contentDescription = null,
+                    contentDescription = stringResource(R.string.acc_share),
                     modifier = Modifier.size(42.dp).align(Alignment.CenterHorizontally),
                     tint = MaterialTheme.colorScheme.primary
                 )
@@ -241,7 +241,7 @@ fun ExportDialog(
                                             Row(verticalAlignment = Alignment.CenterVertically) {
                                                 Icon(
                                                     Icons.Default.Warning,
-                                                    contentDescription = null,
+                                                    contentDescription = stringResource(R.string.loading),
                                                     tint = Color(0xFFFFA726),
                                                     modifier = Modifier.size(16.dp)
                                                 )
@@ -324,7 +324,7 @@ fun ExportDialog(
                         } else {
                             Icon(
                                 Icons.Default.Share,
-                                contentDescription = null,
+                                contentDescription = stringResource(R.string.acc_share),
                                 modifier = Modifier.size(18.dp),
                                 tint = Color.White
                             )

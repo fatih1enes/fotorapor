@@ -34,6 +34,9 @@ import com.fatihenes.photoreport.R
 import com.fatihenes.photoreport.data.PhotoEntity
 import com.fatihenes.photoreport.util.MediaShareUtils
 
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+
 @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,206 +51,204 @@ fun FullScreenPhotoDialog(
     val pagerState = rememberPagerState(initialPage = initialIndex, pageCount = { currentPhotoList.size })
     var showDeleteConfirm by remember { mutableStateOf(false) }
 
-    var isVisible by remember { mutableStateOf(false) }
-
-    LaunchedEffect(Unit) {
-        isVisible = true
-    }
-
-    fun triggerDismiss() {
-        onDismiss()
-    }
-
-    Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
-        androidx.activity.compose.BackHandler(enabled = true) {
-            triggerDismiss()
-        }
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false
+        )
+    ) {
+        Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+            androidx.activity.compose.BackHandler(enabled = true) {
+                onDismiss()
+            }
             Scaffold(
                 containerColor = Color.Black,
                 topBar = {
                     CenterAlignedTopAppBar(
                         title = { Text("${pagerState.currentPage + 1} / ${photoList.size}", color = Color.White, style = MaterialTheme.typography.bodyMedium) },
                         navigationIcon = {
-                            IconButton(onClick = { triggerDismiss() }) { Icon(Icons.Default.Close, contentDescription = null, tint = Color.White) }
+                            IconButton(onClick = { onDismiss() }) { Icon(Icons.Default.Close, stringResource(R.string.acc_close), tint = Color.White) }
                         },
-                    actions = {
-                        val context = LocalContext.current
-                        val snackbarHost = com.fatihenes.photoreport.ui.navigation.LocalSnackbarHostState.current
-                        val scope = rememberCoroutineScope()
-                        IconButton(onClick = {
-                            val currentPhoto = if (pagerState.currentPage < photoList.size) photoList[pagerState.currentPage] else null
-                            currentPhoto?.let { onUpdateRotation(it.id, (it.rotation + 90f) % 360f) }
-                        }) {
-                            Icon(Icons.AutoMirrored.Filled.RotateRight, contentDescription = stringResource(R.string.rotate_label), tint = Color.White)
-                        }
-                        IconButton(onClick = {
-                            val currentPhoto = if (pagerState.currentPage < photoList.size) photoList[pagerState.currentPage] else null
-                            currentPhoto?.let { MediaShareUtils.shareSingleMedia(context, it.filePath) { msg -> scope.launch { snackbarHost.showSnackbar(msg) } } }
-                        }) {
-                            Icon(Icons.Default.Share, contentDescription = stringResource(R.string.share_label), tint = Color.White)
-                        }
-                        IconButton(onClick = { showDeleteConfirm = true }) {
-                            Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete_label), tint = Color.White)
-                        }
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
-                )
-            }
-        ) { padding ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .background(Color.Black),
-                contentAlignment = Alignment.Center
-            ) {
-                HorizontalPager(
-                    state = pagerState,
-                    modifier = Modifier.fillMaxSize(),
-                    pageSpacing = 16.dp,
-                    beyondViewportPageCount = 1,
-                    userScrollEnabled = true,
-                    key = { page -> if (page < photoList.size) photoList[page].id else page }
-                ) { page ->
-                    if (page >= photoList.size) return@HorizontalPager
-                    val photo = photoList[page]
-                    val isVideo = photo.filePath.endsWith(".mp4", ignoreCase = true)
-                    if (isVideo) {
-                        val isPageActive = pagerState.currentPage == page
-                        val context = LocalContext.current
-                        val exoPlayer = remember {
-                            androidx.media3.exoplayer.ExoPlayer.Builder(context).build().apply {
-                                setMediaItem(androidx.media3.common.MediaItem.fromUri(photo.filePath.toUri()))
-                                repeatMode = androidx.media3.common.Player.REPEAT_MODE_ALL
-                                prepare()
-                                playWhenReady = false
+                        actions = {
+                            val context = LocalContext.current
+                            val snackbarHost = com.fatihenes.photoreport.ui.navigation.LocalSnackbarHostState.current
+                            val scope = rememberCoroutineScope()
+                            IconButton(onClick = {
+                                val currentPhoto = if (pagerState.currentPage < photoList.size) photoList[pagerState.currentPage] else null
+                                currentPhoto?.let { onUpdateRotation(it.id, (it.rotation + 90f) % 360f) }
+                            }) {
+                                Icon(Icons.AutoMirrored.Filled.RotateRight, contentDescription = stringResource(R.string.acc_rotate), tint = Color.White)
                             }
-                        }
-
-                        val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
-                        DisposableEffect(exoPlayer, lifecycleOwner) {
-                            val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
-                                when (event) {
-                                    androidx.lifecycle.Lifecycle.Event.ON_PAUSE -> {
-                                        exoPlayer.pause()
-                                    }
-                                    androidx.lifecycle.Lifecycle.Event.ON_RESUME -> {
-                                        if (pagerState.currentPage == page) {
-                                            exoPlayer.play()
-                                        }
-                                    }
-                                    androidx.lifecycle.Lifecycle.Event.ON_DESTROY -> {
-                                        exoPlayer.release()
-                                    }
-                                    else -> {}
+                            IconButton(onClick = {
+                                val currentPhoto = if (pagerState.currentPage < photoList.size) photoList[pagerState.currentPage] else null
+                                currentPhoto?.let { MediaShareUtils.shareSingleMedia(context, it.filePath) { msg -> scope.launch { snackbarHost.showSnackbar(msg) } } }
+                            }) {
+                                Icon(Icons.Default.Share, contentDescription = stringResource(R.string.acc_share), tint = Color.White)
+                            }
+                            IconButton(onClick = { showDeleteConfirm = true }) {
+                                Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.acc_delete), tint = Color.White)
+                            }
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+                    )
+                }
+            ) { padding ->
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(padding)
+                        .background(Color.Black),
+                    contentAlignment = Alignment.Center
+                ) {
+                    HorizontalPager(
+                        state = pagerState,
+                        modifier = Modifier.fillMaxSize(),
+                        pageSpacing = 16.dp,
+                        beyondViewportPageCount = 1,
+                        userScrollEnabled = true,
+                        key = { page -> if (page < photoList.size) photoList[page].id else page }
+                    ) { page ->
+                        if (page >= photoList.size) return@HorizontalPager
+                        val photo = photoList[page]
+                        val isVideo = photo.filePath.endsWith(".mp4", ignoreCase = true)
+                        if (isVideo) {
+                            val isPageActive = pagerState.currentPage == page
+                            val context = LocalContext.current
+                            val exoPlayer = remember {
+                                androidx.media3.exoplayer.ExoPlayer.Builder(context).build().apply {
+                                    setMediaItem(androidx.media3.common.MediaItem.fromUri(photo.filePath.toUri()))
+                                    repeatMode = androidx.media3.common.Player.REPEAT_MODE_ALL
+                                    prepare()
+                                    playWhenReady = false
                                 }
                             }
-                            lifecycleOwner.lifecycle.addObserver(observer)
-                            onDispose {
-                                lifecycleOwner.lifecycle.removeObserver(observer)
-                                exoPlayer.release()
-                            }
-                        }
 
-                        LaunchedEffect(isPageActive) {
-                            if (isPageActive) {
-                                exoPlayer.play()
-                            } else {
-                                exoPlayer.pause()
-                            }
-                        }
-
-                        if (isPageActive) {
-                            AndroidView(
-                                factory = { ctx ->
-                                    androidx.media3.ui.PlayerView(ctx).apply {
-                                        player = exoPlayer
-                                        useController = true
-                                        setShowNextButton(false)
-                                        setShowPreviousButton(false)
+                            val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+                            DisposableEffect(exoPlayer, lifecycleOwner) {
+                                val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+                                    when (event) {
+                                        androidx.lifecycle.Lifecycle.Event.ON_PAUSE -> {
+                                            exoPlayer.pause()
+                                        }
+                                        androidx.lifecycle.Lifecycle.Event.ON_RESUME -> {
+                                            if (pagerState.currentPage == page) {
+                                                exoPlayer.play()
+                                            }
+                                        }
+                                        androidx.lifecycle.Lifecycle.Event.ON_DESTROY -> {
+                                            exoPlayer.release()
+                                        }
+                                        else -> {}
                                     }
-                                },
-                                modifier = Modifier.fillMaxSize()
-                            )
+                                }
+                                lifecycleOwner.lifecycle.addObserver(observer)
+                                onDispose {
+                                    lifecycleOwner.lifecycle.removeObserver(observer)
+                                    exoPlayer.release()
+                                }
+                            }
+
+                            LaunchedEffect(isPageActive) {
+                                if (isPageActive) {
+                                    exoPlayer.play()
+                                } else {
+                                    exoPlayer.pause()
+                                }
+                            }
+
+                            if (isPageActive) {
+                                AndroidView(
+                                    factory = { ctx ->
+                                        androidx.media3.ui.PlayerView(ctx).apply {
+                                            player = exoPlayer
+                                            useController = true
+                                            setShowNextButton(false)
+                                            setShowPreviousButton(false)
+                                        }
+                                    },
+                                    modifier = Modifier.fillMaxSize()
+                                )
+                            } else {
+                                Box(
+                                    modifier = Modifier.fillMaxSize().background(Color.Black),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.PlayArrow,
+                                        contentDescription = null,
+                                        tint = Color.White.copy(alpha = 0.7f),
+                                        modifier = Modifier
+                                            .size(80.dp)
+                                            .background(Color.Black.copy(alpha = 0.3f), CircleShape)
+                                            .padding(16.dp)
+                                    )
+                                }
+                            }
                         } else {
+                            var scale by remember(photo.id) { mutableFloatStateOf(1f) }
+                            var offset by remember(photo.id) { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
+
                             Box(
-                                modifier = Modifier.fillMaxSize().background(Color.Black),
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .pointerInput(photo.id) {
+                                        awaitEachGesture {
+                                            awaitFirstDown()
+                                            do {
+                                                val event = awaitPointerEvent()
+                                                val zoom = event.calculateZoom()
+                                                val pan = event.calculatePan()
+
+                                                var shouldConsume = false
+                                                val newScale = (scale * zoom).coerceIn(1f, 5f)
+
+                                                if (newScale > 1f || scale > 1f) {
+                                                    scale = newScale
+                                                    offset += pan
+                                                    shouldConsume = true
+                                                } else {
+                                                    scale = 1f
+                                                    offset = androidx.compose.ui.geometry.Offset.Zero
+                                                }
+
+                                                if (shouldConsume) {
+                                                    event.changes.forEach {
+                                                        if (it.positionChanged()) it.consume()
+                                                    }
+                                                }
+                                            } while (event.changes.any { it.pressed })
+                                        }
+                                    },
                                 contentAlignment = Alignment.Center
                             ) {
-                                Icon(
-                                    imageVector = Icons.Default.PlayArrow,
+                                val context = LocalContext.current
+                                val request = remember(photo.filePath) {
+                                    ImageRequest.Builder(context)
+                                        .data(photo.filePath)
+                                        .size(2400)
+                                        .memoryCachePolicy(CachePolicy.ENABLED)
+                                        .diskCachePolicy(CachePolicy.ENABLED)
+                                        .build()
+                                }
+
+                                AsyncImage(
+                                    model = request,
                                     contentDescription = null,
-                                    tint = Color.White.copy(alpha = 0.7f),
+                                    placeholder = androidx.compose.ui.graphics.painter.ColorPainter(Color.LightGray),
+                                    error = androidx.compose.ui.graphics.painter.ColorPainter(Color.DarkGray),
                                     modifier = Modifier
-                                        .size(80.dp)
-                                        .background(Color.Black.copy(alpha = 0.3f), CircleShape)
-                                        .padding(16.dp)
+                                        .fillMaxWidth()
+                                        .graphicsLayer(
+                                            scaleX = scale,
+                                            scaleY = scale,
+                                            translationX = offset.x,
+                                            translationY = offset.y,
+                                            rotationZ = photo.rotation
+                                        ),
+                                    contentScale = ContentScale.Fit
                                 )
                             }
-                        }
-                    } else {
-                        var scale by remember(photo.id) { mutableFloatStateOf(1f) }
-                        var offset by remember(photo.id) { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
-
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .pointerInput(photo.id) {
-                                    awaitEachGesture {
-                                        awaitFirstDown()
-                                        do {
-                                            val event = awaitPointerEvent()
-                                            val zoom = event.calculateZoom()
-                                            val pan = event.calculatePan()
-
-                                            var shouldConsume = false
-                                            val newScale = (scale * zoom).coerceIn(1f, 5f)
-
-                                            if (newScale > 1f || scale > 1f) {
-                                                scale = newScale
-                                                offset += pan
-                                                shouldConsume = true
-                                            } else {
-                                                scale = 1f
-                                                offset = androidx.compose.ui.geometry.Offset.Zero
-                                            }
-
-                                            if (shouldConsume) {
-                                                event.changes.forEach {
-                                                    if (it.positionChanged()) it.consume()
-                                                }
-                                            }
-                                        } while (event.changes.any { it.pressed })
-                                    }
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            val context = LocalContext.current
-                            val request = remember(photo.filePath) {
-                                ImageRequest.Builder(context)
-                                    .data(photo.filePath)
-                                    .size(2400)
-                                    .memoryCachePolicy(CachePolicy.ENABLED)
-                                    .diskCachePolicy(CachePolicy.ENABLED)
-                                    .build()
-                            }
-
-                            AsyncImage(
-                                model = request,
-                                contentDescription = null,
-                                placeholder = androidx.compose.ui.graphics.painter.ColorPainter(Color.LightGray),
-                                error = androidx.compose.ui.graphics.painter.ColorPainter(Color.DarkGray),
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .graphicsLayer(
-                                        scaleX = scale,
-                                        scaleY = scale,
-                                        translationX = offset.x,
-                                        translationY = offset.y,
-                                        rotationZ = photo.rotation
-                                    ),
-                                contentScale = ContentScale.Fit
-                            )
                         }
                     }
                 }

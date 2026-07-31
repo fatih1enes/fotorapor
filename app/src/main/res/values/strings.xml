@@ -180,6 +180,27 @@
     <string name="settings_backup_restore_desc">Önceden aldığınız bir yedeği (.zip) cihaza geri yükleyin.</string>
     <string name="backup_success">İşlem başarıyla tamamlandı.</string>
 
+    <!-- Accessibility Labels -->
+    <string name="acc_add_project">Yeni proje ekle</string>
+    <string name="acc_open_trash">Çöp kutusuna git</string>
+    <string name="acc_open_settings">Ayarlara git</string>
+    <string name="acc_flip_camera">Kamerayı değiştir</string>
+    <string name="acc_shutter">Fotoğraf veya video çek</string>
+    <string name="acc_gallery">Galeriyi aç</string>
+    <string name="acc_close">Kapat</string>
+    <string name="acc_share">Paylaş</string>
+    <string name="acc_delete">Sil</string>
+    <string name="acc_rotate">Döndür</string>
+    <string name="acc_more_options">Daha fazla seçenek</string>
+    <string name="acc_calendar">Tarih seç</string>
+    <string name="acc_expand">Genişlet</string>
+
+    <!-- Privacy Disclosure -->
+    <string name="disclosure_title">Hizmet Kullanımı ve İzinler</string>
+    <string name="disclosure_location_desc">PhotoReport, çektiğiniz fotoğrafların üzerine konum bilgisini (koordinat ve adres) filigran olarak ekleyebilmek için konum verilerini kullanır. Bu işlem tamamen cihazınızda gerçekleşir ve verileriniz hiçbir sunucuya gönderilmez.</string>
+    <string name="disclosure_camera_desc">Raporlarınız için fotoğraf ve video çekebilmek amacıyla kameranıza erişim izni gereklidir.</string>
+    <string name="disclosure_button">Anladım ve Devam Et</string>
+
     <!-- Privacy Policy (Placeholder) -->
     <string name="widget_active_project">🏗️ Aktif Proje</string>
     <string name="widget_no_project">Proje Yok</string>

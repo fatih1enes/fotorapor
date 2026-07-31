@@ -41,12 +41,15 @@ class WatermarkRenderer @Inject constructor() {
         originalUri: Uri,
         watermarkData: WatermarkData
     ): Uri = withContext(Dispatchers.IO) {
+        var originalBitmap: Bitmap? = null
+        var watermarkedBitmap: Bitmap? = null
         try {
-            val originalBitmap = ImageUtils.loadScaledBitmap(context, originalUri.toString(), 4000, 4000)
+            originalBitmap = ImageUtils.loadScaledBitmap(context, originalUri.toString(), 2560, 2560)
                 ?: return@withContext originalUri
 
-            val watermarkedBitmap = drawWatermark(originalBitmap, watermarkData)
+            watermarkedBitmap = drawWatermark(originalBitmap, watermarkData)
             originalBitmap.recycle()
+            originalBitmap = null
 
             // Save watermarked bitmap back to MediaStore
             val contentValues = ContentValues().apply {
@@ -72,15 +75,16 @@ class WatermarkRenderer @Inject constructor() {
 
                 // Delete original
                 context.contentResolver.delete(originalUri, null, null)
-                watermarkedBitmap.recycle()
                 return@withContext watermarkedUri
             }
 
-            watermarkedBitmap.recycle()
             originalUri
         } catch (e: Exception) {
             Log.e(TAG, "Watermark application failed", e)
             originalUri
+        } finally {
+            originalBitmap?.recycle()
+            watermarkedBitmap?.recycle()
         }
     }
 

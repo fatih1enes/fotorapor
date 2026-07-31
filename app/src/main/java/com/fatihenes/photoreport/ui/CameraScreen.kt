@@ -224,7 +224,14 @@ fun CameraScreen(
             }
         } else {
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-            if (uiState.isRecording) { activeRecording?.stop(); activeRecording = null }
+            if (uiState.isRecording) {
+                try {
+                    activeRecording?.stop()
+                } catch (e: Exception) {
+                    Log.e("CameraScreen", "Stop recording failed", e)
+                }
+                activeRecording = null
+            }
             else {
                 cameraState.videoCapture?.let { vc ->
                     val opts = PhotoManager.getVideoOutputOptions(context)
@@ -428,12 +435,12 @@ fun CameraScreen(
                                 if (uiState.isPaused) { activeRecording?.resume(); cameraViewModel.setIsPaused(false) }
                                 else { activeRecording?.pause(); cameraViewModel.setIsPaused(true) }
                             }) {
-                                Icon(if (uiState.isPaused) Icons.Default.PlayArrow else Icons.Default.Pause, "Pause", tint = Color.White)
+                                Icon(if (uiState.isPaused) Icons.Default.PlayArrow else Icons.Default.Pause, stringResource(R.string.loading), tint = Color.White)
                             }
                         } else {
                             ToolbarBtn(rotation = iconRotateAngle, size = 44, onClick = {
                                 cameraViewModel.toggleLensFacing()
-                            }) { Icon(Icons.Default.Cameraswitch, null, tint = Color.White) }
+                            }) { Icon(Icons.Default.Cameraswitch, stringResource(R.string.acc_flip_camera), tint = Color.White) }
                         }
 
                         // Shutter
@@ -443,7 +450,7 @@ fun CameraScreen(
                         if (uiState.lastCapturedUri != null) {
                             Box {
                                 AsyncImage(
-                                    model = uiState.lastCapturedUri, contentDescription = null, contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                                    model = uiState.lastCapturedUri, contentDescription = stringResource(R.string.acc_gallery), contentScale = androidx.compose.ui.layout.ContentScale.Crop,
                                     modifier = Modifier.size(44.dp).clip(CircleShape).border(1.dp, Color.White, CircleShape).clickable { onClose() }
                                 )
                                 if (uiState.sessionPhotoCount > 0) {
@@ -494,13 +501,13 @@ fun CameraScreen(
                     // Shutter row
                     Row(modifier = Modifier.fillMaxWidth().padding(horizontal = 44.dp), horizontalArrangement = Arrangement.SpaceEvenly, verticalAlignment = Alignment.CenterVertically) {
                         if (uiState.lastCapturedUri != null) {
-                            AsyncImage(model = uiState.lastCapturedUri, contentDescription = null, contentScale = androidx.compose.ui.layout.ContentScale.Crop, modifier = Modifier.size(44.dp).clip(CircleShape).border(1.dp, Color.White, CircleShape).clickable { onClose() })
+                            AsyncImage(model = uiState.lastCapturedUri, contentDescription = stringResource(R.string.acc_gallery), contentScale = androidx.compose.ui.layout.ContentScale.Crop, modifier = Modifier.size(44.dp).clip(CircleShape).border(1.dp, Color.White, CircleShape).clickable { onClose() })
                         } else Spacer(Modifier.size(44.dp))
                         ShutterButton(isVideo = uiState.cameraMode == "VIDEO", isRecording = uiState.isRecording) { triggerShutter() }
                         if (uiState.isRecording) {
-                            ToolbarBtn(rotation = iconRotateAngle, size = 44, onClick = { if (uiState.isPaused) { activeRecording?.resume(); cameraViewModel.setIsPaused(false) } else { activeRecording?.pause(); cameraViewModel.setIsPaused(true) } }) { Icon(if (uiState.isPaused) Icons.Default.PlayArrow else Icons.Default.Pause, null, tint = Color.White) }
+                            ToolbarBtn(rotation = iconRotateAngle, size = 44, onClick = { if (uiState.isPaused) { activeRecording?.resume(); cameraViewModel.setIsPaused(false) } else { activeRecording?.pause(); cameraViewModel.setIsPaused(true) } }) { Icon(if (uiState.isPaused) Icons.Default.PlayArrow else Icons.Default.Pause, stringResource(R.string.loading), tint = Color.White) }
                         } else {
-                            ToolbarBtn(rotation = iconRotateAngle, size = 44, onClick = { cameraViewModel.toggleLensFacing() }) { Icon(Icons.Default.Cameraswitch, null, tint = Color.White) }
+                            ToolbarBtn(rotation = iconRotateAngle, size = 44, onClick = { cameraViewModel.toggleLensFacing() }) { Icon(Icons.Default.Cameraswitch, stringResource(R.string.acc_flip_camera), tint = Color.White) }
                         }
                     }
                 }

@@ -181,6 +181,12 @@ class ExportWorker @AssistedInject constructor(
             .build()
 
         notificationManager.notify(System.currentTimeMillis().toInt(), notification)
+
+        // Recycle if it's a generated bitmap (Vector -> Bitmap)
+        val drawable = androidx.core.content.ContextCompat.getDrawable(context, R.mipmap.ic_launcher)
+        if (drawable !is android.graphics.drawable.BitmapDrawable) {
+            appIcon?.recycle()
+        }
     }
     private fun getAppIconBitmap(): android.graphics.Bitmap? {
         val drawable = androidx.core.content.ContextCompat.getDrawable(applicationContext, R.mipmap.ic_launcher) ?: return null

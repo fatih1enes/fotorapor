@@ -46,6 +46,8 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.core.tween
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,10 +83,9 @@ fun ProjectDetailScreen(
     var showExportDialog by remember { mutableStateOf(false) }
     var selectedPhotoForFullView by remember { mutableStateOf<Long?>(null) }
     var showFullGalleryByLogId by remember { mutableStateOf<Long?>(null) }
-    var returnToGalleryLogId by remember { mutableStateOf<Long?>(null) }
 
-    val notificationPermissionLauncher = androidx.activity.compose.rememberLauncherForActivityResult(
-        contract = androidx.activity.result.contract.ActivityResultContracts.RequestPermission()
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (!isGranted) {
             coroutineScope.launch { snackbarHost.showSnackbar("Bildirim izni verilmediği için arkaplan işlemi durumu gösterilemeyecek.") }
@@ -114,7 +115,7 @@ fun ProjectDetailScreen(
                 },
                 actions = {
                     IconButton(onClick = { showMenu = true }) {
-                        Icon(Icons.Default.MoreVert, contentDescription = null)
+                        Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.acc_more_options))
                     }
                     DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
                         DropdownMenuItem(
@@ -132,12 +133,12 @@ fun ProjectDetailScreen(
                                     showExportDialog = true
                                 }
                             },
-                            leadingIcon = { Icon(Icons.Default.Share, contentDescription = null, tint = projectColor) }
+                            leadingIcon = { Icon(Icons.Default.Share, contentDescription = stringResource(R.string.acc_share), tint = projectColor) }
                         )
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.delete_project_menu), color = MaterialTheme.colorScheme.error) },
                             onClick = { showMenu = false; showDeleteConfirm = true },
-                            leadingIcon = { Icon(Icons.Default.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error) }
+                            leadingIcon = { Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.acc_delete), tint = MaterialTheme.colorScheme.error) }
                         )
                     }
                 },
@@ -154,7 +155,7 @@ fun ProjectDetailScreen(
                 contentColor = Color.White,
                 shape = CircleShape
             ) {
-                Icon(Icons.Default.CameraAlt, contentDescription = null)
+                Icon(Icons.Default.CameraAlt, contentDescription = stringResource(R.string.acc_shutter))
             }
         }
     ) { padding ->
@@ -222,7 +223,7 @@ fun ProjectDetailScreen(
                     border = BorderStroke(1.5.dp, projectColor),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = projectColor)
                 ) {
-                    Icon(Icons.Default.CalendarToday, contentDescription = null, modifier = Modifier.size(20.dp))
+                    Icon(Icons.Default.CalendarToday, contentDescription = stringResource(R.string.acc_calendar), modifier = Modifier.size(20.dp))
                     Spacer(modifier = Modifier.width(10.dp))
                     Text(stringResource(R.string.add_date_card), fontWeight = FontWeight.Bold, fontSize = 15.sp)
                 }
@@ -266,8 +267,6 @@ fun ProjectDetailScreen(
                 photos = logWithPhotos.photos,
                 onDismiss = { showFullGalleryByLogId = null },
                 onPhotoClick = { photo ->
-                    returnToGalleryLogId = showFullGalleryByLogId // Hangi galeride olduğumuzu hatırla
-                    showFullGalleryByLogId = null
                     selectedPhotoForFullView = photo.id
                 },
                 onDeletePhotos = { ids ->
@@ -327,22 +326,17 @@ fun ProjectDetailScreen(
             exit = fadeOut(tween(300)) + scaleOut(targetScale = 0.9f, animationSpec = tween(300)),
             modifier = Modifier.fillMaxSize()
         ) {
-            FullScreenPhotoDialog(
-                photoList = allProjectPhotos,
-                    initialIndex = index,
-                    onDismiss = {
-                        selectedPhotoForFullView = null
-                        // Eğer bir galeriden geldiysek, fotoğrafı kapatınca o galeriyi geri aç
-                        returnToGalleryLogId?.let { logId ->
-                            showFullGalleryByLogId = logId
-                            returnToGalleryLogId = null
-                        }
-                    },
-                    onDelete = { photo ->
-                        onDeletePhoto(photo)
-                    },
-                    onUpdateRotation = onUpdateRotation
-                )
+        FullScreenPhotoDialog(
+            photoList = allProjectPhotos,
+            initialIndex = index,
+            onDismiss = {
+                selectedPhotoForFullView = null
+            },
+            onDelete = { photo ->
+                onDeletePhoto(photo)
+            },
+            onUpdateRotation = onUpdateRotation
+        )
         }
     }
             } // Box end

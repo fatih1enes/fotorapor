@@ -26,7 +26,7 @@ class MediaProcessor @Inject constructor(
             return@withContext originalUri
         }
 
-        val bitmapToCompress = ImageUtils.loadScaledBitmap(appContext, originalUri.toString(), 4000, 4000)
+        val bitmapToCompress = ImageUtils.loadScaledBitmap(appContext, originalUri.toString(), 2560, 2560)
             ?: return@withContext originalUri
 
         try {

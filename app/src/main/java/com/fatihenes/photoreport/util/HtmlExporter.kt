@@ -9,6 +9,7 @@ import androidx.core.text.htmlEncode
 import com.fatihenes.photoreport.data.DailyLogEntity
 import com.fatihenes.photoreport.data.PhotoEntity
 import com.fatihenes.photoreport.data.ProjectEntity
+import com.fatihenes.photoreport.util.FileNameUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -29,6 +30,7 @@ object HtmlExporter {
         quality: Int = 100
     ): Uri? = withContext(Dispatchers.IO) {
         try {
+            val sanitizedName = FileNameUtils.sanitize(project.name, "proje")
             val exportDir = File(context.cacheDir, "export_${project.id}_${System.currentTimeMillis()}")
             Log.d("HtmlExporter", "Creating export directory: ${exportDir.absolutePath}")
             if (!exportDir.exists()) exportDir.mkdirs()
@@ -90,7 +92,7 @@ object HtmlExporter {
             htmlFile.writeText(htmlContent)
             Log.d("HtmlExporter", "HTML content written to: ${htmlFile.absolutePath}")
 
-            val zipFile = File(context.cacheDir, "Rapor_${project.name.replace(" ", "_")}.zip")
+            val zipFile = File(context.cacheDir, "Rapor_${sanitizedName}.zip")
             if (zipFile.exists()) zipFile.delete() // Eskisini sil
 
             Log.d("HtmlExporter", "Creating ZIP file: ${zipFile.absolutePath}")
@@ -341,9 +343,10 @@ object HtmlExporter {
         }
 
         // 2. Fallback: URI'nin path kÃƒâ€Ã‚Â±smÃƒâ€Ã‚Â±nÃƒâ€Ã‚Â± doÃƒâ€Ã…Â¸rudan dosya olarak aÃƒÆ’Ã‚Â§
-        if (!success && sourceUri.path != null) {
+        val uriPath = sourceUri.path
+        if (!success && uriPath != null) {
             try {
-                val f = File(sourceUri.path!!)
+                val f = File(uriPath)
                 if (f.exists()) {
                     f.inputStream().use { input ->
                         FileOutputStream(destFile).use { output ->

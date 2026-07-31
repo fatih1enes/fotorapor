@@ -67,7 +67,7 @@ fun TrashScreen(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Icon(
                             imageVector = Icons.Default.Delete,
-                            contentDescription = null,
+                            contentDescription = stringResource(R.string.acc_delete),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
                             modifier = Modifier.size(80.dp)
                         )
@@ -173,10 +173,13 @@ fun TrashScreen(
 fun TrashProjectItem(project: ProjectEntity, onRestore: () -> Unit, onDelete: () -> Unit) {
     val sdf = SimpleDateFormat("dd MMM, HH:mm", Locale("tr"))
     val dateStr = project.deletedAt?.let { sdf.format(Date(it)) } ?: stringResource(R.string.unknown_date)
+    val projectColor = remember(project.colorHex) {
+        runCatching { Color(project.colorHex.toColorInt()) }.getOrDefault(Color.Gray)
+    }
 
     Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
         Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(Modifier.size(40.dp).background(Color(project.colorHex.toColorInt()), androidx.compose.foundation.shape.CircleShape))
+            Box(Modifier.size(40.dp).background(projectColor, androidx.compose.foundation.shape.CircleShape))
             Spacer(Modifier.width(16.dp))
             Column(Modifier.weight(1f)) {
                 Text(project.name, fontWeight = FontWeight.Bold, fontSize = 16.sp)
@@ -201,7 +204,7 @@ fun TrashPhotoItem(photo: PhotoEntity, onRestore: () -> Unit, onDelete: () -> Un
         Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             AsyncImage(
                 model = photo.filePath,
-                contentDescription = null,
+                contentDescription = stringResource(R.string.photo_label),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.size(60.dp).background(Color.Gray)
             )

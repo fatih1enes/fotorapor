@@ -95,7 +95,7 @@ fun FullGalleryDialog(
                                 triggerDismiss()
                             }
                         }) {
-                            Icon(Icons.Default.Close, contentDescription = null)
+                            Icon(Icons.Default.Close, contentDescription = stringResource(R.string.acc_close))
                         }
                     },
                     actions = {
@@ -108,14 +108,14 @@ fun FullGalleryDialog(
                                     MediaShareUtils.shareMultipleMedia(context, selectedPaths) { msg -> coroutineScope.launch { snackbarHost.showSnackbar(msg) } }
                                 }
                             }) {
-                                Icon(Icons.Default.Share, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                                Icon(Icons.Default.Share, contentDescription = stringResource(R.string.acc_share), tint = MaterialTheme.colorScheme.primary)
                             }
                             IconButton(onClick = {
                                 if (selectedIds.isNotEmpty()) {
                                     showBulkDeleteConfirm = true
                                 }
                             }) {
-                                Icon(Icons.Default.Delete, contentDescription = null, tint = MaterialTheme.colorScheme.error)
+                                Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.acc_delete), tint = MaterialTheme.colorScheme.error)
                             }
                         } else {
                             TextButton(onClick = { isSelectionMode = true }) {

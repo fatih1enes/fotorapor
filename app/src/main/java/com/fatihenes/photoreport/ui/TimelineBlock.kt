@@ -118,7 +118,7 @@ fun TimelineBlock(
                                         Box(modifier = Modifier.fillMaxSize()) {
                                             AsyncImage(
                                                 model = request,
-                                                contentDescription = null,
+                                                contentDescription = stringResource(R.string.photo_label),
                                                 placeholder = androidx.compose.ui.graphics.painter.ColorPainter(Color.LightGray),
                                                 error = androidx.compose.ui.graphics.painter.ColorPainter(Color.DarkGray),
                                                 modifier = Modifier.fillMaxSize(),
@@ -133,14 +133,20 @@ fun TimelineBlock(
                                                 ) {
                                                     Icon(
                                                         imageVector = Icons.Default.PlayCircleFilled,
-                                                        contentDescription = null,
+                                                        contentDescription = stringResource(R.string.loading),
                                                         tint = Color.White,
                                                         modifier = Modifier.size(36.dp)
                                                     )
                                                 }
                                             }
                                             if (isLast) {
-                                                Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.6f)), contentAlignment = Alignment.Center) {
+                                                Box(
+                                                    modifier = Modifier
+                                                        .fillMaxSize()
+                                                        .background(Color.Black.copy(alpha = 0.6f))
+                                                        .clickable { onMorePhotosClick() },
+                                                    contentAlignment = Alignment.Center
+                                                ) {
                                                     Text("+$remaining", color = Color.White, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
                                                 }
                                             }
@@ -206,7 +212,7 @@ fun TimelineBlock(
                     modifier = Modifier.weight(1f).height(46.dp),
                     elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
                 ) {
-                    Icon(Icons.Default.CameraAlt, contentDescription = null, modifier = Modifier.size(18.dp), tint = Color.White)
+                    Icon(Icons.Default.CameraAlt, contentDescription = stringResource(R.string.acc_shutter), modifier = Modifier.size(18.dp), tint = Color.White)
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(stringResource(R.string.camera_btn), color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
                 }
@@ -261,7 +267,7 @@ fun TimelineBlock(
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(stringResource(R.string.loading), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = projectColor)
                     } else {
-                        Icon(Icons.Default.PhotoLibrary, contentDescription = null, modifier = Modifier.size(18.dp), tint = projectColor)
+                        Icon(Icons.Default.PhotoLibrary, contentDescription = stringResource(R.string.acc_gallery), modifier = Modifier.size(18.dp), tint = projectColor)
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(stringResource(R.string.gallery_btn), fontSize = 14.sp, fontWeight = FontWeight.Bold, color = projectColor)
                     }

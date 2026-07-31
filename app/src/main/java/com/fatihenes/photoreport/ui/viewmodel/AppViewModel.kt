@@ -32,6 +32,7 @@ class AppViewModel @Inject constructor(
         private val CAMERA_OPT = booleanPreferencesKey("camera_opt")
         private val AVIF_ENABLED = booleanPreferencesKey("avif_enabled")
         private val GPS_WATERMARK = booleanPreferencesKey("gps_watermark_enabled")
+        private val DISCLOSURE_SHOWN = booleanPreferencesKey("disclosure_shown")
     }
 
     val themeMode: StateFlow<String> = dataStore.data
@@ -50,6 +51,10 @@ class AppViewModel @Inject constructor(
         .map { it[GPS_WATERMARK] ?: false }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), initialValue = false)
 
+    val disclosureShown: StateFlow<Boolean> = dataStore.data
+        .map { it[DISCLOSURE_SHOWN] ?: false }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), initialValue = false)
+
     fun setThemeMode(mode: String) {
         viewModelScope.launch { dataStore.edit { it[THEME_MODE] = mode } }
     }
@@ -66,6 +71,10 @@ class AppViewModel @Inject constructor(
         viewModelScope.launch { dataStore.edit { it[GPS_WATERMARK] = enabled } }
     }
 
+    fun setDisclosureShown(shown: Boolean) {
+        viewModelScope.launch { dataStore.edit { it[DISCLOSURE_SHOWN] = shown } }
+    }
+
     fun savePhotoInBackground(uri: android.net.Uri, projectId: Long, logId: Long, enableAvif: Boolean, projectName: String) {
         viewModelScope.launch {
             val isGpsEnabled = gpsWatermarkEnabled.value
@@ -79,6 +88,7 @@ class AppViewModel @Inject constructor(
     }
 
     val backupState = MutableStateFlow<OperationResult<Unit>?>(null)
+    val restoreState = MutableStateFlow<OperationResult<Unit>?>(null)
 
     fun createBackup(uri: android.net.Uri) {
         viewModelScope.launch {
@@ -91,12 +101,16 @@ class AppViewModel @Inject constructor(
     fun restoreBackup(uri: android.net.Uri) {
         viewModelScope.launch {
             backupManager.restoreBackup(uri).collect { result ->
-                backupState.value = result
+                restoreState.value = result
             }
         }
     }
 
     fun resetBackupState() {
         backupState.value = null
+    }
+
+    fun resetRestoreState() {
+        restoreState.value = null
     }
 }
