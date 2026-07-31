@@ -29,6 +29,7 @@ class AppViewModel @Inject constructor(
 
     companion object {
         private val THEME_MODE = stringPreferencesKey("theme_mode")
+        private val LANGUAGE = stringPreferencesKey("language")
         private val CAMERA_OPT = booleanPreferencesKey("camera_opt")
         private val AVIF_ENABLED = booleanPreferencesKey("avif_enabled")
         private val GPS_WATERMARK = booleanPreferencesKey("gps_watermark_enabled")
@@ -38,6 +39,10 @@ class AppViewModel @Inject constructor(
     val themeMode: StateFlow<String> = dataStore.data
         .map { it[THEME_MODE] ?: "system" }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "system")
+
+    val language: StateFlow<String> = dataStore.data
+        .map { it[LANGUAGE] ?: "tr" }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "tr")
 
     val cameraOptimizationEnabled: StateFlow<Boolean> = dataStore.data
         .map { it[CAMERA_OPT] ?: true }
@@ -57,6 +62,10 @@ class AppViewModel @Inject constructor(
 
     fun setThemeMode(mode: String) {
         viewModelScope.launch { dataStore.edit { it[THEME_MODE] = mode } }
+    }
+
+    fun setLanguage(lang: String) {
+        viewModelScope.launch { dataStore.edit { it[LANGUAGE] = lang } }
     }
 
     fun setCameraOptimization(enabled: Boolean) {

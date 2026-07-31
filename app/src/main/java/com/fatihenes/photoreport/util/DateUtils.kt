@@ -8,15 +8,19 @@ import java.util.Calendar
 import java.util.Locale
 
 object DateUtils {
-    private val turkishLocale = Locale.Builder().setLanguage("tr").setRegion("TR").build()
-    private val formatter = DateTimeFormatter.ofPattern("d MMMM EEEE", turkishLocale)
+    private val turkishLocale = Locale("tr", "TR")
+    private val englishLocale = Locale.US
+    
+    private val trFormatter = DateTimeFormatter.ofPattern("d MMMM EEEE", turkishLocale)
+    private val enFormatter = DateTimeFormatter.ofPattern("MMMM d, EEEE", englishLocale)
 
     fun getStartOfDayEpochMillis(date: LocalDate = LocalDate.now()): Long {
         return date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
     }
 
-    fun formatDate(millis: Long): String {
+    fun formatDate(millis: Long, language: String = "tr"): String {
         val date = Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).toLocalDate()
+        val formatter = if (language == "en") enFormatter else trFormatter
         return date.format(formatter)
     }
 

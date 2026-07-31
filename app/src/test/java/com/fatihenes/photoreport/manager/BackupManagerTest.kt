@@ -42,10 +42,11 @@ class BackupManagerTest {
         val tempDbFile = File.createTempFile("photoreport", ".db")
         tempDbFile.deleteOnExit()
 
-        `when`(context.getDatabasePath("photoreport.db")).thenReturn(tempDbFile)
+        `when`(context.getDatabasePath("photoreport_database")).thenReturn(tempDbFile)
         `when`(context.contentResolver).thenReturn(mockContentResolver)
         `when`(mockDatabase.openHelper).thenReturn(mockOpenHelper)
         `when`(mockOpenHelper.writableDatabase).thenReturn(mockDb)
+        `when`(mockDb.query("PRAGMA wal_checkpoint(FULL)")).thenReturn(mock(android.database.Cursor::class.java))
 
         backupManager = LocalBackupManager(context, mockDatabase, mockFileManager, mockPhotoDao)
     }
@@ -55,10 +56,12 @@ class BackupManagerTest {
         val mockUri = mock(Uri::class.java)
         val outStream = ByteArrayOutputStream()
         `when`(mockContentResolver.openOutputStream(mockUri)).thenReturn(outStream)
+        `when`(mockPhotoDao.getAllPhotosSuspend()).thenReturn(emptyList())
 
         val states = backupManager.createBackup(mockUri).toList()
 
         assertTrue("Should emit states", states.isNotEmpty())
         assertTrue("First state should be Loading", states.first() is OperationResult.Loading)
+        assertTrue("Final state should be Success", states.last() is OperationResult.Success)
     }
 }

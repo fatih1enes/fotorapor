@@ -133,7 +133,7 @@ class ProjectDetailViewModel @Inject constructor(
         }
     }
 
-    fun exportProject(context: Context, projectId: Long, projectName: String, format: String, quality: Int) {
+    fun exportProject(context: Context, projectId: Long, projectName: String, format: String, quality: Int, language: String) {
         val workRequest = OneTimeWorkRequestBuilder<ExportWorker>()
             .setBackoffCriteria(
                 androidx.work.BackoffPolicy.EXPONENTIAL,
@@ -145,7 +145,8 @@ class ProjectDetailViewModel @Inject constructor(
                     "project_id" to projectId,
                     "project_name" to projectName,
                     "format" to format,
-                    "quality" to quality
+                    "quality" to quality,
+                    "language" to language
                 )
             )
             .build()

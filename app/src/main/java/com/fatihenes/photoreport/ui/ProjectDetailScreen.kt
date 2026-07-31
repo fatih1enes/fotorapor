@@ -63,8 +63,9 @@ fun ProjectDetailScreen(
     onUpdateRotation: (Long, Float) -> Unit,
     onAddLogForDate: (Long) -> Unit,
     onImportPhotoToLog: (Long, String) -> Unit,
-    onExportProject: (String, Int) -> Unit,
-    viewModel: com.fatihenes.photoreport.ui.viewmodel.ProjectDetailViewModel
+    onExportProject: (String, Int, String) -> Unit,
+    viewModel: com.fatihenes.photoreport.ui.viewmodel.ProjectDetailViewModel,
+    language: String = "tr"
 ) {
     if (project == null) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -243,6 +244,7 @@ fun ProjectDetailScreen(
                     projectColor = projectColor,
                     isSelectionMode = false,
                     selectedPhotoIds = emptyList(),
+                    language = language,
                     onPhotoClick = { photo ->
                         selectedPhotoForFullView = photo.id
                     },
@@ -306,12 +308,12 @@ fun ProjectDetailScreen(
             onDismiss = { showExportDialog = false },
             onExportPdf = { quality ->
                 showExportDialog = false
-                onExportProject("PDF", quality)
+                onExportProject("PDF", quality, language)
                 coroutineScope.launch { snackbarHost.showSnackbar(context.getString(R.string.pdf_preparing) + " (Arka plan)") }
             },
             onExportZip = { quality ->
                 showExportDialog = false
-                onExportProject("ZIP", quality)
+                onExportProject("ZIP", quality, language)
                 coroutineScope.launch { snackbarHost.showSnackbar("ZIP dışa aktarımı arka planda başlatıldı. Bildirimleri kontrol edin.") }
             }
         )

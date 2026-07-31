@@ -67,6 +67,7 @@ class ExportWorker @AssistedInject constructor(
             val projectName = inputData.getString("project_name") ?: "Proje"
             val format = inputData.getString("format") ?: return@withContext Result.failure()
             val quality = inputData.getInt("quality", 100)
+            val language = inputData.getString("language") ?: "tr"
 
             if (projectId == -1L) return@withContext Result.failure(workDataOf("error" to "Invalid project ID"))
 
@@ -76,13 +77,13 @@ class ExportWorker @AssistedInject constructor(
 
             val uri = when (format) {
                 "PDF" -> {
-                    val result = pdfExportManager.exportToPdf(project, logsWithPhotos, quality)
+                    val result = pdfExportManager.exportToPdf(project, logsWithPhotos, quality, language)
                     if (result is OperationResult.Success) result.data else null
                 }
                 "ZIP" -> {
                     val allPhotos = logsWithPhotos.flatMap { it.photos }
                     val logs = logsWithPhotos.map { it.log }
-                    HtmlExporter.exportToHtmlZip(context, project, logs, allPhotos, quality)
+                    HtmlExporter.exportToHtmlZip(context, project, logs, allPhotos, quality, language)
                 }
                 else -> null
             }

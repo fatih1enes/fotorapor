@@ -19,6 +19,7 @@ import java.util.Date
 import java.util.Locale
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
+import com.fatihenes.photoreport.R
 
 object HtmlExporter {
 
@@ -27,7 +28,8 @@ object HtmlExporter {
         project: ProjectEntity,
         logs: List<DailyLogEntity>,
         photos: List<PhotoEntity>,
-        quality: Int = 100
+        quality: Int = 100,
+        language: String = "tr"
     ): Uri? = withContext(Dispatchers.IO) {
         try {
             val sanitizedName = FileNameUtils.sanitize(project.name, "proje")
@@ -61,17 +63,17 @@ object HtmlExporter {
                 try {
                     val sourceUri = photo.filePath.toUri()
                     if (isVideo) {
-                        // VideolarÃƒâ€Ã‚Â± doÃƒâ€Ã…Â¸rudan kopyalÃƒâ€Ã‚Â±yoruz
+                        // Videoları doğrudan kopyalıyoruz
                         copyFile(context, sourceUri, photo.filePath, destFile)
                     } else {
                         if (quality == 100) {
-                            // Orijinal kaliteyi koru ve HTML/ZIP iÃƒÆ’Ã‚Â§erisinde eksiksiz aktar
+                            // Orijinal kaliteyi koru ve HTML/ZIP içerisinde eksiksiz aktar
                             copyFile(context, sourceUri, photo.filePath, destFile)
                         } else {
-                            // SÃƒâ€Ã‚Â±kÃƒâ€Ã‚Â±Ãƒâ€¦Ã…Â¸tÃƒâ€Ã‚Â±rma seÃƒÆ’Ã‚Â§ildiyse compressAndSaveImage kullan
+                            // Sıkıştırma seçildiyse compressAndSaveImage kullan
                             val success = ImageUtils.compressAndSaveImage(context, photo.filePath, destFile, quality)
                             if (!success) {
-                                // SÃƒâ€Ã‚Â±kÃƒâ€Ã‚Â±Ãƒâ€¦Ã…Â¸tÃƒâ€Ã‚Â±rma baÃƒâ€¦Ã…Â¸arÃƒâ€Ã‚Â±sÃƒâ€Ã‚Â±z olursa orijinali kopyala
+                                // Sıkıştırma başarısız olursa orijinali kopyala
                                 copyFile(context, sourceUri, photo.filePath, destFile)
                             }
                         }
@@ -88,22 +90,23 @@ object HtmlExporter {
             }
 
             val htmlFile = File(exportDir, "index.html")
-            val htmlContent = generateHtmlContent(project, logs, photos, photoMap, logoAssetPath)
+            val htmlContent = generateHtmlContent(context, project, logs, photos, photoMap, logoAssetPath, language)
             htmlFile.writeText(htmlContent)
             Log.d("HtmlExporter", "HTML content written to: ${htmlFile.absolutePath}")
 
-            val zipFile = File(context.cacheDir, "Rapor_${sanitizedName}.zip")
+            val zipNamePrefix = if (language == "en") "Report" else "Rapor"
+            val zipFile = File(context.cacheDir, "${zipNamePrefix}_${sanitizedName}.zip")
             if (zipFile.exists()) zipFile.delete() // Eskisini sil
 
             Log.d("HtmlExporter", "Creating ZIP file: ${zipFile.absolutePath}")
             ZipOutputStream(FileOutputStream(zipFile)).use { zos ->
-                // ÃƒÆ’Ã¢â‚¬â€œnce index.html'i ekle (opsiyonel ama dÃƒÆ’Ã‚Â¼zenli olur)
+                // Önce index.html'i ekle (opsiyonel ama düzenli olur)
                 val htmlEntry = ZipEntry("index.html")
                 zos.putNextEntry(htmlEntry)
                 htmlFile.inputStream().use { it.copyTo(zos) }
                 zos.closeEntry()
 
-                // Sonra assets klasÃƒÆ’Ã‚Â¶rÃƒÆ’Ã‚Â¼nÃƒÆ’Ã‚Â¼ ve iÃƒÆ’Ã‚Â§indekileri ekle
+                // Sonra assets klasörünü ve içindekileri ekle
                 val assetsFiles = assetsDir.listFiles()
                 if (assetsFiles != null) {
                     for (file in assetsFiles) {
@@ -133,23 +136,30 @@ object HtmlExporter {
     }
 
     private fun generateHtmlContent(
+        context: Context,
         project: ProjectEntity,
         logs: List<DailyLogEntity>,
         photos: List<PhotoEntity>,
         photoMap: Map<Long, String>,
-        logoAssetPath: String?
+        logoAssetPath: String?,
+        language: String
     ): String {
-        val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
+        val locale = if (language == "en") Locale.US else Locale("tr", "TR")
+        val config = android.content.res.Configuration(context.resources.configuration)
+        config.setLocale(locale)
+        val localizedContext = context.createConfigurationContext(config)
+
+        val dateFormat = SimpleDateFormat("dd MMMM yyyy", locale)
         val dateStr = dateFormat.format(Date())
 
         val builder = StringBuilder()
         builder.append("""
             <!DOCTYPE html>
-            <html lang="tr">
+            <html lang="$language">
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>${project.name} - Rapor</title>
+                <title>${project.name} - ${if(language == "en") "Report" else "Rapor"}</title>
                 <style>
                     :root {
                         --bg-color: #f8fafc;
@@ -268,9 +278,9 @@ object HtmlExporter {
                     <div class="header">
                         <div class="header-content">
                             <h1>${project.name}</h1>
-                            <p>Rapor Tarihi: $dateStr</p>
+                            <p>${localizedContext.getString(R.string.report_date)}: $dateStr</p>
                         </div>
-                        ${if (logoAssetPath != null) "<img src=\"$logoAssetPath\" class=\"company-logo\" alt=\"Ãƒâ€¦Ã‚Âirket Logosu\">" else ""}
+                        ${if (logoAssetPath != null) "<img src=\"$logoAssetPath\" class=\"company-logo\" alt=\"${localizedContext.getString(R.string.company_logo_alt)}\">" else ""}
                     </div>
                     <div class="timeline">
         """.trimIndent())
@@ -299,11 +309,11 @@ object HtmlExporter {
                             val isVideo = assetPath.endsWith(".mp4", ignoreCase = true)
                             builder.append("<div class=\"media-item\">")
                             if (isVideo) {
-                                builder.append("<video controls preload=\"metadata\"><source src=\"$assetPath\" type=\"video/mp4\">TarayÃƒâ€Ã‚Â±cÃƒâ€Ã‚Â±nÃƒâ€Ã‚Â±z video etiketini desteklemiyor.</video>")
+                                builder.append("<video controls preload=\"metadata\"><source src=\"$assetPath\" type=\"video/mp4\">${localizedContext.getString(R.string.video_not_supported)}</video>")
                             } else {
-                                // KullanÃƒâ€Ã‚Â±cÃƒâ€Ã‚Â±nÃƒâ€Ã‚Â±n galeride yaptÃƒâ€Ã‚Â±Ãƒâ€Ã…Â¸Ãƒâ€Ã‚Â± dÃƒÆ’Ã‚Â¶ndÃƒÆ’Ã‚Â¼rme iÃƒâ€¦Ã…Â¸lemini CSS ile uyguluyoruz (orijinal dosyayÃƒâ€Ã‚Â± bozmadan)
+                                // Kullanıcının galeride yaptığı döndürme işlemini CSS ile uyguluyoruz (orijinal dosyayı bozmadan)
                                 val transform = if (photo.rotation != 0f) "transform: rotate(${photo.rotation}deg);" else ""
-                                builder.append("<a href=\"$assetPath\" target=\"_blank\"><img src=\"$assetPath\" alt=\"FotoÃƒâ€Ã…Â¸raf\" loading=\"lazy\" style=\"$transform\"></a>")
+                                builder.append("<a href=\"$assetPath\" target=\"_blank\"><img src=\"$assetPath\" alt=\"${localizedContext.getString(R.string.photo_alt)}\" loading=\"lazy\" style=\"$transform\"></a>")
                             }
                             builder.append("</div>")
                         }
@@ -330,7 +340,7 @@ object HtmlExporter {
     private fun copyFile(context: Context, sourceUri: Uri, fallbackPath: String, destFile: File) {
         var success = false
 
-        // 1. ÃƒÆ’Ã¢â‚¬â€œncelik: ContentResolver ile aÃƒÆ’Ã‚Â§ (content:// ve file:// URI'lar iÃƒÆ’Ã‚Â§in)
+        // 1. Öncelik: ContentResolver ile aç (content:// ve file:// URI'lar için)
         try {
             context.contentResolver.openInputStream(sourceUri)?.use { input ->
                 FileOutputStream(destFile).use { output ->
@@ -342,7 +352,7 @@ object HtmlExporter {
             Log.w("HtmlExporter", "ContentResolver failed for $sourceUri: ${e.message}")
         }
 
-        // 2. Fallback: URI'nin path kÃƒâ€Ã‚Â±smÃƒâ€Ã‚Â±nÃƒâ€Ã‚Â± doÃƒâ€Ã…Â¸rudan dosya olarak aÃƒÆ’Ã‚Â§
+        // 2. Fallback: URI'nin path kısmını doğrudan dosya olarak aç
         val uriPath = sourceUri.path
         if (!success && uriPath != null) {
             try {
@@ -360,7 +370,7 @@ object HtmlExporter {
             }
         }
 
-        // 3. Son ÃƒÆ’Ã‚Â§are: fallbackPath'i doÃƒâ€Ã…Â¸rudan dosya olarak aÃƒÆ’Ã‚Â§
+        // 3. Son çare: fallbackPath'i doğrudan dosya olarak aç
         if (!success) {
             try {
                 val f = File(fallbackPath)

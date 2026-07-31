@@ -24,11 +24,13 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.fatihenes.photoreport.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.math.max
@@ -200,10 +202,10 @@ fun ImageCropperDialog(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(onClick = onDismiss) {
-                    Icon(Icons.Default.Close, contentDescription = "Ãƒâ€Ã‚Â°ptal", tint = Color.White)
+                    Icon(Icons.Default.Close, contentDescription = stringResource(R.string.cancel_label), tint = Color.White)
                 }
 
-                Text("Logoyu KÃƒâ€Ã‚Â±rp", color = Color.White, style = MaterialTheme.typography.titleMedium)
+                Text(stringResource(R.string.crop_logo_title), color = Color.White, style = MaterialTheme.typography.titleMedium)
 
                 IconButton(
                     onClick = {
@@ -255,7 +257,7 @@ fun ImageCropperDialog(
                     },
                     enabled = originalBitmap != null
                 ) {
-                    Icon(Icons.Default.Check, contentDescription = "Kaydet", tint = if (originalBitmap != null) Color.White else Color.Gray)
+                    Icon(Icons.Default.Check, contentDescription = stringResource(R.string.save_label), tint = if (originalBitmap != null) Color.White else Color.Gray)
                 }
             }
 

@@ -30,7 +30,7 @@ PhotoReport adheres to modern Android Development (MAD) best practices, utilizin
 - **UI:** Jetpack Compose, Material Design 3, Coil (Video & AVIF Support)
 - **Architecture:** MVVM / MVI State Management
 - **Local Storage:** Room Database, DataStore Preferences
-- **Media Pipeline:** CameraX (Photo/Video capture), AVIF-Coder (Compression), PDFBox (Report Generation)
+- **Media Pipeline:** CameraX (Photo/Video capture), AVIF-Coder (Compression), Native Android PDF API (Report Generation)
 - **Dependency Injection:** Hilt / Dagger
 - **Background Processing:** WorkManager (Media Processing & Exporting), Coroutines, Flow
 

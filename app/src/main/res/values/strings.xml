@@ -136,6 +136,7 @@
     <!-- Settings (hardcoded fixes) -->
     <string name="settings_title">Ayarlar</string>
     <string name="settings_appearance">Görünüm</string>
+    <string name="settings_language">Dil</string>
     <string name="settings_theme_system">Sistem Varsayılanı</string>
     <string name="settings_theme_light">Açık Tema</string>
     <string name="settings_theme_dark">Karanlık Tema</string>
@@ -173,6 +174,12 @@
     <string name="location_permission_required">GPS filigranı için konum izni gereklidir.</string>
 
     <!-- Backup and Restore -->
+    <string name="date_label">Tarih:</string>
+    <string name="page_label">Sayfa</string>
+    <string name="report_date">Rapor Tarihi</string>
+    <string name="company_logo_alt">Şirket Logosu</string>
+    <string name="photo_alt">Fotoğraf</string>
+    <string name="video_not_supported">Tarayıcınız video etiketini desteklemiyor.</string>
     <string name="settings_backup_title">Yedekleme ve Geri Yükleme</string>
     <string name="settings_backup_create">Yedek Oluştur</string>
     <string name="settings_backup_create_desc">Tüm proje ve fotoğraflarınızı bir ZIP dosyasına yedekleyin.</string>
@@ -193,6 +200,9 @@
     <string name="acc_rotate">Döndür</string>
     <string name="acc_more_options">Daha fazla seçenek</string>
     <string name="acc_calendar">Tarih seç</string>
+    <string name="save_label">Kaydet</string>
+    <string name="cancel_label">İptal</string>
+    <string name="crop_logo_title">Logoyu Kırp</string>
     <string name="acc_expand">Genişlet</string>
 
     <!-- Privacy Disclosure -->

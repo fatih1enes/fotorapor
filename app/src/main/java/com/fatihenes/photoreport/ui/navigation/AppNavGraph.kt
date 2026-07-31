@@ -71,6 +71,7 @@ fun AppNavGraph(
         val navController = rememberNavController()
         val context = LocalContext.current
         val scope = rememberCoroutineScope()
+        val language by viewModel.language.collectAsStateWithLifecycle()
 
         val disclosureShown by viewModel.disclosureShown.collectAsStateWithLifecycle()
         if (!disclosureShown) {
@@ -242,9 +243,10 @@ fun AppNavGraph(
                 onImportPhotoToLog = { logId, filePath ->
                     detailViewModel.addPhotoToLog(logId, filePath)
                 },
-                onExportProject = { format, quality ->
-                    project?.let { detailViewModel.exportProject(context, it.id, it.name, format, quality) }
-                }
+                onExportProject = { format, quality, lang ->
+                    project?.let { detailViewModel.exportProject(context, it.id, it.name, format, quality, lang) }
+                },
+                language = language
             )
         }
 

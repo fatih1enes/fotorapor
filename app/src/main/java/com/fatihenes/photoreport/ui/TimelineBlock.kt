@@ -51,7 +51,8 @@ fun TimelineBlock(
     onMorePhotosClick: () -> Unit,
     onNoteChange: (String) -> Unit,
     onAddPhotoClick: () -> Unit,
-    onImportPhotoClick: (Uri) -> Unit
+    onImportPhotoClick: (Uri) -> Unit,
+    language: String = "tr"
 ) {
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     Row(modifier = Modifier.fillMaxWidth().padding(end = 8.dp)) {
@@ -63,7 +64,7 @@ fun TimelineBlock(
 
         Column(modifier = Modifier.weight(1f).padding(start = 12.dp, bottom = 40.dp)) {
             Text(
-                text = DateUtils.formatDate(log.date),
+                text = DateUtils.formatDate(log.date, language),
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.ExtraBold,
                 color = MaterialTheme.colorScheme.onBackground,

@@ -20,9 +20,17 @@ class DateUtilsTest {
     fun testFormatDate() {
         val date = LocalDate.of(2023, 10, 15)
         val millis = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
-        val formattedDate = DateUtils.formatDate(millis)
+        val formattedDate = DateUtils.formatDate(millis, "tr")
         // October 15, 2023, was a Sunday
         assertEquals("15 Ekim Pazar", formattedDate)
+    }
+
+    @Test
+    fun testFormatDateEnglish() {
+        val date = LocalDate.of(2023, 10, 15)
+        val millis = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+        val formattedDate = DateUtils.formatDate(millis, "en")
+        assertEquals("October 15, Sunday", formattedDate)
     }
 
     @Test

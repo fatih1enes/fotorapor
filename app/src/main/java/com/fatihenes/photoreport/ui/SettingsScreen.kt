@@ -42,6 +42,7 @@ fun SettingsScreen(
 ) {
     val context = LocalContext.current
     val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
+    val language by viewModel.language.collectAsStateWithLifecycle()
 
     var logoUri by remember { mutableStateOf(CompanyLogoManager.getLogoUri(context)) }
     var logoVersion by remember { mutableLongStateOf(System.currentTimeMillis()) }
@@ -119,6 +120,26 @@ fun SettingsScreen(
                         icon = Icons.Default.DarkMode,
                         isSelected = themeMode == "dark",
                         onClick = { viewModel.setThemeMode("dark") }
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // Language Section
+            SettingsSectionTitle(stringResource(R.string.settings_language))
+            SettingsCard {
+                Column {
+                    LanguageOption(
+                        title = "Türkçe",
+                        isSelected = language == "tr",
+                        onClick = { viewModel.setLanguage("tr") }
+                    )
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
+                    LanguageOption(
+                        title = "English",
+                        isSelected = language == "en",
+                        onClick = { viewModel.setLanguage("en") }
                     )
                 }
             }
@@ -383,6 +404,32 @@ private fun SettingsCard(content: @Composable () -> Unit) {
         tonalElevation = 1.dp
     ) {
         content()
+    }
+}
+
+@Composable
+private fun LanguageOption(
+    title: String,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(
+            title,
+            style = MaterialTheme.typography.bodyLarge,
+            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+            color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
+        )
+        if (isSelected) {
+            Icon(Icons.Default.Check, contentDescription = stringResource(R.string.acc_close), tint = MaterialTheme.colorScheme.primary)
+        }
     }
 }
 

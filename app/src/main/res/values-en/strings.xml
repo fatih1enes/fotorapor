@@ -136,6 +136,7 @@
     <!-- Settings (hardcoded fixes) -->
     <string name="settings_title">Settings</string>
     <string name="settings_appearance">Appearance</string>
+    <string name="settings_language">Language</string>
     <string name="settings_theme_system">System Default</string>
     <string name="settings_theme_light">Light Theme</string>
     <string name="settings_theme_dark">Dark Theme</string>
@@ -173,6 +174,12 @@
     <string name="location_permission_required">Location permission is required for the GPS watermark.</string>
 
     <!-- Backup and Restore -->
+    <string name="date_label">Date:</string>
+    <string name="page_label">Page</string>
+    <string name="report_date">Report Date</string>
+    <string name="company_logo_alt">Company Logo</string>
+    <string name="photo_alt">Photo</string>
+    <string name="video_not_supported">Your browser does not support the video tag.</string>
     <string name="settings_backup_title">Backup and Restore</string>
     <string name="settings_backup_create">Create Backup</string>
     <string name="settings_backup_create_desc">Backup all your projects and photos into a ZIP file.</string>
@@ -193,6 +200,9 @@
     <string name="acc_rotate">Rotate</string>
     <string name="acc_more_options">More options</string>
     <string name="acc_calendar">Select date</string>
+    <string name="save_label">Save</string>
+    <string name="cancel_label">Cancel</string>
+    <string name="crop_logo_title">Crop Logo</string>
     <string name="acc_expand">Expand</string>
 
     <!-- Privacy Disclosure -->

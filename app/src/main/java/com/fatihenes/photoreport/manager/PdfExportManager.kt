@@ -25,10 +25,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.math.min
 
+import com.fatihenes.photoreport.R
 import androidx.core.graphics.withTranslation
 
 /**
@@ -46,7 +48,8 @@ interface PdfExportManager {
     suspend fun exportToPdf(
         project: ProjectEntity,
         logs: List<LogWithPhotos>,
-        quality: Int = 100
+        quality: Int = 100,
+        language: String = "tr"
     ): OperationResult<Uri>
 }
 
@@ -58,11 +61,17 @@ class NativePdfExportManager @Inject constructor(
     override suspend fun exportToPdf(
         project: ProjectEntity,
         logs: List<LogWithPhotos>,
-        quality: Int
+        quality: Int,
+        language: String
     ): OperationResult<Uri> = withContext(Dispatchers.IO) {
         var pdfDocument: PdfDocument? = null
         var logoBmp: Bitmap? = null
         try {
+            val locale = if (language == "en") Locale.US else Locale("tr", "TR")
+            val config = android.content.res.Configuration(context.resources.configuration)
+            config.setLocale(locale)
+            val localizedContext = context.createConfigurationContext(config)
+
             pdfDocument = PdfDocument()
             val sortedLogs = logs.sortedBy { it.log.date }
 
@@ -143,7 +152,7 @@ class NativePdfExportManager @Inject constructor(
             }
 
             fun closeAndStartNewPage() {
-                val footerText = "Sayfa $pageNumber"
+                val footerText = "${localizedContext.getString(R.string.page_label)} $pageNumber"
                 val footerWidth = pageNumPaint.measureText(footerText)
                 canvas.drawText(footerText, (pageWidth - footerWidth) / 2f, pageHeight - margin / 2f, pageNumPaint)
 
@@ -169,7 +178,7 @@ class NativePdfExportManager @Inject constructor(
                 isFirstLog = false
 
                 // Date
-                val dateStr = "Tarih: ${DateUtils.formatDate(log.date)}"
+                val dateStr = "${localizedContext.getString(R.string.date_label)} ${DateUtils.formatDate(log.date, language)}"
                 canvas.drawText(dateStr, margin, currentY + 14f, datePaint)
                 currentY += 30f
 
@@ -258,7 +267,7 @@ class NativePdfExportManager @Inject constructor(
             }
 
             // Footer for final page
-            val footerText = "Sayfa $pageNumber"
+            val footerText = "${localizedContext.getString(R.string.page_label)} $pageNumber"
             val footerWidth = pageNumPaint.measureText(footerText)
             canvas.drawText(footerText, (pageWidth - footerWidth) / 2f, pageHeight - margin / 2f, pageNumPaint)
 
@@ -267,7 +276,8 @@ class NativePdfExportManager @Inject constructor(
             val directory = context.getExternalFilesDir("PDFs")
             if (directory != null && !directory.exists()) directory.mkdirs()
             val sanitizedProjectName = FileNameUtils.sanitize(project.name, "proje")
-            val file = File(directory, "${sanitizedProjectName}_gunluk_rapor.pdf")
+            val filenameSuffix = if (language == "en") "daily_report" else "gunluk_rapor"
+            val file = File(directory, "${sanitizedProjectName}_$filenameSuffix.pdf")
 
             FileOutputStream(file).use { out ->
                 pdfDocument.writeTo(out)
