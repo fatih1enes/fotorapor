@@ -221,8 +221,10 @@ class NativePdfExportManager @Inject constructor(
 
                         var activeBitmap: Bitmap? = null
                         try {
-                            val reqDim = if (quality == 100) 1200 else 800
-                            val loadedBmp = ImageUtils.loadScaledBitmap(context, photo.filePath, reqDim, reqDim)
+                            val reqDim = if (quality == 100) 1000 else 700
+                            val loadedBmp = ImageUtils.loadScaledBitmap(
+                                context, photo.filePath, reqDim, reqDim, Bitmap.Config.RGB_565
+                            )
                             if (loadedBmp != null) {
                                 activeBitmap = loadedBmp
                                 val exifRotation = ImageUtils.getExifRotation(context, photo.filePath)
@@ -237,7 +239,7 @@ class NativePdfExportManager @Inject constructor(
                                     }
                                 }
 
-                                activeBitmap?.let { bmp ->
+                                activeBitmap.let { bmp ->
                                     val scale = min(imgWidth / bmp.width, imgHeight / bmp.height)
                                     val w = bmp.width * scale
                                     val h = bmp.height * scale

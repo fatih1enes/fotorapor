@@ -28,6 +28,8 @@ class TrashCleanupWorker @AssistedInject constructor(
 
             Log.d("TrashCleanupWorker", "Cleanup finished successfully.")
             Result.success()
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
         } catch (e: Exception) {
             Log.e("TrashCleanupWorker", "Error during trash cleanup", e)
             if (runAttemptCount < 3) {

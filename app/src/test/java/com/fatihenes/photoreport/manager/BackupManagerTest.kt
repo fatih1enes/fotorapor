@@ -43,6 +43,9 @@ class BackupManagerTest {
         tempDbFile.deleteOnExit()
 
         `when`(context.getDatabasePath("photoreport_database")).thenReturn(tempDbFile)
+        val mockAppInfo = mock(android.content.pm.ApplicationInfo::class.java)
+        mockAppInfo.dataDir = tempDbFile.parent
+        `when`(context.applicationInfo).thenReturn(mockAppInfo)
         `when`(context.contentResolver).thenReturn(mockContentResolver)
         `when`(mockDatabase.openHelper).thenReturn(mockOpenHelper)
         `when`(mockOpenHelper.writableDatabase).thenReturn(mockDb)

@@ -18,8 +18,9 @@ All data is stored on your device. When you use the "Backup" feature, a ZIP file
 We do not collect, share, or sell any user data. The app does not use any third-party analytics or tracking SDKs.
 
 ## 4. Permissions
-*   **CAMERA**: Required to take photos for reports.
+*   **CAMERA**: Required to take photos and videos for reports.
 *   **ACCESS_FINE_LOCATION / ACCESS_COARSE_LOCATION**: Required for the optional GPS Watermark feature.
+*   **READ_MEDIA_IMAGES / READ_MEDIA_VIDEO**: Required to display and select media files on Android 13+.
 *   **POST_NOTIFICATIONS**: Used to show the progress and completion of project exports.
 
 ## 5. Changes to This Policy

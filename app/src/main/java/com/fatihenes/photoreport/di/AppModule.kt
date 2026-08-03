@@ -111,4 +111,8 @@ object AppModule {
     @Provides
     @Singleton
     fun provideBackupManager(localBackupManager: LocalBackupManager): BackupManager = localBackupManager
+
+    @Provides
+    @Singleton
+    fun provideCommercialManager(localCommercialManager: LocalCommercialManager): CommercialManager = localCommercialManager
 }

@@ -112,9 +112,26 @@ class LocationManager @Inject constructor(
             try {
                 if (!Geocoder.isPresent()) return@withContext null
                 val geocoder = Geocoder(context, Locale.getDefault())
-                @Suppress("DEPRECATION")
-                val addresses = geocoder.getFromLocation(latitude, longitude, 1)
-                addresses?.firstOrNull()?.let { addr ->
+
+                val address: android.location.Address? = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+                    suspendCancellableCoroutine { cont ->
+                        geocoder.getFromLocation(latitude, longitude, 1, object : Geocoder.GeocodeListener {
+                            override fun onGeocode(addresses: MutableList<android.location.Address>) {
+                                if (cont.isActive) cont.resume(addresses.firstOrNull())
+                            }
+                            override fun onError(errorMessage: String?) {
+                                Log.w(TAG, "Geocoding onError: $errorMessage")
+                                if (cont.isActive) cont.resume(null)
+                            }
+                        })
+                    }
+                } else {
+                    @Suppress("DEPRECATION")
+                    val addresses = geocoder.getFromLocation(latitude, longitude, 1)
+                    addresses?.firstOrNull()
+                }
+
+                address?.let { addr ->
                     buildString {
                         addr.thoroughfare?.let { append(it) }
                         addr.subThoroughfare?.let { if (isNotEmpty()) append(" "); append(it) }

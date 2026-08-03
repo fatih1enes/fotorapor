@@ -74,8 +74,13 @@ class PhotoProcessingWorker @AssistedInject constructor(
 
             photoDao.insertPhoto(PhotoEntity(logId = targetLogId, filePath = finalUri.toString()))
             return Result.success()
+        } catch (e: kotlinx.coroutines.CancellationException) {
+            throw e
         } catch (e: Exception) {
             android.util.Log.e("PhotoProcessingWorker", "Background photo save failed", e)
+            if (runAttemptCount < 3) {
+                return Result.retry()
+            }
             return Result.failure()
         }
     }

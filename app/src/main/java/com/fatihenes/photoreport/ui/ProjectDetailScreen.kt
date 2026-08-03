@@ -138,7 +138,11 @@ fun ProjectDetailScreen(
                         )
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.delete_project_menu), color = MaterialTheme.colorScheme.error) },
-                            onClick = { showMenu = false; showDeleteConfirm = true },
+                            onClick = { 
+                                haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                                showMenu = false
+                                showDeleteConfirm = true 
+                            },
                             leadingIcon = { Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.acc_delete), tint = MaterialTheme.colorScheme.error) }
                         )
                     }

@@ -292,7 +292,8 @@ fun AppNavGraph(
 
         composable(route = Routes.TRASH) {
             TrashScreen(
-                onBack = { navController.popBackStack() }
+                onBack = { navController.popBackStack() },
+                language = language
             )
         }
     }

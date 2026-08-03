@@ -24,6 +24,12 @@ object DateUtils {
         return date.format(formatter)
     }
 
+    fun formatDateTime(millis: Long, language: String = "tr"): String {
+        val locale = if (language == "en") englishLocale else turkishLocale
+        val sdf = java.text.SimpleDateFormat("dd MMM, HH:mm", locale)
+        return sdf.format(java.util.Date(millis))
+    }
+
     /**
      * Converts a Calendar instance to the start-of-day epoch millis.
      * Zeroes out hour, minute, second, and millisecond fields.
