@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- English Plural Management -->
+    <plurals name="project_count">
+        <item quantity="one">%d inspection project recorded</item>
+        <item quantity="other">%d inspection projects recorded</item>
+    </plurals>
+
+    <plurals name="photo_count">
+        <item quantity="one">%d site photo processed</item>
+        <item quantity="other">%d site photos processed</item>
+    </plurals>
+
+    <plurals name="log_count">
+        <item quantity="one">%d daily inspection log</item>
+        <item quantity="other">%d daily inspection logs</item>
+    </plurals>
+</resources>

@@ -134,7 +134,7 @@ fun FullGalleryDialog(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(photos, key = { it.id }) { photo ->
+                items(photos, key = { it.id }, contentType = { "photo_grid_item" }) { photo ->
                     val isSelected = selectedIds.contains(photo.id)
                     val isVideo = photo.filePath.endsWith(".mp4", ignoreCase = true)
                     Card(
@@ -162,6 +162,7 @@ fun FullGalleryDialog(
                                     }
                                     .size(256)
                                     .memoryCachePolicy(CachePolicy.ENABLED)
+                                    .diskCachePolicy(CachePolicy.ENABLED)
                                     .build()
                             }
                             AsyncImage(

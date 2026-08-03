@@ -59,28 +59,11 @@ fun TrashScreen(
     ) { padding ->
         if (deletedProjects.isEmpty() && deletedPhotos.isEmpty()) {
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
-                var isVisible by remember { mutableStateOf(false) }
-                LaunchedEffect(Unit) { isVisible = true }
-                AnimatedVisibility(
-                    visible = isVisible,
-                    enter = fadeIn(tween(500)) + scaleIn(tween(500), initialScale = 0.8f)
-                ) {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Icon(
-                            imageVector = Icons.Default.Delete,
-                            contentDescription = stringResource(R.string.acc_delete),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                            modifier = Modifier.size(80.dp)
-                        )
-                        Spacer(Modifier.height(16.dp))
-                        Text(
-                            stringResource(R.string.trash_empty),
-                            fontSize = 18.sp,
-                            fontWeight = FontWeight.Medium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                        )
-                    }
-                }
+                com.fatihenes.photoreport.ui.components.common.AppEmptyState(
+                    icon = Icons.Default.Delete,
+                    title = stringResource(R.string.empty_trash_title),
+                    description = stringResource(R.string.empty_trash_desc)
+                )
             }
         } else {
             LazyColumn(
@@ -126,8 +109,8 @@ fun TrashScreen(
     if (showDeleteConfirmProject != null) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirmProject = null },
-            title = { Text(stringResource(R.string.delete_photo_title)) },
-            text = { Text("Bu projeyi tamamen silmek istediğinize emin misiniz? Bu işlem geri alınamaz.") },
+            title = { Text(stringResource(R.string.trash_delete_confirm_title)) },
+            text = { Text(stringResource(R.string.trash_delete_confirm_desc)) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -138,7 +121,7 @@ fun TrashScreen(
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error, contentColor = Color.White)
                 ) {
-                    Text(stringResource(R.string.delete_confirm_btn), color = Color.White)
+                    Text(stringResource(R.string.btn_confirm_delete), color = Color.White)
                 }
             },
             dismissButton = {

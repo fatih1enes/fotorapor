@@ -203,49 +203,17 @@ fun DashboardScreen(
 
             if (projects.isEmpty()) {
                 item {
-                    androidx.compose.animation.AnimatedVisibility(
-                        visible = true,
-                        enter = fadeIn(tween(800)) + androidx.compose.animation.scaleIn(initialScale = 0.9f)
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 80.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally
-                        ) {
-                            Surface(
-                                shape = CircleShape,
-                                color = MaterialTheme.colorScheme.primaryContainer,
-                                modifier = Modifier.size(80.dp)
-                            ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Icon(
-                                        Icons.Default.FolderOpen,
-                                        contentDescription = null,
-                                        modifier = Modifier.size(40.dp),
-                                        tint = MaterialTheme.colorScheme.primary
-                                    )
-                                }
-                            }
-                            Spacer(modifier = Modifier.height(24.dp))
-                            Text(
-                                text = stringResource(R.string.empty_state_title),
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold,
-                                color = MaterialTheme.colorScheme.onBackground
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "Yeni bir rapor klasörü oluşturun",
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
-                        }
-                    }
+                    com.fatihenes.photoreport.ui.components.common.AppEmptyState(
+                        icon = Icons.Default.FolderOpen,
+                        title = stringResource(R.string.empty_projects_title),
+                        description = stringResource(R.string.empty_projects_desc),
+                        actionLabel = stringResource(R.string.empty_projects_action),
+                        onActionClick = { showAddDialog = true }
+                    )
                 }
             }
 
-            items(projects, key = { project -> project.id }) { project ->
+            items(projects, key = { project -> project.id }, contentType = { "project_folder_item" }) { project ->
                 ProjectFolderItem(
                     project = project,
                     onClick = { onProjectClick(project) },

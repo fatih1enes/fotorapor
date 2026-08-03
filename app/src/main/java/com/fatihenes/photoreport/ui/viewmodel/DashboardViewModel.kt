@@ -26,7 +26,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
-    @Suppress("CanBeParameter") @param:ApplicationContext private val appContext: Context,
+    @param:ApplicationContext private val appContext: Context,
     private val repository: AppRepository,
     private val trashRepository: TrashRepository
 ) : ViewModel() {

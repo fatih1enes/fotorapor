@@ -4,7 +4,6 @@ import android.content.Context
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
-import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
 import com.fatihenes.photoreport.R
@@ -14,7 +13,6 @@ import com.fatihenes.photoreport.manager.PdfExportManager
 import com.fatihenes.photoreport.util.result.OperationResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import android.content.pm.ServiceInfo
 import androidx.core.graphics.createBitmap
 
 import dagger.assisted.Assisted
@@ -29,42 +27,60 @@ class ExportWorker @AssistedInject constructor(
     private val pdfExportManager: PdfExportManager
 ) : CoroutineWorker(context, params) {
 
-    override suspend fun getForegroundInfo(): ForegroundInfo {
-        val projectName = inputData.getString("project_name") ?: "Proje"
-        val notificationId = 1001
-        val channelId = "export_channel"
+    companion object {
+        private const val PROGRESS_NOTIFICATION_ID = 1001
+    }
 
-        val channel = android.app.NotificationChannel(
-            channelId,
-            "Export Service",
-            android.app.NotificationManager.IMPORTANCE_LOW
-        )
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
-        notificationManager.createNotificationChannel(channel)
+    private fun showProgressNotification(projectName: String, current: Int = 0, total: Int = 0) {
+        try {
+            val channelId = "export_channel"
+            val channel = android.app.NotificationChannel(
+                channelId,
+                "Export Service",
+                android.app.NotificationManager.IMPORTANCE_LOW
+            )
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+            notificationManager.createNotificationChannel(channel)
 
-        val appIcon = getAppIconBitmap()
+            val appIcon = getAppIconBitmap()
 
-        val notification = NotificationCompat.Builder(context, channelId)
-            .setContentTitle(context.getString(R.string.export_notif_title))
-            .setContentText(context.getString(R.string.export_notif_text, projectName))
-            .setSmallIcon(R.drawable.ic_stat_logo) // App logo vector for small icon
-            .setLargeIcon(appIcon) // Full colored app icon for large
-            .setOngoing(true)
-            .build()
+            val contentText = if (total > 0) {
+                context.getString(R.string.export_progress_text, current, total)
+            } else {
+                context.getString(R.string.export_notif_text, projectName)
+            }
 
-        return ForegroundInfo(notificationId, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC)
+            val notification = NotificationCompat.Builder(context, channelId)
+                .setContentTitle(context.getString(R.string.export_notif_title))
+                .setContentText(contentText)
+                .setSmallIcon(R.drawable.ic_stat_logo)
+                .setLargeIcon(appIcon)
+                .setOngoing(true)
+                .apply {
+                    if (total > 0) {
+                        setProgress(total, current, false)
+                    }
+                }
+                .build()
+
+            notificationManager.notify(PROGRESS_NOTIFICATION_ID, notification)
+        } catch (e: Exception) {
+            Log.w("ExportWorker", "Progress notification could not be shown: ${e.message}")
+        }
+    }
+
+    private fun cancelProgressNotification() {
+        try {
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+            notificationManager.cancel(PROGRESS_NOTIFICATION_ID)
+        } catch (_: Exception) { }
     }
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         try {
-            try {
-                setForeground(getForegroundInfo())
-            } catch (_: Exception) {
-                Log.w("ExportWorker", "Foreground service restricted, running in background")
-            }
-
             val projectId = inputData.getLong("project_id", -1)
             val projectName = inputData.getString("project_name") ?: "Proje"
+            showProgressNotification(projectName)
             val format = inputData.getString("format") ?: return@withContext Result.failure()
             val quality = inputData.getInt("quality", 100)
             val language = inputData.getString("language") ?: "tr"
@@ -77,7 +93,14 @@ class ExportWorker @AssistedInject constructor(
 
             val uri = when (format) {
                 "PDF" -> {
-                    val result = pdfExportManager.exportToPdf(project, logsWithPhotos, quality, language)
+                    val result = pdfExportManager.exportToPdf(
+                        project = project,
+                        logs = logsWithPhotos,
+                        quality = quality,
+                        language = language
+                    ) { current, total ->
+                        showProgressNotification(projectName, current, total)
+                    }
                     if (result is OperationResult.Success) result.data else null
                 }
                 "ZIP" -> {
@@ -119,6 +142,7 @@ class ExportWorker @AssistedInject constructor(
     }
 
     private fun showFailureNotification(projectName: String, errorMessage: String) {
+        cancelProgressNotification()
         val channelId = "export_error_channel"
         val channel = android.app.NotificationChannel(
             channelId,
@@ -139,6 +163,7 @@ class ExportWorker @AssistedInject constructor(
     }
 
     private fun showCompletionNotification(uri: android.net.Uri, format: String, projectName: String) {
+        cancelProgressNotification()
         val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
             type = if (format == "PDF") "application/pdf" else "application/zip"
             putExtra(android.content.Intent.EXTRA_STREAM, uri)

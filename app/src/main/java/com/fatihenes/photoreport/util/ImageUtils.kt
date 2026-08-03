@@ -97,6 +97,7 @@ object ImageUtils {
             val decodeOptions = BitmapFactory.Options().apply {
                 inSampleSize = sampleSize
                 inPreferredConfig = config
+                inMutable = true
             }
             BitmapFactory.decodeStream(inputStream, null, decodeOptions)
         }
@@ -116,6 +117,7 @@ object ImageUtils {
             val decodeOptions = BitmapFactory.Options().apply {
                 inSampleSize = sampleSize
                 inPreferredConfig = config
+                inMutable = true
             }
             BitmapFactory.decodeFile(pathString, decodeOptions)
         } catch (e: OutOfMemoryError) {
@@ -135,12 +137,18 @@ object ImageUtils {
         targetHeight: Int
     ): Int {
         var inSampleSize = 1
-        if (options.outHeight > targetHeight || (options.outWidth > targetWidth)) {
-            val halfHeight = options.outHeight / 2
-            val halfWidth = options.outWidth / 2
+        val height = options.outHeight
+        val width = options.outWidth
+        if (height > targetHeight || width > targetWidth) {
+            val halfHeight = height / 2
+            val halfWidth = width / 2
             while (halfHeight / inSampleSize >= targetHeight && halfWidth / inSampleSize >= targetWidth) {
                 inSampleSize *= 2
             }
+        }
+        // OOM Koruma Tavanı: Maksimum ~3 Megabayt piksel (ARGB_8888 ile en fazla ~12MB RAM)
+        while ((height / inSampleSize) * (width / inSampleSize) > 3_000_000) {
+            inSampleSize *= 2
         }
         return inSampleSize
     }
@@ -150,33 +158,36 @@ object ImageUtils {
      * Handles EXIF rotation, downscaling to [maxDimension], and memory-safe decoding.
      * Returns true on success, false on failure.
      */
-    fun compressAndSaveImage(
+    fun openInputStreamSafe(context: Context, pathString: String): InputStream? {
+        return try {
+            val uri = pathString.toUri()
+            if (uri.scheme == "content" || uri.scheme == "file") {
+                context.contentResolver.openInputStream(uri)
+            } else {
+                val f = File(pathString)
+                if (f.exists()) f.inputStream() else null
+            }
+        } catch (e: Exception) {
+            val uri = pathString.toUri()
+            val f = File(uri.path ?: pathString)
+            if (f.exists()) f.inputStream() else null
+        }
+    }
+
+    /**
+     * Compresses an image and writes directly into an OutputStream (e.g. ZipOutputStream) without temporary disk files.
+     */
+    fun compressToStream(
         context: Context,
         pathString: String,
-        destFile: File,
+        outputStream: java.io.OutputStream,
         quality: Int,
         maxDimension: Int = 2000
     ): Boolean {
         return try {
-            val openStream: () -> InputStream? = {
-                try {
-                    val uri = pathString.toUri()
-                    if (uri.scheme == "content" || uri.scheme == "file") {
-                        context.contentResolver.openInputStream(uri)
-                    } else {
-                        val f = File(pathString)
-                        if (f.exists()) f.inputStream() else null
-                    }
-                } catch (e: Exception) {
-                    val uri = pathString.toUri()
-                    val f = File(uri.path ?: pathString)
-                    if (f.exists()) f.inputStream() else null
-                }
-            }
-
             // First pass: decode bounds only
             val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-            val stream1 = openStream() ?: return false
+            val stream1 = openInputStreamSafe(context, pathString) ?: return false
             stream1.use { stream ->
                 BitmapFactory.decodeStream(stream, null, options)
             }
@@ -184,23 +195,29 @@ object ImageUtils {
             val inSampleSize = calculateInSampleSize(options, maxDimension, maxDimension)
 
             // Second pass: decode with calculated sample size
-            val decodeOptions = BitmapFactory.Options().apply { this.inSampleSize = inSampleSize }
-            val stream2 = openStream() ?: return false
+            val decodeOptions = BitmapFactory.Options().apply {
+                this.inSampleSize = inSampleSize
+                inMutable = true
+            }
+            val stream2 = openInputStreamSafe(context, pathString) ?: return false
             val originalBitmap = stream2.use { stream ->
                 BitmapFactory.decodeStream(stream, null, decodeOptions)
             } ?: return false
 
-            // Apply EXIF rotation
-            val matrix = android.graphics.Matrix()
+            // Apply EXIF rotation only if non-zero
             val exifRotation = getExifRotation(context, pathString)
-            matrix.postRotate(exifRotation)
-
-            val bitmap = Bitmap.createBitmap(
-                originalBitmap, 0, 0,
-                originalBitmap.width, originalBitmap.height,
-                matrix, true
-            )
-            if (bitmap != originalBitmap) originalBitmap.recycle()
+            val bitmap = if (exifRotation != 0f) {
+                val matrix = android.graphics.Matrix().apply { postRotate(exifRotation) }
+                val rotated = Bitmap.createBitmap(
+                    originalBitmap, 0, 0,
+                    originalBitmap.width, originalBitmap.height,
+                    matrix, true
+                )
+                if (rotated != originalBitmap && !originalBitmap.isRecycled) originalBitmap.recycle()
+                rotated
+            } else {
+                originalBitmap
+            }
 
             // Scale down if still too large
             val finalBitmap = if (bitmap.width > maxDimension || bitmap.height > maxDimension) {
@@ -210,20 +227,40 @@ object ImageUtils {
                 } else {
                     (maxDimension * ratio).toInt() to maxDimension
                 }
-                bitmap.scale(targetW, targetH, filter = true)
+                val scaled = bitmap.scale(targetW, targetH, filter = true)
+                if (scaled !== bitmap && !bitmap.isRecycled) bitmap.recycle()
+                scaled
             } else {
                 bitmap
             }
 
-            FileOutputStream(destFile).use { output ->
-                finalBitmap.compress(Bitmap.CompressFormat.JPEG, quality, output)
-            }
+            finalBitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
 
-            if (finalBitmap != bitmap) finalBitmap.recycle()
-            bitmap.recycle()
+            if (finalBitmap != bitmap && !bitmap.isRecycled) bitmap.recycle()
+            if (!finalBitmap.isRecycled) finalBitmap.recycle()
             true
         } catch (e: Exception) {
-            Log.e(TAG, "Compression failed", e)
+            Log.e(TAG, "compressToStream failed", e)
+            false
+        }
+    }
+
+    /**
+     * Compresses an image and saves it to [destFile] with the given [quality].
+     */
+    fun compressAndSaveImage(
+        context: Context,
+        pathString: String,
+        destFile: File,
+        quality: Int,
+        maxDimension: Int = 2000
+    ): Boolean {
+        return try {
+            FileOutputStream(destFile).use { output ->
+                compressToStream(context, pathString, output, quality, maxDimension)
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Compression failed to save file", e)
             false
         }
     }

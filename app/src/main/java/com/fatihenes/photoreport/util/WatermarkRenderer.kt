@@ -48,7 +48,9 @@ class WatermarkRenderer @Inject constructor() {
                 ?: return@withContext originalUri
 
             watermarkedBitmap = drawWatermark(originalBitmap, watermarkData)
-            originalBitmap.recycle()
+            if (originalBitmap !== watermarkedBitmap) {
+                originalBitmap.recycle()
+            }
             originalBitmap = null
 
             // Save watermarked bitmap back to MediaStore
@@ -83,7 +85,9 @@ class WatermarkRenderer @Inject constructor() {
             Log.e(TAG, "Watermark application failed", e)
             originalUri
         } finally {
-            originalBitmap?.recycle()
+            if (originalBitmap !== watermarkedBitmap) {
+                originalBitmap?.recycle()
+            }
             watermarkedBitmap?.recycle()
         }
     }
@@ -93,7 +97,7 @@ class WatermarkRenderer @Inject constructor() {
      * The panel is positioned in the bottom-left corner.
      */
     private fun drawWatermark(source: Bitmap, data: WatermarkData): Bitmap {
-        val result = source.copy(Bitmap.Config.ARGB_8888, true)
+        val result = if (source.isMutable) source else source.copy(Bitmap.Config.ARGB_8888, true)
         val canvas = Canvas(result)
 
         val width = result.width.toFloat()

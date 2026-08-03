@@ -32,7 +32,6 @@ interface PhotoRepository {
 }
 
 @Singleton
-@Suppress("unused")
 class PhotoRepositoryImpl @Inject constructor(
     @dagger.hilt.android.qualifiers.ApplicationContext private val appContext: android.content.Context,
     private val photoDao: PhotoDao,

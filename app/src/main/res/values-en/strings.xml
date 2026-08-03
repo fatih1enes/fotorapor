@@ -101,11 +101,12 @@
     <string name="export_zip_estimate">📦 Estimated ZIP Size: ~%s</string>
     <string name="export_started_toast">Export started in background. Please wait…</string>
 
-    <!-- AppViewModel Errors -->
+    <!-- ViewModels & State -->
     <string name="error_unknown">An unknown error occurred</string>
     <!-- ExportWorker Notifications -->
     <string name="export_notif_title">Exporting</string>
     <string name="export_notif_text">Please wait while %s is being prepared…</string>
+    <string name="export_progress_text">Processing photo %1$d of %2$d…</string>
     <string name="export_share_chooser">Share Report</string>
     <string name="export_complete_channel">Export Completed</string>
     <string name="export_ready_title">Ready to Share!</string>
@@ -216,4 +217,28 @@
     <string name="widget_no_project">No Project</string>
     <string name="widget_images">Images</string>
     <string name="widget_camera_desc">Camera</string>
+
+    <!-- FAZ 3: Professional UX, 3-Step Guided Empty States & Error Strings -->
+    <string name="empty_projects_title">No Active Inspection Projects</string>
+    <string name="empty_projects_desc">To assemble field inspection reports, you must first initialize a new project folder.</string>
+    <string name="empty_projects_action">Initialize Project</string>
+
+    <string name="empty_photos_title">No Photographs in Project Gallery</string>
+    <string name="empty_photos_desc">There are no inspection images recorded for this project. Use the camera module to capture site findings.</string>
+    <string name="empty_photos_action">Capture Site Photo</string>
+
+    <string name="empty_trash_title">Recycle Bin is Empty</string>
+    <string name="empty_trash_desc">Deleted field projects are temporarily staged here. Currently, there are no discarded items awaiting recovery.</string>
+
+    <string name="error_export_failed_title">Report Generation Interrupted</string>
+    <string name="error_export_failed_desc">The report assembly could not finish due to transient memory demand or storage quota limitations.</string>
+    <string name="error_recovery_action">Retry Operation</string>
+
+    <string name="error_permission_title">Camera Authorization Not Granted</string>
+    <string name="error_permission_desc">System requires camera module authorization to photograph, timestamp, and watermark site findings.</string>
+    <string name="error_permission_action">Open Authorization Settings</string>
+
+    <string name="trash_delete_confirm_title">Permanently Purge Project</string>
+    <string name="trash_delete_confirm_desc">Are you sure you wish to permanently erase the selected inspection project and its associated media? This action is irreversible.</string>
+    <string name="btn_confirm_delete">Confirm and Erase</string>
 </resources>

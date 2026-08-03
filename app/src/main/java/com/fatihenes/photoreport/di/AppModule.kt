@@ -52,6 +52,14 @@ object AppModule {
 
     @Provides
     @Singleton
+    fun provideSettingsRepository(settingsRepositoryImpl: SettingsRepositoryImpl): SettingsRepository = settingsRepositoryImpl
+
+    @Provides
+    @Singleton
+    fun provideReportRepository(reportRepositoryImpl: ReportRepositoryImpl): ReportRepository = reportRepositoryImpl
+
+    @Provides
+    @Singleton
     fun provideProjectRepository(
         @ApplicationContext context: Context,
         projectDao: ProjectDao

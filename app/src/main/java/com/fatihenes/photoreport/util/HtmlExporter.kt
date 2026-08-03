@@ -33,93 +33,78 @@ object HtmlExporter {
     ): Uri? = withContext(Dispatchers.IO) {
         try {
             val sanitizedName = FileNameUtils.sanitize(project.name, "proje")
-            val exportDir = File(context.cacheDir, "export_${project.id}_${System.currentTimeMillis()}")
-            Log.d("HtmlExporter", "Creating export directory: ${exportDir.absolutePath}")
-            if (!exportDir.exists()) exportDir.mkdirs()
-
-            val assetsDir = File(exportDir, "assets")
-            if (!assetsDir.exists()) assetsDir.mkdirs()
-
-            var logoAssetPath: String? = null
-            if (CompanyLogoManager.hasLogo(context)) {
-                val logoUri = CompanyLogoManager.getLogoUri(context)
-                if (logoUri != null) {
-                    val destLogo = File(assetsDir, "company_logo.png")
-                    copyFile(context, logoUri, logoUri.path ?: "", destLogo)
-                    if (destLogo.exists()) {
-                        logoAssetPath = "assets/company_logo.png"
-                    }
-                }
-            }
-
-            val photoMap = mutableMapOf<Long, String>()
-
-            photos.forEach { photo ->
-                Log.d("HtmlExporter", "Processing photo: ${photo.id}, path: ${photo.filePath}")
-                val isVideo = photo.filePath.endsWith(".mp4", ignoreCase = true)
-                val fileName = if (isVideo) "video_${photo.id}.mp4" else "photo_${photo.id}.jpg"
-                val destFile = File(assetsDir, fileName)
-
-                try {
-                    val sourceUri = photo.filePath.toUri()
-                    if (isVideo) {
-                        // Videoları doğrudan kopyalıyoruz
-                        copyFile(context, sourceUri, photo.filePath, destFile)
-                    } else {
-                        if (quality == 100) {
-                            // Orijinal kaliteyi koru ve HTML/ZIP içerisinde eksiksiz aktar
-                            copyFile(context, sourceUri, photo.filePath, destFile)
-                        } else {
-                            // Sıkıştırma seçildiyse compressAndSaveImage kullan
-                            val success = ImageUtils.compressAndSaveImage(context, photo.filePath, destFile, quality)
-                            if (!success) {
-                                // Sıkıştırma başarısız olursa orijinali kopyala
-                                copyFile(context, sourceUri, photo.filePath, destFile)
-                            }
-                        }
-                    }
-
-                    if (destFile.exists() && destFile.length() > 0) {
-                        photoMap[photo.id] = "assets/$fileName"
-                    }
-                } catch (e: kotlinx.coroutines.CancellationException) {
-                    throw e
-                } catch (e: Exception) {
-                    Log.e("HtmlExporter", "Error processing media: ${photo.id}", e)
-                }
-            }
-
-            val htmlFile = File(exportDir, "index.html")
-            val htmlContent = generateHtmlContent(context, project, logs, photos, photoMap, logoAssetPath, language)
-            htmlFile.writeText(htmlContent)
-            Log.d("HtmlExporter", "HTML content written to: ${htmlFile.absolutePath}")
-
             val zipNamePrefix = if (language == "en") "Report" else "Rapor"
             val zipFile = File(context.cacheDir, "${zipNamePrefix}_${sanitizedName}.zip")
             if (zipFile.exists()) zipFile.delete() // Eskisini sil
 
-            Log.d("HtmlExporter", "Creating ZIP file: ${zipFile.absolutePath}")
-            ZipOutputStream(FileOutputStream(zipFile)).use { zos ->
-                // Önce index.html'i ekle (opsiyonel ama düzenli olur)
-                val htmlEntry = ZipEntry("index.html")
-                zos.putNextEntry(htmlEntry)
-                htmlFile.inputStream().use { it.copyTo(zos) }
-                zos.closeEntry()
+            Log.d("HtmlExporter", "Creating streaming ZIP file: ${zipFile.absolutePath}")
 
-                // Sonra assets klasörünü ve içindekileri ekle
-                val assetsFiles = assetsDir.listFiles()
-                if (assetsFiles != null) {
-                    for (file in assetsFiles) {
-                        val entry = ZipEntry("assets/${file.name}")
-                        zos.putNextEntry(entry)
-                        file.inputStream().use { it.copyTo(zos) }
-                        zos.closeEntry()
-                        Log.d("HtmlExporter", "Added to ZIP: assets/${file.name}")
+            val photoMap = mutableMapOf<Long, String>()
+            var logoAssetPath: String? = null
+
+            ZipOutputStream(FileOutputStream(zipFile)).use { zos ->
+                // Şirket logosunu doğrudan akışa yaz
+                if (CompanyLogoManager.hasLogo(context)) {
+                    val logoUri = CompanyLogoManager.getLogoUri(context)
+                    if (logoUri != null) {
+                        try {
+                            val entry = ZipEntry("assets/company_logo.png")
+                            zos.putNextEntry(entry)
+                            ImageUtils.openInputStreamSafe(context, logoUri.toString())?.use { input ->
+                                input.copyTo(zos, bufferSize = 8192)
+                            }
+                            zos.closeEntry()
+                            logoAssetPath = "assets/company_logo.png"
+                        } catch (e: Exception) {
+                            Log.e("HtmlExporter", "Error streaming logo", e)
+                        }
                     }
                 }
-            }
 
-            exportDir.deleteRecursively()
+                // Medya dosyalarını diske açmadan (Zero Temp Disk G/Ç) doğrudan Zip akışına stream yap
+                photos.forEach { photo ->
+                    Log.d("HtmlExporter", "Streaming photo: ${photo.id}, path: ${photo.filePath}")
+                    val isVideo = photo.filePath.endsWith(".mp4", ignoreCase = true)
+                    val fileName = if (isVideo) "video_${photo.id}.mp4" else "photo_${photo.id}.jpg"
+
+                    try {
+                        val entry = ZipEntry("assets/$fileName")
+                        zos.putNextEntry(entry)
+                        var writeSuccess = false
+
+                        if (isVideo || quality == 100) {
+                            ImageUtils.openInputStreamSafe(context, photo.filePath)?.use { input ->
+                                input.copyTo(zos, bufferSize = 8192)
+                                writeSuccess = true
+                            }
+                        } else {
+                            writeSuccess = ImageUtils.compressToStream(context, photo.filePath, zos, quality)
+                            if (!writeSuccess) {
+                                ImageUtils.openInputStreamSafe(context, photo.filePath)?.use { input ->
+                                    input.copyTo(zos, bufferSize = 8192)
+                                    writeSuccess = true
+                                }
+                            }
+                        }
+                        zos.closeEntry()
+
+                        if (writeSuccess) {
+                            photoMap[photo.id] = "assets/$fileName"
+                        }
+                    } catch (e: kotlinx.coroutines.CancellationException) {
+                        throw e
+                    } catch (e: Exception) {
+                        Log.e("HtmlExporter", "Error streaming media: ${photo.id}", e)
+                    }
+                }
+
+                // index.html dokümantasyonunu da ara dosya yaratmadan doğrudan akışa yaz
+                val htmlContent = generateHtmlContent(context, project, logs, photos, photoMap, logoAssetPath, language)
+                val htmlEntry = ZipEntry("index.html")
+                zos.putNextEntry(htmlEntry)
+                zos.write(htmlContent.toByteArray(Charsets.UTF_8))
+                zos.closeEntry()
+            }
 
             return@withContext FileProvider.getUriForFile(
                 context,

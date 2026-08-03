@@ -22,6 +22,8 @@ import androidx.lifecycle.LifecycleOwner
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
@@ -53,7 +55,6 @@ private data class CameraCapabilities(
  * Query real capabilities from Camera2 for the requested lens.
  * Returns a safe default (everything disabled) if anything goes wrong.
  */
-@android.annotation.SuppressLint("InlinedApi")
 private fun queryCameraCapabilities(context: Context, lensFacing: Int): CameraCapabilities {
     return try {
         val cm = context.getSystemService(Context.CAMERA_SERVICE) as CameraManager
@@ -433,7 +434,12 @@ class CameraStateHolder(
 
     private fun readCameraMetadata() {
         camera?.cameraInfo?.let { info ->
-            val qualities = QualitySelector.getSupportedQualities(info)
+            val qualities = try {
+                Recorder.getVideoCapabilities(info).getSupportedQualities(DynamicRange.SDR)
+            } catch (_: Exception) {
+                @Suppress("DEPRECATION")
+                QualitySelector.getSupportedQualities(info)
+            }
             if (qualities.isNotEmpty()) supportedQualities = qualities
 
             info.zoomState.value?.let { z ->
@@ -448,31 +454,16 @@ class CameraStateHolder(
         }
     }
 
-    @Suppress("BlockingMethodInNonBlockingContext")
-    private suspend fun awaitCameraProvider(): ProcessCameraProvider =
-        suspendCancellableCoroutine { cont ->
-            cameraProvider?.let {
-                cont.resume(it)
-                return@suspendCancellableCoroutine
-            }
-            val future = ProcessCameraProvider.getInstance(context)
-            future.addListener({
-                if (cont.isActive) {
-                    val provider = future.get()
-                    cameraProvider = provider
-                    cont.resume(provider)
-                }
-            }, ContextCompat.getMainExecutor(context))
-        }
+    private suspend fun awaitCameraProvider(): ProcessCameraProvider = withContext(Dispatchers.IO) {
+        cameraProvider?.let { return@withContext it }
+        val provider = ProcessCameraProvider.getInstance(context).get()
+        cameraProvider = provider
+        provider
+    }
 
-    @Suppress("BlockingMethodInNonBlockingContext")
-    private suspend fun awaitExtensionsManager(provider: ProcessCameraProvider): ExtensionsManager =
-        suspendCancellableCoroutine { cont ->
-            val future = ExtensionsManager.getInstanceAsync(context, provider)
-            future.addListener({
-                if (cont.isActive) cont.resume(future.get())
-            }, ContextCompat.getMainExecutor(context))
-        }
+    private suspend fun awaitExtensionsManager(provider: ProcessCameraProvider): ExtensionsManager = withContext(Dispatchers.IO) {
+        ExtensionsManager.getInstanceAsync(context, provider).get()
+    }
 
     // ── Public controls ───────────────────────────────────────────
 

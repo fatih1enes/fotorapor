@@ -238,7 +238,18 @@ fun ProjectDetailScreen(
                 Text(stringResource(R.string.timeline_label), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
                 Spacer(modifier = Modifier.height(16.dp))
             }
-            items(logs, key = { it.log.id }) { logWithPhotos ->
+            if (logs.isEmpty()) {
+                item(key = "timeline_empty_state") {
+                    com.fatihenes.photoreport.ui.components.common.AppEmptyState(
+                        icon = Icons.Default.CameraAlt,
+                        title = stringResource(R.string.empty_photos_title),
+                        description = stringResource(R.string.empty_photos_desc),
+                        actionLabel = stringResource(R.string.empty_photos_action),
+                        onActionClick = { onAddPhoto(null) }
+                    )
+                }
+            }
+            items(logs, key = { it.log.id }, contentType = { "timeline_block" }) { logWithPhotos ->
                 val sortedPhotos = remember(logWithPhotos.photos) {
                     logWithPhotos.photos.sortedByDescending { it.id }
                 }

@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import android.location.Geocoder
 import android.location.Location
 import android.util.Log
+import androidx.annotation.RequiresPermission
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
@@ -61,27 +62,28 @@ class LocationManager @Inject constructor(
 
     /**
      * Retrieves the current location, or null if unavailable.
-     * Uses getCurrentLocation with BALANCED priority for a fresh fix without excessive battery drain.
-     * Falls back to getLastLocation if a fresh fix is unavailable.
+     * Uses withTimeout to prevent hanging in poor signal areas.
      */
-    @Suppress("MissingPermission")
-    suspend fun getCurrentLocation(): Location? {
-        if (!hasLocationPermission()) return null
+    @android.annotation.SuppressLint("MissingPermission")
+    suspend fun getCurrentLocation(): Location? = withContext(Dispatchers.IO) {
+        if (!hasLocationPermission()) return@withContext null
 
-        return try {
-            // Try fresh location first
-            val freshLocation = getFreshLocation()
-            if (freshLocation != null) return freshLocation
+        try {
+            // Priority 1: Fresh location with strict timeout (10 seconds)
+            val freshLocation = kotlinx.coroutines.withTimeoutOrNull(kotlin.time.Duration.parse("10s")) {
+                getFreshLocation()
+            }
+            if (freshLocation != null) return@withContext freshLocation
 
-            // Fall back to last known location
+            // Priority 2: Last known location as fallback
             getLastKnownLocation()
         } catch (e: Exception) {
-            Log.w(TAG, "Failed to get location", e)
+            Log.w(TAG, "Failed to get location safely", e)
             null
         }
     }
 
-    @Suppress("MissingPermission")
+    @RequiresPermission(anyOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     private suspend fun getFreshLocation(): Location? = suspendCancellableCoroutine { cont ->
         val cancellationTokenSource = CancellationTokenSource()
         cont.invokeOnCancellation { cancellationTokenSource.cancel() }
@@ -96,7 +98,7 @@ class LocationManager @Inject constructor(
         }
     }
 
-    @Suppress("MissingPermission")
+    @RequiresPermission(anyOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     private suspend fun getLastKnownLocation(): Location? = suspendCancellableCoroutine { cont ->
         fusedLocationClient.lastLocation
             .addOnSuccessListener { location -> cont.resume(location) }

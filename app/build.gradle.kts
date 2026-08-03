@@ -69,8 +69,7 @@ android {
         buildConfig = true
     }
     lint {
-        disable += "EditedTargetSdkVersion"
-        abortOnError = false
+        abortOnError = true
     }
 }
 

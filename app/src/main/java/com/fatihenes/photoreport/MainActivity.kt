@@ -9,7 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fatihenes.photoreport.ui.navigation.AppNavGraph
 import com.fatihenes.photoreport.ui.theme.PhotoReportTheme
-import com.fatihenes.photoreport.ui.viewmodel.AppViewModel
+import com.fatihenes.photoreport.ui.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -24,7 +24,7 @@ class MainActivity : ComponentActivity() {
 
 
         setContent {
-            val viewModel: AppViewModel = hiltViewModel()
+            val viewModel: MainViewModel = hiltViewModel()
             val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
 
             val isDarkTheme = when (themeMode) {

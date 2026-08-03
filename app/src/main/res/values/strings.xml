@@ -100,12 +100,13 @@
     <string name="export_zip_estimate">📦 Tahmini ZIP Boyutu: ~%s</string>
     <string name="export_started_toast">Dışa aktarım arka planda başladı. Lütfen bekleyin…</string>
 
-    <!-- AppViewModel Errors -->
+    <!-- ViewModels & State -->
     <string name="error_unknown">Bilinmeyen bir hata oluştu</string>
 
     <!-- ExportWorker Notifications -->
     <string name="export_notif_title">Dışa Aktarılıyor</string>
     <string name="export_notif_text">%s hazırlanırken lütfen bekleyin…</string>
+    <string name="export_progress_text">Görsel %1$d / %2$d işleniyor…</string>
     <string name="export_share_chooser">Raporu Paylaş</string>
     <string name="export_complete_channel">Dışa Aktarım Tamamlandı</string>
     <string name="export_ready_title">Paylaşıma Hazır!</string>
@@ -216,4 +217,28 @@
     <string name="widget_no_project">Proje Yok</string>
     <string name="widget_images">Görseller</string>
     <string name="widget_camera_desc">Kamera</string>
+
+    <!-- FAZ 3: Professional UX, 3-Adımlı Kılavuzlu Empty States & Error Strings -->
+    <string name="empty_projects_title">Henüz Saha Raporu Projesi Yok</string>
+    <string name="empty_projects_desc">Denetim raporları üretebilmek için öncelikle yeni bir proje klasörü açmalısınız.</string>
+    <string name="empty_projects_action">Yeni Proje Başlat</string>
+
+    <string name="empty_photos_title">Proje Galerisinde Fotoğraf Yok</string>
+    <string name="empty_photos_desc">Bu projeye ait denetim görseli bulunmamaktadır. Saha durumu dokümantasyonu için kamera modülü ile çekim yapın.</string>
+    <string name="empty_photos_action">Sahadan Fotoğraf Çek</string>
+
+    <string name="empty_trash_title">Geri Dönüşüm Kutusu Boş</string>
+    <string name="empty_trash_desc">Silinen proje ve saha raporlarınız burada geçici olarak tutulur. Şu an geri kazanılacak herhangi bir silinmiş öğe bulunmuyor.</string>
+
+    <string name="error_export_failed_title">Rapor İhracı Beklenmedik Şekilde Durdu</string>
+    <string name="error_export_failed_desc">Cihaz belleğindeki yoğunluk veya depolama alanındaki geçici kısıtlamalar nedeniyle rapor tamamlanamadı.</string>
+    <string name="error_recovery_action">İşlemi Tekrar Dene</string>
+
+    <string name="error_permission_title">Kamera Erişim Yetkisi Tanımlanmadı</string>
+    <string name="error_permission_desc">Saha belgelerini fotoğraflayıp filigranla kaydetmek için kamera modülüne erişim izni verilmelidir.</string>
+    <string name="error_permission_action">Yetki Ayarlarını Aç</string>
+
+    <string name="trash_delete_confirm_title">Projeyi Kalıcı Olarak Sil</string>
+    <string name="trash_delete_confirm_desc">Seçilen saha projesini ve tüm bağlı görsellerini tamamen silmek istediğinize emin misiniz? Bu işlem geri alınamaz.</string>
+    <string name="btn_confirm_delete">Onayla ve Sil</string>
 </resources>

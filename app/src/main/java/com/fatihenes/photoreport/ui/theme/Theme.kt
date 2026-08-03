@@ -17,37 +17,38 @@ import androidx.compose.ui.unit.sp
 import androidx.core.view.WindowCompat
 
 private val LightColorScheme = lightColorScheme(
-    primary = Primary,
+    primary = PrimaryLight,
     onPrimary = Color.White,
-    primaryContainer = PrimaryContainer,
-    onPrimaryContainer = PrimaryDark,
-    secondary = Secondary,
+    primaryContainer = PrimaryContainerLight,
+    onPrimaryContainer = OnPrimaryContainerLight,
+    secondary = SecondaryLight,
     onSecondary = Color.White,
     background = BackgroundLight,
-    onBackground = OnBackground,
+    onBackground = OnBackgroundLight,
     surface = SurfaceLight,
-    onSurface = OnBackground,
+    onSurface = OnBackgroundLight,
     surfaceVariant = SurfaceVariantLight,
-    onSurfaceVariant = OnBackgroundSecondary,
-    outline = Border,
+    onSurfaceVariant = OnBackgroundSecondaryLight,
+    outline = BorderLight,
     outlineVariant = BorderLight,
-    error = Error
+    error = Error,
+    errorContainer = ErrorContainer
 )
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Primary,
-    onPrimary = Color.White,
-    primaryContainer = SurfaceVariantDark,
-    onPrimaryContainer = Color.White,
-    secondary = Secondary,
-    onSecondary = Color.White,
+    primary = PrimaryDark,
+    onPrimary = Color.Black,
+    primaryContainer = PrimaryContainerDark,
+    onPrimaryContainer = OnPrimaryContainerDark,
+    secondary = SecondaryDark,
+    onSecondary = Color.Black,
     background = BackgroundDark,
-    onBackground = Color.White,
+    onBackground = OnBackgroundDark,
     surface = SurfaceDark,
-    onSurface = Color.White,
+    onSurface = OnBackgroundDark,
     surfaceVariant = SurfaceVariantDark,
-    onSurfaceVariant = OnBackgroundTertiary,
-    outline = OnBackgroundSecondary,
+    onSurfaceVariant = OnBackgroundSecondaryDark,
+    outline = BorderDark,
     outlineVariant = SurfaceVariantDark,
     error = Error
 )
@@ -56,9 +57,9 @@ private val AppTypography = Typography(
     headlineLarge = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Bold,
-        fontSize = 32.sp,
-        lineHeight = 40.sp,
-        letterSpacing = (-1).sp
+        fontSize = 30.sp,
+        lineHeight = 38.sp,
+        letterSpacing = (-0.75).sp
     ),
     headlineMedium = TextStyle(
         fontFamily = FontFamily.SansSerif,
@@ -82,22 +83,22 @@ private val AppTypography = Typography(
     bodyLarge = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Normal,
-        fontSize = 17.sp,
+        fontSize = 16.sp,
         lineHeight = 24.sp,
-        letterSpacing = 0.5.sp
+        letterSpacing = 0.25.sp
     ),
     bodyMedium = TextStyle(
         fontFamily = FontFamily.SansSerif,
         fontWeight = FontWeight.Normal,
         fontSize = 15.sp,
-        lineHeight = 20.sp,
-        letterSpacing = 0.25.sp
+        lineHeight = 22.sp,
+        letterSpacing = 0.15.sp
     ),
     labelLarge = TextStyle(
         fontFamily = FontFamily.SansSerif,
-        fontWeight = FontWeight.Medium,
-        fontSize = 14.sp,
-        lineHeight = 20.sp
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 15.sp,
+        lineHeight = 22.sp
     )
 )
 

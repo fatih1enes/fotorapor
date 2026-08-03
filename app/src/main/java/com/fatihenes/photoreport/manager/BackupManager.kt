@@ -48,11 +48,32 @@ interface BackupManager {
 
 @Singleton
 class LocalBackupManager @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
     private val database: AppDatabase,
     private val fileManager: FileManager,
     private val photoDao: PhotoDao
 ) : BackupManager {
+
+    /**
+     * Future-ready output stream provider.
+     * Encryption (e.g., CipherOutputStream) can be easily added here.
+     */
+    private fun getBackupOutputStream(destUri: Uri): java.io.OutputStream? {
+        val baseStream = context.contentResolver.openOutputStream(destUri) ?: return null
+        // Placeholder for future encryption:
+        // return CipherOutputStream(baseStream, secretKey)
+        return baseStream
+    }
+
+    /**
+     * Future-ready input stream provider.
+     */
+    private fun getBackupInputStream(sourceUri: Uri): java.io.InputStream? {
+        val baseStream = context.contentResolver.openInputStream(sourceUri) ?: return null
+        // Placeholder for future decryption:
+        // return CipherInputStream(baseStream, secretKey)
+        return baseStream
+    }
 
     override fun createBackup(destUri: Uri): Flow<OperationResult<Unit>> = flow {
         emit(OperationResult.Loading(0))
@@ -66,12 +87,11 @@ class LocalBackupManager @Inject constructor(
 
             // Add DB files
             val dbFile = File(dbPath)
-            val dbShm = File("$dbPath-shm")
-            val dbWal = File("$dbPath-wal")
-
             if (dbFile.exists()) filesToZip.add(Pair("database/photoreport_database", dbFile))
-            if (dbShm.exists()) filesToZip.add(Pair("database/photoreport_database-shm", dbShm))
-            if (dbWal.exists()) filesToZip.add(Pair("database/photoreport_database-wal", dbWal))
+            listOf("-shm", "-wal").forEach { suffix ->
+                val f = File(dbPath + suffix)
+                if (f.exists()) filesToZip.add(Pair("database/photoreport_database$suffix", f))
+            }
 
             // Add SharedPreferences
             val prefsDir = File(context.applicationInfo.dataDir, "shared_prefs")
@@ -86,8 +106,9 @@ class LocalBackupManager @Inject constructor(
             allPhotos.forEach { photo ->
                 val uri = photo.filePath.toUri()
                 val extension = if (uri.scheme == "content") {
-                    val type = context.contentResolver.getType(uri)
-                    MimeTypeMap.getSingleton().getExtensionFromMimeType(type) ?: "jpg"
+                    context.contentResolver.getType(uri)?.let { 
+                        MimeTypeMap.getSingleton().getExtensionFromMimeType(it) 
+                    } ?: "jpg"
                 } else {
                     photo.filePath.substringAfterLast(".", "avif")
                 }
@@ -96,24 +117,20 @@ class LocalBackupManager @Inject constructor(
 
             emit(OperationResult.Loading(20))
 
-            context.contentResolver.openOutputStream(destUri)?.use { os ->
+            getBackupOutputStream(destUri)?.use { os ->
                 ZipOutputStream(BufferedOutputStream(os)).use { zos ->
                     val total = filesToZip.size
-                    filesToZip.forEachIndexed { index, pair ->
-                        val (zipPath, item) = pair
-                        val entry = ZipEntry(zipPath)
-                        zos.putNextEntry(entry)
-                        
+                    filesToZip.forEachIndexed { index, (zipPath, item) ->
                         try {
+                            zos.putNextEntry(ZipEntry(zipPath))
                             when (item) {
-                                is File -> FileInputStream(item).use { fis -> fis.copyTo(zos) }
-                                is Uri -> context.contentResolver.openInputStream(item)?.use { ins -> ins.copyTo(zos) }
+                                is File -> FileInputStream(item).use { it.copyTo(zos) }
+                                is Uri -> context.contentResolver.openInputStream(item)?.use { it.copyTo(zos) }
                             }
+                            zos.closeEntry()
                         } catch (e: Exception) {
-                            // Skip missing media files safely
+                            android.util.Log.w("BackupManager", "Skipping file in backup: $zipPath", e)
                         }
-                        
-                        zos.closeEntry()
 
                         val progress = 20 + ((index + 1) * 80 / total)
                         emit(OperationResult.Loading(progress))
@@ -133,14 +150,11 @@ class LocalBackupManager @Inject constructor(
             // Stop background workers
             androidx.work.WorkManager.getInstance(context).cancelAllWork()
 
-            // Extract to temp folder
             val tempDirResult = fileManager.createTempDirectory("restore")
-            if (tempDirResult !is OperationResult.Success) {
-                throw Exception("Geçici klasör oluşturulamadı")
-            }
+            if (tempDirResult !is OperationResult.Success) throw Exception("Geçici klasör oluşturulamadı")
             val tempDir = tempDirResult.data
 
-            context.contentResolver.openInputStream(sourceUri)?.use { ins ->
+            getBackupInputStream(sourceUri)?.use { ins ->
                 ZipInputStream(BufferedInputStream(ins)).use { zis ->
                     var entry: ZipEntry? = zis.nextEntry
                     while (entry != null) {
@@ -149,9 +163,7 @@ class LocalBackupManager @Inject constructor(
                             outFile.mkdirs()
                         } else {
                             outFile.parentFile?.mkdirs()
-                            FileOutputStream(outFile).use { fos ->
-                                zis.copyTo(fos)
-                            }
+                            FileOutputStream(outFile).use { zis.copyTo(it) }
                         }
                         zis.closeEntry()
                         entry = zis.nextEntry
@@ -161,67 +173,47 @@ class LocalBackupManager @Inject constructor(
 
             emit(OperationResult.Loading(50))
 
-            // Restore Database
+            // Database Restoration
             val extractedDb = File(tempDir, "database/photoreport_database")
             if (extractedDb.exists()) {
-                // Close current DB connections securely
                 database.close()
                 val dbPath = context.getDatabasePath("photoreport_database").absolutePath
-                val currentDb = File(dbPath)
-                val currentShm = File("$dbPath-shm")
-                val currentWal = File("$dbPath-wal")
-
-                extractedDb.copyTo(currentDb, overwrite = true)
-
-                val extractedShm = File(tempDir, "database/photoreport_database-shm")
-                if (extractedShm.exists()) extractedShm.copyTo(currentShm, overwrite = true)
-                else currentShm.delete()
-
-                val extractedWal = File(tempDir, "database/photoreport_database-wal")
-                if (extractedWal.exists()) extractedWal.copyTo(currentWal, overwrite = true)
-                else currentWal.delete()
-            }
-
-            // Restore Prefs
-            val extractedPrefsDir = File(tempDir, "prefs")
-            if (extractedPrefsDir.exists() && extractedPrefsDir.isDirectory) {
-                val prefsDir = File(context.applicationInfo.dataDir, "shared_prefs")
-                prefsDir.mkdirs()
-                extractedPrefsDir.listFiles()?.forEach { prefFile ->
-                    prefFile.copyTo(File(prefsDir, prefFile.name), overwrite = true)
+                extractedDb.copyTo(File(dbPath), overwrite = true)
+                listOf("-shm", "-wal").forEach { suffix ->
+                    val src = File(tempDir, "database/photoreport_database$suffix")
+                    val dst = File(dbPath + suffix)
+                    if (src.exists()) src.copyTo(dst, overwrite = true) else dst.delete()
                 }
             }
 
-            // Restore Media
-            val extractedMediaDir = File(tempDir, "media")
-            if (extractedMediaDir.exists() && extractedMediaDir.isDirectory) {
-                val appMediaDir = File(context.filesDir, "restored_media")
-                if (appMediaDir.exists()) appMediaDir.deleteRecursively()
-                appMediaDir.mkdirs()
+            // Prefs Restoration
+            File(tempDir, "prefs").takeIf { it.exists() && it.isDirectory }?.let { extractedPrefsDir ->
+                val prefsDir = File(context.applicationInfo.dataDir, "shared_prefs").apply { mkdirs() }
+                extractedPrefsDir.listFiles()?.forEach { it.copyTo(File(prefsDir, it.name), overwrite = true) }
+            }
+
+            // Media Restoration & DB Path Update
+            File(tempDir, "media").takeIf { it.exists() && it.isDirectory }?.let { extractedMediaDir ->
+                val appMediaDir = File(context.filesDir, "restored_media").apply { 
+                    if (exists()) deleteRecursively()
+                    mkdirs()
+                }
                 
-                // We need to update the DB paths to point to the restored files
                 val dbPath = context.getDatabasePath("photoreport_database").absolutePath
-                val sqliteDb = android.database.sqlite.SQLiteDatabase.openDatabase(dbPath, null, android.database.sqlite.SQLiteDatabase.OPEN_READWRITE)
-                
-                extractedMediaDir.listFiles()?.forEach { mediaFile ->
-                    val destFile = File(appMediaDir, mediaFile.name)
-                    mediaFile.copyTo(destFile, overwrite = true)
-                    
-                    val photoId = mediaFile.name.substringBefore(".").toLongOrNull()
-                    if (photoId != null) {
-                        val newPath = destFile.absolutePath
-                        sqliteDb.execSQL("UPDATE photos SET filePath = ? WHERE id = ?", arrayOf<Any>(newPath, photoId))
+                android.database.sqlite.SQLiteDatabase.openDatabase(dbPath, null, android.database.sqlite.SQLiteDatabase.OPEN_READWRITE).use { sqliteDb ->
+                    extractedMediaDir.listFiles()?.forEach { mediaFile ->
+                        val destFile = File(appMediaDir, mediaFile.name)
+                        mediaFile.copyTo(destFile, overwrite = true)
+                        mediaFile.name.substringBefore(".").toLongOrNull()?.let { photoId ->
+                            sqliteDb.execSQL("UPDATE photos SET filePath = ? WHERE id = ?", arrayOf(destFile.absolutePath, photoId))
+                        }
                     }
                 }
-                sqliteDb.close()
             }
 
-            // Cleanup
             fileManager.deleteDirectoryRecursively(tempDir)
-
             emit(OperationResult.Loading(100))
             emit(OperationResult.Success(Unit))
-
         } catch (e: Exception) {
             emit(OperationResult.Error(e, "Geri yükleme başarısız oldu."))
         }

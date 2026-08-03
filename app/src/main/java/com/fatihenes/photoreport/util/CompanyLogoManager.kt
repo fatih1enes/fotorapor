@@ -3,6 +3,8 @@ package com.fatihenes.photoreport.util
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 
@@ -13,7 +15,7 @@ object CompanyLogoManager {
         return File(context.filesDir, LOGO_FILE_NAME)
     }
 
-    fun saveLogo(context: Context, bitmap: Bitmap) {
+    suspend fun saveLogo(context: Context, bitmap: Bitmap) = withContext(Dispatchers.IO) {
         val file = getLogoFile(context)
         FileOutputStream(file).use { out ->
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
@@ -23,8 +25,6 @@ object CompanyLogoManager {
     fun getLogoUri(context: Context): Uri? {
         val file = getLogoFile(context)
         if (!file.exists()) return null
-        // DÃƒÆ’Ã‚Â¶nÃƒÆ’Ã‚Â¼Ãƒâ€¦Ã…Â¸ olarak FileProvider URI'si verebiliriz, ya da direkt file URI verebiliriz
-        // Glide ve AsyncImage iÃƒÆ’Ã‚Â§in file:// yeterli
         return Uri.fromFile(file)
     }
 
@@ -32,7 +32,7 @@ object CompanyLogoManager {
         return getLogoFile(context).exists()
     }
 
-    fun deleteLogo(context: Context) {
+    suspend fun deleteLogo(context: Context) = withContext(Dispatchers.IO) {
         val file = getLogoFile(context)
         if (file.exists()) {
             file.delete()

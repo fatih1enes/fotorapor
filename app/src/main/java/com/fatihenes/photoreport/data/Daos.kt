@@ -73,6 +73,9 @@ interface PhotoDao {
     @Query("SELECT photos.* FROM photos INNER JOIN daily_logs ON photos.logId = daily_logs.id WHERE daily_logs.projectId = :projectId AND photos.isDeleted = 0 ORDER BY photos.id DESC")
     fun getPhotosForProject(projectId: Long): Flow<List<PhotoEntity>>
 
+    @Query("SELECT photos.* FROM photos INNER JOIN daily_logs ON photos.logId = daily_logs.id WHERE daily_logs.projectId = :projectId AND photos.isDeleted = 0 ORDER BY photos.id ASC LIMIT :limit OFFSET :offset")
+    suspend fun getPhotosForProjectChunked(projectId: Long, limit: Int, offset: Int): List<PhotoEntity>
+
     @Insert
     suspend fun insertPhoto(photo: PhotoEntity)
 

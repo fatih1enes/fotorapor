@@ -3,10 +3,7 @@ package com.fatihenes.photoreport.manager
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.Color
-import android.graphics.Paint
 import android.graphics.RectF
-import android.graphics.Typeface
 import android.graphics.pdf.PdfDocument
 import android.net.Uri
 import android.text.Layout
@@ -33,6 +30,11 @@ import kotlin.math.min
 import com.fatihenes.photoreport.R
 import androidx.core.graphics.withTranslation
 
+import com.fatihenes.photoreport.manager.pdf.PdfMetadataWriter
+import com.fatihenes.photoreport.manager.pdf.PdfStyle
+import com.fatihenes.photoreport.manager.pdf.PdfTheme
+import com.fatihenes.photoreport.manager.pdf.PdfTypography
+
 /**
  * Handles PDF generation operations asynchronously.
  */
@@ -49,7 +51,8 @@ interface PdfExportManager {
         project: ProjectEntity,
         logs: List<LogWithPhotos>,
         quality: Int = 100,
-        language: String = "tr"
+        language: String = "tr",
+        onProgress: ((current: Int, total: Int) -> Unit)? = null
     ): OperationResult<Uri>
 }
 
@@ -62,7 +65,8 @@ class NativePdfExportManager @Inject constructor(
         project: ProjectEntity,
         logs: List<LogWithPhotos>,
         quality: Int,
-        language: String
+        language: String,
+        onProgress: ((current: Int, total: Int) -> Unit)?
     ): OperationResult<Uri> = withContext(Dispatchers.IO) {
         var pdfDocument: PdfDocument? = null
         var logoBmp: Bitmap? = null
@@ -70,56 +74,16 @@ class NativePdfExportManager @Inject constructor(
             val locale = if (language == "en") Locale.US else Locale("tr", "TR")
             val config = android.content.res.Configuration(context.resources.configuration)
             config.setLocale(locale)
-            val localizedContext = context.createConfigurationContext(config)
+            context.createConfigurationContext(config)
 
             pdfDocument = PdfDocument()
             val sortedLogs = logs.sortedBy { it.log.date }
 
-            val pageWidth = 595 // A4 width at 72 DPI
-            val pageHeight = 842 // A4 height at 72 DPI
-            val margin = 40f
+            val typography = PdfTypography()
+            val pageWidth = PdfTheme.PAGE_WIDTH
+            val pageHeight = PdfTheme.PAGE_HEIGHT
+            val margin = PdfTheme.MARGIN
             var pageNumber = 1
-
-            // Paints
-            val titlePaint = TextPaint().apply {
-                color = Color.BLACK
-                textSize = 22f
-                typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-                isAntiAlias = true
-            }
-
-            val headerLinePaint = Paint().apply {
-                color = Color.LTGRAY
-                strokeWidth = 1.5f
-                isAntiAlias = true
-            }
-
-            val datePaint = TextPaint().apply {
-                color = Color.DKGRAY
-                textSize = 14f
-                typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-                isAntiAlias = true
-            }
-
-            val notePaint = TextPaint().apply {
-                color = Color.BLACK
-                textSize = 11f
-                typeface = Typeface.DEFAULT
-                isAntiAlias = true
-            }
-
-            val pageNumPaint = TextPaint().apply {
-                color = Color.GRAY
-                textSize = 10f
-                typeface = Typeface.DEFAULT
-                isAntiAlias = true
-            }
-
-            val bitmapPaint = Paint().apply {
-                isFilterBitmap = true
-                isAntiAlias = true
-                isDither = true
-            }
 
             // Preload logo bitmap
             val logoUri = CompanyLogoManager.getLogoUri(context)
@@ -127,152 +91,144 @@ class NativePdfExportManager @Inject constructor(
                 logoBmp = ImageUtils.loadScaledBitmap(context, logoUri.toString(), 500, 500)
             }
 
+            val reportIdStr = "${project.id.toString().padStart(4, '0')}-${System.currentTimeMillis() % 1000}"
+            val generatedDateStr = DateUtils.formatDate(System.currentTimeMillis(), language)
+            val timeStr = android.text.format.DateFormat.format("HH:mm", System.currentTimeMillis()).toString()
+
             var pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
             var currentPage = pdfDocument.startPage(pageInfo)
             var canvas = currentPage.canvas
-            var currentY = margin
+            var currentY: Float
 
-            fun drawHeader() {
-                val title = project.name
-                val titleWidth = titlePaint.measureText(title)
-                val startX = (pageWidth - titleWidth) / 2f
-                canvas.drawText(title, startX, margin + 20f, titlePaint)
+            val layoutHelper = com.fatihenes.photoreport.manager.pdf.AdaptivePdfLayoutHelper()
 
-                currentY = margin + 40f
-                canvas.drawLine(margin, currentY, pageWidth - margin, currentY, headerLinePaint)
-                currentY += 20f
-
-                logoBmp?.let { logo ->
-                    val logoHeight = 35f
-                    val scale = logoHeight / logo.height
-                    val logoWidth = logo.width * scale
-                    val rect = RectF(pageWidth - margin - logoWidth, margin, pageWidth - margin, margin + logoHeight)
-                    canvas.drawBitmap(logo, null, rect, bitmapPaint)
-                }
+            fun renderPageHeader(): Float {
+                return PdfStyle.drawHeader(
+                    canvas = canvas,
+                    projectName = project.name,
+                    dateStr = generatedDateStr,
+                    timeStr = timeStr,
+                    reportId = reportIdStr,
+                    logoBmp = logoBmp,
+                    language = language,
+                    typography = typography
+                )
             }
 
-            fun closeAndStartNewPage() {
-                val footerText = "${localizedContext.getString(R.string.page_label)} $pageNumber"
-                val footerWidth = pageNumPaint.measureText(footerText)
-                canvas.drawText(footerText, (pageWidth - footerWidth) / 2f, pageHeight - margin / 2f, pageNumPaint)
-
+            fun closeAndStartNewPage(): Float {
+                PdfStyle.drawFooter(canvas, pageNumber, language, typography)
                 pdfDocument.finishPage(currentPage)
+                
                 pageNumber++
                 pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
                 currentPage = pdfDocument.startPage(pageInfo)
                 canvas = currentPage.canvas
-                currentY = margin
-                drawHeader()
+                return renderPageHeader()
             }
 
-            drawHeader()
+            currentY = renderPageHeader()
+            layoutHelper.reset(currentY)
 
             var isFirstLog = true
+            var photoIndex = 1
+            val totalPhotos = logs.sumOf { it.photos.size }
+            var currentPhotoCount = 0
+
             for (logWithPhotos in sortedLogs) {
                 val log = logWithPhotos.log
                 val photos = logWithPhotos.photos
 
                 if (!isFirstLog) {
-                    closeAndStartNewPage()
+                    currentY = closeAndStartNewPage()
+                    layoutHelper.reset(currentY)
                 }
                 isFirstLog = false
 
-                // Date
-                val dateStr = "${localizedContext.getString(R.string.date_label)} ${DateUtils.formatDate(log.date, language)}"
-                canvas.drawText(dateStr, margin, currentY + 14f, datePaint)
-                currentY += 30f
+                // Date section header
+                val dateLabel = if (language == "en") "INSPECTION DATE:" else "DENETİM TARİHİ:"
+                val dateStr = "$dateLabel ${DateUtils.formatDate(log.date, language)}"
+                canvas.drawText(dateStr, margin, currentY + 12f, typography.dateSectionPaint)
+                currentY += 28f
+                layoutHelper.updateY(currentY)
 
                 // Note with multi-line wrapping and native Turkish character support
                 if (log.note.isNotBlank()) {
-                    val noteWidth = (pageWidth - (margin * 2) - 20).toInt()
+                    val noteWidth = (pageWidth - (margin * 2) - 10).toInt()
                     val staticLayout = StaticLayout.Builder
-                        .obtain(log.note, 0, log.note.length, notePaint, noteWidth)
+                        .obtain(log.note, 0, log.note.length, typography.bodyPaint, noteWidth)
                         .setAlignment(Layout.Alignment.ALIGN_NORMAL)
-                        .setLineSpacing(0f, 1.15f)
+                        .setLineSpacing(0f, 1.25f)
                         .build()
 
-                    if (currentY + staticLayout.height > pageHeight - margin - 50f) {
-                        closeAndStartNewPage()
+                    if (currentY + staticLayout.height > pageHeight - margin - PdfTheme.FOOTER_HEIGHT) {
+                        currentY = closeAndStartNewPage()
+                        layoutHelper.reset(currentY)
+                        canvas.drawText(dateStr, margin, currentY + 12f, typography.dateSectionPaint)
+                        currentY += 28f
+                        layoutHelper.updateY(currentY)
                     }
 
-                    canvas.withTranslation(margin + 10f, currentY) {
+                    canvas.withTranslation(margin + 4f, currentY) {
                         staticLayout.draw(this)
                     }
 
-                    currentY += staticLayout.height + 20f
+                    currentY += staticLayout.height + 22f
+                    layoutHelper.updateY(currentY)
                 }
 
-                // Photos grid (2 columns)
+                // Photos adaptive grid
                 if (photos.isNotEmpty()) {
-                    var col = 0
-                    val imgWidth = 230f
-                    val imgHeight = 280f
-                    val spacing = 15f
-
                     for (photo in photos) {
                         if (photo.filePath.endsWith(".mp4", ignoreCase = true)) continue
 
-                        if (currentY + imgHeight > pageHeight - margin - 30f) {
-                            closeAndStartNewPage()
-                            col = 0
-                        }
+                        onProgress?.invoke(++currentPhotoCount, totalPhotos)
 
-                        val x = margin + col * (imgWidth + spacing)
-
-                        var activeBitmap: Bitmap? = null
                         try {
-                            val reqDim = if (quality == 100) 1000 else 700
-                            val loadedBmp = ImageUtils.loadScaledBitmap(
-                                context, photo.filePath, reqDim, reqDim, Bitmap.Config.RGB_565
-                            )
-                            if (loadedBmp != null) {
-                                activeBitmap = loadedBmp
-                                val exifRotation = ImageUtils.getExifRotation(context, photo.filePath)
-                                val totalRotation = (exifRotation + photo.rotation) % 360f
-
-                                if (totalRotation != 0f) {
-                                    val matrix = android.graphics.Matrix().apply { postRotate(totalRotation) }
-                                    val rotated = Bitmap.createBitmap(loadedBmp, 0, 0, loadedBmp.width, loadedBmp.height, matrix, true)
-                                    if (rotated !== loadedBmp) {
-                                        loadedBmp.recycle()
-                                        activeBitmap = rotated
-                                    }
-                                }
-
-                                activeBitmap.let { bmp ->
-                                    val scale = min(imgWidth / bmp.width, imgHeight / bmp.height)
-                                    val w = bmp.width * scale
-                                    val h = bmp.height * scale
-                                    val drawX = x + (imgWidth - w) / 2f
-                                    val drawY = currentY + (imgHeight - h) / 2f
-                                    val destRect = RectF(drawX, drawY, drawX + w, drawY + h)
-                                    canvas.drawBitmap(bmp, null, destRect, bitmapPaint)
-                                }
+                            // First pass to get dimensions for layout calculation
+                            val boundsOptions = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+                            ImageUtils.openInputStreamSafe(context, photo.filePath)?.use { input ->
+                                BitmapFactory.decodeStream(input, null, boundsOptions)
                             }
+                            
+                            val photoW = boundsOptions.outWidth
+                            val photoH = boundsOptions.outHeight
+                            
+                            val layoutResult = layoutHelper.calculateSlot(photoW, photoH)
+                            if (layoutResult.isNewPageRequired) {
+                                currentY = closeAndStartNewPage()
+                                layoutHelper.reset(currentY)
+                                // If it was a landscape photo that triggered new page, we might want to re-calculate 
+                                // but for simplicity and safety, the second attempt will definitely fit.
+                                val retryResult = layoutHelper.calculateSlot(photoW, photoH)
+                                drawPhoto(context, photo, retryResult.rect, canvas, typography, log.date, language, photoIndex++, quality)
+                                layoutHelper.updateY(retryResult.nextY)
+                            } else {
+                                drawPhoto(context, photo, layoutResult.rect, canvas, typography, log.date, language, photoIndex++, quality)
+                                layoutHelper.updateY(layoutResult.nextY)
+                            }
+                            currentY = layoutHelper.getCurrentY()
+
                         } catch (e: Exception) {
                             android.util.Log.e("PdfExport", "Photo rendering failed", e)
-                        } finally {
-                            activeBitmap?.recycle()
-                        }
-
-                        col++
-                        if (col > 1) {
-                            col = 0
-                            currentY += (imgHeight + spacing)
                         }
                     }
-
-                    if (col > 0) {
-                        currentY += (imgHeight + spacing)
+                    
+                    // Final spacing after log's photos if we ended on a partial row
+                    if (layoutHelper.getCurrentColumn() > 0) {
+                        currentY += (PdfTheme.IMAGE_HEIGHT + PdfTheme.GRID_SPACING)
+                        layoutHelper.updateY(currentY)
                     }
                 }
             }
 
-            // Footer for final page
-            val footerText = "${localizedContext.getString(R.string.page_label)} $pageNumber"
-            val footerWidth = pageNumPaint.measureText(footerText)
-            canvas.drawText(footerText, (pageWidth - footerWidth) / 2f, pageHeight - margin / 2f, pageNumPaint)
+            // Son Sayfa İmza ve Onay Bloğu Kontrolü (Sign-Off Table)
+            if (currentY + PdfTheme.SIGN_OFF_HEIGHT > pageHeight - margin - PdfTheme.FOOTER_HEIGHT) {
+                currentY = closeAndStartNewPage()
+            }
+            PdfStyle.drawSignOffBlock(canvas, currentY, language, typography)
 
+            // Final Sayfa Altbilgisi (Footer)
+            PdfStyle.drawFooter(canvas, pageNumber, language, typography)
             pdfDocument.finishPage(currentPage)
 
             val directory = context.getExternalFilesDir("PDFs")
@@ -285,13 +241,74 @@ class NativePdfExportManager @Inject constructor(
                 pdfDocument.writeTo(out)
             }
 
+            // Adobe Reader uyurlu resmi PDF Metadata bilgisi ekleniyor
+            val subjectTitle = if (language == "en") "Field Inspection & Technical Report" else "Saha Denetim ve Teknik Gözlem Raporu"
+            PdfMetadataWriter.injectMetadata(
+                pdfFile = file,
+                title = "FotoRapor - ${project.name}",
+                subject = subjectTitle
+            )
+
             val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
             OperationResult.Success(uri)
         } catch (e: Exception) {
-            OperationResult.Error(e, "PDF oluşturulurken bir hata oluştu.")
+            val errMsg = if (language == "en") "Error occurred while generating PDF report." else "PDF raporu oluşturulurken bir hata meydana geldi."
+            OperationResult.Error(e, errMsg)
         } finally {
             logoBmp?.recycle()
             pdfDocument?.close()
+        }
+    }
+
+    private fun drawPhoto(
+        context: Context,
+        photo: com.fatihenes.photoreport.data.PhotoEntity,
+        rect: com.fatihenes.photoreport.manager.pdf.PdfRect,
+        canvas: android.graphics.Canvas,
+        typography: com.fatihenes.photoreport.manager.pdf.PdfTypography,
+        date: Long,
+        language: String,
+        photoIndex: Int,
+        quality: Int
+    ) {
+        var activeBitmap: Bitmap? = null
+        try {
+            val reqDim = if (quality == 100) 1500 else 1000
+            val loadedBmp = ImageUtils.loadScaledBitmap(
+                context, photo.filePath, reqDim, reqDim, Bitmap.Config.ARGB_8888
+            )
+            if (loadedBmp != null) {
+                activeBitmap = loadedBmp
+                val exifRotation = ImageUtils.getExifRotation(context, photo.filePath)
+                val totalRotation = (exifRotation + photo.rotation) % 360f
+
+                if (totalRotation != 0f) {
+                    val matrix = android.graphics.Matrix().apply { postRotate(totalRotation) }
+                    val rotated = Bitmap.createBitmap(loadedBmp, 0, 0, loadedBmp.width, loadedBmp.height, matrix, true)
+                    if (rotated !== loadedBmp) {
+                        loadedBmp.recycle()
+                        activeBitmap = rotated
+                    }
+                }
+
+                activeBitmap.let { bmp ->
+                    val captionPrefix = if (language == "en") "Photo" else "Görsel"
+                    val captionText = "$captionPrefix #$photoIndex • ${DateUtils.formatDate(date, language)}"
+                    
+                    PdfStyle.drawPhotoFrame(
+                        canvas = canvas,
+                        bitmap = bmp,
+                        x = rect.left,
+                        y = rect.top,
+                        width = rect.width(),
+                        height = rect.height(),
+                        captionText = captionText,
+                        typography = typography
+                    )
+                }
+            }
+        } finally {
+            activeBitmap?.recycle()
         }
     }
 }

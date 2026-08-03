@@ -31,18 +31,23 @@ import kotlinx.coroutines.delay
 import com.fatihenes.photoreport.ui.navigation.LocalSnackbarHostState
 import com.fatihenes.photoreport.R
 import com.fatihenes.photoreport.ui.components.ImageCropperDialog
-import com.fatihenes.photoreport.ui.viewmodel.AppViewModel
+import com.fatihenes.photoreport.ui.viewmodel.SettingsViewModel
 import com.fatihenes.photoreport.util.CompanyLogoManager
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     onBack: () -> Unit,
-    viewModel: AppViewModel,
+    viewModel: SettingsViewModel,
 ) {
     val context = LocalContext.current
-    val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
-    val language by viewModel.language.collectAsStateWithLifecycle()
+    val scope = rememberCoroutineScope()
+    val snackbarHost = LocalSnackbarHostState.current
+    val settings by viewModel.settings.collectAsStateWithLifecycle()
+    
+    val themeMode = settings?.themeMode ?: "system"
+    val language = settings?.language ?: "tr"
+    val gpsWatermarkEnabled = settings?.gpsWatermarkEnabled ?: false
 
     var logoUri by remember { mutableStateOf(CompanyLogoManager.getLogoUri(context)) }
     var logoVersion by remember { mutableLongStateOf(System.currentTimeMillis()) }
@@ -62,17 +67,16 @@ fun SettingsScreen(
             imageUri = imageToCropUri!!,
             onDismiss = { imageToCropUri = null },
             onCropSuccess = { bitmap ->
-                CompanyLogoManager.saveLogo(context, bitmap)
-                logoUri = CompanyLogoManager.getLogoUri(context)
-                logoVersion = System.currentTimeMillis()
-                imageToCropUri = null
-                bitmap.recycle() // OOM önlemi
+                scope.launch {
+                    CompanyLogoManager.saveLogo(context, bitmap)
+                    logoUri = CompanyLogoManager.getLogoUri(context)
+                    logoVersion = System.currentTimeMillis()
+                    imageToCropUri = null
+                    bitmap.recycle() // OOM önlemi
+                }
             }
         )
     }
-
-    val snackbarHost = LocalSnackbarHostState.current
-    val scope = rememberCoroutineScope()
 
     Scaffold(
         topBar = {
@@ -201,9 +205,11 @@ fun SettingsScreen(
                     if (logoUri != null) {
                         TextButton(
                             onClick = {
-                                CompanyLogoManager.deleteLogo(context)
-                                logoUri = null
-                                logoVersion = System.currentTimeMillis()
+                                scope.launch {
+                                    CompanyLogoManager.deleteLogo(context)
+                                    logoUri = null
+                                    logoVersion = System.currentTimeMillis()
+                                }
                             },
                             modifier = Modifier.align(Alignment.End),
                             colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error)
@@ -219,8 +225,6 @@ fun SettingsScreen(
             // GPS Watermark Section
             SettingsSectionTitle(stringResource(R.string.settings_gps_watermark))
             SettingsCard {
-                val gpsWatermarkEnabled by viewModel.gpsWatermarkEnabled.collectAsStateWithLifecycle()
-
                 val locationPermissionLauncher = rememberLauncherForActivityResult(
                     contract = ActivityResultContracts.RequestMultiplePermissions()
                 ) { permissions ->
@@ -312,8 +316,9 @@ fun SettingsScreen(
                             delay(2000)
                             val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
                             intent?.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                            context.startActivity(intent)
-                            Runtime.getRuntime().exit(0)
+                            if (intent != null) {
+                                context.startActivity(intent)
+                            }
                         }
                     } else if (restoreState is com.fatihenes.photoreport.util.result.OperationResult.Error) {
                         scope.launch { snackbarHost.showSnackbar((restoreState as com.fatihenes.photoreport.util.result.OperationResult.Error).message ?: "Geri yükleme hatası") }

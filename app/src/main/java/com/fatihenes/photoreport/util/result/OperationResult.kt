@@ -36,7 +36,6 @@ sealed class OperationResult<out T> {
      * @param action The block to execute, providing the successful data.
      * @return The original [OperationResult] for chaining.
      */
-    @Suppress("unused")
     inline fun onSuccess(action: (T) -> Unit): OperationResult<T> {
         if (this is Success) action(data)
         return this
@@ -48,7 +47,6 @@ sealed class OperationResult<out T> {
      * @param action The block to execute, providing the error and message.
      * @return The original [OperationResult] for chaining.
      */
-    @Suppress("unused")
     inline fun onError(action: (Throwable, String?) -> Unit): OperationResult<T> {
         if (this is Error) action(error, message)
         return this

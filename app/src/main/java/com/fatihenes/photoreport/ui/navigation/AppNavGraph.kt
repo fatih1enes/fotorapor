@@ -36,7 +36,8 @@ import com.fatihenes.photoreport.ui.ProjectDetailScreen
 import com.fatihenes.photoreport.ui.SettingsScreen
 import com.fatihenes.photoreport.ui.TrashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.fatihenes.photoreport.ui.viewmodel.AppViewModel
+import com.fatihenes.photoreport.ui.viewmodel.MainViewModel
+import com.fatihenes.photoreport.ui.viewmodel.SettingsViewModel
 import com.fatihenes.photoreport.ui.viewmodel.DashboardViewModel
 import com.fatihenes.photoreport.ui.viewmodel.ProjectDetailViewModel
 import com.fatihenes.photoreport.ui.viewmodel.UiState
@@ -61,7 +62,7 @@ val LocalSnackbarHostState = staticCompositionLocalOf<SnackbarHostState> {
  */
 @Composable
 fun AppNavGraph(
-    viewModel: AppViewModel,
+    viewModel: MainViewModel,
     initialCameraProjectId: Long = -1L,
     initialProjectDetailId: Long = -1L
 ) {
@@ -187,9 +188,10 @@ fun AppNavGraph(
         }
 
         composable(Routes.SETTINGS) {
+            val settingsViewModel: SettingsViewModel = hiltViewModel()
             SettingsScreen(
                 onBack = { navController.popBackStack() },
-                viewModel = viewModel
+                viewModel = settingsViewModel
             )
         }
 
@@ -261,8 +263,11 @@ fun AppNavGraph(
             val cameraProjectId = backStackEntry.arguments?.getLong("projectId") ?: -1L
 
             val detailViewModel: ProjectDetailViewModel = hiltViewModel()
-            val cameraOpt by viewModel.cameraOptimizationEnabled.collectAsStateWithLifecycle()
-            val avifEnabled by viewModel.avifEnabled.collectAsStateWithLifecycle()
+            val settingsViewModel: SettingsViewModel = hiltViewModel()
+            
+            val settings by settingsViewModel.settings.collectAsStateWithLifecycle()
+            val cameraOpt = settings?.cameraOptimization ?: true
+            val avifEnabled = settings?.avifEnabled ?: true
 
             val projectState by detailViewModel.selectedProject.collectAsStateWithLifecycle()
             val projectName = projectState?.name ?: ""
@@ -285,8 +290,8 @@ fun AppNavGraph(
                 onClose = { navController.popBackStack() },
                 enableOptimization = cameraOpt,
                 enableAvif = avifEnabled,
-                onToggleOptimization = { viewModel.setCameraOptimization(it) },
-                onToggleAvif = { viewModel.setAvifEnabled(it) }
+                onToggleOptimization = { settingsViewModel.setCameraOptimization(it) },
+                onToggleAvif = { settingsViewModel.setAvifEnabled(it) }
             )
         }
 

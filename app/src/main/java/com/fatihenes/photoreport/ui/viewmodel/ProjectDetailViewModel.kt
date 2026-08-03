@@ -11,6 +11,7 @@ import androidx.work.workDataOf
 import com.fatihenes.photoreport.data.DailyLogEntity
 import com.fatihenes.photoreport.data.PhotoEntity
 import com.fatihenes.photoreport.repository.AppRepository
+import com.fatihenes.photoreport.repository.ReportRepository
 import com.fatihenes.photoreport.util.groupBy
 import com.fatihenes.photoreport.worker.ExportWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,8 +26,8 @@ import kotlin.time.Duration.Companion.milliseconds
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class ProjectDetailViewModel @Inject constructor(
-    @ApplicationContext private val appContext: Context,
     private val repository: AppRepository,
+    private val reportRepository: ReportRepository,
     private val savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -40,8 +41,8 @@ class ProjectDetailViewModel @Inject constructor(
     val fileSizeInfo: StateFlow<FileSizeInfo?> = _fileSizeInfo
 
     fun calculateFileSizes(photos: List<PhotoEntity>) {
-        viewModelScope.launch(Dispatchers.IO) {
-            _fileSizeInfo.value = calculateFileSizesInternal(appContext, photos)
+        viewModelScope.launch {
+            _fileSizeInfo.value = reportRepository.calculateFileSizes(photos)
         }
     }
 
@@ -66,15 +67,19 @@ class ProjectDetailViewModel @Inject constructor(
     private val _noteUpdates = MutableSharedFlow<Pair<Long, String>>(extraBufferCapacity = 10)
 
     init {
-        // Collect note updates, debounce them by logId, and save to DB safely
+        observeNoteUpdates()
+    }
+
+    private fun observeNoteUpdates() {
         viewModelScope.launch {
             @OptIn(kotlinx.coroutines.FlowPreview::class)
             _noteUpdates
-                .groupBy { it.first } // Group by logId
+                .groupBy { it.first } // Group by logId for independent debouncing
                 .collect { groupedFlow ->
                     launch {
                         groupedFlow
-                            .debounce(400.milliseconds) // Debounce for each log independently
+                            .debounce(400.milliseconds)
+                            .distinctUntilChanged()
                             .collect { (logId, note) ->
                                 repository.updateNote(logId, note)
                             }
@@ -160,57 +165,6 @@ class ProjectDetailViewModel @Inject constructor(
         viewModelScope.launch {
             repository.deleteProjectById(projectId)
         }
-    }
-
-    private fun calculateFileSizesInternal(context: Context, photos: List<PhotoEntity>): FileSizeInfo {
-        var totalPhotoBytes = 0L
-        var totalVideoBytes = 0L
-        var photoCount = 0
-        var videoCount = 0
-
-        var estimatedQ100 = 0L
-        var estimatedQ85 = 0L
-        var estimatedQ75 = 0L
-
-        val maxBytesQ100 = (1.5 * 1024 * 1024).toLong() // 1.5 MB max for Q100 downsampled
-        val maxBytesQ85 = (0.4 * 1024 * 1024).toLong()  // 400 KB max for Q85 downsampled
-        val maxBytesQ75 = (0.15 * 1024 * 1024).toLong() // 150 KB max for Q75 downsampled
-
-        photos.forEach { photo ->
-            try {
-                val uri = photo.filePath.toUri()
-                val size = if (photo.filePath.startsWith("content://")) {
-                    context.contentResolver.openFileDescriptor(uri, "r")?.use {
-                        it.statSize
-                    } ?: 0L
-                } else {
-                    val path = if (photo.filePath.startsWith("file://")) uri.path else photo.filePath
-                    path?.let { java.io.File(it).length() } ?: 0L
-                }
-
-                if (photo.filePath.endsWith(".mp4", ignoreCase = true)) {
-                    totalVideoBytes += size
-                    videoCount++
-                } else {
-                    totalPhotoBytes += size
-                    photoCount++
-
-                    estimatedQ100 += minOf(size, maxBytesQ100)
-                    estimatedQ85 += minOf(size, maxBytesQ85)
-                    estimatedQ75 += minOf(size, maxBytesQ75)
-                }
-            } catch (_: Exception) {}
-        }
-
-        return FileSizeInfo(
-            totalPhotoBytes,
-            totalVideoBytes,
-            photoCount,
-            videoCount,
-            estimatedQ100,
-            estimatedQ85,
-            estimatedQ75
-        )
     }
 }
 
