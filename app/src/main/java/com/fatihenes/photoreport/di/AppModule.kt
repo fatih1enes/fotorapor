@@ -12,7 +12,6 @@ import com.fatihenes.photoreport.data.PhotoDao
 import com.fatihenes.photoreport.data.ProjectDao
 import com.fatihenes.photoreport.manager.*
 import com.fatihenes.photoreport.repository.*
-import com.fatihenes.photoreport.util.MediaProcessor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -76,10 +75,7 @@ object AppModule {
     fun providePhotoRepository(
         @ApplicationContext context: Context,
         photoDao: PhotoDao,
-        dailyLogDao: DailyLogDao,
-        mediaProcessor: MediaProcessor,
-        watermarkRenderer: com.fatihenes.photoreport.util.WatermarkRenderer
-    ): PhotoRepository = PhotoRepositoryImpl(context, photoDao, dailyLogDao, mediaProcessor, watermarkRenderer)
+    ): PhotoRepository = PhotoRepositoryImpl(context, photoDao)
 
     @Provides
     @Singleton

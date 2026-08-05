@@ -1,11 +1,13 @@
 package com.fatihenes.photoreport.ui.viewmodel
 
 import android.content.Context
+import com.fatihenes.photoreport.data.PhotoEntity
 import com.fatihenes.photoreport.data.ProjectEntity
 import com.fatihenes.photoreport.repository.AppRepository
 import com.fatihenes.photoreport.repository.TrashRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
@@ -25,13 +27,18 @@ class DashboardViewModelTest {
     private val mockContext = mock(Context::class.java)
     private val testDispatcher = StandardTestDispatcher()
 
+    private val deletedProjectsFlow = MutableStateFlow<List<ProjectEntity>>(emptyList())
+    private val deletedPhotosFlow = MutableStateFlow<List<PhotoEntity>>(emptyList())
+
     @Before
     fun setup() {
         Dispatchers.setMain(testDispatcher)
+        deletedProjectsFlow.value = emptyList()
+        deletedPhotosFlow.value = emptyList()
         
         `when`(mockRepository.getAllProjects()).thenReturn(flowOf(emptyList()))
-        `when`(mockTrashRepository.getDeletedProjects()).thenReturn(flowOf(emptyList()))
-        `when`(mockTrashRepository.getDeletedPhotos()).thenReturn(flowOf(emptyList()))
+        `when`(mockTrashRepository.getDeletedProjects()).thenReturn(deletedProjectsFlow)
+        `when`(mockTrashRepository.getDeletedPhotos()).thenReturn(deletedPhotosFlow)
         
         viewModel = DashboardViewModel(mockContext, mockRepository, mockTrashRepository)
     }
@@ -65,12 +72,15 @@ class DashboardViewModelTest {
 
     @Test
     fun `isTrashNotEmpty returns true when projects are in trash`() = runTest {
-        `when`(mockTrashRepository.getDeletedProjects()).thenReturn(flowOf(listOf(ProjectEntity(name="Deleted", colorHex="#000"))))
-        
         val collectJob = launch { viewModel.isTrashNotEmpty.collect() }
+        advanceUntilIdle()
+        assertEquals(false, viewModel.isTrashNotEmpty.value)
+        
+        deletedProjectsFlow.value = listOf(ProjectEntity(name="Deleted", colorHex="#000"))
         advanceUntilIdle()
         
         assertEquals(true, viewModel.isTrashNotEmpty.value)
         collectJob.cancel()
     }
 }
+

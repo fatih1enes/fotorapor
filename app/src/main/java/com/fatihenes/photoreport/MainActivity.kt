@@ -1,11 +1,14 @@
 package com.fatihenes.photoreport
 
 import android.os.Bundle
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fatihenes.photoreport.ui.navigation.AppNavGraph
 import com.fatihenes.photoreport.ui.theme.PhotoReportTheme
@@ -15,7 +18,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -26,6 +29,16 @@ class MainActivity : ComponentActivity() {
         setContent {
             val viewModel: MainViewModel = hiltViewModel()
             val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
+            val language by viewModel.language.collectAsStateWithLifecycle()
+
+            // The preference previously lived only in DataStore, so Compose kept
+            // reading the device locale instead of the app language selection.
+            LaunchedEffect(language) {
+                val requestedLocales = LocaleListCompat.forLanguageTags(language)
+                if (AppCompatDelegate.getApplicationLocales() != requestedLocales) {
+                    AppCompatDelegate.setApplicationLocales(requestedLocales)
+                }
+            }
 
             val isDarkTheme = when (themeMode) {
                 "light" -> false

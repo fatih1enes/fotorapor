@@ -171,6 +171,7 @@ fun AppNavGraph(
 
             DashboardScreen(
                 projects = projects,
+                language = language,
                 isTrashNotEmpty = isTrashNotEmpty,
                 isRefreshing = isRefreshing,
                 onProjectClick = { project ->

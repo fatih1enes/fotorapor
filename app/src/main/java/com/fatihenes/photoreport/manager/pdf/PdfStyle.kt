@@ -26,11 +26,10 @@ object PdfStyle {
     ): Float {
         val width = PdfTheme.PAGE_WIDTH.toFloat()
         val margin = PdfTheme.MARGIN
-        var currentY = 15f
 
         // 1. Üst Kurumsal Laci Banner Çizgisi (Sayfa Üst Bilgi Bantı)
         canvas.drawRect(0f, 0f, width, 8f, typography.headerBannerPaint)
-        currentY = margin + 5f
+        var currentY = margin + 5f
 
         // 2. Rapor Tipi Alt Başlığı
         val reportSubtitle = if (language == "en") "FIELD INSPECTION & OBSERVATION REPORT" else "SAHA DENETİM VE GÖZLEM RAPORU"

@@ -71,6 +71,14 @@ android {
     lint {
         abortOnError = true
     }
+    testOptions {
+        unitTests {
+            isReturnDefaultValues = true
+            all {
+                it.jvmArgs("-Duser.language=en", "-Duser.country=US")
+            }
+        }
+    }
 }
 
 dependencies {

@@ -60,7 +60,6 @@
     <!-- Sharing -->
     <string name="share_media">Medya Paylaş</string>
     <string name="share_selected">Seçilenleri Paylaş</string>
-    <string name="share_label">Paylaş</string>
     <string name="share_failed">Paylaşım başlatılamadı</string>
     <string name="share_no_files">Paylaşılacak dosya bulunamadı</string>
     <string name="import_error">Bazı dosyalar içe aktarılamadı</string>
@@ -68,8 +67,6 @@
     <!-- Common -->
     <string name="back_label">Geri</string>
     <string name="close_label">Kapat</string>
-    <string name="rotate_label">Döndür</string>
-    <string name="delete_label">Sil</string>
     <plurals name="selected_count">
         <item quantity="one">%d Seçildi</item>
         <item quantity="other">%d Seçildi</item>
@@ -148,7 +145,6 @@
 
     <!-- Trash -->
     <string name="trash_title">Çöp Kutusu (Son 30 Gün)</string>
-    <string name="trash_empty">Çöp kutusu boş</string>
     <string name="trash_deleted_projects">Silinen Projeler</string>
     <string name="trash_deleted_photos">Silinen Fotoğraflar</string>
     <string name="unknown_date">Bilinmiyor</string>
@@ -175,8 +171,6 @@
     <string name="location_permission_required">GPS filigranı için konum izni gereklidir.</string>
 
     <!-- Backup and Restore -->
-    <string name="date_label">Tarih:</string>
-    <string name="page_label">Sayfa</string>
     <string name="report_date">Rapor Tarihi</string>
     <string name="company_logo_alt">Şirket Logosu</string>
     <string name="photo_alt">Fotoğraf</string>
@@ -229,14 +223,6 @@
 
     <string name="empty_trash_title">Geri Dönüşüm Kutusu Boş</string>
     <string name="empty_trash_desc">Silinen proje ve saha raporlarınız burada geçici olarak tutulur. Şu an geri kazanılacak herhangi bir silinmiş öğe bulunmuyor.</string>
-
-    <string name="error_export_failed_title">Rapor İhracı Beklenmedik Şekilde Durdu</string>
-    <string name="error_export_failed_desc">Cihaz belleğindeki yoğunluk veya depolama alanındaki geçici kısıtlamalar nedeniyle rapor tamamlanamadı.</string>
-    <string name="error_recovery_action">İşlemi Tekrar Dene</string>
-
-    <string name="error_permission_title">Kamera Erişim Yetkisi Tanımlanmadı</string>
-    <string name="error_permission_desc">Saha belgelerini fotoğraflayıp filigranla kaydetmek için kamera modülüne erişim izni verilmelidir.</string>
-    <string name="error_permission_action">Yetki Ayarlarını Aç</string>
 
     <string name="trash_delete_confirm_title">Projeyi Kalıcı Olarak Sil</string>
     <string name="trash_delete_confirm_desc">Seçilen saha projesini ve tüm bağlı görsellerini tamamen silmek istediğinize emin misiniz? Bu işlem geri alınamaz.</string>

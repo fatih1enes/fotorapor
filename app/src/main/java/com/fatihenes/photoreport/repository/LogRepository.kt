@@ -4,6 +4,7 @@ import com.fatihenes.photoreport.data.DailyLogDao
 import com.fatihenes.photoreport.data.DailyLogEntity
 import com.fatihenes.photoreport.data.LogWithPhotos
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -29,7 +30,15 @@ class LogRepositoryImpl @Inject constructor(
 
     override suspend fun updateNote(id: Long, note: String) = dailyLogDao.updateNote(id, note)
 
-    override fun getLogsWithPhotosForProjectFlow(projectId: Long): Flow<List<LogWithPhotos>> = dailyLogDao.getLogsWithPhotosForProject(projectId)
+    override fun getLogsWithPhotosForProjectFlow(projectId: Long): Flow<List<LogWithPhotos>> = 
+        dailyLogDao.getLogsWithPhotosForProject(projectId).map { logs ->
+            logs.map { logWithPhotos ->
+                logWithPhotos.copy(photos = logWithPhotos.photos.filter { !it.isDeleted })
+            }
+        }
 
-    override suspend fun getLogsWithPhotosForProject(projectId: Long): List<LogWithPhotos> = dailyLogDao.getLogsWithPhotosForProjectSuspend(projectId)
+    override suspend fun getLogsWithPhotosForProject(projectId: Long): List<LogWithPhotos> = 
+        dailyLogDao.getLogsWithPhotosForProjectSuspend(projectId).map { logWithPhotos ->
+            logWithPhotos.copy(photos = logWithPhotos.photos.filter { !it.isDeleted })
+        }
 }

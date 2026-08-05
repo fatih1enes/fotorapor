@@ -9,9 +9,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -62,61 +60,6 @@ fun AppButton(
             style = MaterialTheme.typography.labelLarge,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center
-        )
-    }
-}
-
-@Composable
-fun AppOutlinedButton(
-    text: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    icon: ImageVector? = null,
-    enabled: Boolean = true,
-    fullWidth: Boolean = false
-) {
-    val buttonModifier = if (fullWidth) modifier.fillMaxWidth() else modifier
-
-    OutlinedButton(
-        onClick = onClick,
-        enabled = enabled,
-        modifier = buttonModifier
-            .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
-            .height(50.dp),
-        shape = RoundedCornerShape(12.dp)
-    ) {
-        if (icon != null) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                modifier = Modifier.padding(end = 8.dp)
-            )
-        }
-        Text(
-            text = text,
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.SemiBold
-        )
-    }
-}
-
-@Composable
-fun AppTextButton(
-    text: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    enabled: Boolean = true
-) {
-    TextButton(
-        onClick = onClick,
-        enabled = enabled,
-        modifier = modifier.defaultMinSize(minWidth = 48.dp, minHeight = 48.dp)
-    ) {
-        Text(
-            text = text,
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
         )
     }
 }

@@ -3,11 +3,9 @@ package com.fatihenes.photoreport.ui.viewmodel
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.fatihenes.photoreport.manager.BackupManager
 import com.fatihenes.photoreport.repository.AppRepository
 import com.fatihenes.photoreport.repository.SettingsRepository
 import com.fatihenes.photoreport.util.LocationManager
-import com.fatihenes.photoreport.util.result.OperationResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -18,7 +16,6 @@ class MainViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
     private val repository: AppRepository,
     private val locationManager: LocationManager,
-    private val backupManager: BackupManager
 ) : ViewModel() {
 
     // Global settings for UI lifecycle
@@ -52,32 +49,5 @@ class MainViewModel @Inject constructor(
             }
             repository.processAndSavePhotoInBackground(uri, projectId, logId, enableAvif, projectName, watermarkData)
         }
-    }
-
-    val backupState = MutableStateFlow<OperationResult<Unit>?>(null)
-    val restoreState = MutableStateFlow<OperationResult<Unit>?>(null)
-
-    fun createBackup(uri: Uri) {
-        viewModelScope.launch {
-            backupManager.createBackup(uri).collect { result ->
-                backupState.value = result
-            }
-        }
-    }
-
-    fun restoreBackup(uri: Uri) {
-        viewModelScope.launch {
-            backupManager.restoreBackup(uri).collect { result ->
-                restoreState.value = result
-            }
-        }
-    }
-
-    fun resetBackupState() {
-        backupState.value = null
-    }
-
-    fun resetRestoreState() {
-        restoreState.value = null
     }
 }

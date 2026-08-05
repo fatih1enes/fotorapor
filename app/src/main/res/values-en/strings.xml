@@ -61,7 +61,6 @@
     <!-- Sharing -->
     <string name="share_media">Share Media</string>
     <string name="share_selected">Share Selected</string>
-    <string name="share_label">Share</string>
     <string name="share_failed">Failed to start sharing</string>
     <string name="share_no_files">No files found to share</string>
     <string name="import_error">Some files could not be imported</string>
@@ -69,8 +68,6 @@
     <!-- Common -->
     <string name="back_label">Back</string>
     <string name="close_label">Close</string>
-    <string name="rotate_label">Rotate</string>
-    <string name="delete_label">Delete</string>
     <plurals name="selected_count">
         <item quantity="one">%d Selected</item>
         <item quantity="other">%d Selected</item>
@@ -148,7 +145,6 @@
 
     <!-- Trash -->
     <string name="trash_title">Trash (Last 30 Days)</string>
-    <string name="trash_empty">Trash is empty</string>
     <string name="trash_deleted_projects">Deleted Projects</string>
     <string name="trash_deleted_photos">Deleted Photos</string>
     <string name="unknown_date">Unknown</string>
@@ -175,8 +171,6 @@
     <string name="location_permission_required">Location permission is required for the GPS watermark.</string>
 
     <!-- Backup and Restore -->
-    <string name="date_label">Date:</string>
-    <string name="page_label">Page</string>
     <string name="report_date">Report Date</string>
     <string name="company_logo_alt">Company Logo</string>
     <string name="photo_alt">Photo</string>
@@ -229,14 +223,6 @@
 
     <string name="empty_trash_title">Recycle Bin is Empty</string>
     <string name="empty_trash_desc">Deleted field projects are temporarily staged here. Currently, there are no discarded items awaiting recovery.</string>
-
-    <string name="error_export_failed_title">Report Generation Interrupted</string>
-    <string name="error_export_failed_desc">The report assembly could not finish due to transient memory demand or storage quota limitations.</string>
-    <string name="error_recovery_action">Retry Operation</string>
-
-    <string name="error_permission_title">Camera Authorization Not Granted</string>
-    <string name="error_permission_desc">System requires camera module authorization to photograph, timestamp, and watermark site findings.</string>
-    <string name="error_permission_action">Open Authorization Settings</string>
 
     <string name="trash_delete_confirm_title">Permanently Purge Project</string>
     <string name="trash_delete_confirm_desc">Are you sure you wish to permanently erase the selected inspection project and its associated media? This action is irreversible.</string>

@@ -105,4 +105,7 @@ interface PhotoDao {
 
     @Query("SELECT * FROM photos")
     suspend fun getAllPhotosSuspend(): List<PhotoEntity>
+
+    @Query("SELECT * FROM photos ORDER BY id ASC LIMIT :limit OFFSET :offset")
+    suspend fun getAllPhotosChunked(limit: Int, offset: Int): List<PhotoEntity>
 }

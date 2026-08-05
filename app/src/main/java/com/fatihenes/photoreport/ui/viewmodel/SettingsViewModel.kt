@@ -69,8 +69,4 @@ class SettingsViewModel @Inject constructor(
     fun setGpsWatermarkEnabled(enabled: Boolean) {
         viewModelScope.launch { settingsRepository.setGpsWatermarkEnabled(enabled) }
     }
-
-    fun setDisclosureShown(shown: Boolean) {
-        viewModelScope.launch { settingsRepository.setDisclosureShown(shown) }
-    }
 }

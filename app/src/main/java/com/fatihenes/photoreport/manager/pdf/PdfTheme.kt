@@ -13,8 +13,6 @@ object PdfTheme {
     
     // Kenar ve Boşluk Standartları
     const val MARGIN = 40f
-    const val INNER_PADDING = 12f
-    const val HEADER_HEIGHT = 80f
     const val FOOTER_HEIGHT = 45f
     const val SIGN_OFF_HEIGHT = 100f
     
@@ -38,5 +36,4 @@ object PdfTheme {
     val COLOR_TEXT_MUTED = Color.rgb(148, 163, 184)     // Açık Gri (Tarih ve Sayfa No)
     val COLOR_BORDER = Color.rgb(203, 213, 225)         // Ayırıcı ve Çerceve Gri
     val COLOR_SURFACE = Color.rgb(248, 250, 252)        // Zemin Tamponu (Card BG)
-    val COLOR_WHITE = Color.WHITE
 }

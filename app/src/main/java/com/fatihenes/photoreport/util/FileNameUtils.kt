@@ -40,6 +40,6 @@ object FileNameUtils {
         }
 
         // 5. Final check for empty result
-        return if (sanitized.isBlank()) fallback else sanitized
+        return sanitized.ifBlank { fallback }
     }
 }

@@ -80,7 +80,11 @@ private fun queryCameraCapabilities(context: Context, lensFacing: Int): CameraCa
 
         // Preview stabilization (available since API 33 / CameraX 1.3+)
         val stabilizationModes = chars.get(CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES) ?: intArrayOf()
-        val supportsPreviewStab = CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION in stabilizationModes
+        val supportsPreviewStab = if (android.os.Build.VERSION.SDK_INT >= 33) {
+            CameraCharacteristics.CONTROL_VIDEO_STABILIZATION_MODE_PREVIEW_STABILIZATION in stabilizationModes
+        } else {
+            false
+        }
 
         // Optical Image Stabilization
         val oisModes = chars.get(CameraCharacteristics.LENS_INFO_AVAILABLE_OPTICAL_STABILIZATION) ?: intArrayOf()

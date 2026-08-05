@@ -24,6 +24,7 @@ interface SettingsRepository {
     suspend fun setAvifEnabled(enabled: Boolean)
     suspend fun setGpsWatermarkEnabled(enabled: Boolean)
     suspend fun setDisclosureShown(shown: Boolean)
+    suspend fun importSettings(newSettings: Map<String, Any>)
 }
 
 @Singleton
@@ -73,5 +74,20 @@ class SettingsRepositoryImpl @Inject constructor(
 
     override suspend fun setDisclosureShown(shown: Boolean) {
         dataStore.edit { it[Keys.DISCLOSURE_SHOWN] = shown }
+    }
+
+    override suspend fun importSettings(newSettings: Map<String, Any>) {
+        dataStore.edit { prefs ->
+            newSettings.forEach { (key, value) ->
+                when (key) {
+                    "theme_mode" -> prefs[Keys.THEME_MODE] = value as String
+                    "language" -> prefs[Keys.LANGUAGE] = value as String
+                    "camera_opt" -> prefs[Keys.CAMERA_OPT] = value as Boolean
+                    "avif_enabled" -> prefs[Keys.AVIF_ENABLED] = value as Boolean
+                    "gps_watermark_enabled" -> prefs[Keys.GPS_WATERMARK] = value as Boolean
+                    "disclosure_shown" -> prefs[Keys.DISCLOSURE_SHOWN] = value as Boolean
+                }
+            }
+        }
     }
 }

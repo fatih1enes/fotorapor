@@ -29,26 +29,4 @@ sealed class OperationResult<out T> {
      * @property progress Optional progress percentage (0-100).
      */
     data class Loading(val progress: Int? = null) : OperationResult<Nothing>()
-
-    /**
-     * Executes the given [action] if the result is [Success].
-     *
-     * @param action The block to execute, providing the successful data.
-     * @return The original [OperationResult] for chaining.
-     */
-    inline fun onSuccess(action: (T) -> Unit): OperationResult<T> {
-        if (this is Success) action(data)
-        return this
-    }
-
-    /**
-     * Executes the given [action] if the result is [Error].
-     *
-     * @param action The block to execute, providing the error and message.
-     * @return The original [OperationResult] for chaining.
-     */
-    inline fun onError(action: (Throwable, String?) -> Unit): OperationResult<T> {
-        if (this is Error) action(error, message)
-        return this
-    }
 }

@@ -1,17 +1,10 @@
 package com.fatihenes.photoreport.repository
 
 import android.net.Uri
-import com.fatihenes.photoreport.data.DailyLogDao
 import com.fatihenes.photoreport.data.PhotoDao
 import com.fatihenes.photoreport.data.PhotoEntity
-import com.fatihenes.photoreport.util.MediaProcessor
 import com.fatihenes.photoreport.util.WatermarkData
-import com.fatihenes.photoreport.util.WatermarkRenderer
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.sync.Mutex
 import javax.inject.Inject
 import javax.inject.Singleton
 import androidx.work.Data
@@ -35,13 +28,7 @@ interface PhotoRepository {
 class PhotoRepositoryImpl @Inject constructor(
     @dagger.hilt.android.qualifiers.ApplicationContext private val appContext: android.content.Context,
     private val photoDao: PhotoDao,
-    private val dailyLogDao: DailyLogDao,
-    private val mediaProcessor: MediaProcessor,
-    private val watermarkRenderer: WatermarkRenderer
 ) : PhotoRepository {
-
-    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-    private val logCreationMutex = Mutex()
 
     override fun getPhotosForLog(logId: Long): Flow<List<PhotoEntity>> = photoDao.getPhotosForLog(logId)
 

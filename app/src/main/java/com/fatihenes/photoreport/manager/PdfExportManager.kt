@@ -3,12 +3,10 @@ package com.fatihenes.photoreport.manager
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.RectF
 import android.graphics.pdf.PdfDocument
 import android.net.Uri
 import android.text.Layout
 import android.text.StaticLayout
-import android.text.TextPaint
 import androidx.core.content.FileProvider
 import com.fatihenes.photoreport.data.LogWithPhotos
 import com.fatihenes.photoreport.data.ProjectEntity
@@ -25,7 +23,6 @@ import java.io.FileOutputStream
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.math.min
 
 import com.fatihenes.photoreport.R
 import androidx.core.graphics.withTranslation
@@ -265,7 +262,7 @@ class NativePdfExportManager @Inject constructor(
         photo: com.fatihenes.photoreport.data.PhotoEntity,
         rect: com.fatihenes.photoreport.manager.pdf.PdfRect,
         canvas: android.graphics.Canvas,
-        typography: com.fatihenes.photoreport.manager.pdf.PdfTypography,
+        typography: PdfTypography,
         date: Long,
         language: String,
         photoIndex: Int,

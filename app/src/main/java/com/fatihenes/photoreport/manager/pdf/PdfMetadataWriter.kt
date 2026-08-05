@@ -4,6 +4,7 @@ import android.util.Log
 import java.io.File
 import java.io.RandomAccessFile
 import java.nio.charset.StandardCharsets
+import java.util.Locale
 
 /**
  * FotoRapor Kurumsal PDF Tasarım Sistemi - Standart PDF Metadata Entegratörü
@@ -64,7 +65,7 @@ object PdfMetadataWriter {
                 val xrefStr = buildString {
                     append("xref\n")
                     append("$infoObjectNumber 1\n")
-                    append(String.format("%010d 00000 n \n", infoOffset))
+                    append(String.format(Locale.US, "%010d 00000 n \n", infoOffset))
                 }
                 raf.write(xrefStr.toByteArray(StandardCharsets.US_ASCII))
                 

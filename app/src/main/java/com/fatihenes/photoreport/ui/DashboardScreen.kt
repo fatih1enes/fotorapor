@@ -14,8 +14,6 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.core.tween
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,7 +36,6 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,6 +47,7 @@ fun DashboardScreen(
     onSettingsClick: () -> Unit,
     onTrashClick: () -> Unit,
     onRefresh: () -> Unit,
+    language: String = "tr",
     isRefreshing: Boolean = false,
     activityDots: Map<LocalDate, List<Color>> = emptyMap(),
     isTrashNotEmpty: Boolean = false,
@@ -174,7 +172,8 @@ fun DashboardScreen(
                     MonthlyCalendar(
                         selectedDate = selectedDate,
                         onDateSelected = { selectedDate = it },
-                        activityDots = activityDots
+                        activityDots = activityDots,
+                        locale = remember(language) { java.util.Locale.forLanguageTag(language) }
                     )
                 }
                 Spacer(modifier = Modifier.height(32.dp))

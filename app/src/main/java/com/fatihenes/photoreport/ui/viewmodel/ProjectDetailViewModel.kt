@@ -1,7 +1,6 @@
 package com.fatihenes.photoreport.ui.viewmodel
 
 import android.content.Context
-import androidx.core.net.toUri
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,11 +14,11 @@ import com.fatihenes.photoreport.repository.ReportRepository
 import com.fatihenes.photoreport.util.groupBy
 import com.fatihenes.photoreport.worker.ExportWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -32,6 +31,7 @@ class ProjectDetailViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val projectIdFlow = savedStateHandle.getStateFlow<Long?>("projectId", null)
+    private val contentRefreshVersion = MutableStateFlow(0)
 
     fun setProjectId(id: Long) {
         savedStateHandle["projectId"] = id
@@ -53,7 +53,7 @@ class ProjectDetailViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     // Optimized: Using Room Relation natively to prevent UI glitches and N+1 queries
-    val currentProjectLogs = projectIdFlow.flatMapLatest { id ->
+    val currentProjectLogs = combine(projectIdFlow, contentRefreshVersion) { id, _ -> id }.flatMapLatest { id ->
         if (id == null) flowOf(emptyList())
         else repository.getLogsWithPhotosForProjectFlow(id)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
@@ -100,8 +100,13 @@ class ProjectDetailViewModel @Inject constructor(
     }
 
     fun addPhotoToLog(logId: Long, filePath: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            repository.insertPhoto(PhotoEntity(logId = logId, filePath = filePath))
+        viewModelScope.launch {
+            withContext(Dispatchers.IO) {
+                repository.insertPhoto(PhotoEntity(logId = logId, filePath = filePath))
+            }
+            // Explicitly reopen the relation stream after import so the timeline redraws
+            // before the import button leaves its loading state.
+            contentRefreshVersion.update { it + 1 }
         }
     }
 

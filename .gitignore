@@ -36,6 +36,15 @@ google-services.json
 # Captures
 /captures
 
+# AI & IDE Artifacts
+.artifacts/
+hatalar/
+*.artifact.md
+*.implementation.md
+task.md
+walkthrough.md
+implementation_plan.md
+
 # External Native Build
 .externalNativeBuild
 .cxx

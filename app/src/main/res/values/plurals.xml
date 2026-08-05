@@ -1,18 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Türkçe için çoğul (Plural) yönetimi -->
-    <plurals name="project_count">
-        <item quantity="one">%d saha projesi kayıtlı</item>
-        <item quantity="other">%d saha projesi kayıtlı</item>
-    </plurals>
-
-    <plurals name="photo_count">
-        <item quantity="one">%d saha görseli işlendi</item>
-        <item quantity="other">%d saha görseli işlendi</item>
-    </plurals>
-
-    <plurals name="log_count">
-        <item quantity="one">%d günlük saha kaydı</item>
-        <item quantity="other">%d günlük saha kaydı</item>
-    </plurals>
 </resources>

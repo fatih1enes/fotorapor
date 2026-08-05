@@ -311,17 +311,13 @@ fun SettingsScreen(
 
                 LaunchedEffect(restoreState) {
                     if (restoreState is com.fatihenes.photoreport.util.result.OperationResult.Success) {
-                        scope.launch { 
-                            snackbarHost.showSnackbar("Geri yükleme başarılı. Uygulama yeniden başlatılıyor...")
-                            delay(2000)
-                            val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
-                            intent?.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK or android.content.Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                            if (intent != null) {
-                                context.startActivity(intent)
-                            }
-                        }
+                        snackbarHost.showSnackbar(
+                            message = context.getString(R.string.backup_success),
+                            duration = SnackbarDuration.Short
+                        )
+                        viewModel.resetRestoreState()
                     } else if (restoreState is com.fatihenes.photoreport.util.result.OperationResult.Error) {
-                        scope.launch { snackbarHost.showSnackbar((restoreState as com.fatihenes.photoreport.util.result.OperationResult.Error).message ?: "Geri yükleme hatası") }
+                        snackbarHost.showSnackbar((restoreState as com.fatihenes.photoreport.util.result.OperationResult.Error).message ?: "Geri yükleme hatası")
                         viewModel.resetRestoreState()
                     }
                 }

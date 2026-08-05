@@ -17,10 +17,7 @@ enum class UserTier {
  * Feature flags for commercial tier capabilities.
  */
 enum class CommercialFeature {
-    CUSTOM_WATERMARK_BRANDING,
-    UNLIMITED_HIGH_RES_EXPORT,
-    CLOUD_BACKUP_SYNC,
-    ADVANCED_PDF_TEMPLATES
+    // Future features: CUSTOM_WATERMARK_BRANDING, UNLIMITED_HIGH_RES_EXPORT, etc.
 }
 
 interface CommercialManager {
@@ -38,9 +35,6 @@ class LocalCommercialManager @Inject constructor() : CommercialManager {
 
     override fun isFeatureUnlocked(feature: CommercialFeature): Boolean {
         // In current non-commercial stage, all baseline features are unlocked and accessible
-        return when (getCurrentTier()) {
-            UserTier.FREE -> true
-            UserTier.PRO -> true
-        }
+        return true
     }
 }

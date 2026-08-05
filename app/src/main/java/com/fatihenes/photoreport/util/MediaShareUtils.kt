@@ -12,13 +12,12 @@ object MediaShareUtils {
 
     fun shareSingleMedia(context: Context, filePath: String, onShowMessage: (String) -> Unit) {
         try {
-            val resolvedFile = resolveFile(context, filePath)
-            val authority = "${context.packageName}.fileprovider"
-            val uri = FileProvider.getUriForFile(context, authority, resolvedFile)
+            val (uri, extension) = resolveMediaUri(context, filePath)
 
-            val mimeType = when (resolvedFile.extension.lowercase()) {
-                "mp4" -> "video/mp4"
+            val mimeType = when (extension.lowercase()) {
+                "mp4", "mov" -> "video/mp4"
                 "png" -> "image/png"
+                "webp", "avif" -> "image/*"
                 else -> "image/jpeg"
             }
 
@@ -38,13 +37,13 @@ object MediaShareUtils {
     fun shareMultipleMedia(context: Context, filePaths: List<String>, onShowMessage: (String) -> Unit) {
         try {
             val uris = ArrayList<Uri>()
-            val authority = "${context.packageName}.fileprovider"
 
             for (filePath in filePaths) {
-                val resolvedFile = resolveFile(context, filePath)
-                if (resolvedFile.exists()) {
-                    val uri = FileProvider.getUriForFile(context, authority, resolvedFile)
+                try {
+                    val (uri, _) = resolveMediaUri(context, filePath)
                     uris.add(uri)
+                } catch (e: Exception) {
+                    android.util.Log.w("MediaShareUtils", "Skipping invalid media path: $filePath", e)
                 }
             }
 
@@ -69,26 +68,44 @@ object MediaShareUtils {
 
     /**
      * Resolves a file path string (which may be a content:// URI, file:// URI, or absolute path)
-     * to a java.io.File instance.
+     * to a Pair of Uri and file extension, without invalidating content:// URIs.
      */
-    private fun resolveFile(context: Context, filePath: String): File {
-        val file = when {
+    fun resolveMediaUri(context: Context, filePath: String): Pair<Uri, String> {
+        return when {
             filePath.startsWith("content://") -> {
-                val filename = filePath.substringAfterLast("/")
-                File(context.filesDir, filename)
+                val uri = filePath.toUri()
+                val extension = filePath.substringAfterLast(".", "jpg")
+                Pair(uri, extension)
             }
             filePath.startsWith("file://") -> {
-                File(filePath.toUri().path ?: "")
+                val file = File(filePath.toUri().path ?: "")
+                validateFilePath(context, file)
+                val authority = "${context.packageName}.fileprovider"
+                val uri = FileProvider.getUriForFile(context, authority, file)
+                Pair(uri, file.extension)
             }
-            else -> File(filePath)
+            else -> {
+                val file = File(filePath)
+                validateFilePath(context, file)
+                val authority = "${context.packageName}.fileprovider"
+                val uri = FileProvider.getUriForFile(context, authority, file)
+                Pair(uri, file.extension)
+            }
         }
+    }
 
+    private fun validateFilePath(context: Context, file: File) {
         val canonicalPath = file.canonicalPath
-        if (!canonicalPath.startsWith(context.filesDir.canonicalPath) &&
-            !canonicalPath.startsWith(context.cacheDir.canonicalPath)) {
+        val isAllowed = canonicalPath.startsWith(context.filesDir.canonicalPath) ||
+                canonicalPath.startsWith(context.cacheDir.canonicalPath) ||
+                context.externalCacheDir?.let { canonicalPath.startsWith(it.canonicalPath) } == true ||
+                context.getExternalFilesDir(null)?.let { canonicalPath.startsWith(it.canonicalPath) } == true
+
+        if (!isAllowed) {
             throw SecurityException("Invalid file path: path traversal detected")
         }
-
-        return file
+        if (!file.exists()) {
+            throw java.io.FileNotFoundException("File does not exist: $canonicalPath")
+        }
     }
 }

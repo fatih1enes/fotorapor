@@ -23,19 +23,26 @@ import com.fatihenes.photoreport.R
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
+import java.time.temporal.WeekFields
 import java.util.Locale
 
 @Composable
 fun MonthlyCalendar(
     selectedDate: LocalDate,
     onDateSelected: (LocalDate) -> Unit,
-    activityDots: Map<LocalDate, List<Color>> = emptyMap()
+    activityDots: Map<LocalDate, List<Color>> = emptyMap(),
+    locale: Locale = Locale.getDefault()
 ) {
     val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
     var currentMonth by remember { mutableStateOf(YearMonth.from(selectedDate)) }
     val daysInMonth = currentMonth.lengthOfMonth()
-    val firstDayOfMonth = currentMonth.atDay(1).dayOfWeek.value - 1
-    val turkishLocale = Locale.Builder().setLanguage("tr").setRegion("TR").build()
+    val firstDayOfWeek = remember(locale) { WeekFields.of(locale).firstDayOfWeek }
+    val firstDayOfMonth = (currentMonth.atDay(1).dayOfWeek.value - firstDayOfWeek.value + 7) % 7
+    val weekdayNames = remember(locale, firstDayOfWeek) {
+        (0 until 7).map { offset ->
+            firstDayOfWeek.plus(offset.toLong()).getDisplayName(TextStyle.NARROW, locale)
+        }
+    }
 
     Card(
         modifier = Modifier
@@ -60,7 +67,7 @@ fun MonthlyCalendar(
                 }
 
                 Text(
-                    text = "${currentMonth.month.getDisplayName(TextStyle.FULL, turkishLocale)} ${currentMonth.year}",
+                    text = "${currentMonth.month.getDisplayName(TextStyle.FULL, locale)} ${currentMonth.year}",
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
@@ -78,7 +85,7 @@ fun MonthlyCalendar(
 
             // Weekdays
             Row(modifier = Modifier.fillMaxWidth()) {
-                listOf("Pt", "Sa", "Ça", "Pe", "Cu", "Ct", "Pz").forEach { day ->
+                weekdayNames.forEach { day ->
                     Text(
                         text = day,
                         modifier = Modifier.weight(1f),

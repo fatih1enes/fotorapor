@@ -4,7 +4,6 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.core.content.FileProvider
-import androidx.core.net.toUri
 import androidx.core.text.htmlEncode
 import com.fatihenes.photoreport.data.DailyLogEntity
 import com.fatihenes.photoreport.data.PhotoEntity
