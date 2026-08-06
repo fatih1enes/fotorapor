@@ -1,6 +1,10 @@
 package com.fatihenes.photoreport.repository.domain
 
+import android.content.Context
 import android.net.Uri
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import com.fatihenes.photoreport.manager.FileManager
 import com.fatihenes.photoreport.core.domain.datasource.LocalLogDataSource
 import com.fatihenes.photoreport.core.domain.datasource.LocalPhotoDataSource
@@ -110,6 +114,91 @@ class DomainPhotoRepositoryImpl @Inject constructor(
     }
 }
 
+@Singleton
+class DomainBackupRepositoryImpl @Inject constructor(
+    private val backupManager: com.fatihenes.photoreport.manager.BackupManager
+) : BackupRepository {
+    override fun createBackup(destUri: Uri) = backupManager.createBackup(destUri)
+    override fun restoreBackup(sourceUri: Uri) = backupManager.restoreBackup(sourceUri)
+}
+
+@Singleton
+class DomainReportRepositoryImpl @Inject constructor(
+    @ApplicationContext private val context: Context
+) : com.fatihenes.photoreport.core.domain.repository.ReportRepository {
+
+    override suspend fun calculateFileSizes(photos: List<Photo>): com.fatihenes.photoreport.core.model.FileSizeInfo = withContext(Dispatchers.IO) {
+        var totalPhotoBytes = 0L
+        var totalVideoBytes = 0L
+        var photoCount = 0
+        var videoCount = 0
+        var estimatedQ100 = 0L
+        var estimatedQ85 = 0L
+        var estimatedQ75 = 0L
+
+        val maxBytesQ100 = (1.5 * 1024 * 1024).toLong()
+        val maxBytesQ85 = (0.4 * 1024 * 1024).toLong()
+        val maxBytesQ75 = (0.15 * 1024 * 1024).toLong()
+
+        photos.forEach { photo ->
+            try {
+                val uri = android.net.Uri.parse(photo.filePath)
+                val size = if (photo.filePath.startsWith("content://")) {
+                    context.contentResolver.openFileDescriptor(uri, "r")?.use {
+                        it.statSize
+                    } ?: 0L
+                } else {
+                    val path = if (photo.filePath.startsWith("file://")) uri.path else photo.filePath
+                    path?.let { java.io.File(it).length() } ?: 0L
+                }
+
+                if (photo.filePath.endsWith(".mp4", ignoreCase = true)) {
+                    totalVideoBytes += size
+                    videoCount++
+                } else {
+                    totalPhotoBytes += size
+                    photoCount++
+                    estimatedQ100 += minOf(size, maxBytesQ100)
+                    estimatedQ85 += minOf(size, maxBytesQ85)
+                    estimatedQ75 += minOf(size, maxBytesQ75)
+                }
+            } catch (_: Exception) {}
+        }
+
+        com.fatihenes.photoreport.core.model.FileSizeInfo(
+            totalPhotoBytes,
+            totalVideoBytes,
+            photoCount,
+            videoCount,
+            estimatedQ100,
+            estimatedQ85,
+            estimatedQ75
+        )
+    }
+
+    override fun enqueueExportWork(projectId: Long, projectName: String, format: String, quality: Int, language: String) {
+        val workRequest = androidx.work.OneTimeWorkRequestBuilder<com.fatihenes.photoreport.worker.ExportWorker>()
+            .setBackoffCriteria(
+                androidx.work.BackoffPolicy.EXPONENTIAL,
+                10,
+                java.util.concurrent.TimeUnit.SECONDS
+            )
+            .setInputData(
+                androidx.work.workDataOf(
+                    "project_id" to projectId,
+                    "project_name" to projectName,
+                    "format" to format,
+                    "quality" to quality,
+                    "language" to language
+                )
+            )
+            .build()
+
+        val workManager = androidx.work.WorkManager.getInstance(context)
+        workManager.enqueue(workRequest)
+    }
+}
+
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class DomainRepositoryModule {
@@ -127,4 +216,10 @@ abstract class DomainRepositoryModule {
 
     @Binds
     abstract fun bindDomainSettingsRepository(impl: SettingsRepositoryImpl): SettingsRepository
+
+    @Binds
+    abstract fun bindDomainBackupRepository(impl: DomainBackupRepositoryImpl): BackupRepository
+
+    @Binds
+    abstract fun bindDomainReportRepository(impl: DomainReportRepositoryImpl): com.fatihenes.photoreport.core.domain.repository.ReportRepository
 }

@@ -30,16 +30,16 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.fatihenes.photoreport.R
-import com.fatihenes.photoreport.ui.CameraScreen
+import com.fatihenes.photoreport.feature.camera.ui.CameraScreen
 import com.fatihenes.photoreport.feature.dashboard.ui.DashboardScreen
-import com.fatihenes.photoreport.ui.ProjectDetailScreen
-import com.fatihenes.photoreport.ui.SettingsScreen
-import com.fatihenes.photoreport.ui.TrashScreen
+import com.fatihenes.photoreport.feature.project.ui.ProjectDetailScreen
+import com.fatihenes.photoreport.feature.settings.ui.SettingsScreen
+import com.fatihenes.photoreport.feature.trash.ui.TrashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.fatihenes.photoreport.ui.viewmodel.MainViewModel
-import com.fatihenes.photoreport.ui.viewmodel.SettingsViewModel
+import com.fatihenes.photoreport.feature.settings.viewmodel.SettingsViewModel
 import com.fatihenes.photoreport.feature.dashboard.viewmodel.DashboardViewModel
-import com.fatihenes.photoreport.ui.viewmodel.ProjectDetailViewModel
+import com.fatihenes.photoreport.feature.project.viewmodel.ProjectDetailViewModel
 import com.fatihenes.photoreport.core.ui.state.UiState
 import com.fatihenes.photoreport.ui.components.DisclosureDialog
 import androidx.compose.material3.SnackbarHostState
@@ -51,9 +51,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.ui.Alignment
 import kotlinx.coroutines.launch
 
-val LocalSnackbarHostState = staticCompositionLocalOf<SnackbarHostState> {
-    error("No SnackbarHostState provided")
-}
+val LocalSnackbarHostState = com.fatihenes.photoreport.core.ui.navigation.LocalSnackbarHostState
 
 /**
  * Main navigation graph for the PhotoReport app.
@@ -247,7 +245,7 @@ fun AppNavGraph(
                     detailViewModel.addPhotoToLog(logId, filePath)
                 },
                 onExportProject = { format, quality, lang ->
-                    project?.let { detailViewModel.exportProject(context, it.id, it.name, format, quality, lang) }
+                    project?.let { detailViewModel.exportProject(it.id, it.name, format, quality, lang) }
                 },
                 language = language
             )

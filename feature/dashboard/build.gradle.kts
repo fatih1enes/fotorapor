@@ -40,6 +40,10 @@ dependencies {
     implementation(libs.androidx.material3)
     implementation(libs.androidx.icons.extended)
     implementation(libs.androidx.lifecycle.runtime.compose)
+
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.mockito:mockito-core:5.14.2")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.9.0")
 }
 
 kotlin {

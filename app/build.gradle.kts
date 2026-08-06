@@ -83,6 +83,10 @@ android {
 
 dependencies {
     implementation(project(":feature:dashboard"))
+    implementation(project(":feature:settings"))
+    implementation(project(":feature:trash"))
+    implementation(project(":feature:project"))
+    implementation(project(":feature:camera"))
     implementation(project(":core:export"))
     implementation(project(":core:media"))
     implementation(project(":core:datastore"))
