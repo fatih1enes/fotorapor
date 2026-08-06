@@ -1,0 +1,33 @@
+# Detekt baseline configuration - customize rules as needed
+build:
+  maxIssues: 99999
+
+processors:
+  active: true
+
+config:
+  validation: true
+
+console-reports:
+  active: true
+
+comments:
+  CommentOverPrivateFunction:
+    active: true
+
+complexity:
+  LongMethod:
+    active: true
+    threshold: 50
+  LargeClass:
+    active: true
+    threshold: 500
+
+style:
+  MagicNumber:
+    active: true
+    ignoreNumbers: ["-1","0","1","2"]
+
+potential-bugs:
+  UnsafeCallOnNullableType:
+    active: true

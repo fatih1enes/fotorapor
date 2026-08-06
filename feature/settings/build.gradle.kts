@@ -30,11 +30,11 @@ dependencies {
     api(project(":core:domain"))
     api(project(":core:media"))
     api(project(":feature:backup"))
-    
+
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
-    
+
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)

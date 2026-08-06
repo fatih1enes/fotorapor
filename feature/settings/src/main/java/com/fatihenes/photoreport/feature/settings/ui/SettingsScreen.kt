@@ -72,9 +72,9 @@ fun SettingsScreen(
         }
     }
 
-    if (imageToCropUri != null) {
+    imageToCropUri?.let { uri ->
         ImageCropperDialog(
-            imageUri = imageToCropUri!!,
+            imageUri = uri,
             onDismiss = { imageToCropUri = null },
             onCropSuccess = { bitmap ->
                 scope.launch {

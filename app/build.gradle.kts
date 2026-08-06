@@ -1,5 +1,5 @@
-import java.util.Properties
 import java.io.FileInputStream
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -107,7 +107,7 @@ dependencies {
     implementation(libs.androidx.profileinstaller)
     implementation(libs.material)
     implementation(libs.androidx.icons.extended)
-    
+
     // Compose
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
@@ -133,7 +133,7 @@ dependencies {
     implementation(libs.androidx.camera.extensions)
     implementation(libs.androidx.camera.video)
     implementation(libs.androidx.exifinterface)
-    
+
     // Media3 (ExoPlayer)
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.media3.ui)
@@ -170,11 +170,28 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    
+
     // Lifecycle Compose for collectAsStateWithLifecycle
     implementation(libs.androidx.lifecycle.runtime.compose)
 }
 
 kotlin {
     jvmToolchain(17)
+}
+
+// Ensure release builds are signed: validate presence of keystore.properties
+tasks.register("validateReleaseKeystore") {
+    doLast {
+        val keystorePropertiesFile = rootProject.file("keystore.properties")
+        if (!keystorePropertiesFile.exists()) {
+            throw GradleException(
+                "keystore.properties not found. Create it at project root with: storeFile, storePassword, keyAlias, keyPassword"
+            )
+        }
+    }
+}
+
+// Make release assembly/bundle depend on the validation task when those tasks exist
+tasks.matching { it.name == "assembleRelease" || it.name == "bundleRelease" }.configureEach {
+    dependsOn("validateReleaseKeystore")
 }

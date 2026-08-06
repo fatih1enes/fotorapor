@@ -215,18 +215,23 @@ class ExportWorker @AssistedInject constructor(
         }
     }
     private fun getAppIconBitmap(): android.graphics.Bitmap? {
-        val drawable = androidx.core.content.ContextCompat.getDrawable(applicationContext, R.mipmap.ic_launcher) ?: return null
-        if (drawable is android.graphics.drawable.BitmapDrawable) {
-            return drawable.bitmap
+        var result: android.graphics.Bitmap? = null
+        val drawable = androidx.core.content.ContextCompat.getDrawable(applicationContext, R.mipmap.ic_launcher)
+        if (drawable != null) {
+            if (drawable is android.graphics.drawable.BitmapDrawable) {
+                result = drawable.bitmap
+            } else {
+                val bitmap = createBitmap(
+                    (drawable.intrinsicWidth.takeIf { it > 0 } ?: 108),
+                    (drawable.intrinsicHeight.takeIf { it > 0 } ?: 108),
+                    android.graphics.Bitmap.Config.ARGB_8888
+                )
+                val canvas = android.graphics.Canvas(bitmap)
+                drawable.setBounds(0, 0, canvas.width, canvas.height)
+                drawable.draw(canvas)
+                result = bitmap
+            }
         }
-        val bitmap = createBitmap(
-            (drawable.intrinsicWidth.takeIf { it > 0 } ?: 108),
-            (drawable.intrinsicHeight.takeIf { it > 0 } ?: 108),
-            android.graphics.Bitmap.Config.ARGB_8888
-        )
-        val canvas = android.graphics.Canvas(bitmap)
-        drawable.setBounds(0, 0, canvas.width, canvas.height)
-        drawable.draw(canvas)
-        return bitmap
+        return result
     }
 }

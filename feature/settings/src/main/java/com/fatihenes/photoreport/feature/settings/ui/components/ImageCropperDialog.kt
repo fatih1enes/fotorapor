@@ -105,8 +105,9 @@ fun ImageCropperDialog(
             ) {
             Canvas(modifier = Modifier.fillMaxSize()) {
 
-                val imgWidth = imageBitmap!!.width.toFloat()
-                val imgHeight = imageBitmap!!.height.toFloat()
+                val imgBmp = imageBitmap ?: return@Canvas
+                val imgWidth = imgBmp.width.toFloat()
+                val imgHeight = imgBmp.height.toFloat()
 
                 val baseScale = max(canvasWidth / imgWidth, canvasHeight / imgHeight)
                 val finalScale = baseScale * scale
@@ -118,7 +119,7 @@ fun ImageCropperDialog(
                 val imgTop = (canvasHeight - imgDrawHeight) / 2f + offset.y
 
                 drawImage(
-                    image = imageBitmap!!,
+                    image = imgBmp,
                     dstOffset = IntOffset(imgLeft.toInt(), imgTop.toInt()),
                     dstSize = IntSize(imgDrawWidth.toInt(), imgDrawHeight.toInt())
                 )
