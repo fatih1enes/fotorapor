@@ -113,18 +113,26 @@ fun ProjectDetailScreen(
             topBar = {
                 TopAppBar(
                     title = {
-                        Column {
-                            Text(
-                                project.name,
-                                style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.onSurface
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(12.dp)
+                                    .background(projectColor, CircleShape)
                             )
-                            Text(
-                                stringResource(R.string.project_details_label),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                            Spacer(modifier = Modifier.width(10.dp))
+                            Column {
+                                Text(
+                                    project.name,
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                                Text(
+                                    "${logs.size} Saha Günlüğü · ${allProjectPhotos.size} Fotoğraf",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
                         }
                     },
                     navigationIcon = {
@@ -137,6 +145,21 @@ fun ProjectDetailScreen(
                         }
                     },
                     actions = {
+                        IconButton(onClick = {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                val hasPermission = ContextCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                                if (hasPermission) showExportDialog = true else notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                            } else {
+                                showExportDialog = true
+                            }
+                        }) {
+                            Icon(
+                                Icons.Default.Share,
+                                contentDescription = stringResource(R.string.share_as_file),
+                                tint = projectColor,
+                                modifier = Modifier.size(FotoRaporTokens.IconSizeS)
+                            )
+                        }
                         IconButton(onClick = { showMenu = true }) {
                             Icon(
                                 Icons.Default.MoreVert,
@@ -149,35 +172,6 @@ fun ProjectDetailScreen(
                             onDismissRequest = { showMenu = false },
                             shape = RoundedCornerShape(FotoRaporTokens.RadiusM)
                         ) {
-                            DropdownMenuItem(
-                                text = {
-                                    Text(
-                                        stringResource(R.string.share_as_file),
-                                        style = MaterialTheme.typography.bodyMedium
-                                    )
-                                },
-                                onClick = {
-                                    showMenu = false
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                                        val hasPermission = ContextCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) == android.content.pm.PackageManager.PERMISSION_GRANTED
-                                        if (hasPermission) {
-                                            showExportDialog = true
-                                        } else {
-                                            notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
-                                        }
-                                    } else {
-                                        showExportDialog = true
-                                    }
-                                },
-                                leadingIcon = {
-                                    Icon(
-                                        Icons.Default.Share,
-                                        contentDescription = stringResource(R.string.acc_share),
-                                        tint = projectColor,
-                                        modifier = Modifier.size(FotoRaporTokens.IconSizeS)
-                                    )
-                                }
-                            )
                             DropdownMenuItem(
                                 text = {
                                     Text(
@@ -243,13 +237,74 @@ fun ProjectDetailScreen(
                     .imePadding(),
                 contentPadding = PaddingValues(top = FotoRaporTokens.SpacingS)
             ) {
+                // ── Hero Banner ──────────────────────────────────
+                item(key = "project_hero_banner") {
+                    Surface(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = FotoRaporTokens.SpacingL),
+                        shape = RoundedCornerShape(FotoRaporTokens.RadiusL),
+                        color = projectColor.copy(alpha = 0.08f),
+                        border = BorderStroke(1.dp, projectColor.copy(alpha = 0.25f))
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(FotoRaporTokens.SpacingL),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = project.name.uppercase(),
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = projectColor,
+                                    letterSpacing = 1.5.sp
+                                )
+                                Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXXS))
+                                Text(
+                                    text = "${logs.size} Saha Kaydı · ${allProjectPhotos.size} Fotoğraf",
+                                    style = MaterialTheme.typography.bodyMedium,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSurface
+                                )
+                            }
+                            Button(
+                                onClick = { showExportDialog = true },
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = projectColor,
+                                    contentColor = Color.White
+                                ),
+                                shape = RoundedCornerShape(FotoRaporTokens.RadiusS),
+                                modifier = Modifier.height(36.dp),
+                                contentPadding = PaddingValues(horizontal = 12.dp)
+                            ) {
+                                Icon(
+                                    Icons.Default.PictureAsPdf,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp),
+                                    tint = Color.White
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    "Rapor Al",
+                                    style = MaterialTheme.typography.labelMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
+                }
+
                 item(key = "week_calendar") {
                     WeekCalendar(
                         projectColor = projectColor,
                         existingLogDates = existingLogDates,
                         onDateSelected = { date ->
                             coroutineScope.launch {
-                                val index = logs.indexOfFirst { it.log.date == date }
+                                val targetMillis = DateUtils.getStartOfDayEpochMillis(date)
+                                val index = logs.indexOfFirst { it.log.date == targetMillis }
                                 if (index != -1) {
                                     listState.animateScrollToItem(index + 3)
                                 }
@@ -311,10 +366,11 @@ fun ProjectDetailScreen(
                 item(key = "timeline_header") {
                     Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXXL))
                     Text(
-                        stringResource(R.string.timeline_label),
-                        style = MaterialTheme.typography.titleLarge,
+                        stringResource(R.string.timeline_label).uppercase(),
+                        style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.SemiBold,
-                        color = MaterialTheme.colorScheme.onBackground
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        letterSpacing = 1.5.sp
                     )
                     Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingL))
                 }
@@ -458,136 +514,6 @@ fun ProjectDetailScreen(
                     },
                     onUpdateRotation = onUpdateRotation
                 )
-            }
-        }
-    }
-}
-
-@Composable
-fun WeekCalendar(
-    projectColor: Color,
-    existingLogDates: Set<Long>,
-    onDateSelected: (Long) -> Unit
-) {
-    val haptic = LocalHapticFeedback.current
-    val initialDate = LocalDate.now()
-    val pagerState = rememberPagerState(initialPage = 100, pageCount = { 200 })
-
-    val currentMonday = remember(pagerState.currentPage) {
-        initialDate
-            .with(java.time.temporal.TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY))
-            .plusWeeks((pagerState.currentPage - 100).toLong())
-    }
-
-    val turkishLocale = remember { java.util.Locale.Builder().setLanguage("tr").setRegion("TR").build() }
-    val monthYearText = remember(currentMonday) {
-        val month = currentMonday.month.getDisplayName(java.time.format.TextStyle.FULL, turkishLocale)
-            .replaceFirstChar { it.uppercase() }
-        "$month ${currentMonday.year}"
-    }
-
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = FotoRaporTokens.SpacingL),
-        shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
-        color = MaterialTheme.colorScheme.surface,
-        border = BorderStroke(FotoRaporTokens.CardBorderWidth, MaterialTheme.colorScheme.outlineVariant)
-    ) {
-        Column(modifier = Modifier.padding(FotoRaporTokens.SpacingL)) {
-            Text(
-                text = monthYearText,
-                style = MaterialTheme.typography.labelMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-            Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingM))
-
-            HorizontalPager(
-                state = pagerState,
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.Top,
-                beyondViewportPageCount = 0
-            ) { page ->
-                val weekOffset = page - 100
-                val mondayOfThisWeek = remember(page) {
-                    initialDate
-                        .with(java.time.temporal.TemporalAdjusters.previousOrSame(java.time.DayOfWeek.MONDAY))
-                        .plusWeeks(weekOffset.toLong())
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    for (i in 0 until 7) {
-                        val date = remember(mondayOfThisWeek, i) { mondayOfThisWeek.plusDays(i.toLong()) }
-                        val startOfDay = remember(date) { DateUtils.getStartOfDayEpochMillis(date) }
-                        val isLogged = existingLogDates.contains(startOfDay)
-                        val isToday = remember(date) { date == LocalDate.now() }
-
-                        val dayName = when (date.dayOfWeek) {
-                            java.time.DayOfWeek.MONDAY -> stringResource(R.string.day_mon)
-                            java.time.DayOfWeek.TUESDAY -> stringResource(R.string.day_tue)
-                            java.time.DayOfWeek.WEDNESDAY -> stringResource(R.string.day_wed)
-                            java.time.DayOfWeek.THURSDAY -> stringResource(R.string.day_thu)
-                            java.time.DayOfWeek.FRIDAY -> stringResource(R.string.day_fri)
-                            java.time.DayOfWeek.SATURDAY -> stringResource(R.string.day_sat)
-                            else -> stringResource(R.string.day_sun)
-                        }
-
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            modifier = Modifier
-                                .weight(1f)
-                                .clip(RoundedCornerShape(FotoRaporTokens.RadiusS))
-                                .clickable {
-                                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                                    onDateSelected(startOfDay)
-                                }
-                                .background(
-                                    when {
-                                        isToday -> projectColor.copy(alpha = 0.08f)
-                                        isLogged -> projectColor.copy(alpha = 0.04f)
-                                        else -> Color.Transparent
-                                    }
-                                )
-                                .then(
-                                    if (isToday) {
-                                        Modifier.border(
-                                            1.dp,
-                                            projectColor.copy(alpha = 0.5f),
-                                            RoundedCornerShape(FotoRaporTokens.RadiusS)
-                                        )
-                                    } else Modifier
-                                )
-                                .padding(vertical = FotoRaporTokens.SpacingS)
-                        ) {
-                            Text(
-                                text = dayName,
-                                style = MaterialTheme.typography.labelSmall,
-                                color = if (isToday) projectColor else MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontWeight = if (isToday) FontWeight.SemiBold else FontWeight.Normal
-                            )
-                            Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXS))
-                            Text(
-                                text = date.dayOfMonth.toString(),
-                                style = MaterialTheme.typography.titleMedium,
-                                fontWeight = FontWeight.Bold,
-                                color = if (isLogged) projectColor else MaterialTheme.colorScheme.onSurface
-                            )
-                            Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXS))
-                            Box(
-                                modifier = Modifier
-                                    .size(5.dp)
-                                    .background(
-                                        if (isLogged) projectColor else Color.Transparent,
-                                        CircleShape
-                                    )
-                            )
-                        }
-                    }
-                }
             }
         }
     }
