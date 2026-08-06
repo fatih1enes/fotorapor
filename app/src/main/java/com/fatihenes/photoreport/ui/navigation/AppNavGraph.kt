@@ -72,10 +72,12 @@ fun AppNavGraph(
         val scope = rememberCoroutineScope()
         val language by viewModel.language.collectAsStateWithLifecycle()
 
-        val disclosureShown by viewModel.disclosureShown.collectAsStateWithLifecycle()
-        if (!disclosureShown) {
-            DisclosureDialog(onDismiss = { viewModel.setDisclosureShown(true) })
-        }
+    val disclosureShown by viewModel.disclosureShown.collectAsStateWithLifecycle()
+    val isInitialized by viewModel.isInitialized.collectAsStateWithLifecycle()
+
+    if (isInitialized && !disclosureShown) {
+        DisclosureDialog(onDismiss = { viewModel.setDisclosureShown(true) })
+    }
 
     // --- Permission Handling ---
     var pendingLogId by remember { mutableStateOf<Long?>(null) }
@@ -134,20 +136,20 @@ fun AppNavGraph(
         startDestination = Routes.DASHBOARD,
         modifier = Modifier,
         enterTransition = {
-            fadeIn(animationSpec = tween(FotoRaporMotion.DurationMedium, easing = FotoRaporMotion.EasingEmphasized)) +
-            androidx.compose.animation.scaleIn(initialScale = 0.97f, animationSpec = tween(FotoRaporMotion.DurationMedium, easing = FotoRaporMotion.EasingEmphasized))
+            fadeIn(animationSpec = tween(FotoRaporMotion.DurationLong, easing = FotoRaporMotion.EasingEmphasized)) +
+            androidx.compose.animation.scaleIn(initialScale = 0.95f, animationSpec = tween(FotoRaporMotion.DurationLong, easing = FotoRaporMotion.EasingEmphasized))
         },
         exitTransition = {
-            fadeOut(animationSpec = tween(FotoRaporMotion.DurationShort, easing = FotoRaporMotion.EasingStandard)) +
-            androidx.compose.animation.scaleOut(targetScale = 1.03f, animationSpec = tween(FotoRaporMotion.DurationShort, easing = FotoRaporMotion.EasingStandard))
+            fadeOut(animationSpec = tween(FotoRaporMotion.DurationMedium, easing = FotoRaporMotion.EasingStandard)) +
+            androidx.compose.animation.scaleOut(targetScale = 1.05f, animationSpec = tween(FotoRaporMotion.DurationMedium, easing = FotoRaporMotion.EasingStandard))
         },
         popEnterTransition = {
-            fadeIn(animationSpec = tween(FotoRaporMotion.DurationMedium, easing = FotoRaporMotion.EasingEmphasized)) +
-            androidx.compose.animation.scaleIn(initialScale = 1.03f, animationSpec = tween(FotoRaporMotion.DurationMedium, easing = FotoRaporMotion.EasingEmphasized))
+            fadeIn(animationSpec = tween(FotoRaporMotion.DurationLong, easing = FotoRaporMotion.EasingEmphasized)) +
+            androidx.compose.animation.scaleIn(initialScale = 1.05f, animationSpec = tween(FotoRaporMotion.DurationLong, easing = FotoRaporMotion.EasingEmphasized))
         },
         popExitTransition = {
-            fadeOut(animationSpec = tween(FotoRaporMotion.DurationShort, easing = FotoRaporMotion.EasingStandard)) +
-            androidx.compose.animation.scaleOut(targetScale = 0.97f, animationSpec = tween(FotoRaporMotion.DurationShort, easing = FotoRaporMotion.EasingStandard))
+            fadeOut(animationSpec = tween(FotoRaporMotion.DurationMedium, easing = FotoRaporMotion.EasingStandard)) +
+            androidx.compose.animation.scaleOut(targetScale = 0.95f, animationSpec = tween(FotoRaporMotion.DurationMedium, easing = FotoRaporMotion.EasingStandard))
         }
     ) {
         composable(Routes.DASHBOARD) {
@@ -263,7 +265,7 @@ fun AppNavGraph(
 
             val detailViewModel: ProjectDetailViewModel = hiltViewModel()
             val settingsViewModel: SettingsViewModel = hiltViewModel()
-            
+
             val settings by settingsViewModel.settings.collectAsStateWithLifecycle()
             val cameraOpt = settings?.cameraOptimization ?: true
             val avifEnabled = settings?.avifEnabled ?: true
@@ -301,7 +303,7 @@ fun AppNavGraph(
             )
         }
     }
-    
+
     // Global SnackbarHost over the NavHost
     SnackbarHost(
         hostState = snackbarHostState,

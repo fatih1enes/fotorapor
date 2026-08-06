@@ -26,6 +26,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion
 import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporTokens
 
@@ -43,6 +44,7 @@ fun AppButton(
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
     enabled: Boolean = true,
+    isLoading: Boolean = false,
     fullWidth: Boolean = false,
     containerColor: Color = MaterialTheme.colorScheme.primary,
     contentColor: Color = MaterialTheme.colorScheme.onPrimary
@@ -51,7 +53,7 @@ fun AppButton(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.97f else 1f,
+        targetValue = if (isPressed && enabled && !isLoading) 0.96f else 1f,
         animationSpec = FotoRaporMotion.pressSpring(),
         label = "button_press_scale"
     )
@@ -60,10 +62,12 @@ fun AppButton(
 
     Button(
         onClick = {
-            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-            onClick()
+            if (!isLoading) {
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                onClick()
+            }
         },
-        enabled = enabled,
+        enabled = enabled && !isLoading,
         interactionSource = interactionSource,
         modifier = buttonModifier
             .defaultMinSize(
@@ -78,26 +82,36 @@ fun AppButton(
         shape = MaterialTheme.shapes.medium,
         colors = ButtonDefaults.buttonColors(
             containerColor = containerColor,
-            contentColor = contentColor
+            contentColor = contentColor,
+            disabledContainerColor = containerColor.copy(alpha = 0.5f),
+            disabledContentColor = contentColor.copy(alpha = 0.7f)
         ),
         elevation = ButtonDefaults.buttonElevation(
             defaultElevation = FotoRaporTokens.ElevationNone,
             pressedElevation = FotoRaporTokens.ElevationNone
         )
     ) {
-        if (icon != null) {
-            Icon(
-                imageVector = icon,
-                contentDescription = null,
-                modifier = Modifier.size(FotoRaporTokens.IconSizeS)
+        if (isLoading) {
+            androidx.compose.material3.CircularProgressIndicator(
+                modifier = Modifier.size(20.dp),
+                color = contentColor,
+                strokeWidth = 2.dp
             )
-            Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingS))
+        } else {
+            if (icon != null) {
+                Icon(
+                    imageVector = icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(FotoRaporTokens.IconSizeS)
+                )
+                Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingS))
+            }
+            Text(
+                text = text,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center
+            )
         }
-        Text(
-            text = text,
-            style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.SemiBold,
-            textAlign = TextAlign.Center
-        )
     }
 }

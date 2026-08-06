@@ -18,6 +18,15 @@ class MainViewModel @Inject constructor(
     private val locationManager: LocationManager,
 ) : ViewModel() {
 
+    private val _isInitialized = MutableStateFlow(false)
+    val isInitialized: StateFlow<Boolean> = _isInitialized.asStateFlow()
+
+    init {
+        settingsRepository.settings
+            .onEach { _isInitialized.value = true }
+            .launchIn(viewModelScope)
+    }
+
     // Global settings for UI lifecycle
     val themeMode: StateFlow<String> = settingsRepository.settings
         .map { it.themeMode }

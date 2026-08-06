@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
@@ -105,6 +106,7 @@ fun ProjectDetailScreen(
     }
 
     val allProjectPhotos by viewModel.allProjectPhotos.collectAsStateWithLifecycle()
+    val isSavingNotes by viewModel.isSavingNotes.collectAsStateWithLifecycle()
     val listState = rememberLazyListState()
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -121,12 +123,32 @@ fun ProjectDetailScreen(
                             )
                             Spacer(modifier = Modifier.width(10.dp))
                             Column {
-                                Text(
-                                    project.name,
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        project.name,
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    AnimatedVisibility(
+                                        visible = isSavingNotes,
+                                        enter = fadeIn() + scaleIn(initialScale = 0.8f),
+                                        exit = fadeOut() + scaleOut(targetScale = 0.8f)
+                                    ) {
+                                        Surface(
+                                            shape = CircleShape,
+                                            color = projectColor.copy(alpha = 0.1f),
+                                            modifier = Modifier.size(16.dp)
+                                        ) {
+                                            CircularProgressIndicator(
+                                                modifier = Modifier.padding(3.dp),
+                                                strokeWidth = 1.5.dp,
+                                                color = projectColor
+                                            )
+                                        }
+                                    }
+                                }
                                 Text(
                                     stringResource(R.string.project_detail_stat_summary, logs.size, allProjectPhotos.size),
                                     style = MaterialTheme.typography.labelSmall,
@@ -243,9 +265,10 @@ fun ProjectDetailScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(bottom = FotoRaporTokens.SpacingL),
-                        shape = RoundedCornerShape(FotoRaporTokens.RadiusL),
-                        color = projectColor.copy(alpha = 0.08f),
-                        border = BorderStroke(1.dp, projectColor.copy(alpha = 0.25f))
+                        shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
+                        color = MaterialTheme.colorScheme.surface,
+                        border = BorderStroke(FotoRaporTokens.CardBorderWidth, MaterialTheme.colorScheme.outlineVariant),
+                        tonalElevation = FotoRaporTokens.ElevationS
                     ) {
                         Row(
                             modifier = Modifier
@@ -256,42 +279,54 @@ fun ProjectDetailScreen(
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = project.name.uppercase(),
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    color = projectColor,
-                                    letterSpacing = 1.5.sp
-                                )
-                                Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXXS))
-                                Text(
-                                    text = stringResource(R.string.project_detail_stat_summary, logs.size, allProjectPhotos.size),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    fontWeight = FontWeight.SemiBold,
+                                    text = project.name,
+                                    style = MaterialTheme.typography.titleLarge,
+                                    fontWeight = FontWeight.Black,
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
+                                Spacer(modifier = Modifier.height(2.dp))
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Box(Modifier.size(8.dp).background(projectColor, CircleShape))
+                                    Spacer(Modifier.width(8.dp))
+                                    Text(
+                                        text = stringResource(R.string.project_detail_stat_summary, logs.size, allProjectPhotos.size),
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                                    )
+                                }
                             }
-                            Button(
-                                onClick = { showExportDialog = true },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = projectColor,
-                                    contentColor = Color.White
-                                ),
+                            Surface(
+                                onClick = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    showExportDialog = true
+                                },
+                                color = projectColor.copy(alpha = 0.12f),
                                 shape = RoundedCornerShape(FotoRaporTokens.RadiusS),
-                                modifier = Modifier.height(36.dp),
-                                contentPadding = PaddingValues(horizontal = 12.dp)
+                                modifier = Modifier
+                                    .height(38.dp)
+                                    .graphicsLayer {
+                                        // Subtle entrance scale
+                                    },
+                                border = BorderStroke(1.dp, projectColor.copy(alpha = 0.2f))
                             ) {
-                                Icon(
-                                    Icons.Default.PictureAsPdf,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(16.dp),
-                                    tint = Color.White
-                                )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(
-                                    stringResource(R.string.project_detail_get_report),
-                                    style = MaterialTheme.typography.labelMedium,
-                                    fontWeight = FontWeight.Bold
-                                )
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 14.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        Icons.Default.PictureAsPdf,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(18.dp),
+                                        tint = projectColor
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = stringResource(R.string.project_detail_get_report),
+                                        style = MaterialTheme.typography.labelLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        color = projectColor
+                                    )
+                                }
                             }
                         }
                     }

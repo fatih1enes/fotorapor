@@ -5,10 +5,15 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,8 +23,11 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -32,6 +40,7 @@ import coil3.compose.AsyncImage
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.video.VideoFrameDecoder
+import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion
 import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporTokens
 import com.fatihenes.photoreport.core.ui.R
 import com.fatihenes.photoreport.core.model.DailyLog
@@ -62,29 +71,29 @@ fun TimelineBlock(
     Row(
         modifier = Modifier
             .fillMaxWidth()
+            .height(IntrinsicSize.Min)
             .padding(end = FotoRaporTokens.SpacingS)
     ) {
         // ── Timeline Rail ────────────────────────────
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.width(28.dp)
+            modifier = Modifier.width(32.dp)
         ) {
             Box(
                 modifier = Modifier
-                    .size(10.dp)
-                    .border(2.dp, projectColor, CircleShape)
+                    .size(12.dp)
+                    .border(2.5.dp, projectColor, CircleShape)
                     .background(MaterialTheme.colorScheme.surface, CircleShape)
             )
             Box(
                 modifier = Modifier
-                    .width(1.5.dp)
+                    .width(2.dp)
                     .fillMaxHeight()
-                    .weight(1f)
                     .background(
                         Brush.verticalGradient(
                             listOf(
-                                projectColor.copy(alpha = 0.25f),
-                                Color.Transparent
+                                projectColor.copy(alpha = 0.4f),
+                                projectColor.copy(alpha = 0.1f)
                             )
                         )
                     )
@@ -95,16 +104,33 @@ fun TimelineBlock(
         Column(
             modifier = Modifier
                 .weight(1f)
-                .padding(start = FotoRaporTokens.SpacingM, bottom = FotoRaporTokens.Spacing4XL)
+                .padding(start = FotoRaporTokens.SpacingL, bottom = FotoRaporTokens.Spacing4XL)
         ) {
             // Date heading
-            Text(
-                text = DateUtils.formatDate(log.date, language),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
-            )
-            Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingM))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text(
+                    text = DateUtils.formatDate(log.date, language),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Black,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+                Spacer(modifier = Modifier.weight(1f))
+                if (photos.isNotEmpty()) {
+                    Surface(
+                        shape = CircleShape,
+                        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                        modifier = Modifier.height(20.dp)
+                    ) {
+                        Text(
+                            text = "${photos.size} Foto",
+                            style = MaterialTheme.typography.labelSmall,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+            Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingL))
 
             // ── Photo Grid ───────────────────────────
             if (photos.isNotEmpty()) {
@@ -129,14 +155,31 @@ fun TimelineBlock(
                                     val isLast = index == 3 && remaining > 0
                                     val isVideo = photo.filePath.endsWith(".mp4", ignoreCase = true)
 
-                                    Card(
+                                    val itemInteractionSource = remember { MutableInteractionSource() }
+                                    val isItemPressed by itemInteractionSource.collectIsPressedAsState()
+                                    val itemScale by animateFloatAsState(
+                                        targetValue = if (isItemPressed) 0.95f else 1.0f,
+                                        animationSpec = FotoRaporMotion.pressSpring(),
+                                        label = "img_scale"
+                                    )
+
+                                    Surface(
                                         modifier = Modifier
                                             .weight(1f)
                                             .aspectRatio(1.33f)
-                                            .clickable {
-                                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                                                if (isLast) onMorePhotosClick() else onPhotoClick(photo)
+                                            .graphicsLayer {
+                                                scaleX = itemScale
+                                                scaleY = itemScale
                                             }
+                                            .clip(RoundedCornerShape(FotoRaporTokens.RadiusM))
+                                            .clickable(
+                                                interactionSource = itemInteractionSource,
+                                                indication = ripple(),
+                                                onClick = {
+                                                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                                    if (isLast) onMorePhotosClick() else onPhotoClick(photo)
+                                                }
+                                            )
                                             .then(
                                                 if (isSelectionMode && isSelected) {
                                                     Modifier.border(
@@ -147,9 +190,8 @@ fun TimelineBlock(
                                                 } else Modifier
                                             ),
                                         shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
-                                        elevation = CardDefaults.cardElevation(
-                                            defaultElevation = FotoRaporTokens.ElevationNone
-                                        )
+                                        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                                        border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
                                     ) {
                                         val context = LocalContext.current
                                         val request = remember(photo.filePath) {
@@ -160,7 +202,7 @@ fun TimelineBlock(
                                                         decoderFactory(VideoFrameDecoder.Factory())
                                                     }
                                                 }
-                                                .size(256)
+                                                .size(400) // Quality vs performance balance
                                                 .memoryCachePolicy(CachePolicy.ENABLED)
                                                 .build()
                                         }
@@ -169,14 +211,11 @@ fun TimelineBlock(
                                             AsyncImage(
                                                 model = request,
                                                 contentDescription = stringResource(R.string.photo_label),
-                                                placeholder = androidx.compose.ui.graphics.painter.ColorPainter(
-                                                    MaterialTheme.colorScheme.surfaceContainerHigh
-                                                ),
-                                                error = androidx.compose.ui.graphics.painter.ColorPainter(
-                                                    MaterialTheme.colorScheme.surfaceContainerHigh
-                                                ),
                                                 modifier = Modifier.fillMaxSize(),
-                                                contentScale = ContentScale.Crop
+                                                contentScale = ContentScale.Crop,
+                                                onSuccess = {
+                                                    // Smooth fade-in could be added here if not handled by Coil
+                                                }
                                             )
                                             if (isVideo && !isLast) {
                                                 Box(
@@ -187,7 +226,7 @@ fun TimelineBlock(
                                                 ) {
                                                     Icon(
                                                         imageVector = Icons.Default.PlayCircleFilled,
-                                                        contentDescription = stringResource(R.string.loading),
+                                                        contentDescription = null,
                                                         tint = Color.White.copy(alpha = 0.9f),
                                                         modifier = Modifier.size(FotoRaporTokens.IconSizeL)
                                                     )
@@ -197,15 +236,14 @@ fun TimelineBlock(
                                                 Box(
                                                     modifier = Modifier
                                                         .fillMaxSize()
-                                                        .background(Color.Black.copy(alpha = 0.55f))
-                                                        .clickable { onMorePhotosClick() },
+                                                        .background(Color.Black.copy(alpha = 0.6f)),
                                                     contentAlignment = Alignment.Center
                                                 ) {
                                                     Text(
                                                         "+$remaining",
                                                         color = Color.White,
                                                         style = MaterialTheme.typography.headlineSmall,
-                                                        fontWeight = FontWeight.SemiBold
+                                                        fontWeight = FontWeight.Bold
                                                     )
                                                 }
                                             }
@@ -237,7 +275,7 @@ fun TimelineBlock(
                         }
                     }
                 }
-                Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingM))
+                Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingL))
             }
 
             // ── Note Input ──────────────────────────
@@ -251,31 +289,41 @@ fun TimelineBlock(
             Surface(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
-                color = MaterialTheme.colorScheme.surface,
+                color = MaterialTheme.colorScheme.surfaceContainerLow,
                 border = BorderStroke(
                     FotoRaporTokens.CardBorderWidth,
                     MaterialTheme.colorScheme.outlineVariant
                 )
             ) {
+                var isFocused by remember { mutableStateOf(false) }
+                val animatedBorderColor by animateColorAsState(
+                    targetValue = if (isFocused) projectColor.copy(alpha = 0.5f) else Color.Transparent,
+                    animationSpec = tween(300),
+                    label = "border_focus"
+                )
+
                 TextField(
                     value = noteText,
                     onValueChange = { noteText = it; onNoteChange(it) },
                     placeholder = {
                         Text(
                             stringResource(R.string.note_placeholder),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
                             style = MaterialTheme.typography.bodyMedium
                         )
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(min = FotoRaporTokens.ButtonHeightL),
+                        .heightIn(min = FotoRaporTokens.ButtonHeightM)
+                        .onFocusChanged { isFocused = it.isFocused }
+                        .border(1.dp, animatedBorderColor, RoundedCornerShape(FotoRaporTokens.RadiusM)),
                     colors = TextFieldDefaults.colors(
                         focusedContainerColor = Color.Transparent,
                         unfocusedContainerColor = Color.Transparent,
                         disabledContainerColor = Color.Transparent,
                         focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
+                        unfocusedIndicatorColor = Color.Transparent,
+                        cursorColor = projectColor
                     ),
                     textStyle = MaterialTheme.typography.bodyMedium.copy(
                         color = MaterialTheme.colorScheme.onSurface,
@@ -284,7 +332,7 @@ fun TimelineBlock(
                 )
             }
 
-            Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingM))
+            Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingL))
 
             // ── Action Buttons ───────────────────────
             Row(
@@ -292,36 +340,36 @@ fun TimelineBlock(
                 horizontalArrangement = Arrangement.spacedBy(FotoRaporTokens.SpacingS)
             ) {
                 // Camera button
-                Button(
+                Surface(
                     onClick = {
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         onAddPhotoClick()
                     },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = projectColor,
-                        contentColor = Color.White
-                    ),
+                    color = projectColor,
                     shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
                     modifier = Modifier
                         .weight(1f)
-                        .height(FotoRaporTokens.ButtonHeightM),
-                    elevation = ButtonDefaults.buttonElevation(
-                        defaultElevation = FotoRaporTokens.ElevationNone
-                    )
+                        .height(FotoRaporTokens.ButtonHeightM)
                 ) {
-                    Icon(
-                        Icons.Default.CameraAlt,
-                        contentDescription = stringResource(R.string.acc_shutter),
-                        modifier = Modifier.size(FotoRaporTokens.IconSizeXS + 2.dp),
-                        tint = Color.White
-                    )
-                    Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingXS + 2.dp))
-                    Text(
-                        stringResource(R.string.camera_btn),
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color.White
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            Icons.Default.CameraAlt,
+                            contentDescription = null,
+                            modifier = Modifier.size(FotoRaporTokens.IconSizeXS + 2.dp),
+                            tint = Color.White
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            stringResource(R.string.camera_btn),
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.White
+                        )
+                    }
                 }
 
                 // Gallery import button
@@ -364,7 +412,7 @@ fun TimelineBlock(
                             PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)
                         )
                     },
-                    border = BorderStroke(1.dp, projectColor.copy(alpha = 0.5f)),
+                    border = BorderStroke(1.dp, projectColor.copy(alpha = 0.3f)),
                     colors = ButtonDefaults.outlinedButtonColors(contentColor = projectColor),
                     shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
                     modifier = Modifier
@@ -374,29 +422,22 @@ fun TimelineBlock(
                 ) {
                     if (isImporting) {
                         CircularProgressIndicator(
-                            modifier = Modifier.size(FotoRaporTokens.IconSizeXS + 2.dp),
+                            modifier = Modifier.size(16.dp),
                             color = projectColor,
                             strokeWidth = 2.dp
-                        )
-                        Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingXS + 2.dp))
-                        Text(
-                            stringResource(R.string.loading),
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.SemiBold,
-                            color = projectColor
                         )
                     } else {
                         Icon(
                             Icons.Default.PhotoLibrary,
-                            contentDescription = stringResource(R.string.acc_gallery),
+                            contentDescription = null,
                             modifier = Modifier.size(FotoRaporTokens.IconSizeXS + 2.dp),
                             tint = projectColor
                         )
-                        Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingXS + 2.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
                         Text(
                             stringResource(R.string.gallery_btn),
                             style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.SemiBold,
+                            fontWeight = FontWeight.Bold,
                             color = projectColor
                         )
                     }

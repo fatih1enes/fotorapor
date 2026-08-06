@@ -2,6 +2,7 @@
 package com.fatihenes.photoreport.feature.export.ui
 
 import androidx.compose.animation.*
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -24,6 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion
 import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporTokens
 import com.fatihenes.photoreport.core.designsystem.theme.WarningColor
 import com.fatihenes.photoreport.core.ui.R
@@ -141,8 +143,8 @@ fun ExportDialog(
             // Quality & Summary (expandable)
             AnimatedVisibility(
                 visible = selectedFormat != null,
-                enter = expandVertically() + fadeIn(),
-                exit = shrinkVertically() + fadeOut()
+                enter = expandVertically(animationSpec = tween(FotoRaporMotion.DurationLong, easing = FotoRaporMotion.EasingEmphasized)) + fadeIn(),
+                exit = shrinkVertically(animationSpec = tween(FotoRaporMotion.DurationMedium)) + fadeOut()
             ) {
                 Column {
                     Text(

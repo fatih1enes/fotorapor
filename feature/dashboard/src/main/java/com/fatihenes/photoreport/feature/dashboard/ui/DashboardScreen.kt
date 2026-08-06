@@ -1,9 +1,8 @@
 package com.fatihenes.photoreport.feature.dashboard.ui
 
-import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.*
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -42,6 +41,7 @@ import com.fatihenes.photoreport.core.ui.R
 import com.fatihenes.photoreport.core.ui.components.AppEmptyState
 import com.fatihenes.photoreport.core.ui.components.HeroStatChip
 import com.fatihenes.photoreport.core.ui.components.PillSegmentedControl
+import com.fatihenes.photoreport.core.ui.util.shimmerEffect
 import com.fatihenes.photoreport.feature.dashboard.components.MonthlyCalendar
 import java.time.LocalDate
 
@@ -255,7 +255,7 @@ fun DashboardScreen(
                         }
                     }
 
-                    if (projects.isEmpty()) {
+                    if (projects.isEmpty() && !isRefreshing) {
                         item(key = "projects_empty_state") {
                             AppEmptyState(
                                 icon = Icons.Default.FolderOpen,
@@ -264,6 +264,12 @@ fun DashboardScreen(
                                 actionLabel = stringResource(R.string.empty_projects_action),
                                 onActionClick = { showAddDialog = true }
                             )
+                        }
+                    }
+
+                    if (isRefreshing && projects.isEmpty()) {
+                        items(5) {
+                            ProjectShimmerItem()
                         }
                     }
 
@@ -313,6 +319,29 @@ fun DashboardScreen(
         ) { name, color ->
             onAddProject(name, color)
             showAddDialog = false
+        }
+    }
+}
+
+@Composable
+private fun ProjectShimmerItem() {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = FotoRaporTokens.ScreenPaddingHorizontal, vertical = FotoRaporTokens.SpacingS)
+            .height(84.dp),
+        shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(FotoRaporTokens.CardBorderWidth, MaterialTheme.colorScheme.outlineVariant)
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(FotoRaporTokens.SpacingL)) {
+            Box(modifier = Modifier.size(52.dp).clip(RoundedCornerShape(FotoRaporTokens.RadiusS)).shimmerEffect())
+            Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingL))
+            Column(modifier = Modifier.weight(1f)) {
+                Box(modifier = Modifier.fillMaxWidth(0.6f).height(16.dp).shimmerEffect())
+                Spacer(modifier = Modifier.height(8.dp))
+                Box(modifier = Modifier.fillMaxWidth(0.3f).height(12.dp).shimmerEffect())
+            }
         }
     }
 }
@@ -370,7 +399,7 @@ private fun ProjectFolderItem(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.98f else 1.0f,
+        targetValue = if (isPressed) 0.96f else 1.0f,
         animationSpec = FotoRaporMotion.pressSpring(),
         label = "card_scale"
     )
@@ -389,7 +418,7 @@ private fun ProjectFolderItem(
             .clip(RoundedCornerShape(FotoRaporTokens.RadiusM))
             .clickable(
                 interactionSource = interactionSource,
-                indication = null,
+                indication = ripple(),
                 onClick = {
                     haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                     onClick()
@@ -400,13 +429,14 @@ private fun ProjectFolderItem(
         border = BorderStroke(
             FotoRaporTokens.CardBorderWidth,
             MaterialTheme.colorScheme.outlineVariant
-        )
+        ),
+        tonalElevation = FotoRaporTokens.ElevationXS
     ) {
         Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
             // Left Accent Edge Bar
             Box(
                 modifier = Modifier
-                    .width(6.dp)
+                    .width(4.dp)
                     .fillMaxHeight()
                     .background(projectColor)
             )
@@ -419,7 +449,7 @@ private fun ProjectFolderItem(
             ) {
                 // Color Folder Icon Badge
                 Surface(
-                    modifier = Modifier.size(46.dp),
+                    modifier = Modifier.size(52.dp),
                     shape = RoundedCornerShape(FotoRaporTokens.RadiusS),
                     color = projectColor.copy(alpha = 0.12f)
                 ) {
@@ -428,7 +458,7 @@ private fun ProjectFolderItem(
                             Icons.Default.Folder,
                             contentDescription = null,
                             tint = projectColor,
-                            modifier = Modifier.size(FotoRaporTokens.IconSizeM)
+                            modifier = Modifier.size(FotoRaporTokens.IconSizeM + 2.dp)
                         )
                     }
                 }
@@ -440,28 +470,22 @@ private fun ProjectFolderItem(
                         text = project.name,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1,
+                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                     )
-                    Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXXS))
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Surface(
-                            shape = RoundedCornerShape(100.dp),
-                            color = MaterialTheme.colorScheme.surfaceContainerHigh
-                        ) {
-                            Text(
-                                text = stringResource(R.string.dashboard_folder_tag),
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
-                            )
-                        }
-                    }
+                    Spacer(modifier = Modifier.height(2.dp))
+                    Text(
+                        text = stringResource(R.string.folder_summary),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                    )
                 }
 
                 Icon(
                     Icons.AutoMirrored.Filled.ArrowForwardIos,
-                    contentDescription = stringResource(R.string.my_projects_title),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
                     modifier = Modifier.size(FotoRaporTokens.IconSizeXS)
                 )
             }
