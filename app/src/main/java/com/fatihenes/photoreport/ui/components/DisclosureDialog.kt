@@ -1,3 +1,5 @@
+package com.fatihenes.photoreport.ui.components
+
 import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
