@@ -1,4 +1,4 @@
-package com.fatihenes.photoreport.util
+package com.fatihenes.photoreport.core.common.util
 
 import java.time.Instant
 import java.time.LocalDate

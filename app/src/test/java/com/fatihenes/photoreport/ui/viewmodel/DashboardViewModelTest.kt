@@ -1,8 +1,7 @@
 package com.fatihenes.photoreport.ui.viewmodel
 
 import android.content.Context
-import com.fatihenes.photoreport.data.PhotoEntity
-import com.fatihenes.photoreport.data.ProjectEntity
+import com.fatihenes.photoreport.core.database.*
 import com.fatihenes.photoreport.repository.AppRepository
 import com.fatihenes.photoreport.repository.TrashRepository
 import kotlinx.coroutines.Dispatchers

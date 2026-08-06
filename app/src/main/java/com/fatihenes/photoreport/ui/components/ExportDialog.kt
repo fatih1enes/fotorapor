@@ -21,8 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.fatihenes.photoreport.R
-import com.fatihenes.photoreport.data.ProjectEntity
-import com.fatihenes.photoreport.data.LogWithPhotos
+import com.fatihenes.photoreport.core.database.*
 
 import com.fatihenes.photoreport.ui.viewmodel.ProjectDetailViewModel
 import kotlinx.coroutines.launch

@@ -3,7 +3,7 @@ package com.fatihenes.photoreport.manager
 import android.content.Context
 import android.net.Uri
 import androidx.core.net.toUri
-import com.fatihenes.photoreport.util.result.OperationResult
+import com.fatihenes.photoreport.core.common.util.result.OperationResult
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

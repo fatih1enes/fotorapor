@@ -1,8 +1,7 @@
 package com.fatihenes.photoreport.repository
 
 import android.net.Uri
-import com.fatihenes.photoreport.data.PhotoDao
-import com.fatihenes.photoreport.data.PhotoEntity
+import com.fatihenes.photoreport.core.database.*
 import com.fatihenes.photoreport.util.WatermarkData
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject

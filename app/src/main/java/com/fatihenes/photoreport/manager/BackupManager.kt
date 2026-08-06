@@ -4,9 +4,8 @@ import android.content.Context
 import android.net.Uri
 import android.webkit.MimeTypeMap
 import androidx.core.net.toUri
-import com.fatihenes.photoreport.data.AppDatabase
-import com.fatihenes.photoreport.data.PhotoDao
-import com.fatihenes.photoreport.util.result.OperationResult
+import com.fatihenes.photoreport.core.database.*
+import com.fatihenes.photoreport.core.common.util.result.OperationResult
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow

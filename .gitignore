@@ -1,14 +1,25 @@
-# Project-specific
-keystore.properties
-*.jks
-
 # Gradle
 .gradle
-/build
-/app/build
+build/
+bin/
+gen/
+out/
+.kotlin
+.cursorignore
+.aiignore
+
+# Android
+app/build/
+core/common/build/
+core/database/build/
+baselineProfile/build/
+captures/
+*.apk
+*.aar
+*.dex
 
 # IDE - Android Studio / IntelliJ
-.idea
+.idea/
 *.iml
 *.iws
 .idea/workspace.xml
@@ -19,22 +30,19 @@ keystore.properties
 .idea/libraries
 .idea/caches
 .idea/navEditor.xml
+*.ipr
 
 # Local configuration
 local.properties
-
-# OS generated files
-.DS_Store
-Thumbs.db
+keystore.properties
+secrets.xml
+*.jks
 
 # Firebase
 google-services.json
 
 # Log files
 *.log
-
-# Captures
-/captures
 
 # AI & IDE Artifacts
 .artifacts/

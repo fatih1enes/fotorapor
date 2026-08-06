@@ -1,4 +1,4 @@
-package com.fatihenes.photoreport.util
+package com.fatihenes.photoreport.core.common.util
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow

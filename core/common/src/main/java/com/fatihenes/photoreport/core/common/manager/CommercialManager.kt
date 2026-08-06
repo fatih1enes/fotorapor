@@ -1,4 +1,4 @@
-package com.fatihenes.photoreport.manager
+package com.fatihenes.photoreport.core.common.manager
 
 import javax.inject.Inject
 import javax.inject.Singleton

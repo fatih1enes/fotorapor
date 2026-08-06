@@ -1,8 +1,6 @@
 package com.fatihenes.photoreport.repository
 
-import com.fatihenes.photoreport.data.DailyLogDao
-import com.fatihenes.photoreport.data.DailyLogEntity
-import com.fatihenes.photoreport.data.LogWithPhotos
+import com.fatihenes.photoreport.core.database.*
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject

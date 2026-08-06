@@ -7,11 +7,11 @@ import androidx.lifecycle.viewModelScope
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import androidx.work.workDataOf
-import com.fatihenes.photoreport.data.DailyLogEntity
-import com.fatihenes.photoreport.data.PhotoEntity
+import com.fatihenes.photoreport.core.common.model.FileSizeInfo
+import com.fatihenes.photoreport.core.common.util.groupBy
+import com.fatihenes.photoreport.core.database.*
 import com.fatihenes.photoreport.repository.AppRepository
 import com.fatihenes.photoreport.repository.ReportRepository
-import com.fatihenes.photoreport.util.groupBy
 import com.fatihenes.photoreport.worker.ExportWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -172,13 +172,3 @@ class ProjectDetailViewModel @Inject constructor(
         }
     }
 }
-
-data class FileSizeInfo(
-    val totalPhotoBytes: Long,
-    val totalVideoBytes: Long,
-    val photoCount: Int,
-    val videoCount: Int,
-    val estimatedQ100Bytes: Long,
-    val estimatedQ85Bytes: Long,
-    val estimatedQ75Bytes: Long
-)

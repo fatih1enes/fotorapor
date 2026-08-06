@@ -8,13 +8,12 @@ import android.net.Uri
 import android.text.Layout
 import android.text.StaticLayout
 import androidx.core.content.FileProvider
-import com.fatihenes.photoreport.data.LogWithPhotos
-import com.fatihenes.photoreport.data.ProjectEntity
+import com.fatihenes.photoreport.core.database.*
 import com.fatihenes.photoreport.util.CompanyLogoManager
-import com.fatihenes.photoreport.util.DateUtils
-import com.fatihenes.photoreport.util.FileNameUtils
+import com.fatihenes.photoreport.core.common.util.DateUtils
+import com.fatihenes.photoreport.core.common.util.FileNameUtils
 import com.fatihenes.photoreport.util.ImageUtils
-import com.fatihenes.photoreport.util.result.OperationResult
+import com.fatihenes.photoreport.core.common.util.result.OperationResult
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -24,10 +23,10 @@ import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
-import com.fatihenes.photoreport.R
 import androidx.core.graphics.withTranslation
 
 import com.fatihenes.photoreport.manager.pdf.PdfMetadataWriter
+import com.fatihenes.photoreport.manager.pdf.PdfRect
 import com.fatihenes.photoreport.manager.pdf.PdfStyle
 import com.fatihenes.photoreport.manager.pdf.PdfTheme
 import com.fatihenes.photoreport.manager.pdf.PdfTypography
@@ -68,7 +67,7 @@ class NativePdfExportManager @Inject constructor(
         var pdfDocument: PdfDocument? = null
         var logoBmp: Bitmap? = null
         try {
-            val locale = if (language == "en") Locale.US else Locale("tr", "TR")
+            val locale = if (language == "en") Locale.US else Locale.forLanguageTag("tr-TR")
             val config = android.content.res.Configuration(context.resources.configuration)
             config.setLocale(locale)
             context.createConfigurationContext(config)
@@ -259,8 +258,8 @@ class NativePdfExportManager @Inject constructor(
 
     private fun drawPhoto(
         context: Context,
-        photo: com.fatihenes.photoreport.data.PhotoEntity,
-        rect: com.fatihenes.photoreport.manager.pdf.PdfRect,
+        photo: PhotoEntity,
+        rect: PdfRect,
         canvas: android.graphics.Canvas,
         typography: PdfTypography,
         date: Long,

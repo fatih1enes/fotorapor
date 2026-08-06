@@ -6,7 +6,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fatihenes.photoreport.R
-import com.fatihenes.photoreport.data.ProjectEntity
+import com.fatihenes.photoreport.core.database.ProjectEntity
 import com.fatihenes.photoreport.repository.AppRepository
 import com.fatihenes.photoreport.repository.TrashRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,7 +26,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
-    @param:ApplicationContext private val appContext: Context,
+    @ApplicationContext private val appContext: Context,
     private val repository: AppRepository,
     private val trashRepository: TrashRepository
 ) : ViewModel() {

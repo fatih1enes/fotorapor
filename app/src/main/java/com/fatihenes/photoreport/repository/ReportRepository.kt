@@ -2,8 +2,8 @@ package com.fatihenes.photoreport.repository
 
 import android.content.Context
 import androidx.core.net.toUri
-import com.fatihenes.photoreport.data.PhotoEntity
-import com.fatihenes.photoreport.ui.viewmodel.FileSizeInfo
+import com.fatihenes.photoreport.core.common.model.FileSizeInfo
+import com.fatihenes.photoreport.core.database.PhotoEntity
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

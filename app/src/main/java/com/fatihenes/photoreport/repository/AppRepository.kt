@@ -1,6 +1,6 @@
 package com.fatihenes.photoreport.repository
 
-import com.fatihenes.photoreport.data.*
+import com.fatihenes.photoreport.core.database.*
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton

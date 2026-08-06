@@ -5,6 +5,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2026-08-06
+
+### Fixed
+- **Code Quality:** Resolved multiple deprecation warnings and unused import directives across the project.
+- **Modernization:** Migrated to AutoMirrored Material 3 icons and updated Locale handling to modern API standards.
+- **Git:** Optimized `.gitignore` to prevent tracking of build artifacts and IDE-specific files.
+
+### Added
+- **CI/CD:** Added GitHub Actions workflow for automated build, lint, and unit testing.
+
 ## [2.0.0] - 2026-07-31
 
 ### Added

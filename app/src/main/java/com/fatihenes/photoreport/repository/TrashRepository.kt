@@ -1,10 +1,6 @@
 package com.fatihenes.photoreport.repository
 
-import com.fatihenes.photoreport.data.DailyLogDao
-import com.fatihenes.photoreport.data.PhotoDao
-import com.fatihenes.photoreport.data.PhotoEntity
-import com.fatihenes.photoreport.data.ProjectDao
-import com.fatihenes.photoreport.data.ProjectEntity
+import com.fatihenes.photoreport.core.database.*
 import com.fatihenes.photoreport.manager.FileManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -101,7 +97,8 @@ class TrashRepositoryImpl @Inject constructor(
     override suspend fun cleanOldTrash(threshold: Long) = withContext(Dispatchers.IO) {
         val deletedProjects = projectDao.getDeletedProjects().first()
         for (project in deletedProjects) {
-            if (project.deletedAt != null && project.deletedAt < threshold) {
+            val projectDeletedAt = project.deletedAt
+            if (projectDeletedAt != null && projectDeletedAt < threshold) {
                 val logsWithPhotos = dailyLogDao.getLogsWithPhotosForProjectSuspend(project.id)
                 val allPhotos = logsWithPhotos.flatMap { it.photos }
                 val photoIds = mutableListOf<Long>()
@@ -119,7 +116,8 @@ class TrashRepositoryImpl @Inject constructor(
         val deletedPhotos = photoDao.getDeletedPhotos().first()
         val standalonePhotoIds = mutableListOf<Long>()
         for (photo in deletedPhotos) {
-            if (photo.deletedAt != null && photo.deletedAt < threshold) {
+            val photoDeletedAt = photo.deletedAt
+            if (photoDeletedAt != null && photoDeletedAt < threshold) {
                 fileManager.deletePhysicalFile(photo.filePath)
                 standalonePhotoIds.add(photo.id)
             }

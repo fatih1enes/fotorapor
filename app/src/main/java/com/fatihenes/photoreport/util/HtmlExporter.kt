@@ -5,10 +5,8 @@ import android.net.Uri
 import android.util.Log
 import androidx.core.content.FileProvider
 import androidx.core.text.htmlEncode
-import com.fatihenes.photoreport.data.DailyLogEntity
-import com.fatihenes.photoreport.data.PhotoEntity
-import com.fatihenes.photoreport.data.ProjectEntity
-import com.fatihenes.photoreport.util.FileNameUtils
+import com.fatihenes.photoreport.core.database.*
+import com.fatihenes.photoreport.core.common.util.FileNameUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -128,7 +126,7 @@ object HtmlExporter {
         logoAssetPath: String?,
         language: String
     ): String {
-        val locale = if (language == "en") Locale.US else Locale("tr", "TR")
+        val locale = if (language == "en") Locale.US else Locale.forLanguageTag("tr-TR")
         val config = android.content.res.Configuration(context.resources.configuration)
         config.setLocale(locale)
         val localizedContext = context.createConfigurationContext(config)
@@ -318,62 +316,4 @@ object HtmlExporter {
 
         return builder.toString()
     }
-
-
-
-    private fun copyFile(context: Context, sourceUri: Uri, fallbackPath: String, destFile: File) {
-        var success = false
-
-        // 1. Öncelik: ContentResolver ile aç (content:// ve file:// URI'lar için)
-        try {
-            context.contentResolver.openInputStream(sourceUri)?.use { input ->
-                FileOutputStream(destFile).use { output ->
-                    input.copyTo(output)
-                }
-                success = destFile.exists() && destFile.length() > 0
-            }
-        } catch (e: Exception) {
-            Log.w("HtmlExporter", "ContentResolver failed for $sourceUri: ${e.message}")
-        }
-
-        // 2. Fallback: URI'nin path kısmını doğrudan dosya olarak aç
-        val uriPath = sourceUri.path
-        if (!success && uriPath != null) {
-            try {
-                val f = File(uriPath)
-                if (f.exists()) {
-                    f.inputStream().use { input ->
-                        FileOutputStream(destFile).use { output ->
-                            input.copyTo(output)
-                        }
-                    }
-                    success = destFile.exists() && destFile.length() > 0
-                }
-            } catch (e: Exception) {
-                Log.w("HtmlExporter", "Direct path failed: ${e.message}")
-            }
-        }
-
-        // 3. Son çare: fallbackPath'i doğrudan dosya olarak aç
-        if (!success) {
-            try {
-                val f = File(fallbackPath)
-                if (f.exists()) {
-                    f.inputStream().use { input ->
-                        FileOutputStream(destFile).use { output ->
-                            input.copyTo(output)
-                        }
-                    }
-                    success = destFile.exists() && destFile.length() > 0
-                }
-            } catch (e: Exception) {
-                Log.e("HtmlExporter", "All copy attempts failed for: $fallbackPath", e)
-            }
-        }
-
-        if (!success) {
-            Log.e("HtmlExporter", "COPY COMPLETELY FAILED: uri=$sourceUri, path=$fallbackPath")
-        }
-    }
-
 }

@@ -5,11 +5,8 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.fatihenes.photoreport.data.DailyLogDao
-import com.fatihenes.photoreport.data.DailyLogEntity
-import com.fatihenes.photoreport.data.PhotoDao
-import com.fatihenes.photoreport.data.PhotoEntity
-import com.fatihenes.photoreport.util.DateUtils
+import com.fatihenes.photoreport.core.database.*
+import com.fatihenes.photoreport.core.common.util.DateUtils
 import com.fatihenes.photoreport.util.MediaProcessor
 import com.fatihenes.photoreport.util.WatermarkData
 import com.fatihenes.photoreport.util.WatermarkRenderer

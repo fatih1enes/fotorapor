@@ -10,7 +10,7 @@ import com.fatihenes.photoreport.R
 import com.fatihenes.photoreport.repository.AppRepository
 import com.fatihenes.photoreport.util.HtmlExporter
 import com.fatihenes.photoreport.manager.PdfExportManager
-import com.fatihenes.photoreport.util.result.OperationResult
+import com.fatihenes.photoreport.core.common.util.result.OperationResult
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import androidx.core.graphics.createBitmap

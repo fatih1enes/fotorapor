@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material3.*
@@ -22,10 +22,9 @@ import androidx.core.graphics.toColorInt
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.fatihenes.photoreport.R
-import com.fatihenes.photoreport.data.PhotoEntity
-import com.fatihenes.photoreport.data.ProjectEntity
+import com.fatihenes.photoreport.core.database.*
+import com.fatihenes.photoreport.core.common.util.DateUtils
 import com.fatihenes.photoreport.ui.viewmodel.TrashViewModel
-import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,7 +45,7 @@ fun TrashScreen(
                 title = { Text(stringResource(R.string.trash_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, stringResource(R.string.back_label))
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.back_label))
                     }
                 }
             )
@@ -152,7 +151,7 @@ fun TrashScreen(
 
 @Composable
 fun TrashProjectItem(project: ProjectEntity, language: String, onRestore: () -> Unit, onDelete: () -> Unit) {
-    val dateStr = project.deletedAt?.let { com.fatihenes.photoreport.util.DateUtils.formatDateTime(it, language) } ?: stringResource(R.string.unknown_date)
+    val dateStr = project.deletedAt?.let { DateUtils.formatDateTime(it, language) } ?: stringResource(R.string.unknown_date)
     val projectColor = remember(project.colorHex) {
         runCatching { Color(project.colorHex.toColorInt()) }.getOrDefault(Color.Gray)
     }
@@ -177,7 +176,7 @@ fun TrashProjectItem(project: ProjectEntity, language: String, onRestore: () -> 
 
 @Composable
 fun TrashPhotoItem(photo: PhotoEntity, language: String, onRestore: () -> Unit, onDelete: () -> Unit) {
-    val dateStr = photo.deletedAt?.let { com.fatihenes.photoreport.util.DateUtils.formatDateTime(it, language) } ?: stringResource(R.string.unknown_date)
+    val dateStr = photo.deletedAt?.let { DateUtils.formatDateTime(it, language) } ?: stringResource(R.string.unknown_date)
 
     Card(modifier = Modifier.fillMaxWidth(), colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)) {
         Row(Modifier.fillMaxWidth().padding(16.dp), verticalAlignment = Alignment.CenterVertically) {

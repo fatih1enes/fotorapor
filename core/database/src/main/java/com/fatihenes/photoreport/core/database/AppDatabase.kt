@@ -1,4 +1,4 @@
-package com.fatihenes.photoreport.data
+package com.fatihenes.photoreport.core.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase

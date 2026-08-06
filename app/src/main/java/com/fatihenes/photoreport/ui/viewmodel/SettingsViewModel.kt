@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.fatihenes.photoreport.manager.BackupManager
 import com.fatihenes.photoreport.repository.AppSettings
 import com.fatihenes.photoreport.repository.SettingsRepository
-import com.fatihenes.photoreport.util.result.OperationResult
+import com.fatihenes.photoreport.core.common.util.result.OperationResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted

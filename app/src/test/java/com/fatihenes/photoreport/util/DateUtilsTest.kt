@@ -1,5 +1,6 @@
 package com.fatihenes.photoreport.util
 
+import com.fatihenes.photoreport.core.common.util.DateUtils
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.time.LocalDate

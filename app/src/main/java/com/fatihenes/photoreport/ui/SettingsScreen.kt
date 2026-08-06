@@ -27,12 +27,12 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.delay
 import com.fatihenes.photoreport.ui.navigation.LocalSnackbarHostState
 import com.fatihenes.photoreport.R
 import com.fatihenes.photoreport.ui.components.ImageCropperDialog
 import com.fatihenes.photoreport.ui.viewmodel.SettingsViewModel
 import com.fatihenes.photoreport.util.CompanyLogoManager
+import com.fatihenes.photoreport.core.common.util.result.OperationResult
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -300,38 +300,38 @@ fun SettingsScreen(
                 }
                 
                 LaunchedEffect(backupState) {
-                    if (backupState is com.fatihenes.photoreport.util.result.OperationResult.Success) {
+                    if (backupState is OperationResult.Success) {
                         scope.launch { snackbarHost.showSnackbar(context.getString(R.string.backup_success)) }
                         viewModel.resetBackupState()
-                    } else if (backupState is com.fatihenes.photoreport.util.result.OperationResult.Error) {
-                        scope.launch { snackbarHost.showSnackbar((backupState as com.fatihenes.photoreport.util.result.OperationResult.Error).message ?: "Bilinmeyen Hata") }
+                    } else if (backupState is OperationResult.Error) {
+                        scope.launch { snackbarHost.showSnackbar((backupState as OperationResult.Error).message ?: "Bilinmeyen Hata") }
                         viewModel.resetBackupState()
                     }
                 }
 
                 LaunchedEffect(restoreState) {
-                    if (restoreState is com.fatihenes.photoreport.util.result.OperationResult.Success) {
+                    if (restoreState is OperationResult.Success) {
                         snackbarHost.showSnackbar(
                             message = context.getString(R.string.backup_success),
                             duration = SnackbarDuration.Short
                         )
                         viewModel.resetRestoreState()
-                    } else if (restoreState is com.fatihenes.photoreport.util.result.OperationResult.Error) {
-                        snackbarHost.showSnackbar((restoreState as com.fatihenes.photoreport.util.result.OperationResult.Error).message ?: "Geri yükleme hatası")
+                    } else if (restoreState is OperationResult.Error) {
+                        snackbarHost.showSnackbar((restoreState as OperationResult.Error).message ?: "Geri yükleme hatası")
                         viewModel.resetRestoreState()
                     }
                 }
 
                 Column(modifier = Modifier.padding(16.dp)) {
-                    if (backupState is com.fatihenes.photoreport.util.result.OperationResult.Loading) {
-                        val progress = (backupState as com.fatihenes.photoreport.util.result.OperationResult.Loading).progress ?: 0
+                    if (backupState is OperationResult.Loading) {
+                        val progress = (backupState as OperationResult.Loading).progress ?: 0
                         LinearProgressIndicator(
                             progress = { progress / 100f },
                             modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
                         )
                     }
-                    if (restoreState is com.fatihenes.photoreport.util.result.OperationResult.Loading) {
-                        val progress = (restoreState as com.fatihenes.photoreport.util.result.OperationResult.Loading).progress ?: 0
+                    if (restoreState is OperationResult.Loading) {
+                        val progress = (restoreState as OperationResult.Loading).progress ?: 0
                         LinearProgressIndicator(
                             progress = { progress / 100f },
                             modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)

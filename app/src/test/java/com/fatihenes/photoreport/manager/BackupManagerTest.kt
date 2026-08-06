@@ -5,10 +5,9 @@ import android.content.Context
 import android.net.Uri
 import androidx.sqlite.db.SupportSQLiteDatabase
 import androidx.sqlite.db.SupportSQLiteOpenHelper
-import com.fatihenes.photoreport.data.AppDatabase
-import com.fatihenes.photoreport.data.PhotoDao
+import com.fatihenes.photoreport.core.database.*
 import com.fatihenes.photoreport.repository.SettingsRepository
-import com.fatihenes.photoreport.util.result.OperationResult
+import com.fatihenes.photoreport.core.common.util.result.OperationResult
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertTrue

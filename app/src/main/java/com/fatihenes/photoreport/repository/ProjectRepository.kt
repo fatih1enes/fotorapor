@@ -1,8 +1,7 @@
 package com.fatihenes.photoreport.repository
 
 import android.content.Context
-import com.fatihenes.photoreport.data.ProjectDao
-import com.fatihenes.photoreport.data.ProjectEntity
+import com.fatihenes.photoreport.core.database.*
 import com.fatihenes.photoreport.widget.WidgetDataHelper
 import com.fatihenes.photoreport.R
 import dagger.hilt.android.qualifiers.ApplicationContext

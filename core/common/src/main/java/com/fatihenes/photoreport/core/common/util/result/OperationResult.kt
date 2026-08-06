@@ -1,4 +1,4 @@
-package com.fatihenes.photoreport.util.result
+package com.fatihenes.photoreport.core.common.util.result
 
 /**
  * A discriminated union that encapsulates a successful outcome with a value of type [T]

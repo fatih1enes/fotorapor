@@ -32,9 +32,8 @@ import coil3.request.ImageRequest
 import coil3.request.CachePolicy
 import coil3.video.VideoFrameDecoder
 import com.fatihenes.photoreport.R
-import com.fatihenes.photoreport.data.DailyLogEntity
-import com.fatihenes.photoreport.data.PhotoEntity
-import com.fatihenes.photoreport.util.DateUtils
+import com.fatihenes.photoreport.core.database.*
+import com.fatihenes.photoreport.core.common.util.DateUtils
 import com.fatihenes.photoreport.util.MediaShareUtils
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -31,7 +31,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.ui.input.pointer.positionChanged
 import androidx.core.net.toUri
 import com.fatihenes.photoreport.R
-import com.fatihenes.photoreport.data.PhotoEntity
+import com.fatihenes.photoreport.core.database.PhotoEntity
 import com.fatihenes.photoreport.util.MediaShareUtils
 
 import androidx.compose.ui.window.Dialog

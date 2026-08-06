@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -28,15 +29,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.fatihenes.photoreport.R
-import com.fatihenes.photoreport.data.ProjectEntity
+import com.fatihenes.photoreport.core.database.ProjectEntity
 import com.fatihenes.photoreport.ui.components.MonthlyCalendar
 import java.time.LocalDate
 
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import kotlinx.coroutines.launch
-import kotlin.time.Duration.Companion.milliseconds
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -301,7 +300,7 @@ private fun ProjectFolderItem(project: ProjectEntity, onClick: () -> Unit, modif
             }
 
             Icon(
-                Icons.Default.ArrowForwardIos,
+                Icons.AutoMirrored.Filled.ArrowForwardIos,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
                 modifier = Modifier.size(14.dp)
