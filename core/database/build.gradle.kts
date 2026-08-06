@@ -24,7 +24,9 @@ android {
 }
 
 dependencies {
-    implementation(project(":core:common"))
+    api(project(":core:common"))
+    api(project(":core:model"))
+    api(project(":core:domain"))
     implementation(libs.androidx.core.ktx)
     
     // Room

@@ -69,19 +69,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideDataStore(@ApplicationContext context: Context): DataStore<Preferences> {
-        return PreferenceDataStoreFactory.create(
-            produceFile = { context.preferencesDataStoreFile("settings") }
-        )
-    }
-
-    @Provides
-    @Singleton
     fun provideFileManager(localFileManager: LocalFileManager): FileManager = localFileManager
-
-    @Provides
-    @Singleton
-    fun providePdfExportManager(nativePdfExportManager: NativePdfExportManager): PdfExportManager = nativePdfExportManager
 
     @Provides
     @Singleton

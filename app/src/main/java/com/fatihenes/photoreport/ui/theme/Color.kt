@@ -1,47 +1,34 @@
 package com.fatihenes.photoreport.ui.theme
 
-import androidx.compose.ui.graphics.Color
+val PrimaryLight = com.fatihenes.photoreport.core.designsystem.theme.PrimaryLight
+val PrimaryContainerLight = com.fatihenes.photoreport.core.designsystem.theme.PrimaryContainerLight
+val OnPrimaryContainerLight = com.fatihenes.photoreport.core.designsystem.theme.OnPrimaryContainerLight
 
-/**
- * FotoRapor Kurumsal Renk Paleti - MD3 & Yüksek Kontrastlı Saha Ergonomisi
- * Şantiye ortamında güneş altında görünürlüğü artıran ve göz yormayan resmi kurumsal tonlar.
- */
+val PrimaryDark = com.fatihenes.photoreport.core.designsystem.theme.PrimaryDark
+val PrimaryContainerDark = com.fatihenes.photoreport.core.designsystem.theme.PrimaryContainerDark
+val OnPrimaryContainerDark = com.fatihenes.photoreport.core.designsystem.theme.OnPrimaryContainerDark
 
-// Primary Accent (Kurumsal Derin İndigo / Mavi)
-val PrimaryLight = Color(0xFF2563EB) // Blue 600 (Güneş altında en yüksek kontrast)
-val PrimaryContainerLight = Color(0xFFDBEAFE)
-val OnPrimaryContainerLight = Color(0xFF1E3A8A)
+val SecondaryLight = com.fatihenes.photoreport.core.designsystem.theme.SecondaryLight
+val SecondaryDark = com.fatihenes.photoreport.core.designsystem.theme.SecondaryDark
 
-val PrimaryDark = Color(0xFF60A5FA) // Blue 400 (OLED ekranlarda parlamadan AAA yüksek kontrast)
-val PrimaryContainerDark = Color(0xFF1E293B)
-val OnPrimaryContainerDark = Color(0xFFE2E8F0)
+val BackgroundLight = com.fatihenes.photoreport.core.designsystem.theme.BackgroundLight
+val BackgroundDark = com.fatihenes.photoreport.core.designsystem.theme.BackgroundDark
 
-// Secondary & Auxiliary
-val SecondaryLight = Color(0xFF475569) // Slate 600
-val SecondaryDark = Color(0xFF94A3B8) // Slate 400
+val SurfaceLight = com.fatihenes.photoreport.core.designsystem.theme.SurfaceLight
+val SurfaceDark = com.fatihenes.photoreport.core.designsystem.theme.SurfaceDark
 
-// Backgrounds - Göz Yormayan Kurumsal Slate Dokusu
-val BackgroundLight = Color(0xFFF8FAFC) // Slate 50
-val BackgroundDark = Color(0xFF020617) // Slate 950 (Deep OLED Black)
+val SurfaceVariantLight = com.fatihenes.photoreport.core.designsystem.theme.SurfaceVariantLight
+val SurfaceVariantDark = com.fatihenes.photoreport.core.designsystem.theme.SurfaceVariantDark
 
-// Surface & Surfaces
-val SurfaceLight = Color(0xFFFFFFFF)
-val SurfaceDark = Color(0xFF0F172A) // Slate 900
+val Error = com.fatihenes.photoreport.core.designsystem.theme.Error
+val ErrorContainer = com.fatihenes.photoreport.core.designsystem.theme.ErrorContainer
+val Success = com.fatihenes.photoreport.core.designsystem.theme.Success
 
-val SurfaceVariantLight = Color(0xFFF1F5F9) // Slate 100
-val SurfaceVariantDark = Color(0xFF1E293B) // Slate 800
+val OnBackgroundLight = com.fatihenes.photoreport.core.designsystem.theme.OnBackgroundLight
+val OnBackgroundSecondaryLight = com.fatihenes.photoreport.core.designsystem.theme.OnBackgroundSecondaryLight
 
-// Semantic Feedback Colors
-val Error = Color(0xFFEF4444) // Red 500
-val ErrorContainer = Color(0xFFFEE2E2)
-val Success = Color(0xFF10B981) // Emerald 500
+val OnBackgroundDark = com.fatihenes.photoreport.core.designsystem.theme.OnBackgroundDark
+val OnBackgroundSecondaryDark = com.fatihenes.photoreport.core.designsystem.theme.OnBackgroundSecondaryDark
 
-// Text & Border Contrast Hierarchy
-val OnBackgroundLight = Color(0xFF0F172A) // Slate 900
-val OnBackgroundSecondaryLight = Color(0xFF334155) // Slate 700
-
-val OnBackgroundDark = Color(0xFFF8FAFC)
-val OnBackgroundSecondaryDark = Color(0xFFCBD5E1)
-
-val BorderLight = Color(0xFFE2E8F0) // Slate 200
-val BorderDark = Color(0xFF334155) // Slate 700
+val BorderLight = com.fatihenes.photoreport.core.designsystem.theme.BorderLight
+val BorderDark = com.fatihenes.photoreport.core.designsystem.theme.BorderDark

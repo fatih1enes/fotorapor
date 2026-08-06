@@ -2,7 +2,7 @@ package com.fatihenes.photoreport.repository
 
 import android.net.Uri
 import com.fatihenes.photoreport.core.database.*
-import com.fatihenes.photoreport.util.WatermarkData
+import com.fatihenes.photoreport.core.model.WatermarkData
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -14,7 +14,7 @@ import com.fatihenes.photoreport.worker.PhotoProcessingWorker
 interface PhotoRepository {
     fun getPhotosForLog(logId: Long): Flow<List<PhotoEntity>>
     fun getPhotosForProject(projectId: Long): Flow<List<PhotoEntity>>
-    suspend fun insertPhoto(photo: PhotoEntity)
+    suspend fun insertPhoto(photo: PhotoEntity): Long
     suspend fun deletePhoto(photo: PhotoEntity)
     suspend fun deletePhotosByIds(photoIds: List<Long>)
     suspend fun updatePhotoRotation(id: Long, rotation: Float)
@@ -33,7 +33,7 @@ class PhotoRepositoryImpl @Inject constructor(
 
     override fun getPhotosForProject(projectId: Long): Flow<List<PhotoEntity>> = photoDao.getPhotosForProject(projectId)
 
-    override suspend fun insertPhoto(photo: PhotoEntity) = photoDao.insertPhoto(photo)
+    override suspend fun insertPhoto(photo: PhotoEntity): Long = photoDao.insertPhoto(photo)
 
     override suspend fun deletePhoto(photo: PhotoEntity) = photoDao.softDeletePhoto(photo.id, System.currentTimeMillis())
 

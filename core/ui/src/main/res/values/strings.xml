@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">PhotoReport</string>
+    <string name="widget_description">Aktif projeyi görüntüle ve hızlıca fotoğraf çek</string>
+
+    <!-- Dashboard -->
+    <string name="active_projects">Aktif Projeler</string>
+    <plurals name="project_files">
+        <item quantity="one">%d Dosya</item>
+        <item quantity="other">%d Dosya</item>
+    </plurals>
+    <string name="folder_summary">PhotoReport</string>
+    <string name="empty_state_title">Henüz Proje Yok</string>
+
+    <!-- Add Project Dialog -->
+    <string name="start_new_project">Yeni Proje Başlat</string>
+    <string name="project_name_label">Proje İsmi</string>
+    <string name="cancel_btn">İptal Et</string>
+
+    <!-- Project Detail -->
+    <string name="project_details_label">Proje Detayları</string>
+    <string name="timeline_label">Zaman Tüneli</string>
+    <string name="note_placeholder">Günün özetini buraya yazın…</string>
+    <string name="share_as_file">Dosya Olarak Paylaş</string>
+    <string name="pdf_preparing">PDF Hazırlanıyor…</string>
+    <string name="add_date_card">Tarih Kartı Ekle</string>
+    <string name="loading">Yükleniyor…</string>
+    <string name="camera_btn">Kamera</string>
+    <string name="gallery_btn">Galeri</string>
+    <string name="add_btn">Ekle</string>
+    <string name="day_mon">Pzt</string>
+    <string name="day_tue">Sal</string>
+    <string name="day_wed">Çar</string>
+    <string name="day_thu">Per</string>
+    <string name="day_fri">Cum</string>
+    <string name="day_sat">Cmt</string>
+    <string name="day_sun">Paz</string>
+
+    <!-- Options Menu -->
+    <string name="bulk_select_delete">Toplu Seç ve Sil</string>
+    <string name="delete_project_menu">Projeyi Sil</string>
+
+    <!-- Confirmation Dialogs -->
+    <string name="delete_project_title">Projeyi Sil</string>
+    <string name="delete_project_desc">\'%s\' projesini ve tüm kayıtlarını silmek istediğinize emin misiniz? Bu işlem geri alınamaz.</string>
+    <string name="delete_photo_title">Fotoğrafı Sil</string>
+    <string name="delete_photo_desc">Bu fotoğrafı kalıcı olarak silmek istiyor musunuz?</string>
+    <plurals name="delete_bulk_desc">
+        <item quantity="one">Seçilen %d fotoğrafı kalıcı olarak silmek istediğinize emin misiniz?</item>
+        <item quantity="other">Seçilen %d fotoğrafı kalıcı olarak silmek istediğinize emin misiniz?</item>
+    </plurals>
+    <string name="delete_confirm_btn">Sil</string>
+
+    <!-- Camera -->
+    <string name="camera_permission_required">Kamera izni gerekli</string>
+    <string name="camera_mode_photo">FOTO</string>
+    <string name="camera_mode_video">VİDEO</string>
+    <string name="grid_label">Izgara</string>
+    <string name="flash_label">Flaş</string>
+
+    <!-- Sharing -->
+    <string name="share_media">Medya Paylaş</string>
+    <string name="share_selected">Seçilenleri Paylaş</string>
+    <string name="share_failed">Paylaşım başlatılamadı</string>
+    <string name="share_no_files">Paylaşılacak dosya bulunamadı</string>
+    <string name="import_error">Bazı dosyalar içe aktarılamadı</string>
+
+    <!-- Common -->
+    <string name="back_label">Geri</string>
+    <string name="close_label">Kapat</string>
+    <plurals name="selected_count">
+        <item quantity="one">%d Seçildi</item>
+        <item quantity="other">%d Seçildi</item>
+    </plurals>
+
+    <!-- Export Dialog -->
+    <string name="export_share_project">Projeyi Paylaş</string>
+    <string name="export_compression_quality">Sıkıştırma Kalitesi</string>
+    <string name="export_quality_original">Orijinal</string>
+    <string name="export_quality_original_sub">Kayıpsız</string>
+    <string name="export_quality_high">Yüksek</string>
+    <string name="export_quality_high_sub">Tavsiye</string>
+    <string name="export_quality_standard">Standart</string>
+    <string name="export_quality_standard_sub">Hızlı Aktarım</string>
+    <string name="export_content_summary">İçerik Özeti</string>
+    <string name="export_calculating">Boyutlar hesaplanıyor…</string>
+    <string name="export_pdf_desc">Görsel rapor\n(Videolar oynatılamaz)</string>
+    <string name="export_zip_desc">Web raporu\n(Videolar dahil edilir)</string>
+    <string name="export_photo_label">📸 Fotoğraf</string>
+    <string name="export_video_label">🎬 Video</string>
+    <string name="export_day_label">📅 Gün Kaydı</string>
+    <string name="export_share_btn">Paylaş</string>
+    <string name="export_cancel_btn">İptal</string>
+    <string name="export_pdf_video_warning">PDF formatında videolar oynatılamaz, sadece ön izleme görüntüsü eklenir.</string>
+    <string name="export_zip_original_desc">Fotoğraf ve videolar orijinal kalitede, kayıpsız olarak arşive eklenir.</string>
+    <string name="export_zip_compressed_desc">Görseller web optimizasyonundan geçer.</string>
+    <string name="export_pdf_estimate">📄 Tahmini PDF Boyutu: ~%s</string>
+    <string name="export_zip_estimate">📦 Tahmini ZIP Boyutu: ~%s</string>
+    <string name="export_started_toast">Dışa aktarım arka planda başladı. Lütfen bekleyin…</string>
+
+    <!-- ViewModels & State -->
+    <string name="error_unknown">Bilinmeyen bir hata oluştu</string>
+
+    <!-- ExportWorker Notifications -->
+    <string name="export_notif_title">Dışa Aktarılıyor</string>
+    <string name="export_notif_text">%s hazırlanırken lütfen bekleyin…</string>
+    <string name="export_progress_text">Görsel %1$d / %2$d işleniyor…</string>
+    <string name="export_share_chooser">Raporu Paylaş</string>
+    <string name="export_complete_channel">Dışa Aktarım Tamamlandı</string>
+    <string name="export_ready_title">Paylaşıma Hazır!</string>
+    <string name="export_ready_text">%1$s %2$s paylaşıma hazır.</string>
+    <string name="export_share_action">Hemen Paylaş</string>
+    <string name="export_format_pdf">gün dökümü</string>
+    <string name="export_format_zip">web arşivi</string>
+
+    <!-- ExportWorker Error Notifications -->
+    <string name="export_failed_title">Dışa Aktarım Başarısız</string>
+    <string name="export_failed_text">%1$s dışa aktarılamadı: %2$s</string>
+    <string name="error_out_of_memory">Cihaz belleği yetersiz.</string>
+    <string name="error_storage_access">Depolama alanı yetersiz veya erişim hatası.</string>
+    <string name="export_error_channel_name">Dışa Aktarım Hataları</string>
+
+    <!-- Camera Permission -->
+    <string name="camera_permission_rationale_title">Kamera İzni Gerekli</string>
+    <string name="camera_permission_rationale_desc">Kamera izni kalıcı olarak reddedildi. Fotoğraf çekebilmek için ayarlardan izin vermeniz gerekmektedir.</string>
+    <string name="camera_permission_go_settings">Ayarlara Git</string>
+
+    <!-- Dashboard (hardcoded fixes) -->
+    <string name="my_projects_title">Projelerim</string>
+    <string name="start_project_btn">Projeyi Başlat</string>
+    <string name="project_added_success">Proje başarıyla eklendi</string>
+
+    <!-- Settings (hardcoded fixes) -->
+    <string name="settings_title">Ayarlar</string>
+    <string name="settings_appearance">Görünüm</string>
+    <string name="settings_language">Dil</string>
+    <string name="settings_theme_system">Sistem Varsayılanı</string>
+    <string name="settings_theme_light">Açık Tema</string>
+    <string name="settings_theme_dark">Karanlık Tema</string>
+    <string name="settings_report">Rapor Ayarları</string>
+    <string name="settings_company_logo">Firma Logosu</string>
+    <string name="settings_company_logo_desc">PDF raporlarının sağ üst köşesinde görünecek resmi seçin.</string>
+    <string name="settings_remove_logo">Logoyu Kaldır</string>
+
+    <!-- Trash -->
+    <string name="trash_title">Çöp Kutusu (Son 30 Gün)</string>
+    <string name="trash_deleted_projects">Silinen Projeler</string>
+    <string name="trash_deleted_photos">Silinen Fotoğraflar</string>
+    <string name="unknown_date">Bilinmiyor</string>
+    <string name="trash_deleted_at">Silinme: %s</string>
+    <string name="restore_btn">Geri Yükle</string>
+    <string name="hard_delete_btn">Kalıcı Olarak Sil</string>
+    <string name="photo_label">Fotoğraf</string>
+
+    <!-- Camera (hardcoded fixes) -->
+    <string name="camera_error_prefix">Kamera Hatası:</string>
+    <string name="camera_retry_btn">Tekrar Dene</string>
+    <string name="camera_preparing">Kamera hazırlanıyor…</string>
+    <string name="camera_settings_title">Kamera Ayarları</string>
+    <string name="camera_hdr_title">Donanım HDR</string>
+    <string name="camera_hdr_desc">Daha net ve pürüzsüz fotoğraflar çeker</string>
+    <string name="camera_avif_title">AVIF Kayıt (Kayıpsız)</string>
+    <string name="camera_avif_desc">Kaliteyi bozmadan boyutu çok küçültür</string>
+    <string name="camera_not_ready">Kamera henüz hazır değil, lütfen tekrar deneyin.</string>
+    <string name="camera_save_failed">Fotoğraf kaydedilemedi: %s</string>
+
+    <string name="settings_gps_watermark">Konum Filigranı</string>
+    <string name="settings_gps_watermark_title">GPS ve Tarih Bilgisi</string>
+    <string name="settings_gps_watermark_desc" tools:ignore="Typos">Çekilen fotoğrafların sol alt köşesine proje adı, tarih, koordinat ve adres bilgisini yazar.</string>
+    <string name="location_permission_required">GPS filigranı için konum izni gereklidir.</string>
+
+    <!-- Backup and Restore -->
+    <string name="report_date">Rapor Tarihi</string>
+    <string name="company_logo_alt">Şirket Logosu</string>
+    <string name="photo_alt">Fotoğraf</string>
+    <string name="video_not_supported">Tarayıcınız video etiketini desteklemiyor.</string>
+    <string name="settings_backup_title">Yedekleme ve Geri Yükleme</string>
+    <string name="settings_backup_create">Yedek Oluştur</string>
+    <string name="settings_backup_create_desc">Tüm proje ve fotoğraflarınızı bir ZIP dosyasına yedekleyin.</string>
+    <string name="settings_backup_restore">Geri Yükle</string>
+    <string name="settings_backup_restore_desc">Önceden aldığınız bir yedeği (.zip) cihaza geri yükleyin.</string>
+    <string name="backup_success">İşlem başarıyla tamamlandı.</string>
+
+    <!-- Accessibility Labels -->
+    <string name="acc_add_project">Yeni proje ekle</string>
+    <string name="acc_open_trash">Çöp kutusuna git</string>
+    <string name="acc_open_settings">Ayarlara git</string>
+    <string name="acc_flip_camera">Kamerayı değiştir</string>
+    <string name="acc_shutter">Fotoğraf veya video çek</string>
+    <string name="acc_gallery">Galeriyi aç</string>
+    <string name="acc_close">Kapat</string>
+    <string name="acc_share">Paylaş</string>
+    <string name="acc_delete">Sil</string>
+    <string name="acc_rotate">Döndür</string>
+    <string name="acc_more_options">Daha fazla seçenek</string>
+    <string name="acc_calendar">Tarih seç</string>
+    <string name="save_label">Kaydet</string>
+    <string name="cancel_label">İptal</string>
+    <string name="crop_logo_title">Logoyu Kırp</string>
+    <string name="acc_expand">Genişlet</string>
+
+    <!-- Privacy Disclosure -->
+    <string name="disclosure_title">Hizmet Kullanımı ve İzinler</string>
+    <string name="disclosure_location_desc">PhotoReport, çektiğiniz fotoğrafların üzerine konum bilgisini (koordinat ve adres) filigran olarak ekleyebilmek için konum verilerini kullanır. Bu işlem tamamen cihazınızda gerçekleşir ve verileriniz hiçbir sunucuya gönderilmez.</string>
+    <string name="disclosure_camera_desc">Raporlarınız için fotoğraf ve video çekebilmek amacıyla kameranıza erişim izni gereklidir.</string>
+    <string name="disclosure_button">Anladım ve Devam Et</string>
+
+    <!-- Privacy Policy (Placeholder) -->
+    <string name="widget_active_project">🏗️ Aktif Proje</string>
+    <string name="widget_no_project">Proje Yok</string>
+    <string name="widget_images">Görseller</string>
+    <string name="widget_camera_desc">Kamera</string>
+    <string name="empty_projects_title">Henüz Saha Raporu Projesi Yok</string>
+    <string name="empty_projects_desc">Denetim raporları üretebilmek için öncelikle yeni bir proje klasörü açmalısınız.</string>
+    <string name="empty_projects_action">Yeni Proje Başlat</string>
+    <string name="empty_photos_title">Proje Galerisinde Fotoğraf Yok</string>
+    <string name="empty_photos_desc">Bu projeye ait denetim görseli bulunmamaktadır. Saha durumu dokümantasyonu için kamera modülü ile çekim yapın.</string>
+    <string name="empty_photos_action">Sahadan Fotoğraf Çek</string>
+    <string name="empty_trash_title">Geri Dönüşüm Kutusu Boş</string>
+    <string name="empty_trash_desc">Silinen proje ve saha raporlarınız burada geçici olarak tutulur. Şu an geri kazanılacak herhangi bir silinmiş öğe bulunmuyor.</string>
+    <string name="trash_delete_confirm_title">Projeyi Kalıcı Olarak Sil</string>
+    <string name="trash_delete_confirm_desc">Seçilen saha projesini ve tüm bağlı görsellerini tamamen silmek istediğinize emin misiniz? Bu işlem geri alınamaz.</string>
+    <string name="btn_confirm_delete">Onayla ve Sil</string>
+</resources>

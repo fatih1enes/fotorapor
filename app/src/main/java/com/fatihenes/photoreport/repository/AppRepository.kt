@@ -23,7 +23,7 @@ interface AppRepository {
     suspend fun updateNote(id: Long, note: String)
     fun getPhotosForLog(logId: Long): Flow<List<PhotoEntity>>
     fun getPhotosForProject(projectId: Long): Flow<List<PhotoEntity>>
-    suspend fun insertPhoto(photo: PhotoEntity)
+    suspend fun insertPhoto(photo: PhotoEntity): Long
     suspend fun deletePhoto(photo: PhotoEntity)
     suspend fun deletePhotosByIds(photoIds: List<Long>)
     suspend fun updatePhotoRotation(id: Long, rotation: Float)
@@ -34,7 +34,7 @@ interface AppRepository {
     suspend fun getLogsWithPhotosForProject(projectId: Long): List<LogWithPhotos>
     suspend fun softDeletePhoto(photo: PhotoEntity)
     suspend fun softDeletePhotos(photos: List<PhotoEntity>)
-    fun processAndSavePhotoInBackground(uri: android.net.Uri, projectId: Long, logId: Long, enableWebp: Boolean, projectName: String, watermarkData: com.fatihenes.photoreport.util.WatermarkData? = null)
+    fun processAndSavePhotoInBackground(uri: android.net.Uri, projectId: Long, logId: Long, enableWebp: Boolean, projectName: String, watermarkData: com.fatihenes.photoreport.core.model.WatermarkData? = null)
 }
 
 /**
@@ -83,7 +83,7 @@ class AppRepositoryImpl @Inject constructor(
 
     override fun getPhotosForProject(projectId: Long): Flow<List<PhotoEntity>> = photoRepository.getPhotosForProject(projectId)
 
-    override suspend fun insertPhoto(photo: PhotoEntity) = photoRepository.insertPhoto(photo)
+    override suspend fun insertPhoto(photo: PhotoEntity): Long = photoRepository.insertPhoto(photo)
 
     override suspend fun deletePhoto(photo: PhotoEntity) = photoRepository.deletePhoto(photo)
 
@@ -105,7 +105,7 @@ class AppRepositoryImpl @Inject constructor(
 
     override suspend fun softDeletePhotos(photos: List<PhotoEntity>) = photoRepository.softDeletePhotos(photos)
 
-    override fun processAndSavePhotoInBackground(uri: android.net.Uri, projectId: Long, logId: Long, enableWebp: Boolean, projectName: String, watermarkData: com.fatihenes.photoreport.util.WatermarkData?) {
+    override fun processAndSavePhotoInBackground(uri: android.net.Uri, projectId: Long, logId: Long, enableWebp: Boolean, projectName: String, watermarkData: com.fatihenes.photoreport.core.model.WatermarkData?) {
         photoRepository.processAndSavePhotoInBackground(uri, projectId, logId, enableWebp, projectName, watermarkData)
     }
 }

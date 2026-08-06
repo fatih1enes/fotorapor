@@ -18,18 +18,8 @@ import kotlinx.coroutines.withContext
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
+import com.fatihenes.photoreport.core.model.WatermarkData
 import kotlin.coroutines.resume
-
-/**
- * Data class representing watermark information to overlay on captured photos.
- */
-data class WatermarkData(
-    val latitude: Double? = null,
-    val longitude: Double? = null,
-    val address: String? = null,
-    val dateTime: String = "",
-    val projectName: String = ""
-)
 
 /**
  * Lightweight location utility for GPS watermark feature.

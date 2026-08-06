@@ -77,7 +77,7 @@ interface PhotoDao {
     suspend fun getPhotosForProjectChunked(projectId: Long, limit: Int, offset: Int): List<PhotoEntity>
 
     @Insert
-    suspend fun insertPhoto(photo: PhotoEntity)
+    suspend fun insertPhoto(photo: PhotoEntity): Long
 
     @Query("UPDATE photos SET rotation = :rotation WHERE id = :id")
     suspend fun updateRotation(id: Long, rotation: Float)

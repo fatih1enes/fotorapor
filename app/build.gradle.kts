@@ -82,6 +82,14 @@ android {
 }
 
 dependencies {
+    implementation(project(":feature:dashboard"))
+    implementation(project(":core:export"))
+    implementation(project(":core:media"))
+    implementation(project(":core:datastore"))
+    implementation(project(":core:ui"))
+    implementation(project(":core:designsystem"))
+    implementation(project(":core:domain"))
+    implementation(project(":core:model"))
     implementation(project(":core:common"))
     implementation(project(":core:database"))
     implementation(libs.androidx.core.ktx)

@@ -1,70 +1,17 @@
 package com.fatihenes.photoreport.util
 
-import android.content.ContentValues
 import android.content.Context
 import android.net.Uri
-
-import android.os.Environment
-import android.provider.MediaStore
 import androidx.camera.core.ImageCapture
 import androidx.camera.video.MediaStoreOutputOptions
-import java.io.File
-import java.io.FileOutputStream
-import java.util.UUID
+
 object PhotoManager {
+    fun getCaptureOutputOptions(context: Context, lensFacing: Int = androidx.camera.core.CameraSelector.LENS_FACING_BACK): ImageCapture.OutputFileOptions =
+        com.fatihenes.photoreport.core.media.PhotoManager.getCaptureOutputOptions(context, lensFacing)
 
-    fun getCaptureOutputOptions(context: Context, lensFacing: Int = androidx.camera.core.CameraSelector.LENS_FACING_BACK): ImageCapture.OutputFileOptions {
-        val name = "IMG_${System.currentTimeMillis()}.jpg"
-        val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, name)
-            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
-            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DCIM + "/PhotoReport")
-            put(MediaStore.MediaColumns.IS_PENDING, 1)
-        }
-        val metadata = ImageCapture.Metadata().apply {
-            isReversedHorizontal = lensFacing == androidx.camera.core.CameraSelector.LENS_FACING_FRONT
-        }
-        return ImageCapture.OutputFileOptions.Builder(
-            context.contentResolver,
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-            contentValues
-        ).setMetadata(metadata).build()
-    }
+    fun getVideoOutputOptions(context: Context): MediaStoreOutputOptions =
+        com.fatihenes.photoreport.core.media.PhotoManager.getVideoOutputOptions(context)
 
-    fun getVideoOutputOptions(context: Context): MediaStoreOutputOptions {
-        val name = "VID_${System.currentTimeMillis()}.mp4"
-        val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, name)
-            put(MediaStore.MediaColumns.MIME_TYPE, "video/mp4")
-            put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DCIM + "/PhotoReport")
-            put(MediaStore.MediaColumns.IS_PENDING, 1)
-        }
-        return MediaStoreOutputOptions.Builder(
-            context.contentResolver,
-            MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-        ).setContentValues(contentValues).build()
-    }
-
-    fun copyUriToInternalStorage(context: Context, uri: Uri): Uri? {
-        return try {
-            val inputStream = context.contentResolver.openInputStream(uri) ?: return null
-            val extension = when {
-                context.contentResolver.getType(uri)?.contains("video") == true -> "mp4"
-                else -> "jpg"
-            }
-            val file = File(
-                context.filesDir,
-                "imported_${System.currentTimeMillis()}_${UUID.randomUUID()}.$extension"
-            )
-            inputStream.use { input ->
-                FileOutputStream(file).use { output ->
-                    input.copyTo(output)
-                }
-            }
-            Uri.fromFile(file)
-        } catch (e: Exception) {
-            android.util.Log.e("PhotoManager", "File copy error: $uri", e)
-            null
-        }
-    }
+    fun copyUriToInternalStorage(context: Context, uri: Uri): Uri? =
+        com.fatihenes.photoreport.core.media.PhotoManager.copyUriToInternalStorage(context, uri)
 }

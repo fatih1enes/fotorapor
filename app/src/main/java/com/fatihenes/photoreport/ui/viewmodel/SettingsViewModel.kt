@@ -3,7 +3,7 @@ package com.fatihenes.photoreport.ui.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fatihenes.photoreport.manager.BackupManager
-import com.fatihenes.photoreport.repository.AppSettings
+import com.fatihenes.photoreport.core.model.AppSettings
 import com.fatihenes.photoreport.repository.SettingsRepository
 import com.fatihenes.photoreport.core.common.util.result.OperationResult
 import dagger.hilt.android.lifecycle.HiltViewModel

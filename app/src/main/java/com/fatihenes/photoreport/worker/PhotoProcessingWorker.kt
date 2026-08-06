@@ -8,7 +8,7 @@ import androidx.work.WorkerParameters
 import com.fatihenes.photoreport.core.database.*
 import com.fatihenes.photoreport.core.common.util.DateUtils
 import com.fatihenes.photoreport.util.MediaProcessor
-import com.fatihenes.photoreport.util.WatermarkData
+import com.fatihenes.photoreport.core.model.WatermarkData
 import com.fatihenes.photoreport.util.WatermarkRenderer
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject

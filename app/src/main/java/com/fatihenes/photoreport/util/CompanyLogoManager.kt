@@ -3,39 +3,17 @@ package com.fatihenes.photoreport.util
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.io.File
-import java.io.FileOutputStream
 
 object CompanyLogoManager {
-    private const val LOGO_FILE_NAME = "company_logo.png"
+    suspend fun saveLogo(context: Context, bitmap: Bitmap) =
+        com.fatihenes.photoreport.core.media.CompanyLogoManager.saveLogo(context, bitmap)
 
-    private fun getLogoFile(context: Context): File {
-        return File(context.filesDir, LOGO_FILE_NAME)
-    }
+    fun getLogoUri(context: Context): Uri? =
+        com.fatihenes.photoreport.core.media.CompanyLogoManager.getLogoUri(context)
 
-    suspend fun saveLogo(context: Context, bitmap: Bitmap) = withContext(Dispatchers.IO) {
-        val file = getLogoFile(context)
-        FileOutputStream(file).use { out ->
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
-        }
-    }
+    fun hasLogo(context: Context): Boolean =
+        com.fatihenes.photoreport.core.media.CompanyLogoManager.hasLogo(context)
 
-    fun getLogoUri(context: Context): Uri? {
-        val file = getLogoFile(context)
-        if (!file.exists()) return null
-        return Uri.fromFile(file)
-    }
-
-    fun hasLogo(context: Context): Boolean {
-        return getLogoFile(context).exists()
-    }
-
-    suspend fun deleteLogo(context: Context) = withContext(Dispatchers.IO) {
-        val file = getLogoFile(context)
-        if (file.exists()) {
-            file.delete()
-        }
-    }
+    suspend fun deleteLogo(context: Context) =
+        com.fatihenes.photoreport.core.media.CompanyLogoManager.deleteLogo(context)
 }
