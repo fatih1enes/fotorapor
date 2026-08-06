@@ -1,27 +1,40 @@
 package com.fatihenes.photoreport.core.ui.components
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
+import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion
+import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporTokens
 
 /**
- * FotoRapor Kurumsal Design System - Standart Aksiyon Butonu
- * Şantiye ortamında eldivenle ve yoğun güneş altında rahatça kullanılabilmesi için
- * minimum 48x48 dp touch target boyutlarını ve yüksek kontrastı garanti eder.
+ * FotoRapor Design System — Primary Action Button
+ *
+ * Şantiye ortamında eldivenle rahatça kullanılabilmesi için
+ * geniş dokunma alanı (min 48dp) ve basma geri bildirimi sağlar.
+ * Butona basıldığında ince bir scale animasyonu ve haptic feedback verir.
  */
 @Composable
 fun AppButton(
@@ -34,31 +47,56 @@ fun AppButton(
     containerColor: Color = MaterialTheme.colorScheme.primary,
     contentColor: Color = MaterialTheme.colorScheme.onPrimary
 ) {
+    val haptic = LocalHapticFeedback.current
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.97f else 1f,
+        animationSpec = FotoRaporMotion.pressSpring(),
+        label = "button_press_scale"
+    )
+
     val buttonModifier = if (fullWidth) modifier.fillMaxWidth() else modifier
-    
+
     Button(
-        onClick = onClick,
+        onClick = {
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+            onClick()
+        },
         enabled = enabled,
+        interactionSource = interactionSource,
         modifier = buttonModifier
-            .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp) // Minimum 48dp dokunma alanı garantisi
-            .height(50.dp),
-        shape = RoundedCornerShape(12.dp),
+            .defaultMinSize(
+                minWidth = FotoRaporTokens.TouchTarget,
+                minHeight = FotoRaporTokens.TouchTarget
+            )
+            .height(FotoRaporTokens.ButtonHeightL)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            },
+        shape = MaterialTheme.shapes.medium,
         colors = ButtonDefaults.buttonColors(
             containerColor = containerColor,
             contentColor = contentColor
+        ),
+        elevation = ButtonDefaults.buttonElevation(
+            defaultElevation = FotoRaporTokens.ElevationNone,
+            pressedElevation = FotoRaporTokens.ElevationNone
         )
     ) {
         if (icon != null) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
-                modifier = Modifier.padding(end = 8.dp)
+                modifier = Modifier.size(FotoRaporTokens.IconSizeS)
             )
+            Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingS))
         }
         Text(
             text = text,
             style = MaterialTheme.typography.labelLarge,
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.SemiBold,
             textAlign = TextAlign.Center
         )
     }

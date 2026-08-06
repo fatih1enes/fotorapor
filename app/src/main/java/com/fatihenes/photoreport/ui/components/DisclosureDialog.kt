@@ -2,6 +2,7 @@ package com.fatihenes.photoreport.ui.components
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CameraAlt
@@ -15,9 +16,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.fatihenes.photoreport.R
+import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporTokens
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,13 +33,13 @@ fun DisclosureDialog(
         )
     ) {
         Surface(
-            shape = MaterialTheme.shapes.extraLarge,
-            tonalElevation = 6.dp,
+            shape = RoundedCornerShape(FotoRaporTokens.RadiusXL),
+            tonalElevation = FotoRaporTokens.ElevationL,
             modifier = Modifier.fillMaxWidth()
         ) {
             Column(
                 modifier = Modifier
-                    .padding(24.dp)
+                    .padding(FotoRaporTokens.SpacingXXL)
                     .verticalScroll(rememberScrollState()),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -46,16 +47,16 @@ fun DisclosureDialog(
                     imageVector = Icons.Default.PrivacyTip,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(48.dp)
+                    modifier = Modifier.size(FotoRaporTokens.IconSizeXL)
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingL))
                 Text(
                     text = stringResource(R.string.disclosure_title),
                     style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.SemiBold,
                     textAlign = TextAlign.Center
                 )
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXXL))
 
                 DisclosureItem(
                     icon = Icons.Default.CameraAlt,
@@ -63,7 +64,7 @@ fun DisclosureDialog(
                     description = stringResource(R.string.disclosure_camera_desc)
                 )
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXL))
 
                 DisclosureItem(
                     icon = Icons.Default.LocationOn,
@@ -71,16 +72,23 @@ fun DisclosureDialog(
                     description = stringResource(R.string.disclosure_location_desc)
                 )
 
-                Spacer(modifier = Modifier.height(32.dp))
+                Spacer(modifier = Modifier.height(FotoRaporTokens.Spacing3XL))
 
                 Button(
                     onClick = onDismiss,
-                    modifier = Modifier.fillMaxWidth().height(56.dp),
-                    shape = MaterialTheme.shapes.medium
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(FotoRaporTokens.ButtonHeightL),
+                    shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
+                    elevation = ButtonDefaults.buttonElevation(
+                        defaultElevation = FotoRaporTokens.ElevationNone,
+                        pressedElevation = FotoRaporTokens.ElevationNone
+                    )
                 ) {
                     Text(
                         stringResource(R.string.disclosure_button),
-                        style = MaterialTheme.typography.titleMedium
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold
                     )
                 }
             }
@@ -98,18 +106,18 @@ private fun DisclosureItem(
         Icon(
             imageVector = icon,
             contentDescription = null,
-            tint = MaterialTheme.colorScheme.secondary,
-            modifier = Modifier.size(24.dp).padding(top = 2.dp)
+            tint = MaterialTheme.colorScheme.tertiary,
+            modifier = Modifier.size(FotoRaporTokens.IconSizeM)
         )
-        Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingL))
         Column {
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurface
             )
-            Spacer(modifier = Modifier.height(4.dp))
+            Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXXS))
             Text(
                 text = description,
                 style = MaterialTheme.typography.bodyMedium,

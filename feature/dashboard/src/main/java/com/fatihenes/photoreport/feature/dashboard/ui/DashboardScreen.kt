@@ -1,9 +1,12 @@
 package com.fatihenes.photoreport.feature.dashboard.ui
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -19,7 +22,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -29,6 +31,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
+import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion
+import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporTokens
 import com.fatihenes.photoreport.core.model.Project
 import com.fatihenes.photoreport.core.ui.R
 import com.fatihenes.photoreport.core.ui.components.AppEmptyState
@@ -62,13 +66,21 @@ fun DashboardScreen(
                     showAddDialog = true
                 },
                 containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = Color.White,
-                shape = CircleShape,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
                 modifier = Modifier
-                    .padding(bottom = 8.dp)
-                    .size(60.dp)
+                    .padding(bottom = FotoRaporTokens.SpacingS)
+                    .size(FotoRaporTokens.FabSize),
+                elevation = FloatingActionButtonDefaults.elevation(
+                    defaultElevation = FotoRaporTokens.ElevationM,
+                    pressedElevation = FotoRaporTokens.ElevationL
+                )
             ) {
-                Icon(Icons.Default.Add, contentDescription = stringResource(R.string.acc_add_project), modifier = Modifier.size(28.dp))
+                Icon(
+                    Icons.Default.Add,
+                    contentDescription = stringResource(R.string.acc_add_project),
+                    modifier = Modifier.size(FotoRaporTokens.IconSizeM)
+                )
             }
         }
     ) { padding ->
@@ -85,138 +97,126 @@ fun DashboardScreen(
                     .imePadding(),
                 contentPadding = PaddingValues(0.dp)
             ) {
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 24.dp, vertical = 24.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(
-                        text = stringResource(R.string.my_projects_title),
-                        style = MaterialTheme.typography.headlineLarge,
-                        fontWeight = FontWeight.ExtraBold,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                    Row {
-                        Surface(
-                            onClick = {
-                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                                onTrashClick()
-                            },
-                            color = MaterialTheme.colorScheme.surface,
-                            shape = RoundedCornerShape(14.dp),
-                            tonalElevation = 2.dp,
-                            modifier = Modifier.size(48.dp)
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    imageVector = if (isTrashNotEmpty) Icons.Default.Delete else Icons.Default.DeleteOutline,
-                                    contentDescription = stringResource(R.string.acc_open_trash),
-                                    tint = if (isTrashNotEmpty) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(22.dp)
-                                )
-                                if (isTrashNotEmpty) {
-                                    Box(
-                                        modifier = Modifier
-                                            .align(Alignment.TopEnd)
-                                            .offset(x = 4.dp, y = (-4).dp)
-                                            .size(8.dp)
-                                            .background(MaterialTheme.colorScheme.error,
-                                                CircleShape
-                                            )
-                                    )
-                                }
-                            }
-                        }
-
-                        Spacer(Modifier.width(12.dp))
-
-                        Surface(
-                            onClick = {
-                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                                onSettingsClick()
-                            },
-                            color = MaterialTheme.colorScheme.surface,
-                            shape = RoundedCornerShape(14.dp),
-                            tonalElevation = 2.dp,
-                            modifier = Modifier.size(48.dp)
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Icon(
-                                    Icons.Default.Settings,
-                                    contentDescription = stringResource(R.string.acc_open_settings),
-                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.size(22.dp)
-                                )
-                            }
+                // ── Header ──────────────────────────────────
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                horizontal = FotoRaporTokens.ScreenPaddingHorizontal,
+                                vertical = FotoRaporTokens.SpacingXXL
+                            ),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = stringResource(R.string.my_projects_title),
+                            style = MaterialTheme.typography.headlineLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Row(horizontalArrangement = Arrangement.spacedBy(FotoRaporTokens.SpacingS)) {
+                            // Trash button
+                            IconActionButton(
+                                onClick = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                    onTrashClick()
+                                },
+                                icon = if (isTrashNotEmpty) Icons.Default.Delete else Icons.Default.DeleteOutline,
+                                contentDescription = stringResource(R.string.acc_open_trash),
+                                tint = if (isTrashNotEmpty) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
+                                showBadge = isTrashNotEmpty
+                            )
+                            // Settings button
+                            IconActionButton(
+                                onClick = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                    onSettingsClick()
+                                },
+                                icon = Icons.Default.Settings,
+                                contentDescription = stringResource(R.string.acc_open_settings),
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                     }
                 }
-            }
 
-            item {
-                Surface(
-                    modifier = Modifier
-                        .padding(horizontal = 24.dp)
-                        .fillMaxWidth()
-                        .border(1.dp, MaterialTheme.colorScheme.outlineVariant, MaterialTheme.shapes.extraLarge),
-                    shape = MaterialTheme.shapes.extraLarge,
-                    color = MaterialTheme.colorScheme.surface,
-                    shadowElevation = 2.dp
-                ) {
-                    MonthlyCalendar(
-                        selectedDate = selectedDate,
-                        onDateSelected = { selectedDate = it },
-                        activityDots = activityDots,
-                        locale = remember(language) { java.util.Locale.forLanguageTag(language) }
-                    )
-                }
-                Spacer(modifier = Modifier.height(32.dp))
-            }
-
-            item {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 24.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.Bottom
-                ) {
-                    Text(
-                        text = stringResource(R.string.active_projects),
-                        style = MaterialTheme.typography.titleLarge,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                    Text(
-                        text = pluralStringResource(R.plurals.project_files, projects.size, projects.size),
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-
-            if (projects.isEmpty()) {
+                // ── Calendar Card ────────────────────────────
                 item {
-                    AppEmptyState(
-                        icon = Icons.Default.FolderOpen,
-                        title = stringResource(R.string.empty_projects_title),
-                        description = stringResource(R.string.empty_projects_desc),
-                        actionLabel = stringResource(R.string.empty_projects_action),
-                        onActionClick = { showAddDialog = true }
+                    Surface(
+                        modifier = Modifier
+                            .padding(horizontal = FotoRaporTokens.ScreenPaddingHorizontal)
+                            .fillMaxWidth(),
+                        shape = RoundedCornerShape(FotoRaporTokens.RadiusL),
+                        color = MaterialTheme.colorScheme.surface,
+                        border = BorderStroke(
+                            FotoRaporTokens.CardBorderWidth,
+                            MaterialTheme.colorScheme.outlineVariant
+                        ),
+                        tonalElevation = FotoRaporTokens.ElevationXS
+                    ) {
+                        MonthlyCalendar(
+                            selectedDate = selectedDate,
+                            onDateSelected = { selectedDate = it },
+                            activityDots = activityDots,
+                            locale = remember(language) { java.util.Locale.forLanguageTag(language) }
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXXL))
+                }
+
+                // ── Section Header ───────────────────────────
+                item {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                horizontal = FotoRaporTokens.ScreenPaddingHorizontal,
+                                vertical = FotoRaporTokens.SpacingS
+                            ),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.Bottom
+                    ) {
+                        Text(
+                            text = stringResource(R.string.active_projects),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+                        Text(
+                            text = pluralStringResource(R.plurals.project_files, projects.size, projects.size),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+
+                // ── Empty State ──────────────────────────────
+                if (projects.isEmpty()) {
+                    item {
+                        AppEmptyState(
+                            icon = Icons.Default.FolderOpen,
+                            title = stringResource(R.string.empty_projects_title),
+                            description = stringResource(R.string.empty_projects_desc),
+                            actionLabel = stringResource(R.string.empty_projects_action),
+                            onActionClick = { showAddDialog = true }
+                        )
+                    }
+                }
+
+                // ── Project List ─────────────────────────────
+                items(
+                    projects,
+                    key = { project -> project.id },
+                    contentType = { "project_folder_item" }
+                ) { project ->
+                    ProjectFolderItem(
+                        project = project,
+                        onClick = { onProjectClick(project) },
+                        modifier = Modifier.animateItem()
                     )
                 }
-            }
-
-            items(projects, key = { project -> project.id }, contentType = { "project_folder_item" }) { project ->
-                ProjectFolderItem(
-                    project = project,
-                    onClick = { onProjectClick(project) },
-                    modifier = Modifier.animateItem()
-                )
-            }
-            item { Spacer(modifier = Modifier.height(100.dp)) }
+                item { Spacer(modifier = Modifier.height(96.dp)) }
             }
         }
     }
@@ -232,44 +232,91 @@ fun DashboardScreen(
     }
 }
 
+// ─── Icon Action Button (header toolbar) ──────────────────────
+
 @Composable
-private fun ProjectFolderItem(project: Project, onClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun IconActionButton(
+    onClick: () -> Unit,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    contentDescription: String,
+    tint: Color,
+    showBadge: Boolean = false
+) {
+    Surface(
+        onClick = onClick,
+        color = MaterialTheme.colorScheme.surfaceContainerLow,
+        shape = RoundedCornerShape(FotoRaporTokens.RadiusS),
+        modifier = Modifier.size(42.dp)
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Icon(
+                imageVector = icon,
+                contentDescription = contentDescription,
+                tint = tint,
+                modifier = Modifier.size(FotoRaporTokens.IconSizeS)
+            )
+            if (showBadge) {
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(x = 3.dp, y = (-3).dp)
+                        .size(7.dp)
+                        .background(MaterialTheme.colorScheme.error, CircleShape)
+                )
+            }
+        }
+    }
+}
+
+// ─── Project Card ─────────────────────────────────────────────
+
+@Composable
+private fun ProjectFolderItem(
+    project: Project,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     val projectColor = Color(project.colorHex.toColorInt())
     val haptic = LocalHapticFeedback.current
-    
-    val interactionSource = remember { androidx.compose.foundation.interaction.MutableInteractionSource() }
+
+    val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
-    val scale by androidx.compose.animation.core.animateFloatAsState(
-        targetValue = if (isPressed) 0.96f else 1f,
-        animationSpec = androidx.compose.animation.core.spring(dampingRatio = 0.6f, stiffness = 400f)
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.975f else 1f,
+        animationSpec = FotoRaporMotion.pressSpring(),
+        label = "card_press_scale"
     )
 
     Surface(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 8.dp)
+            .padding(
+                horizontal = FotoRaporTokens.ScreenPaddingHorizontal,
+                vertical = FotoRaporTokens.SpacingXS + 2.dp
+            )
             .graphicsLayer {
                 scaleX = scale
                 scaleY = scale
             }
-            .shadow(4.dp, MaterialTheme.shapes.extraLarge, spotColor = Color.Black.copy(alpha = 0.1f))
             .clickable(interactionSource = interactionSource, indication = ripple()) {
                 haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 onClick()
             },
         color = MaterialTheme.colorScheme.surface,
-        shape = MaterialTheme.shapes.extraLarge,
-        border = BorderStroke(0.5.dp, MaterialTheme.colorScheme.outlineVariant)
+        shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
+        border = BorderStroke(FotoRaporTokens.CardBorderWidth, MaterialTheme.colorScheme.outlineVariant),
+        tonalElevation = FotoRaporTokens.ElevationXS
     ) {
         Row(
             modifier = Modifier
-                .padding(16.dp)
+                .padding(FotoRaporTokens.SpacingL)
                 .fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            // Project icon badge
             Surface(
-                modifier = Modifier.size(56.dp),
-                shape = RoundedCornerShape(16.dp),
+                modifier = Modifier.size(FotoRaporTokens.AvatarSizeM),
+                shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
                 color = projectColor.copy(alpha = 0.1f)
             ) {
                 Box(contentAlignment = Alignment.Center) {
@@ -277,22 +324,24 @@ private fun ProjectFolderItem(project: Project, onClick: () -> Unit, modifier: M
                         Icons.Default.Folder,
                         contentDescription = null,
                         tint = projectColor,
-                        modifier = Modifier.size(28.dp)
+                        modifier = Modifier.size(FotoRaporTokens.IconSizeM + 2.dp)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingL))
 
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = project.name,
                     style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onBackground
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface
                 )
+                Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXXS))
                 Text(
                     text = stringResource(R.string.folder_summary),
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
@@ -300,34 +349,33 @@ private fun ProjectFolderItem(project: Project, onClick: () -> Unit, modifier: M
             Icon(
                 Icons.AutoMirrored.Filled.ArrowForwardIos,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.outline.copy(alpha = 0.5f),
-                modifier = Modifier.size(14.dp)
+                tint = MaterialTheme.colorScheme.outlineVariant,
+                modifier = Modifier.size(12.dp)
             )
         }
     }
 }
 
+// ─── Add Project Dialog (Bottom Sheet) ────────────────────────
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddProjectDialog(onDismiss: () -> Unit, onConfirm: (String, Color) -> Unit) {
     var name by remember { mutableStateOf("") }
-    val colors = listOf(
-        Color(0xFFFF3B30), Color(0xFF007AFF), Color(0xFF34C759),
-        Color(0xFFFFCC00), Color(0xFFAF52DE), Color(0xFFFF2D55)
-    )
-    var selectedColor by remember { mutableStateOf(colors[1]) }
+    val colors = FotoRaporTokens.ProjectColors
+    var selectedColor by remember { mutableStateOf(colors[0]) }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         dragHandle = { BottomSheetDefaults.DragHandle() },
         containerColor = MaterialTheme.colorScheme.surface,
-        shape = RoundedCornerShape(topStart = 32.dp, topEnd = 32.dp)
+        shape = RoundedCornerShape(topStart = FotoRaporTokens.RadiusXL, topEnd = FotoRaporTokens.RadiusXL)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .padding(bottom = 48.dp),
+                .padding(horizontal = FotoRaporTokens.ScreenPaddingHorizontal)
+                .padding(bottom = FotoRaporTokens.Spacing5XL),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
@@ -335,59 +383,110 @@ fun AddProjectDialog(onDismiss: () -> Unit, onConfirm: (String, Color) -> Unit) 
                 style = MaterialTheme.typography.headlineMedium,
                 fontWeight = FontWeight.Bold
             )
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(FotoRaporTokens.Spacing3XL))
 
+            // Input field
             TextField(
                 value = name,
                 onValueChange = { name = it },
-                placeholder = { Text(stringResource(R.string.project_name_label)) },
+                placeholder = {
+                    Text(
+                        stringResource(R.string.project_name_label),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                    )
+                },
                 modifier = Modifier.fillMaxWidth(),
                 colors = TextFieldDefaults.colors(
-                    focusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                    focusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                    unfocusedContainerColor = MaterialTheme.colorScheme.surfaceContainerLow,
                     focusedIndicatorColor = Color.Transparent,
                     unfocusedIndicatorColor = Color.Transparent
                 ),
-                shape = RoundedCornerShape(16.dp),
-                singleLine = true
+                shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
+                singleLine = true,
+                textStyle = MaterialTheme.typography.bodyLarge
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXXL))
 
+            // Color picker label
+            Text(
+                stringResource(R.string.project_name_label).takeIf { false } ?: "",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = FotoRaporTokens.SpacingS)
+            )
+
+            // Color picker
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 colors.forEach { color ->
+                    val isSelected = selectedColor == color
+                    val borderAnim by animateColorAsState(
+                        targetValue = if (isSelected) MaterialTheme.colorScheme.onSurface else Color.Transparent,
+                        animationSpec = FotoRaporMotion.enterTween(),
+                        label = "color_border"
+                    )
+                    val scaleAnim by animateFloatAsState(
+                        targetValue = if (isSelected) 1.15f else 1f,
+                        animationSpec = FotoRaporMotion.pressSpring(),
+                        label = "color_scale"
+                    )
+
                     Box(
                         modifier = Modifier
-                            .size(44.dp)
+                            .size(38.dp)
+                            .graphicsLayer {
+                                scaleX = scaleAnim
+                                scaleY = scaleAnim
+                            }
                             .clip(CircleShape)
                             .background(color)
                             .clickable { selectedColor = color }
                             .border(
-                                width = if (selectedColor == color) 3.dp else 0.dp,
-                                color = MaterialTheme.colorScheme.onSurface,
+                                width = if (isSelected) 2.5.dp else 0.dp,
+                                color = borderAnim,
                                 shape = CircleShape
                             ),
                         contentAlignment = Alignment.Center
                     ) {
-                        if (selectedColor == color) {
-                            Icon(Icons.Default.Check, contentDescription = null, tint = Color.White, modifier = Modifier.size(20.dp))
+                        if (isSelected) {
+                            Icon(
+                                Icons.Default.Check,
+                                contentDescription = null,
+                                tint = Color.White,
+                                modifier = Modifier.size(FotoRaporTokens.IconSizeXS)
+                            )
                         }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(FotoRaporTokens.Spacing4XL))
 
+            // Submit button
             Button(
                 onClick = { if (name.isNotBlank()) onConfirm(name, selectedColor) },
-                modifier = Modifier.fillMaxWidth().height(60.dp),
-                shape = RoundedCornerShape(18.dp),
-                enabled = name.isNotBlank()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(FotoRaporTokens.ButtonHeightL),
+                shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
+                enabled = name.isNotBlank(),
+                elevation = ButtonDefaults.buttonElevation(
+                    defaultElevation = FotoRaporTokens.ElevationNone,
+                    pressedElevation = FotoRaporTokens.ElevationNone
+                )
             ) {
-                Text(stringResource(R.string.start_project_btn), style = MaterialTheme.typography.titleMedium, color = Color.White)
+                Text(
+                    stringResource(R.string.start_project_btn),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onPrimary
+                )
             }
         }
     }

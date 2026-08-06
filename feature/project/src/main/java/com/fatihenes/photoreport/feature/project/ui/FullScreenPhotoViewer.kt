@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.RotateRight
 import androidx.compose.material.icons.filled.*
@@ -23,6 +24,7 @@ import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
@@ -31,6 +33,7 @@ import androidx.core.net.toUri
 import coil3.compose.AsyncImage
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
+import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporTokens
 import com.fatihenes.photoreport.core.ui.R
 import com.fatihenes.photoreport.core.model.Photo
 import com.fatihenes.photoreport.core.ui.util.MediaShareUtils
@@ -66,9 +69,23 @@ fun FullScreenPhotoDialog(
                 containerColor = Color.Black,
                 topBar = {
                     CenterAlignedTopAppBar(
-                        title = { Text("${pagerState.currentPage + 1} / ${photoList.size}", color = Color.White, style = MaterialTheme.typography.bodyMedium) },
+                        title = {
+                            Text(
+                                "${pagerState.currentPage + 1} / ${photoList.size}",
+                                color = Color.White.copy(alpha = 0.8f),
+                                style = MaterialTheme.typography.labelLarge,
+                                fontWeight = FontWeight.Medium
+                            )
+                        },
                         navigationIcon = {
-                            IconButton(onClick = { onDismiss() }) { Icon(Icons.Default.Close, stringResource(R.string.acc_close), tint = Color.White) }
+                            IconButton(onClick = { onDismiss() }) {
+                                Icon(
+                                    Icons.Default.Close,
+                                    stringResource(R.string.acc_close),
+                                    tint = Color.White,
+                                    modifier = Modifier.size(FotoRaporTokens.IconSizeS)
+                                )
+                            }
                         },
                         actions = {
                             val context = LocalContext.current
@@ -78,16 +95,31 @@ fun FullScreenPhotoDialog(
                                 val currentPhoto = if (pagerState.currentPage < photoList.size) photoList[pagerState.currentPage] else null
                                 currentPhoto?.let { onUpdateRotation(it.id, (it.rotation + 90f) % 360f) }
                             }) {
-                                Icon(Icons.AutoMirrored.Filled.RotateRight, contentDescription = stringResource(R.string.acc_rotate), tint = Color.White)
+                                Icon(
+                                    Icons.AutoMirrored.Filled.RotateRight,
+                                    contentDescription = stringResource(R.string.acc_rotate),
+                                    tint = Color.White,
+                                    modifier = Modifier.size(FotoRaporTokens.IconSizeS)
+                                )
                             }
                             IconButton(onClick = {
                                 val currentPhoto = if (pagerState.currentPage < photoList.size) photoList[pagerState.currentPage] else null
                                 currentPhoto?.let { MediaShareUtils.shareSingleMedia(context, it.filePath) { msg -> scope.launch { snackbarHost.showSnackbar(msg) } } }
                             }) {
-                                Icon(Icons.Default.Share, contentDescription = stringResource(R.string.acc_share), tint = Color.White)
+                                Icon(
+                                    Icons.Default.Share,
+                                    contentDescription = stringResource(R.string.acc_share),
+                                    tint = Color.White,
+                                    modifier = Modifier.size(FotoRaporTokens.IconSizeS)
+                                )
                             }
                             IconButton(onClick = { showDeleteConfirm = true }) {
-                                Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.acc_delete), tint = Color.White)
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = stringResource(R.string.acc_delete),
+                                    tint = Color.White,
+                                    modifier = Modifier.size(FotoRaporTokens.IconSizeS)
+                                )
                             }
                         },
                         colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
@@ -104,7 +136,7 @@ fun FullScreenPhotoDialog(
                     HorizontalPager(
                         state = pagerState,
                         modifier = Modifier.fillMaxSize(),
-                        pageSpacing = 16.dp,
+                        pageSpacing = FotoRaporTokens.SpacingL,
                         beyondViewportPageCount = 1,
                         userScrollEnabled = true,
                         key = { page -> if (page < photoList.size) photoList[page].id else page }
@@ -177,11 +209,11 @@ fun FullScreenPhotoDialog(
                                     Icon(
                                         imageVector = Icons.Default.PlayArrow,
                                         contentDescription = null,
-                                        tint = Color.White.copy(alpha = 0.7f),
+                                        tint = Color.White.copy(alpha = 0.6f),
                                         modifier = Modifier
-                                            .size(80.dp)
-                                            .background(Color.Black.copy(alpha = 0.3f), CircleShape)
-                                            .padding(16.dp)
+                                            .size(72.dp)
+                                            .background(Color.White.copy(alpha = 0.1f), CircleShape)
+                                            .padding(FotoRaporTokens.SpacingL)
                                     )
                                 }
                             }
@@ -235,8 +267,12 @@ fun FullScreenPhotoDialog(
                                 AsyncImage(
                                     model = request,
                                     contentDescription = null,
-                                    placeholder = androidx.compose.ui.graphics.painter.ColorPainter(Color.LightGray),
-                                    error = androidx.compose.ui.graphics.painter.ColorPainter(Color.DarkGray),
+                                    placeholder = androidx.compose.ui.graphics.painter.ColorPainter(
+                                        MaterialTheme.colorScheme.surfaceContainerHigh
+                                    ),
+                                    error = androidx.compose.ui.graphics.painter.ColorPainter(
+                                        MaterialTheme.colorScheme.surfaceContainerHigh
+                                    ),
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .graphicsLayer(
@@ -259,8 +295,21 @@ fun FullScreenPhotoDialog(
     if (showDeleteConfirm) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirm = false },
-            title = { Text(stringResource(R.string.delete_photo_title)) },
-            text = { Text(stringResource(R.string.delete_photo_desc)) },
+            shape = RoundedCornerShape(FotoRaporTokens.RadiusL),
+            title = {
+                Text(
+                    stringResource(R.string.delete_photo_title),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.SemiBold
+                )
+            },
+            text = {
+                Text(
+                    stringResource(R.string.delete_photo_desc),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            },
             confirmButton = {
                 Button(
                     onClick = {
@@ -273,14 +322,27 @@ fun FullScreenPhotoDialog(
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error,
-                        contentColor = Color.White
+                        contentColor = MaterialTheme.colorScheme.onError
+                    ),
+                    shape = RoundedCornerShape(FotoRaporTokens.RadiusS),
+                    elevation = ButtonDefaults.buttonElevation(
+                        defaultElevation = FotoRaporTokens.ElevationNone
                     )
                 ) {
-                    Text(stringResource(R.string.delete_confirm_btn), color = Color.White)
+                    Text(
+                        stringResource(R.string.delete_confirm_btn),
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteConfirm = false }) { Text(stringResource(R.string.cancel_btn)) }
+                TextButton(onClick = { showDeleteConfirm = false }) {
+                    Text(
+                        stringResource(R.string.cancel_btn),
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                }
             }
         )
     }

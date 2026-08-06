@@ -2,6 +2,7 @@
 package com.fatihenes.photoreport.feature.export.ui
 
 import androidx.compose.animation.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -23,6 +24,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporTokens
+import com.fatihenes.photoreport.core.designsystem.theme.WarningColor
 import com.fatihenes.photoreport.core.ui.R
 import com.fatihenes.photoreport.core.model.DailyLogWithPhotos
 import com.fatihenes.photoreport.core.model.Project
@@ -69,33 +72,35 @@ fun ExportDialog(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
         containerColor = MaterialTheme.colorScheme.surface,
-        dragHandle = { BottomSheetDefaults.DragHandle() }
+        dragHandle = { BottomSheetDefaults.DragHandle() },
+        shape = RoundedCornerShape(topStart = FotoRaporTokens.RadiusXL, topEnd = FotoRaporTokens.RadiusXL)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 24.dp)
-                .padding(bottom = 32.dp)
+                .padding(horizontal = FotoRaporTokens.ScreenPaddingHorizontal)
+                .padding(bottom = FotoRaporTokens.Spacing3XL)
         ) {
+            Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingS))
 
-            Spacer(modifier = Modifier.height(8.dp))
+            // Header
             Icon(
                 imageVector = Icons.Default.Share,
                 contentDescription = stringResource(R.string.acc_share),
-                modifier = Modifier.size(42.dp).align(Alignment.CenterHorizontally),
+                modifier = Modifier
+                    .size(FotoRaporTokens.IconSizeL + 4.dp)
+                    .align(Alignment.CenterHorizontally),
                 tint = MaterialTheme.colorScheme.primary
             )
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingM))
             Text(
                 text = stringResource(R.string.export_share_project),
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.headlineMedium,
+                fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
-
-            Spacer(modifier = Modifier.height(4.dp))
-
+            Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXXS))
             Text(
                 text = project.name,
                 style = MaterialTheme.typography.bodyMedium,
@@ -104,11 +109,12 @@ fun ExportDialog(
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXXL))
 
+            // Format Selection
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(FotoRaporTokens.SpacingM)
             ) {
                 FormatCard(
                     modifier = Modifier.weight(1f),
@@ -116,7 +122,7 @@ fun ExportDialog(
                     title = "PDF",
                     description = stringResource(R.string.export_pdf_desc),
                     isSelected = selectedFormat == ExportFormat.PDF,
-                    accentColor = Color(0xFFE53935),
+                    accentColor = Color(0xFFDC2626),
                     onClick = { selectedFormat = ExportFormat.PDF }
                 )
                 FormatCard(
@@ -125,13 +131,14 @@ fun ExportDialog(
                     title = "ZIP",
                     description = stringResource(R.string.export_zip_desc),
                     isSelected = selectedFormat == ExportFormat.ZIP,
-                    accentColor = Color(0xFF1E88E5),
+                    accentColor = Color(0xFF2563EB),
                     onClick = { selectedFormat = ExportFormat.ZIP }
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingL))
 
+            // Quality & Summary (expandable)
             AnimatedVisibility(
                 visible = selectedFormat != null,
                 enter = expandVertically() + fadeIn(),
@@ -139,14 +146,21 @@ fun ExportDialog(
             ) {
                 Column {
                     Text(
-                        text = stringResource(R.string.export_compression_quality),
-                        style = MaterialTheme.typography.titleSmall,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(bottom = 8.dp)
+                        text = stringResource(R.string.export_compression_quality).uppercase(),
+                        style = MaterialTheme.typography.labelSmall,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        letterSpacing = MaterialTheme.typography.labelSmall.letterSpacing * 1.5f,
+                        modifier = Modifier.padding(
+                            start = FotoRaporTokens.SpacingXS,
+                            bottom = FotoRaporTokens.SpacingS
+                        )
                     )
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = FotoRaporTokens.SpacingL),
+                        horizontalArrangement = Arrangement.spacedBy(FotoRaporTokens.SpacingS)
                     ) {
                         QualityOption(
                             modifier = Modifier.weight(1f),
@@ -171,34 +185,36 @@ fun ExportDialog(
                         )
                     }
 
-                    Card(
+                    // Content Summary
+                    Surface(
                         modifier = Modifier.fillMaxWidth(),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                        ),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
+                        color = MaterialTheme.colorScheme.surfaceContainerLow
                     ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
+                        Column(modifier = Modifier.padding(FotoRaporTokens.SpacingL)) {
                             Text(
-                                stringResource(R.string.export_content_summary),
-                                style = MaterialTheme.typography.labelLarge,
+                                stringResource(R.string.export_content_summary).uppercase(),
+                                style = MaterialTheme.typography.labelSmall,
                                 fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                letterSpacing = MaterialTheme.typography.labelSmall.letterSpacing * 1.5f
                             )
-                            Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingS))
 
                             if (isCalculatingSizes) {
                                 Box(
-                                    modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = FotoRaporTokens.SpacingL),
                                     contentAlignment = Alignment.Center
                                 ) {
                                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                         CircularProgressIndicator(
-                                            modifier = Modifier.size(24.dp),
+                                            modifier = Modifier.size(FotoRaporTokens.IconSizeM),
                                             strokeWidth = 2.dp,
                                             color = MaterialTheme.colorScheme.primary
                                         )
-                                        Spacer(modifier = Modifier.height(12.dp))
+                                        Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingM))
                                         Text(
                                             stringResource(R.string.export_calculating),
                                             style = MaterialTheme.typography.bodySmall,
@@ -217,7 +233,11 @@ fun ExportDialog(
                                 }
                                 InfoRow(stringResource(R.string.export_day_label), "${logs.size} gün", "")
 
-                                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(vertical = FotoRaporTokens.SpacingS),
+                                    thickness = FotoRaporTokens.DividerThickness,
+                                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
+                                )
 
                                 if (selectedFormat == ExportFormat.PDF) {
                                     val estimatedPdfBytes = when (selectedQuality) {
@@ -229,23 +249,23 @@ fun ExportDialog(
                                     Text(
                                         stringResource(R.string.export_pdf_estimate, "%.1f MB".format(estimatedPdfMB)),
                                         style = MaterialTheme.typography.bodyMedium,
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.SemiBold,
                                         color = MaterialTheme.colorScheme.primary
                                     )
                                     if (videoCount > 0) {
-                                        Spacer(modifier = Modifier.height(4.dp))
+                                        Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXS))
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             Icon(
                                                 Icons.Default.Warning,
-                                                contentDescription = stringResource(R.string.loading),
-                                                tint = Color(0xFFFFA726),
-                                                modifier = Modifier.size(16.dp)
+                                                contentDescription = null,
+                                                tint = WarningColor,
+                                                modifier = Modifier.size(FotoRaporTokens.IconSizeXS)
                                             )
-                                            Spacer(modifier = Modifier.width(6.dp))
+                                            Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingXS))
                                             Text(
                                                 stringResource(R.string.export_pdf_video_warning),
                                                 style = MaterialTheme.typography.bodySmall,
-                                                color = Color(0xFFFFA726)
+                                                color = WarningColor
                                             )
                                         }
                                     }
@@ -260,10 +280,10 @@ fun ExportDialog(
                                     Text(
                                         stringResource(R.string.export_zip_estimate, "%.1f MB".format(totalMB)),
                                         style = MaterialTheme.typography.bodyMedium,
-                                        fontWeight = FontWeight.Bold,
+                                        fontWeight = FontWeight.SemiBold,
                                         color = MaterialTheme.colorScheme.primary
                                     )
-                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXS))
                                     Text(
                                         if (selectedQuality == 100) stringResource(R.string.export_zip_original_desc) else stringResource(R.string.export_zip_compressed_desc),
                                         style = MaterialTheme.typography.bodySmall,
@@ -274,20 +294,30 @@ fun ExportDialog(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingL))
                 }
             }
 
+            // Action Buttons
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
+                horizontalArrangement = Arrangement.spacedBy(FotoRaporTokens.SpacingM)
             ) {
                 OutlinedButton(
                     onClick = onDismiss,
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp)
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(FotoRaporTokens.ButtonHeightL),
+                    shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
+                    border = BorderStroke(
+                        FotoRaporTokens.CardBorderWidth,
+                        MaterialTheme.colorScheme.outline
+                    )
                 ) {
-                    Text(stringResource(R.string.export_cancel_btn))
+                    Text(
+                        stringResource(R.string.export_cancel_btn),
+                        style = MaterialTheme.typography.labelLarge
+                    )
                 }
 
                 Button(
@@ -301,30 +331,39 @@ fun ExportDialog(
                         }
                         onDismiss()
                     },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(12.dp),
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(FotoRaporTokens.ButtonHeightL),
+                    shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
                     enabled = selectedFormat != null && !isCalculatingSizes && !isExporting,
+                    elevation = ButtonDefaults.buttonElevation(
+                        defaultElevation = FotoRaporTokens.ElevationNone,
+                        pressedElevation = FotoRaporTokens.ElevationNone
+                    ),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = Color.White
+                        contentColor = MaterialTheme.colorScheme.onPrimary
                     )
                 ) {
                     if (isExporting) {
                         CircularProgressIndicator(
-                            modifier = Modifier.size(18.dp),
-                            color = Color.White,
+                            modifier = Modifier.size(FotoRaporTokens.IconSizeXS + 2.dp),
+                            color = MaterialTheme.colorScheme.onPrimary,
                             strokeWidth = 2.dp
                         )
                     } else {
                         Icon(
                             Icons.Default.Share,
                             contentDescription = stringResource(R.string.acc_share),
-                            modifier = Modifier.size(18.dp),
-                            tint = Color.White
+                            modifier = Modifier.size(FotoRaporTokens.IconSizeXS + 2.dp)
                         )
                     }
-                    Spacer(modifier = Modifier.width(6.dp))
-                    Text(if (isExporting) stringResource(R.string.export_notif_title) else stringResource(R.string.export_share_btn), color = Color.White, fontWeight = FontWeight.Bold)
+                    Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingXS))
+                    Text(
+                        if (isExporting) stringResource(R.string.export_notif_title) else stringResource(R.string.export_share_btn),
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.SemiBold
+                    )
                 }
             }
         }
@@ -344,37 +383,43 @@ private fun FormatCard(
     val isDark = isSystemInDarkTheme()
     val borderColor = if (isSelected) accentColor else MaterialTheme.colorScheme.outlineVariant
     val bgColor = if (isSelected) {
-        accentColor.copy(alpha = if (isDark) 0.15f else 0.08f)
+        accentColor.copy(alpha = if (isDark) 0.12f else 0.06f)
     } else {
         Color.Transparent
     }
 
-    Card(
+    Surface(
         modifier = modifier
-            .clip(RoundedCornerShape(16.dp))
-            .border(2.dp, borderColor, RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(FotoRaporTokens.RadiusM))
+            .border(
+                if (isSelected) 1.5.dp else FotoRaporTokens.CardBorderWidth,
+                borderColor,
+                RoundedCornerShape(FotoRaporTokens.RadiusM)
+            )
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = bgColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
+        color = bgColor
     ) {
         Column(
-            modifier = Modifier.padding(16.dp).fillMaxWidth(),
+            modifier = Modifier
+                .padding(FotoRaporTokens.SpacingL)
+                .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Icon(
                 icon,
                 contentDescription = title,
                 tint = if (isSelected) accentColor else MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(36.dp)
+                modifier = Modifier.size(FotoRaporTokens.IconSizeL)
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingS))
             Text(
                 title,
                 style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.SemiBold,
                 color = if (isSelected) accentColor else MaterialTheme.colorScheme.onSurface
             )
+            Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXXS))
             Text(
                 description,
                 style = MaterialTheme.typography.bodySmall,
@@ -388,15 +433,25 @@ private fun FormatCard(
 @Composable
 private fun InfoRow(label: String, value: String, size: String) {
     Row(
-        modifier = Modifier.fillMaxWidth().padding(vertical = 3.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = FotoRaporTokens.SpacingXXS + 1.dp),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(label, style = MaterialTheme.typography.bodySmall)
+        Text(
+            label,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
         Row {
-            Text(value, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
+            Text(
+                value,
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.Medium
+            )
             if (size.isNotEmpty()) {
                 Text(
-                    "  •  $size",
+                    "  ·  $size",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -413,32 +468,37 @@ private fun QualityOption(
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    val bgColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+    val bgColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f) else MaterialTheme.colorScheme.surfaceContainerLow
     val borderColor = if (isSelected) MaterialTheme.colorScheme.primary else Color.Transparent
 
-    Card(
+    Surface(
         modifier = modifier
-            .clip(RoundedCornerShape(8.dp))
-            .border(2.dp, borderColor, RoundedCornerShape(8.dp))
+            .clip(RoundedCornerShape(FotoRaporTokens.RadiusS))
+            .border(
+                if (isSelected) 1.5.dp else 0.dp,
+                borderColor,
+                RoundedCornerShape(FotoRaporTokens.RadiusS)
+            )
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(containerColor = bgColor),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+        shape = RoundedCornerShape(FotoRaporTokens.RadiusS),
+        color = bgColor
     ) {
         Column(
-            modifier = Modifier.padding(vertical = 8.dp, horizontal = 4.dp).fillMaxWidth(),
+            modifier = Modifier
+                .padding(vertical = FotoRaporTokens.SpacingS, horizontal = FotoRaporTokens.SpacingXS)
+                .fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
                 title,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.bodySmall,
+                fontWeight = FontWeight.SemiBold,
                 color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface
             )
             Text(
                 subtitle,
                 style = MaterialTheme.typography.labelSmall,
-                color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+                color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
             )
         }

@@ -3,6 +3,7 @@ package com.fatihenes.photoreport.feature.backup.ui
 
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,13 +14,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fatihenes.photoreport.core.common.util.result.OperationResult
+import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporTokens
 import com.fatihenes.photoreport.core.ui.R
 import com.fatihenes.photoreport.core.ui.navigation.LocalSnackbarHostState
 import com.fatihenes.photoreport.feature.backup.viewmodel.BackupViewModel
@@ -32,6 +36,7 @@ fun BackupSection(
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val haptic = LocalHapticFeedback.current
     val snackbarHost = LocalSnackbarHostState.current
 
     val backupState by viewModel.backupState.collectAsStateWithLifecycle()
@@ -77,65 +82,132 @@ fun BackupSection(
     }
 
     Column(modifier = modifier.fillMaxWidth()) {
+        // Section title (matching Settings pattern)
         Text(
-            text = stringResource(R.string.settings_backup_title),
-            style = MaterialTheme.typography.labelLarge,
-            color = MaterialTheme.colorScheme.primary,
-            fontWeight = FontWeight.Bold,
-            modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
+            text = stringResource(R.string.settings_backup_title).uppercase(),
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            letterSpacing = MaterialTheme.typography.labelSmall.letterSpacing * 1.5f,
+            modifier = Modifier.padding(
+                start = FotoRaporTokens.SpacingXS,
+                bottom = FotoRaporTokens.SpacingS
+            )
         )
 
         Surface(
             modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(20.dp),
+            shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
             color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 1.dp
+            border = BorderStroke(
+                FotoRaporTokens.CardBorderWidth,
+                MaterialTheme.colorScheme.outlineVariant
+            )
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
+            Column(modifier = Modifier.padding(FotoRaporTokens.SpacingXS)) {
+                // Progress indicators
                 if (backupState is OperationResult.Loading) {
                     val progress = (backupState as OperationResult.Loading).progress ?: 0
                     LinearProgressIndicator(
                         progress = { progress / 100f },
-                        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                horizontal = FotoRaporTokens.SpacingL,
+                                vertical = FotoRaporTokens.SpacingS
+                            ),
+                        trackColor = MaterialTheme.colorScheme.surfaceContainerHigh
                     )
                 }
                 if (restoreState is OperationResult.Loading) {
                     val progress = (restoreState as OperationResult.Loading).progress ?: 0
                     LinearProgressIndicator(
                         progress = { progress / 100f },
-                        modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                horizontal = FotoRaporTokens.SpacingL,
+                                vertical = FotoRaporTokens.SpacingS
+                            ),
+                        trackColor = MaterialTheme.colorScheme.surfaceContainerHigh
                     )
                 }
 
+                // Create Backup Row
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { createBackupLauncher.launch("PhotoReport_Yedek.zip") }
-                        .padding(vertical = 8.dp),
+                        .clickable {
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            createBackupLauncher.launch("FotoRapor_Yedek.zip")
+                        }
+                        .padding(
+                            horizontal = FotoRaporTokens.SpacingL,
+                            vertical = FotoRaporTokens.SpacingM
+                        ),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(Icons.Default.Backup, contentDescription = stringResource(R.string.acc_expand), tint = MaterialTheme.colorScheme.primary)
-                    Spacer(modifier = Modifier.width(16.dp))
+                    Icon(
+                        Icons.Default.Backup,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(FotoRaporTokens.IconSizeS)
+                    )
+                    Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingL))
                     Column {
-                        Text(stringResource(R.string.settings_backup_create), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
-                        Text(stringResource(R.string.settings_backup_create_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(
+                            stringResource(R.string.settings_backup_create),
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXXS))
+                        Text(
+                            stringResource(R.string.settings_backup_create_desc),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
 
-                HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp), thickness = 0.5.dp, color = MaterialTheme.colorScheme.outlineVariant)
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = FotoRaporTokens.SpacingL),
+                    thickness = FotoRaporTokens.DividerThickness,
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)
+                )
 
+                // Restore Backup Row
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { restoreBackupLauncher.launch(arrayOf("application/zip")) }
-                        .padding(vertical = 8.dp),
+                        .clickable {
+                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            restoreBackupLauncher.launch(arrayOf("application/zip"))
+                        }
+                        .padding(
+                            horizontal = FotoRaporTokens.SpacingL,
+                            vertical = FotoRaporTokens.SpacingM
+                        ),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Icon(Icons.Default.Restore, contentDescription = stringResource(R.string.acc_expand), tint = MaterialTheme.colorScheme.primary)
-                    Spacer(modifier = Modifier.width(16.dp))
+                    Icon(
+                        Icons.Default.Restore,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(FotoRaporTokens.IconSizeS)
+                    )
+                    Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingL))
                     Column {
-                        Text(stringResource(R.string.settings_backup_restore), style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Bold)
-                        Text(stringResource(R.string.settings_backup_restore_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(
+                            stringResource(R.string.settings_backup_restore),
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXXS))
+                        Text(
+                            stringResource(R.string.settings_backup_restore_desc),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                     }
                 }
             }

@@ -8,10 +8,10 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -134,20 +134,20 @@ fun AppNavGraph(
         startDestination = Routes.DASHBOARD,
         modifier = Modifier,
         enterTransition = {
-            fadeIn(animationSpec = tween(300, easing = FastOutSlowInEasing)) +
-            androidx.compose.animation.scaleIn(initialScale = 0.95f, animationSpec = tween(300, easing = FastOutSlowInEasing))
+            fadeIn(animationSpec = tween(FotoRaporMotion.DurationMedium, easing = FotoRaporMotion.EasingEmphasized)) +
+            androidx.compose.animation.scaleIn(initialScale = 0.97f, animationSpec = tween(FotoRaporMotion.DurationMedium, easing = FotoRaporMotion.EasingEmphasized))
         },
         exitTransition = {
-            fadeOut(animationSpec = tween(250, easing = FastOutSlowInEasing)) +
-            androidx.compose.animation.scaleOut(targetScale = 1.05f, animationSpec = tween(250, easing = FastOutSlowInEasing))
+            fadeOut(animationSpec = tween(FotoRaporMotion.DurationShort, easing = FotoRaporMotion.EasingStandard)) +
+            androidx.compose.animation.scaleOut(targetScale = 1.03f, animationSpec = tween(FotoRaporMotion.DurationShort, easing = FotoRaporMotion.EasingStandard))
         },
         popEnterTransition = {
-            fadeIn(animationSpec = tween(300, easing = FastOutSlowInEasing)) +
-            androidx.compose.animation.scaleIn(initialScale = 1.05f, animationSpec = tween(300, easing = FastOutSlowInEasing))
+            fadeIn(animationSpec = tween(FotoRaporMotion.DurationMedium, easing = FotoRaporMotion.EasingEmphasized)) +
+            androidx.compose.animation.scaleIn(initialScale = 1.03f, animationSpec = tween(FotoRaporMotion.DurationMedium, easing = FotoRaporMotion.EasingEmphasized))
         },
         popExitTransition = {
-            fadeOut(animationSpec = tween(250, easing = FastOutSlowInEasing)) +
-            androidx.compose.animation.scaleOut(targetScale = 0.95f, animationSpec = tween(250, easing = FastOutSlowInEasing))
+            fadeOut(animationSpec = tween(FotoRaporMotion.DurationShort, easing = FotoRaporMotion.EasingStandard)) +
+            androidx.compose.animation.scaleOut(targetScale = 0.97f, animationSpec = tween(FotoRaporMotion.DurationShort, easing = FotoRaporMotion.EasingStandard))
         }
     ) {
         composable(Routes.DASHBOARD) {

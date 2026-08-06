@@ -31,7 +31,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -40,6 +42,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.toColorInt
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fatihenes.photoreport.core.common.util.DateUtils
+import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion
+import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporTokens
 import com.fatihenes.photoreport.core.model.DailyLogWithPhotos
 import com.fatihenes.photoreport.core.model.Photo
 import com.fatihenes.photoreport.core.model.Project
@@ -71,13 +75,17 @@ fun ProjectDetailScreen(
 ) {
     if (project == null) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+            CircularProgressIndicator(
+                modifier = Modifier.size(FotoRaporTokens.IconSizeL),
+                strokeWidth = 2.5.dp,
+                color = MaterialTheme.colorScheme.primary
+            )
         }
         return
     }
 
     val projectColor = remember(project.colorHex) { Color(project.colorHex.toColorInt()) }
-    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
+    val haptic = LocalHapticFeedback.current
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val snackbarHost = LocalSnackbarHostState.current
@@ -106,22 +114,48 @@ fun ProjectDetailScreen(
                 TopAppBar(
                     title = {
                         Column {
-                            Text(project.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
-                            Text(stringResource(R.string.project_details_label), style = MaterialTheme.typography.labelSmall, color = Color(0xFF64748B))
+                            Text(
+                                project.name,
+                                style = MaterialTheme.typography.titleLarge,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                            Text(
+                                stringResource(R.string.project_details_label),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
                         }
                     },
                     navigationIcon = {
                         IconButton(onClick = onBack) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.back_label))
+                            Icon(
+                                Icons.AutoMirrored.Filled.ArrowBack,
+                                contentDescription = stringResource(R.string.back_label),
+                                modifier = Modifier.size(FotoRaporTokens.IconSizeS)
+                            )
                         }
                     },
                     actions = {
                         IconButton(onClick = { showMenu = true }) {
-                            Icon(Icons.Default.MoreVert, contentDescription = stringResource(R.string.acc_more_options))
+                            Icon(
+                                Icons.Default.MoreVert,
+                                contentDescription = stringResource(R.string.acc_more_options),
+                                modifier = Modifier.size(FotoRaporTokens.IconSizeS)
+                            )
                         }
-                        DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
+                        DropdownMenu(
+                            expanded = showMenu,
+                            onDismissRequest = { showMenu = false },
+                            shape = RoundedCornerShape(FotoRaporTokens.RadiusM)
+                        ) {
                             DropdownMenuItem(
-                                text = { Text(stringResource(R.string.share_as_file)) },
+                                text = {
+                                    Text(
+                                        stringResource(R.string.share_as_file),
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                },
                                 onClick = {
                                     showMenu = false
                                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -135,33 +169,63 @@ fun ProjectDetailScreen(
                                         showExportDialog = true
                                     }
                                 },
-                                leadingIcon = { Icon(Icons.Default.Share, contentDescription = stringResource(R.string.acc_share), tint = projectColor) }
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Default.Share,
+                                        contentDescription = stringResource(R.string.acc_share),
+                                        tint = projectColor,
+                                        modifier = Modifier.size(FotoRaporTokens.IconSizeS)
+                                    )
+                                }
                             )
                             DropdownMenuItem(
-                                text = { Text(stringResource(R.string.delete_project_menu), color = MaterialTheme.colorScheme.error) },
+                                text = {
+                                    Text(
+                                        stringResource(R.string.delete_project_menu),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.error
+                                    )
+                                },
                                 onClick = { 
-                                    haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                     showMenu = false
                                     showDeleteConfirm = true 
                                 },
-                                leadingIcon = { Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.acc_delete), tint = MaterialTheme.colorScheme.error) }
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Default.Delete,
+                                        contentDescription = stringResource(R.string.acc_delete),
+                                        tint = MaterialTheme.colorScheme.error,
+                                        modifier = Modifier.size(FotoRaporTokens.IconSizeS)
+                                    )
+                                }
                             )
                         }
                     },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.surface)
+                    colors = TopAppBarDefaults.topAppBarColors(
+                        containerColor = MaterialTheme.colorScheme.background
+                    )
                 )
             },
             floatingActionButton = {
                 FloatingActionButton(
                     onClick = {
-                        haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.LongPress)
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                         onAddPhoto(null)
                     },
                     containerColor = projectColor,
                     contentColor = Color.White,
-                    shape = CircleShape
+                    shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
+                    elevation = FloatingActionButtonDefaults.elevation(
+                        defaultElevation = FotoRaporTokens.ElevationM,
+                        pressedElevation = FotoRaporTokens.ElevationL
+                    )
                 ) {
-                    Icon(Icons.Default.CameraAlt, contentDescription = stringResource(R.string.acc_shutter))
+                    Icon(
+                        Icons.Default.CameraAlt,
+                        contentDescription = stringResource(R.string.acc_shutter),
+                        modifier = Modifier.size(FotoRaporTokens.IconSizeM)
+                    )
                 }
             }
         ) { padding ->
@@ -173,11 +237,11 @@ fun ProjectDetailScreen(
                 state = listState,
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp)
+                    .padding(horizontal = FotoRaporTokens.ScreenPaddingHorizontal)
                     .padding(padding)
                     .consumeWindowInsets(padding)
                     .imePadding(),
-                contentPadding = PaddingValues(top = 16.dp)
+                contentPadding = PaddingValues(top = FotoRaporTokens.SpacingS)
             ) {
                 item(key = "week_calendar") {
                     WeekCalendar(
@@ -224,20 +288,35 @@ fun ProjectDetailScreen(
 
                     OutlinedButton(
                         onClick = { showDatePicker = true },
-                        modifier = Modifier.fillMaxWidth().height(52.dp),
-                        shape = RoundedCornerShape(16.dp),
-                        border = BorderStroke(1.5.dp, projectColor),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(FotoRaporTokens.ButtonHeightL),
+                        shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
+                        border = BorderStroke(1.dp, projectColor.copy(alpha = 0.5f)),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = projectColor)
                     ) {
-                        Icon(Icons.Default.CalendarToday, contentDescription = stringResource(R.string.acc_calendar), modifier = Modifier.size(20.dp))
-                        Spacer(modifier = Modifier.width(10.dp))
-                        Text(stringResource(R.string.add_date_card), fontWeight = FontWeight.Bold, fontSize = 15.sp)
+                        Icon(
+                            Icons.Default.CalendarToday,
+                            contentDescription = stringResource(R.string.acc_calendar),
+                            modifier = Modifier.size(FotoRaporTokens.IconSizeS)
+                        )
+                        Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingS))
+                        Text(
+                            stringResource(R.string.add_date_card),
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.SemiBold
+                        )
                     }
                 }
                 item(key = "timeline_header") {
-                    Spacer(modifier = Modifier.height(24.dp))
-                    Text(stringResource(R.string.timeline_label), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXXL))
+                    Text(
+                        stringResource(R.string.timeline_label),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onBackground
+                    )
+                    Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingL))
                 }
                 if (logs.isEmpty()) {
                     item(key = "timeline_empty_state") {
@@ -272,7 +351,7 @@ fun ProjectDetailScreen(
                         }
                     )
                 }
-                item { Spacer(modifier = Modifier.height(100.dp)) }
+                item { Spacer(modifier = Modifier.height(96.dp)) }
             }
         }
 
@@ -296,21 +375,47 @@ fun ProjectDetailScreen(
         if (showDeleteConfirm) {
             AlertDialog(
                 onDismissRequest = { showDeleteConfirm = false },
-                title = { Text(stringResource(R.string.delete_project_title)) },
-                text = { Text(stringResource(R.string.delete_project_desc, project.name)) },
+                shape = RoundedCornerShape(FotoRaporTokens.RadiusL),
+                title = {
+                    Text(
+                        stringResource(R.string.delete_project_title),
+                        style = MaterialTheme.typography.titleLarge,
+                        fontWeight = FontWeight.SemiBold
+                    )
+                },
+                text = {
+                    Text(
+                        stringResource(R.string.delete_project_desc, project.name),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                },
                 confirmButton = {
                     Button(
                         onClick = { showDeleteConfirm = false; onDeleteProject() },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.error,
-                            contentColor = Color.White
+                            contentColor = MaterialTheme.colorScheme.onError
+                        ),
+                        shape = RoundedCornerShape(FotoRaporTokens.RadiusS),
+                        elevation = ButtonDefaults.buttonElevation(
+                            defaultElevation = FotoRaporTokens.ElevationNone
                         )
                     ) {
-                        Text(stringResource(R.string.delete_confirm_btn), color = Color.White)
+                        Text(
+                            stringResource(R.string.delete_confirm_btn),
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.SemiBold
+                        )
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showDeleteConfirm = false }) { Text(stringResource(R.string.cancel_btn)) }
+                    TextButton(onClick = { showDeleteConfirm = false }) {
+                        Text(
+                            stringResource(R.string.cancel_btn),
+                            style = MaterialTheme.typography.labelLarge
+                        )
+                    }
                 }
             )
         }
@@ -338,8 +443,8 @@ fun ProjectDetailScreen(
 
             AnimatedVisibility(
                 visible = selectedPhotoForFullView != null,
-                enter = fadeIn(tween(300)) + scaleIn(initialScale = 0.9f, animationSpec = tween(300)),
-                exit = fadeOut(tween(300)) + scaleOut(targetScale = 0.9f, animationSpec = tween(300)),
+                enter = fadeIn(tween(250)) + scaleIn(initialScale = 0.92f, animationSpec = tween(250)),
+                exit = fadeOut(tween(200)) + scaleOut(targetScale = 0.92f, animationSpec = tween(200)),
                 modifier = Modifier.fillMaxSize()
             ) {
                 FullScreenPhotoDialog(
@@ -364,7 +469,7 @@ fun WeekCalendar(
     existingLogDates: Set<Long>,
     onDateSelected: (Long) -> Unit
 ) {
-    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
+    val haptic = LocalHapticFeedback.current
     val initialDate = LocalDate.now()
     val pagerState = rememberPagerState(initialPage = 100, pageCount = { 200 })
 
@@ -381,22 +486,22 @@ fun WeekCalendar(
         "$month ${currentMonday.year}"
     }
 
-    Card(
+    Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(bottom = 16.dp),
-        shape = RoundedCornerShape(24.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+            .padding(bottom = FotoRaporTokens.SpacingL),
+        shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(FotoRaporTokens.CardBorderWidth, MaterialTheme.colorScheme.outlineVariant)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(FotoRaporTokens.SpacingL)) {
             Text(
                 text = monthYearText,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
+                style = MaterialTheme.typography.labelMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingM))
 
             HorizontalPager(
                 state = pagerState,
@@ -435,40 +540,46 @@ fun WeekCalendar(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             modifier = Modifier
                                 .weight(1f)
-                                .clip(RoundedCornerShape(14.dp))
+                                .clip(RoundedCornerShape(FotoRaporTokens.RadiusS))
                                 .clickable {
-                                    haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
+                                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                                     onDateSelected(startOfDay)
                                 }
                                 .background(
-                                    if (isToday) projectColor.copy(alpha = 0.1f)
-                                    else if (isLogged) projectColor.copy(alpha = 0.05f)
-                                    else Color.Transparent
+                                    when {
+                                        isToday -> projectColor.copy(alpha = 0.08f)
+                                        isLogged -> projectColor.copy(alpha = 0.04f)
+                                        else -> Color.Transparent
+                                    }
                                 )
-                                .border(
-                                    1.dp,
-                                    if (isToday) projectColor else Color.Transparent,
-                                    RoundedCornerShape(14.dp)
+                                .then(
+                                    if (isToday) {
+                                        Modifier.border(
+                                            1.dp,
+                                            projectColor.copy(alpha = 0.5f),
+                                            RoundedCornerShape(FotoRaporTokens.RadiusS)
+                                        )
+                                    } else Modifier
                                 )
-                                .padding(vertical = 10.dp)
+                                .padding(vertical = FotoRaporTokens.SpacingS)
                         ) {
                             Text(
                                 text = dayName,
-                                fontSize = 11.sp,
+                                style = MaterialTheme.typography.labelSmall,
                                 color = if (isToday) projectColor else MaterialTheme.colorScheme.onSurfaceVariant,
-                                fontWeight = if (isToday) FontWeight.Bold else FontWeight.Medium
+                                fontWeight = if (isToday) FontWeight.SemiBold else FontWeight.Normal
                             )
-                            Spacer(modifier = Modifier.height(6.dp))
+                            Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXS))
                             Text(
                                 text = date.dayOfMonth.toString(),
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.ExtraBold,
-                                color = if (isLogged) projectColor else MaterialTheme.colorScheme.onBackground
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Bold,
+                                color = if (isLogged) projectColor else MaterialTheme.colorScheme.onSurface
                             )
-                            Spacer(modifier = Modifier.height(6.dp))
+                            Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXS))
                             Box(
                                 modifier = Modifier
-                                    .size(6.dp)
+                                    .size(5.dp)
                                     .background(
                                         if (isLogged) projectColor else Color.Transparent,
                                         CircleShape

@@ -15,10 +15,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporTokens
 import com.fatihenes.photoreport.core.ui.R
 import java.time.LocalDate
 import java.time.YearMonth
@@ -33,7 +36,7 @@ fun MonthlyCalendar(
     activityDots: Map<LocalDate, List<Color>> = emptyMap(),
     locale: Locale = Locale.getDefault()
 ) {
-    val haptic = androidx.compose.ui.platform.LocalHapticFeedback.current
+    val haptic = LocalHapticFeedback.current
     var currentMonth by remember { mutableStateOf(YearMonth.from(selectedDate)) }
     val daysInMonth = currentMonth.lengthOfMonth()
     val firstDayOfWeek = remember(locale) { WeekFields.of(locale).firstDayOfWeek }
@@ -44,132 +47,147 @@ fun MonthlyCalendar(
         }
     }
 
-    Card(
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        shape = RoundedCornerShape(24.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+            .padding(FotoRaporTokens.SpacingL)
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
-            // Header
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+        // ── Header ──────────────────────────────────────
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            IconButton(
+                onClick = { currentMonth = currentMonth.minusMonths(1) },
+                modifier = Modifier.size(36.dp)
             ) {
-                IconButton(
-                    onClick = { currentMonth = currentMonth.minusMonths(1) },
-                    colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                ) {
-                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowLeft, contentDescription = stringResource(R.string.back_label), tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-
-                Text(
-                    text = "${currentMonth.month.getDisplayName(TextStyle.FULL, locale)} ${currentMonth.year}",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
+                Icon(
+                    Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                    contentDescription = stringResource(R.string.back_label),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(FotoRaporTokens.IconSizeS)
                 )
-
-                IconButton(
-                    onClick = { currentMonth = currentMonth.plusMonths(1) },
-                    colors = IconButtonDefaults.filledIconButtonColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
-                ) {
-                    Icon(Icons.AutoMirrored.Filled.KeyboardArrowRight, contentDescription = stringResource(R.string.acc_expand), tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Text(
+                text = buildString {
+                    append(currentMonth.month.getDisplayName(TextStyle.FULL, locale)
+                        .replaceFirstChar { it.uppercase() })
+                    append(" ")
+                    append(currentMonth.year)
+                },
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurface
+            )
 
-            // Weekdays
+            IconButton(
+                onClick = { currentMonth = currentMonth.plusMonths(1) },
+                modifier = Modifier.size(36.dp)
+            ) {
+                Icon(
+                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = stringResource(R.string.acc_expand),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(FotoRaporTokens.IconSizeS)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingL))
+
+        // ── Weekday Labels ──────────────────────────────
+        Row(modifier = Modifier.fillMaxWidth()) {
+            weekdayNames.forEach { day ->
+                Text(
+                    text = day,
+                    modifier = Modifier.weight(1f),
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingS))
+
+        // ── Date Grid ───────────────────────────────────
+        val totalCells = ((daysInMonth + firstDayOfMonth + 6) / 7) * 7
+        for (row in 0 until totalCells / 7) {
             Row(modifier = Modifier.fillMaxWidth()) {
-                weekdayNames.forEach { day ->
-                    Text(
-                        text = day,
-                        modifier = Modifier.weight(1f),
-                        textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
+                for (col in 0 until 7) {
+                    val dayIndex = row * 7 + col - firstDayOfMonth + 1
+                    if (dayIndex in 1..daysInMonth) {
+                        val date = currentMonth.atDay(dayIndex)
+                        val isSelected = date == selectedDate
+                        val isToday = date == LocalDate.now()
+                        val dots = activityDots[date] ?: emptyList()
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            // Grid
-            val totalCells = ((daysInMonth + firstDayOfMonth + 6) / 7) * 7
-            for (row in 0 until totalCells / 7) {
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    for (col in 0 until 7) {
-                        val dayIndex = row * 7 + col - firstDayOfMonth + 1
-                        if (dayIndex in 1..daysInMonth) {
-                            val date = currentMonth.atDay(dayIndex)
-                            val isSelected = date == selectedDate
-                            val isToday = date == LocalDate.now()
-                            val dots = activityDots[date] ?: emptyList()
-
-                            Box(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .aspectRatio(1f)
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .clickable {
-                                        haptic.performHapticFeedback(androidx.compose.ui.hapticfeedback.HapticFeedbackType.TextHandleMove)
-                                        onDateSelected(date)
-                                    },
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                    Box(
-                                        modifier = Modifier
-                                            .size(36.dp)
-                                            .background(
-                                                color = when {
-                                                    isSelected -> MaterialTheme.colorScheme.primary
-                                                    isToday -> MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                                                    else -> Color.Transparent
-                                                },
-                                                shape = RoundedCornerShape(10.dp)
-                                            )
-                                            .border(
-                                                width = 1.dp,
-                                                color = if (isToday && !isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.5f) else Color.Transparent,
-                                                shape = RoundedCornerShape(10.dp)
-                                            ),
-                                        contentAlignment = Alignment.Center
-                                    ) {
-                                        Text(
-                                            text = dayIndex.toString(),
-                                            style = MaterialTheme.typography.bodyMedium,
-                                            fontWeight = if (isSelected || isToday) FontWeight.Bold else FontWeight.Medium,
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .aspectRatio(1f)
+                                .clip(RoundedCornerShape(FotoRaporTokens.RadiusS))
+                                .clickable {
+                                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                                    onDateSelected(date)
+                                },
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(34.dp)
+                                        .background(
                                             color = when {
-                                                isSelected -> Color.White
-                                                isToday -> MaterialTheme.colorScheme.primary
-                                                else -> MaterialTheme.colorScheme.onSurface
-                                            }
+                                                isSelected -> MaterialTheme.colorScheme.primary
+                                                isToday -> MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
+                                                else -> Color.Transparent
+                                            },
+                                            shape = RoundedCornerShape(FotoRaporTokens.RadiusS)
                                         )
-                                    }
-
-                                    // Activity Dots
-                                    Row(
-                                        modifier = Modifier.padding(top = 4.dp),
-                                        horizontalArrangement = Arrangement.spacedBy(3.dp)
-                                    ) {
-                                        dots.take(3).forEach { color ->
-                                            Box(
-                                                modifier = Modifier
-                                                    .size(5.dp)
-                                                    .background(color, CircleShape)
-                                            )
+                                        .then(
+                                            if (isToday && !isSelected) {
+                                                Modifier.border(
+                                                    width = 1.dp,
+                                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
+                                                    shape = RoundedCornerShape(FotoRaporTokens.RadiusS)
+                                                )
+                                            } else Modifier
+                                        ),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        text = dayIndex.toString(),
+                                        style = MaterialTheme.typography.bodySmall,
+                                        fontWeight = if (isSelected || isToday) FontWeight.SemiBold else FontWeight.Normal,
+                                        color = when {
+                                            isSelected -> MaterialTheme.colorScheme.onPrimary
+                                            isToday -> MaterialTheme.colorScheme.primary
+                                            else -> MaterialTheme.colorScheme.onSurface
                                         }
+                                    )
+                                }
+
+                                // Activity Dots
+                                Row(
+                                    modifier = Modifier.padding(top = 3.dp),
+                                    horizontalArrangement = Arrangement.spacedBy(2.dp)
+                                ) {
+                                    dots.take(3).forEach { color ->
+                                        Box(
+                                            modifier = Modifier
+                                                .size(4.dp)
+                                                .background(color, CircleShape)
+                                        )
                                     }
                                 }
                             }
-                        } else {
-                            Spacer(modifier = Modifier.weight(1f))
                         }
+                    } else {
+                        Spacer(modifier = Modifier.weight(1f))
                     }
                 }
             }
