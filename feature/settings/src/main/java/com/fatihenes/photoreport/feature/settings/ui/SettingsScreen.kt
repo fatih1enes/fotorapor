@@ -31,7 +31,6 @@ import com.fatihenes.photoreport.core.ui.navigation.LocalSnackbarHostState
 import com.fatihenes.photoreport.core.ui.R
 import com.fatihenes.photoreport.feature.settings.ui.components.ImageCropperDialog
 import com.fatihenes.photoreport.feature.settings.viewmodel.SettingsViewModel
-import com.fatihenes.photoreport.core.common.util.result.OperationResult
 import com.fatihenes.photoreport.core.media.CompanyLogoManager
 import com.fatihenes.photoreport.feature.backup.ui.BackupSection
 

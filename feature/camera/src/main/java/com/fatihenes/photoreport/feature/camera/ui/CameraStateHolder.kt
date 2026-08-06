@@ -15,7 +15,6 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.video.*
 import androidx.camera.view.PreviewView
 import androidx.compose.runtime.*
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import com.fatihenes.photoreport.feature.camera.model.CameraCapabilities
 import com.fatihenes.photoreport.feature.camera.model.queryCameraCapabilities
