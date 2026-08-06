@@ -15,9 +15,9 @@ object PdfMetadataWriter {
         author: String = "FotoRapor Licensed Field Professional",
         creator: String = "FotoRapor Enterprise Engineering Suite v2.5",
         subject: String = "Saha Denetim ve Teknik Gözlem Raporu",
-        keywords: String = "mühendislik, şantiye, denetim, raporlama, fotorapor, md3"
+        keywords: String = "mühendislik, şantiye, denetim, raporlama, fotorapor, md3",
     ): Boolean {
-        if (!pdfFile.exists() || pdfFile.length() < 50) return false
+        if (!pdfFile.exists() || (pdfFile.length() < 50)) return false
         
         try {
             RandomAccessFile(pdfFile, "rw").use { raf ->

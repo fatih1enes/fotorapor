@@ -14,12 +14,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
 import java.util.Locale
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.milliseconds
 
 @HiltViewModel
 class DashboardViewModel @Inject constructor(
     private val getProjectsUseCase: GetProjectsUseCase,
     private val createProjectUseCase: CreateProjectUseCase,
-    private val getTrashItemsUseCase: GetTrashItemsUseCase
+    getTrashItemsUseCase: GetTrashItemsUseCase,
 ) : ViewModel() {
 
     private val _projectActionState = MutableStateFlow<UiState<Unit>?>(null)
@@ -32,21 +33,21 @@ class DashboardViewModel @Inject constructor(
         getProjectsUseCase()
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
-    private val _isRefreshing = MutableStateFlow(false)
+    private val _isRefreshing = MutableStateFlow(value = false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
 
     val isTrashNotEmpty: StateFlow<Boolean> = combine(
         getTrashItemsUseCase.getProjects(),
-        getTrashItemsUseCase.getPhotos()
+        getTrashItemsUseCase.getPhotos(),
     ) { projects, photos ->
         projects.isNotEmpty() || photos.isNotEmpty()
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), initialValue = false)
 
     fun refresh() {
         viewModelScope.launch {
             _isRefreshing.value = true
             _refreshTrigger.emit(Unit)
-            delay(500) // Minimum animation time
+            delay(500.milliseconds) // Minimum animation time
             _isRefreshing.value = false
         }
     }
@@ -62,7 +63,7 @@ class DashboardViewModel @Inject constructor(
                 throw e
             } catch (e: Exception) {
                 _projectActionState.value = UiState.Error(
-                    e.message ?: "Bilinmeyen bir hata oluştu"
+                    e.message ?: "Bilinmeyen bir hata oluştu",
                 )
             }
         }

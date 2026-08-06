@@ -31,7 +31,7 @@ interface PdfExportManager {
         logs: List<LogWithPhotos>,
         quality: Int = 100,
         language: String = "tr",
-        onProgress: ((current: Int, total: Int) -> Unit)? = null
+        onProgress: ((current: Int, total: Int) -> Unit)? = null,
     ): OperationResult<Uri>
 }
 
@@ -65,8 +65,8 @@ class NativePdfExportManager @Inject constructor(
             var pageNumber = 1
 
             val logoUri = CompanyLogoManager.getLogoUri(context)
-            if (logoUri != null) {
-                logoBmp = ImageProcessor.loadScaledBitmap(context, logoUri.toString(), 500, 500)
+            logoUri?.let {
+                logoBmp = ImageProcessor.loadScaledBitmap(context, it.toString(), 500, 500)
             }
 
             val reportIdStr = "${project.id.toString().padStart(4, '0')}-${System.currentTimeMillis() % 1000}"
@@ -136,7 +136,7 @@ class NativePdfExportManager @Inject constructor(
                         .setLineSpacing(0f, 1.25f)
                         .build()
 
-                    if (currentY + staticLayout.height > pageHeight - margin - PdfTheme.FOOTER_HEIGHT) {
+                    if (currentY + staticLayout.height > (pageHeight - margin - PdfTheme.FOOTER_HEIGHT)) {
                         currentY = closeAndStartNewPage()
                         layoutHelper.reset(currentY)
                         canvas.drawText(dateStr, margin, currentY + 12f, typography.dateSectionPaint)

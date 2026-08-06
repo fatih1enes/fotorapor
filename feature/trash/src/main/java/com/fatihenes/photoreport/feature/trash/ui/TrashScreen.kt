@@ -38,7 +38,7 @@ import com.fatihenes.photoreport.feature.trash.viewmodel.TrashViewModel
 fun TrashScreen(
     onBack: () -> Unit,
     language: String = "tr",
-    viewModel: TrashViewModel = hiltViewModel()
+    viewModel: TrashViewModel = hiltViewModel(),
 ) {
     val deletedProjects by viewModel.deletedProjects.collectAsState(initial = emptyList())
     val deletedPhotos by viewModel.deletedPhotos.collectAsState(initial = emptyList())
@@ -53,7 +53,7 @@ fun TrashScreen(
                     Text(
                         stringResource(R.string.trash_title),
                         style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.SemiBold
+                        fontWeight = FontWeight.SemiBold,
                     )
                 },
                 navigationIcon = {
@@ -61,7 +61,7 @@ fun TrashScreen(
                         Icon(
                             Icons.AutoMirrored.Filled.ArrowBack,
                             stringResource(R.string.back_label),
-                            modifier = Modifier.size(FotoRaporTokens.IconSizeS)
+                            modifier = Modifier.size(FotoRaporTokens.IconSizeS),
                         )
                     }
                 },

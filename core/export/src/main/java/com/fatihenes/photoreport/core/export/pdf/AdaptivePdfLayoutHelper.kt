@@ -8,7 +8,7 @@ data class PdfRect(val left: Float, val top: Float, val right: Float, val bottom
 class AdaptivePdfLayoutHelper(
     private val maxPageHeight: Int = PdfTheme.PAGE_HEIGHT,
     private val pageMargin: Float = PdfTheme.MARGIN,
-    private val pageFooterHeight: Float = PdfTheme.FOOTER_HEIGHT
+    private val pageFooterHeight: Float = PdfTheme.FOOTER_HEIGHT,
 ) {
 
     private var currentY: Float = 0f
@@ -44,7 +44,7 @@ class AdaptivePdfLayoutHelper(
             targetHeight = (targetWidth / aspectRatio).coerceAtMost(PdfTheme.MAX_LANDSCAPE_IMAGE_HEIGHT)
             x = pageMargin
 
-            if (currentY + targetHeight > maxPageHeight - pageMargin - pageFooterHeight) {
+            if (currentY + targetHeight > (maxPageHeight - pageMargin - pageFooterHeight)) {
                 isNewPage = true
             }
         } else {

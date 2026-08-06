@@ -1,6 +1,5 @@
 package com.fatihenes.photoreport.feature.dashboard.ui
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
@@ -64,7 +63,7 @@ fun DashboardScreen(
 ) {
     val haptic = LocalHapticFeedback.current
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
-    var showAddDialog by remember { mutableStateOf(false) }
+    var showAddDialog by remember { mutableStateOf(value = false) }
     var viewMode by remember { mutableStateOf(DashboardViewMode.PROJECTS) }
 
     Scaffold(
@@ -83,8 +82,8 @@ fun DashboardScreen(
                     .size(FotoRaporTokens.FabSize),
                 elevation = FloatingActionButtonDefaults.elevation(
                     defaultElevation = FotoRaporTokens.ElevationM,
-                    pressedElevation = FotoRaporTokens.ElevationL
-                )
+                    pressedElevation = FotoRaporTokens.ElevationL,
+                ),
             ) {
                 Icon(
                     Icons.Default.Add,
@@ -198,7 +197,7 @@ fun DashboardScreen(
                             HeroStatChip(
                                 icon = Icons.Default.Folder,
                                 label = stringResource(R.string.active_projects),
-                                value = "${projects.size}",
+                                value = projects.size.toString(),
                                 accentColor = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.weight(1f)
                             )
@@ -310,12 +309,11 @@ fun DashboardScreen(
 
     if (showAddDialog) {
         AddProjectDialog(
-            onDismiss = { showAddDialog = false },
-            onConfirm = { name, color ->
-                onAddProject(name, color)
-                showAddDialog = false
-            }
-        )
+            onDismiss = { showAddDialog = false }
+        ) { name, color ->
+            onAddProject(name, color)
+            showAddDialog = false
+        }
     }
 }
 

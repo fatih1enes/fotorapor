@@ -15,7 +15,7 @@ object PdfStyle {
         reportId: String,
         logoBmp: Bitmap?,
         language: String,
-        typography: PdfTypography
+        typography: PdfTypography,
     ): Float {
         val width = PdfTheme.PAGE_WIDTH.toFloat()
         val margin = PdfTheme.MARGIN
@@ -81,7 +81,7 @@ object PdfStyle {
         val w = bitmap.width * scale
         val h = bitmap.height * scale
         
-        val drawX = x + pad + (availW - w) / 2f
+        val drawX = x + pad + ((availW - w) / 2f)
         val drawY = y + pad + (availH - h) / 2f
         val imgRect = RectF(drawX, drawY, drawX + w, drawY + h)
         

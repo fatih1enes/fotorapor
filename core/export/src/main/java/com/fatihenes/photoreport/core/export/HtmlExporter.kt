@@ -27,12 +27,12 @@ object HtmlExporter {
         logs: List<DailyLogEntity>,
         photos: List<PhotoEntity>,
         quality: Int = 100,
-        language: String = "tr"
+        language: String = "tr",
     ): Uri? = withContext(Dispatchers.IO) {
         try {
             val sanitizedName = FileNameUtils.sanitize(project.name, "proje")
             val zipNamePrefix = if (language == "en") "Report" else "Rapor"
-            val zipFile = File(context.cacheDir, "${zipNamePrefix}_${sanitizedName}.zip")
+            val zipFile = File(context.cacheDir, "${zipNamePrefix}_$sanitizedName.zip")
             if (zipFile.exists()) zipFile.delete()
 
             Log.d("HtmlExporter", "Creating streaming ZIP file: ${zipFile.absolutePath}")
@@ -68,7 +68,7 @@ object HtmlExporter {
                         zos.putNextEntry(entry)
                         var writeSuccess = false
 
-                        if (isVideo || quality == 100) {
+                        if (isVideo || (quality == 100)) {
                             ImageProcessor.openInputStreamSafe(context, photo.filePath)?.use { input ->
                                 input.copyTo(zos, bufferSize = 8192)
                                 writeSuccess = true
@@ -94,7 +94,7 @@ object HtmlExporter {
                     }
                 }
 
-                val htmlContent = generateHtmlContent(context, project, logs, photos, photoMap, logoAssetPath, language)
+                val htmlContent = generateHtmlContent(project, logs, photos, photoMap, logoAssetPath, language)
                 val htmlEntry = ZipEntry("index.html")
                 zos.putNextEntry(htmlEntry)
                 zos.write(htmlContent.toByteArray(Charsets.UTF_8))
@@ -104,7 +104,7 @@ object HtmlExporter {
             return@withContext FileProvider.getUriForFile(
                 context,
                 "${context.packageName}.fileprovider",
-                zipFile
+                zipFile,
             )
 
         } catch (e: kotlinx.coroutines.CancellationException) {
@@ -116,13 +116,12 @@ object HtmlExporter {
     }
 
     private fun generateHtmlContent(
-        context: Context,
         project: ProjectEntity,
         logs: List<DailyLogEntity>,
         photos: List<PhotoEntity>,
         photoMap: Map<Long, String>,
         logoAssetPath: String?,
-        language: String
+        language: String,
     ): String {
         val locale = if (language == "en") Locale.US else Locale.forLanguageTag("tr-TR")
         val dateFormat = SimpleDateFormat("dd MMMM yyyy", locale)
@@ -134,7 +133,8 @@ object HtmlExporter {
         val photoAlt = if (language == "en") "Photo" else "Fotoğraf"
 
         val builder = StringBuilder()
-        builder.append("""
+        builder.append(
+            """
             <!DOCTYPE html>
             <html lang="$language">
             <head>
@@ -264,19 +264,22 @@ object HtmlExporter {
                         ${if (logoAssetPath != null) "<img src=\"$logoAssetPath\" class=\"company-logo\" alt=\"$companyLogoAlt\">" else ""}
                     </div>
                     <div class="timeline">
-        """.trimIndent())
+        """.trimIndent(),
+        )
 
         logs.sortedByDescending { it.date }.forEach { log ->
             val logDateStr = dateFormat.format(Date(log.date))
             val dayPhotos = photos.filter { it.logId == log.id }
 
             if (log.note.trim().isNotEmpty() || dayPhotos.isNotEmpty()) {
-                builder.append("""
+                builder.append(
+                    """
                     <div class="day-card">
                         <div class="day-header">
                             <h2 class="day-title">$logDateStr</h2>
                         </div>
-                """.trimIndent())
+                """.trimIndent()
+                )
 
                 if (log.note.trim().isNotEmpty()) {
                     builder.append("<div class=\"note-content\">${log.note.htmlEncode()}</div>")
@@ -305,12 +308,14 @@ object HtmlExporter {
             }
         }
 
-        builder.append("""
+        builder.append(
+            """
                     </div>
                 </div>
             </body>
             </html>
-        """.trimIndent())
+        """.trimIndent(),
+        )
 
         return builder.toString()
     }

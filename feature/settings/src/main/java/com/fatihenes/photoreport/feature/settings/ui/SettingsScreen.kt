@@ -26,7 +26,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import kotlinx.coroutines.launch
@@ -67,12 +66,11 @@ fun SettingsScreen(
 
     val photoPickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
-        onResult = { uri ->
-            if (uri != null) {
-                imageToCropUri = uri
-            }
+    ) { uri ->
+        uri?.let {
+            imageToCropUri = it
         }
-    )
+    }
 
     if (imageToCropUri != null) {
         ImageCropperDialog(
@@ -86,7 +84,7 @@ fun SettingsScreen(
                     imageToCropUri = null
                     bitmap.recycle() // OOM önlemi
                 }
-            }
+            },
         )
     }
 
@@ -268,7 +266,7 @@ fun SettingsScreen(
                 ) { permissions ->
                     val isGranted = permissions.values.any { it }
                     if (isGranted) {
-                        viewModel.setGpsWatermarkEnabled(true)
+                        viewModel.setGpsWatermarkEnabled(enabled = true)
                     } else {
                         scope.launch { snackbarHost.showSnackbar(context.getString(R.string.location_permission_required)) }
                     }
@@ -306,7 +304,7 @@ fun SettingsScreen(
                                     )
                                 )
                             } else {
-                                viewModel.setGpsWatermarkEnabled(false)
+                                viewModel.setGpsWatermarkEnabled(enabled = false)
                             }
                         }
                     )
