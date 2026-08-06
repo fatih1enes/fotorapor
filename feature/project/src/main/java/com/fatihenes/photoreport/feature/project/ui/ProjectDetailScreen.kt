@@ -99,7 +99,7 @@ fun ProjectDetailScreen(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (!isGranted) {
-            coroutineScope.launch { snackbarHost.showSnackbar("Bildirim izni verilmediği için arkaplan işlemi durumu gösterilemeyecek.") }
+            coroutineScope.launch { snackbarHost.showSnackbar(context.getString(R.string.project_detail_notif_permission_denied)) }
         }
         showExportDialog = true
     }
@@ -128,7 +128,7 @@ fun ProjectDetailScreen(
                                     color = MaterialTheme.colorScheme.onSurface
                                 )
                                 Text(
-                                    "${logs.size} Saha Günlüğü · ${allProjectPhotos.size} Fotoğraf",
+                                    stringResource(R.string.project_detail_stat_summary, logs.size, allProjectPhotos.size),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -180,10 +180,10 @@ fun ProjectDetailScreen(
                                         color = MaterialTheme.colorScheme.error
                                     )
                                 },
-                                onClick = { 
+                                onClick = {
                                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                     showMenu = false
-                                    showDeleteConfirm = true 
+                                    showDeleteConfirm = true
                                 },
                                 leadingIcon = {
                                     Icon(
@@ -264,7 +264,7 @@ fun ProjectDetailScreen(
                                 )
                                 Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXXS))
                                 Text(
-                                    text = "${logs.size} Saha Kaydı · ${allProjectPhotos.size} Fotoğraf",
+                                    text = stringResource(R.string.project_detail_stat_summary, logs.size, allProjectPhotos.size),
                                     style = MaterialTheme.typography.bodyMedium,
                                     fontWeight = FontWeight.SemiBold,
                                     color = MaterialTheme.colorScheme.onSurface
@@ -288,7 +288,7 @@ fun ProjectDetailScreen(
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    "Rapor Al",
+                                    stringResource(R.string.project_detail_get_report),
                                     style = MaterialTheme.typography.labelMedium,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -484,12 +484,12 @@ fun ProjectDetailScreen(
                 onExportPdf = { quality ->
                     showExportDialog = false
                     onExportProject("PDF", quality, language)
-                    coroutineScope.launch { snackbarHost.showSnackbar(context.getString(R.string.pdf_preparing) + " (Arka plan)") }
+                    coroutineScope.launch { snackbarHost.showSnackbar(context.getString(R.string.pdf_preparing) + " " + context.getString(R.string.project_detail_background_tag)) }
                 },
                 onExportZip = { quality ->
                     showExportDialog = false
                     onExportProject("ZIP", quality, language)
-                    coroutineScope.launch { snackbarHost.showSnackbar("ZIP dışa aktarımı arka planda başlatıldı. Bildirimleri kontrol edin.") }
+                    coroutineScope.launch { snackbarHost.showSnackbar(context.getString(R.string.project_detail_zip_started)) }
                 }
             )
         }

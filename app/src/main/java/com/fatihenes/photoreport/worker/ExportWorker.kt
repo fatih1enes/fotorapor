@@ -79,7 +79,7 @@ class ExportWorker @AssistedInject constructor(
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
         try {
             val projectId = inputData.getLong("project_id", -1)
-            val projectName = inputData.getString("project_name") ?: "Proje"
+            val projectName = inputData.getString("project_name") ?: context.getString(R.string.widget_no_project)
             showProgressNotification(projectName)
             val format = inputData.getString("format") ?: return@withContext Result.failure()
             val quality = inputData.getInt("quality", 100)
@@ -121,7 +121,7 @@ class ExportWorker @AssistedInject constructor(
             throw e
         } catch (e: Throwable) {
             Log.e("ExportWorker", "Export failed", e)
-            val projectName = inputData.getString("project_name") ?: "Proje"
+            val projectName = inputData.getString("project_name") ?: context.getString(R.string.widget_no_project)
 
             val isRetryable = e is java.io.IOException || e is OutOfMemoryError || e is android.database.sqlite.SQLiteException
 

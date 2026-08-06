@@ -63,7 +63,7 @@ fun BackupSection(
             scope.launch { snackbarHost.showSnackbar(context.getString(R.string.backup_success)) }
             viewModel.resetBackupState()
         } else if (backupState is OperationResult.Error) {
-            scope.launch { snackbarHost.showSnackbar((backupState as OperationResult.Error).message ?: "Bilinmeyen Hata") }
+            scope.launch { snackbarHost.showSnackbar((backupState as OperationResult.Error).message ?: context.getString(R.string.backup_error_unknown)) }
             viewModel.resetBackupState()
         }
     }
@@ -76,7 +76,7 @@ fun BackupSection(
             )
             viewModel.resetRestoreState()
         } else if (restoreState is OperationResult.Error) {
-            snackbarHost.showSnackbar((restoreState as OperationResult.Error).message ?: "Geri yükleme hatası")
+            snackbarHost.showSnackbar((restoreState as OperationResult.Error).message ?: context.getString(R.string.backup_restore_error))
             viewModel.resetRestoreState()
         }
     }

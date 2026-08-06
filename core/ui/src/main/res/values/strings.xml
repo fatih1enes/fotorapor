@@ -84,8 +84,8 @@
     <string name="export_quality_standard_sub">Hızlı Aktarım</string>
     <string name="export_content_summary">İçerik Özeti</string>
     <string name="export_calculating">Boyutlar hesaplanıyor…</string>
-    <string name="export_pdf_desc">Görsel rapor\n(Videolar oynatılamaz)</string>
-    <string name="export_zip_desc">Web raporu\n(Videolar dahil edilir)</string>
+    <string name="export_pdf_desc">Görselleri ve notları kronolojik olarak A4 PDF belgesine toplar. Yazdırmak veya hızlı paylaşım için idealdir.</string>
+    <string name="export_zip_desc">Görselleri ve notları orijinal formatında içeren bir HTML web sayfası oluşturur. Videoları görüntülemek için idealdir.</string>
     <string name="export_photo_label">📸 Fotoğraf</string>
     <string name="export_video_label">🎬 Video</string>
     <string name="export_day_label">📅 Gün Kaydı</string>
@@ -210,15 +210,42 @@
     <string name="widget_no_project">Proje Yok</string>
     <string name="widget_images">Görseller</string>
     <string name="widget_camera_desc">Kamera</string>
+
+    <!-- Empty States & Error Strings -->
     <string name="empty_projects_title">Henüz Saha Raporu Projesi Yok</string>
     <string name="empty_projects_desc">Denetim raporları üretebilmek için öncelikle yeni bir proje klasörü açmalısınız.</string>
     <string name="empty_projects_action">Yeni Proje Başlat</string>
+
     <string name="empty_photos_title">Proje Galerisinde Fotoğraf Yok</string>
     <string name="empty_photos_desc">Bu projeye ait denetim görseli bulunmamaktadır. Saha durumu dokümantasyonu için kamera modülü ile çekim yapın.</string>
     <string name="empty_photos_action">Sahadan Fotoğraf Çek</string>
+
     <string name="empty_trash_title">Geri Dönüşüm Kutusu Boş</string>
     <string name="empty_trash_desc">Silinen proje ve saha raporlarınız burada geçici olarak tutulur. Şu an geri kazanılacak herhangi bir silinmiş öğe bulunmuyor.</string>
+
     <string name="trash_delete_confirm_title">Projeyi Kalıcı Olarak Sil</string>
     <string name="trash_delete_confirm_desc">Seçilen saha projesini ve tüm bağlı görsellerini tamamen silmek istediğinize emin misiniz? Bu işlem geri alınamaz.</string>
     <string name="btn_confirm_delete">Onayla ve Sil</string>
+
+    <!-- Hardcoded fixes -->
+    <string name="app_logo_title">FOTORAPOR</string>
+    <string name="dashboard_saha_mode">SAHA MODU</string>
+    <string name="dashboard_subtitle">Saha Raporlama &amp; Fotoğraf Yönetimi</string>
+    <string name="dashboard_stat_days_format">%d Gün</string>
+    <string name="dashboard_tab_calendar">Saha Takvimi</string>
+    <string name="dashboard_folder_tag">Saha Klasörü</string>
+    <string name="dashboard_add_project_color_label">PROJE RENK KODU</string>
+    <string name="dashboard_add_project_placeholder">Örn: Kadıköy Şantiyesi El. Raporu</string>
+    <string name="project_detail_stat_summary">%1$d Saha Günlüğü · %2$d Fotoğraf</string>
+    <string name="project_detail_get_report">Rapor Al</string>
+    <string name="project_detail_notif_permission_denied">Bildirim izni verilmediği için arkaplan işlemi durumu gösterilemeyecek.</string>
+    <string name="project_detail_background_tag">(Arka plan)</string>
+    <string name="project_detail_zip_started">ZIP dışa aktarımı arka planda başlatıldı. Bildirimleri kontrol edin.</string>
+    <string name="backup_error_unknown">Bilinmeyen Hata</string>
+    <string name="backup_restore_error">Geri yükleme hatası</string>
+    <string name="camera_init_error">Kamera başlatılamadı</string>
+    <string name="export_count_unit">adet</string>
+    <string name="export_video_unplayable">Oynatılamaz</string>
+    <string name="export_video_playable">Oynatılabilir</string>
+    <string name="export_not_included">Dahil edilmez</string>
 </resources>

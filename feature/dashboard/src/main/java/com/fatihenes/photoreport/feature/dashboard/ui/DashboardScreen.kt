@@ -122,7 +122,7 @@ fun DashboardScreen(
                             Column {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Text(
-                                        text = "FOTORAPOR",
+                                        text = stringResource(R.string.app_logo_title),
                                         style = MaterialTheme.typography.titleLarge,
                                         fontWeight = FontWeight.Black,
                                         letterSpacing = 1.5.sp,
@@ -146,7 +146,7 @@ fun DashboardScreen(
                                             )
                                             Spacer(modifier = Modifier.width(4.dp))
                                             Text(
-                                                text = "SAHA MODU",
+                                                text = stringResource(R.string.dashboard_saha_mode),
                                                 style = MaterialTheme.typography.labelSmall,
                                                 fontWeight = FontWeight.Bold,
                                                 color = MaterialTheme.colorScheme.onTertiaryContainer,
@@ -156,7 +156,7 @@ fun DashboardScreen(
                                     }
                                 }
                                 Text(
-                                    text = "Saha Raporlama & Fotoğraf Yönetimi",
+                                    text = stringResource(R.string.dashboard_subtitle),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -203,8 +203,8 @@ fun DashboardScreen(
                             )
                             HeroStatChip(
                                 icon = Icons.Default.CalendarMonth,
-                                label = "Saha Takvimi",
-                                value = "${activityDots.size} Gün",
+                                label = stringResource(R.string.dashboard_tab_calendar),
+                                value = stringResource(R.string.dashboard_stat_days_format, activityDots.size),
                                 accentColor = MaterialTheme.colorScheme.tertiary,
                                 modifier = Modifier.weight(1f)
                             )
@@ -220,7 +220,7 @@ fun DashboardScreen(
                             itemTitle = { mode ->
                                 when (mode) {
                                     DashboardViewMode.PROJECTS -> stringResource(R.string.my_projects_title)
-                                    DashboardViewMode.CALENDAR -> "Saha Takvimi"
+                                    DashboardViewMode.CALENDAR -> stringResource(R.string.dashboard_tab_calendar)
                                 }
                             }
                         )
@@ -449,7 +449,7 @@ private fun ProjectFolderItem(
                             color = MaterialTheme.colorScheme.surfaceContainerHigh
                         ) {
                             Text(
-                                text = "Saha Klasörü",
+                                text = stringResource(R.string.dashboard_folder_tag),
                                 style = MaterialTheme.typography.labelSmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
@@ -505,7 +505,7 @@ private fun AddProjectDialog(
                 value = projectName,
                 onValueChange = { projectName = it },
                 label = { Text(stringResource(R.string.project_name_label)) },
-                placeholder = { Text("Örn: Kadıköy Şantiyesi El. Raporu") },
+                placeholder = { Text(stringResource(R.string.dashboard_add_project_placeholder)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 shape = RoundedCornerShape(FotoRaporTokens.RadiusM)
@@ -514,7 +514,7 @@ private fun AddProjectDialog(
             Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXXL))
 
             Text(
-                text = "PROJE RENK KODU",
+                text = stringResource(R.string.dashboard_add_project_color_label),
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,

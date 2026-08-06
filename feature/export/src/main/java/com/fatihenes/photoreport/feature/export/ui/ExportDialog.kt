@@ -223,15 +223,15 @@ fun ExportDialog(
                                     }
                                 }
                             } else {
-                                InfoRow(stringResource(R.string.export_photo_label), "$photoCount adet", "%.1f MB".format(totalPhotoSizeMB))
+                                InfoRow(stringResource(R.string.export_photo_label), "$photoCount " + stringResource(R.string.export_count_unit), "%.1f MB".format(totalPhotoSizeMB))
                                 if (videoCount > 0) {
                                     if (selectedFormat == ExportFormat.PDF) {
-                                        InfoRow(stringResource(R.string.export_video_label), "$videoCount adet (Oynatılamaz)", "Dahil edilmez (0.0 MB)")
+                                        InfoRow(stringResource(R.string.export_video_label), "$videoCount " + stringResource(R.string.export_count_unit) + " (" + stringResource(R.string.export_video_unplayable) + ")", stringResource(R.string.export_not_included) + " (0.0 MB)")
                                     } else {
-                                        InfoRow(stringResource(R.string.export_video_label), "$videoCount adet (Oynatılabilir)", "%.1f MB".format(totalVideoSizeMB))
+                                        InfoRow(stringResource(R.string.export_video_label), "$videoCount " + stringResource(R.string.export_count_unit) + " (" + stringResource(R.string.export_video_playable) + ")", "%.1f MB".format(totalVideoSizeMB))
                                     }
                                 }
-                                InfoRow(stringResource(R.string.export_day_label), "${logs.size} gün", "")
+                                InfoRow(stringResource(R.string.export_day_label), "${logs.size} " + stringResource(R.string.export_count_unit), "")
 
                                 HorizontalDivider(
                                     modifier = Modifier.padding(vertical = FotoRaporTokens.SpacingS),
