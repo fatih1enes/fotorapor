@@ -6,7 +6,7 @@
         <item quantity="other">%d inspection projects recorded</item>
     </plurals>
 
-    <plurals name="photo_count">
+    <plurals name="photo_count" tools:ignore="MissingDefaultResource">
         <item quantity="one">%d site photo processed</item>
         <item quantity="other">%d site photos processed</item>
     </plurals>

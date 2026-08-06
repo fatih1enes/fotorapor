@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.fatihenes.photoreport.feature.dashboard"
+    namespace = "com.fatihenes.photoreport.feature.export"
     compileSdk = 37
 
     defaultConfig {
@@ -28,22 +28,20 @@ dependencies {
     api(project(":core:ui"))
     api(project(":core:model"))
     api(project(":core:domain"))
-    
+    api(project(":core:common"))
+    api(project(":core:export"))
+
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
-    
+    implementation(libs.androidx.lifecycle.runtime.compose)
+
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.icons.extended)
-    implementation(libs.androidx.lifecycle.runtime.compose)
-
-    testImplementation(libs.junit)
-    testImplementation(libs.mockito.core)
-    testImplementation(libs.kotlinx.coroutines.test)
 }
 
 kotlin {

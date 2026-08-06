@@ -1,4 +1,4 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="UnusedResources">
     <string name="app_name">PhotoReport</string>
     <string name="widget_description">Aktif projeyi görüntüle ve hızlıca fotoğraf çek</string>
 

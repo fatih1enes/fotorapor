@@ -1,10 +1,6 @@
 package com.fatihenes.photoreport.di
 
 import android.content.Context
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.PreferenceDataStoreFactory
-import androidx.datastore.preferences.preferencesDataStoreFile
 import com.fatihenes.photoreport.core.database.*
 import com.fatihenes.photoreport.core.common.manager.*
 import com.fatihenes.photoreport.manager.*

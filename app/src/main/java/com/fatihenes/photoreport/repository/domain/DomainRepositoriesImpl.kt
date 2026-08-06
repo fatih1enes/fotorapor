@@ -2,6 +2,7 @@ package com.fatihenes.photoreport.repository.domain
 
 import android.content.Context
 import android.net.Uri
+import androidx.core.net.toUri
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -110,7 +111,7 @@ class DomainPhotoRepositoryImpl @Inject constructor(
         photos.forEach { localPhotoDataSource.softDeletePhoto(it.id, now) }
     }
     override fun processAndSavePhotoInBackground(uriString: String, projectId: Long, logId: Long, enableWebp: Boolean, projectName: String, watermarkData: WatermarkData?) {
-        legacyPhotoRepository.processAndSavePhotoInBackground(Uri.parse(uriString), projectId, logId, enableWebp, projectName, watermarkData)
+        legacyPhotoRepository.processAndSavePhotoInBackground(uriString.toUri(), projectId, logId, enableWebp, projectName, watermarkData)
     }
 }
 
@@ -125,9 +126,9 @@ class DomainBackupRepositoryImpl @Inject constructor(
 @Singleton
 class DomainReportRepositoryImpl @Inject constructor(
     @ApplicationContext private val context: Context
-) : com.fatihenes.photoreport.core.domain.repository.ReportRepository {
+) : ReportRepository {
 
-    override suspend fun calculateFileSizes(photos: List<Photo>): com.fatihenes.photoreport.core.model.FileSizeInfo = withContext(Dispatchers.IO) {
+    override suspend fun calculateFileSizes(photos: List<Photo>): FileSizeInfo = withContext(Dispatchers.IO) {
         var totalPhotoBytes = 0L
         var totalVideoBytes = 0L
         var photoCount = 0
@@ -142,7 +143,7 @@ class DomainReportRepositoryImpl @Inject constructor(
 
         photos.forEach { photo ->
             try {
-                val uri = android.net.Uri.parse(photo.filePath)
+                val uri = photo.filePath.toUri()
                 val size = if (photo.filePath.startsWith("content://")) {
                     context.contentResolver.openFileDescriptor(uri, "r")?.use {
                         it.statSize
@@ -165,7 +166,7 @@ class DomainReportRepositoryImpl @Inject constructor(
             } catch (_: Exception) {}
         }
 
-        com.fatihenes.photoreport.core.model.FileSizeInfo(
+        FileSizeInfo(
             totalPhotoBytes,
             totalVideoBytes,
             photoCount,
@@ -221,5 +222,5 @@ abstract class DomainRepositoryModule {
     abstract fun bindDomainBackupRepository(impl: DomainBackupRepositoryImpl): BackupRepository
 
     @Binds
-    abstract fun bindDomainReportRepository(impl: DomainReportRepositoryImpl): com.fatihenes.photoreport.core.domain.repository.ReportRepository
+    abstract fun bindDomainReportRepository(impl: DomainReportRepositoryImpl): ReportRepository
 }

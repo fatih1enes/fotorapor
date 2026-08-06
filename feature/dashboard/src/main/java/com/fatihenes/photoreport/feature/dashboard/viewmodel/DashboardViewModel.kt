@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.fatihenes.photoreport.core.domain.usecase.CreateProjectUseCase
 import com.fatihenes.photoreport.core.domain.usecase.GetProjectsUseCase
 import com.fatihenes.photoreport.core.domain.usecase.GetTrashItemsUseCase
-import com.fatihenes.photoreport.core.model.Project
 import com.fatihenes.photoreport.core.ui.state.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*

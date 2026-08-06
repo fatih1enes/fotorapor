@@ -1,6 +1,5 @@
 package com.fatihenes.photoreport.feature.dashboard.viewmodel
 
-import androidx.compose.ui.graphics.Color
 import com.fatihenes.photoreport.core.domain.usecase.CreateProjectUseCase
 import com.fatihenes.photoreport.core.domain.usecase.GetProjectsUseCase
 import com.fatihenes.photoreport.core.domain.usecase.GetTrashItemsUseCase

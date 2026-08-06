@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.fatihenes.photoreport.feature.dashboard"
+    namespace = "com.fatihenes.photoreport.feature.camera"
     compileSdk = 37
 
     defaultConfig {
@@ -28,22 +28,30 @@ dependencies {
     api(project(":core:ui"))
     api(project(":core:model"))
     api(project(":core:domain"))
-    
+    api(project(":core:common"))
+    api(project(":core:media"))
+
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.hilt.navigation.compose)
-    
+    implementation(libs.androidx.lifecycle.runtime.compose)
+
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     implementation(libs.androidx.icons.extended)
-    implementation(libs.androidx.lifecycle.runtime.compose)
 
-    testImplementation(libs.junit)
-    testImplementation(libs.mockito.core)
-    testImplementation(libs.kotlinx.coroutines.test)
+    implementation(libs.androidx.camera.core)
+    implementation(libs.androidx.camera.camera2)
+    implementation(libs.androidx.camera.lifecycle)
+    implementation(libs.androidx.camera.video)
+    implementation(libs.androidx.camera.view)
+    implementation(libs.androidx.camera.extensions)
+
+    implementation(libs.coil.compose)
+    implementation(libs.coil.video)
 }
 
 kotlin {
