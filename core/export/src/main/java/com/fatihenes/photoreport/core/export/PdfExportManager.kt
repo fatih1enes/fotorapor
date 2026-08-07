@@ -210,10 +210,12 @@ class NativePdfExportManager @Inject constructor(
 
     private fun generatePdfFile(doc: PdfDocument, projectName: String, lang: String): File {
         val dir = if (Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED) {
-            context.getExternalFilesDir("PDFs")
-        } else context.filesDir
+            context.getExternalFilesDir("PDFs") ?: context.filesDir
+        } else {
+            context.filesDir
+        }
 
-        if (dir != null && !dir.exists()) dir.mkdirs()
+        if (!dir.exists()) dir.mkdirs()
         val sanitized = FileNameUtils.sanitize(projectName, "proje")
         val suffix = if (lang == "en") "daily_report" else "gunluk_rapor"
         val file = File(dir, "${sanitized}_$suffix.pdf")

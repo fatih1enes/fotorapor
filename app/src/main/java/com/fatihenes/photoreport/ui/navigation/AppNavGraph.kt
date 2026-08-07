@@ -30,12 +30,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
 import com.fatihenes.photoreport.R
 import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion
+import com.fatihenes.photoreport.core.ui.navigation.LocalSnackbarHostState
 import com.fatihenes.photoreport.ui.components.DisclosureDialog
 import com.fatihenes.photoreport.ui.viewmodel.MainViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-
-val LocalSnackbarHostState = com.fatihenes.photoreport.core.ui.navigation.LocalSnackbarHostState
 
 @Composable
 fun AppNavGraph(

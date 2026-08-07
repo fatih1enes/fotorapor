@@ -147,11 +147,11 @@ private fun rememberDeviceAngle(context: Context): Float {
                     deviceAngle = -angle
                 }
             }
-            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-                // Not needed for this implementation, but required to override
-            }
+            override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {}
         }
-        sensorManager.registerListener(listener, accelerometer, SensorManager.SENSOR_DELAY_UI)
+        if (accelerometer != null) {
+            sensorManager.registerListener(listener, accelerometer, SensorManager.SENSOR_DELAY_UI)
+        }
         onDispose { sensorManager.unregisterListener(listener) }
     }
     return deviceAngle
