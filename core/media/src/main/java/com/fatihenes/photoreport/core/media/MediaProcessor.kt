@@ -95,7 +95,7 @@ class MediaProcessor @Inject constructor(
                 }
             }
         } finally {
-            bitmapToCompress.recycle()
+            bitmapToCompress?.recycle()
         }
 
         return@withContext originalUri

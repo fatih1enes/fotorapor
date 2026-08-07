@@ -14,75 +14,26 @@
 -keepattributes RuntimeVisibleAnnotations,RuntimeVisibleParameterAnnotations
 
 # ===========================
-# Hilt / Dagger
+# Hilt / Dagger & Room & Coroutines & Firebase
+# Note: These libraries provide consumer ProGuard rules in their AARs.
+# We only keep the -dontwarn or specific rules not covered by defaults.
 # ===========================
 -dontwarn dagger.hilt.**
--keep class javax.inject.** { *; }
--keep class * extends dagger.hilt.android.internal.managers.ViewComponentManager$FragmentContextWrapper { *; }
-# Keep Hilt generated components
--keep class **_HiltModules* { *; }
--keep class **_Factory { *; }
--keep class **_MembersInjector { *; }
--keep class * implements dagger.hilt.internal.GeneratedComponent { *; }
--keep class * implements dagger.hilt.internal.GeneratedComponentManager { *; }
-# Keep @HiltAndroidApp, @AndroidEntryPoint, @HiltViewModel, @HiltWorker annotated classes
--keep @dagger.hilt.android.HiltAndroidApp class * { *; }
--keep @dagger.hilt.android.AndroidEntryPoint class * { *; }
--keep @dagger.hilt.android.lifecycle.HiltViewModel class * { *; }
--keep @androidx.hilt.work.HiltWorker class * { *; }
-# Keep @Inject annotated constructors
--keepclassmembers class * {
-    @javax.inject.Inject <init>(...);
-}
--keepclassmembers class * {
-    @dagger.assisted.AssistedInject <init>(...);
-}
-
-# ===========================
-# Room
-# ===========================
--keep class * extends androidx.room.RoomDatabase { *; }
--keep @androidx.room.Entity class * { *; }
--keep @androidx.room.Dao interface * { *; }
--keepclassmembers class * {
-    @androidx.room.Query <methods>;
-    @androidx.room.Insert <methods>;
-    @androidx.room.Update <methods>;
-    @androidx.room.Delete <methods>;
-    @androidx.room.Transaction <methods>;
-}
 -dontwarn androidx.room.**
+-dontwarn kotlinx.coroutines.**
+-dontwarn com.google.firebase.**
 
 # ===========================
-# Kotlin Coroutines
-# ===========================
--keepnames class kotlinx.coroutines.internal.MainDispatcherFactory {}
--keepnames class kotlinx.coroutines.CoroutineExceptionHandler {}
-
-# ===========================
-# Coil & Media3
-# Note: Consumer rules are provided by their respective AARs.
-# ===========================
-
-# ===========================
-# CameraX
+# CameraX / AndroidX
 # ===========================
 -dontwarn androidx.camera.**
-
-# ===========================
-# AndroidX / Jetpack
-# ===========================
 -dontwarn androidx.work.**
 -dontwarn androidx.startup.**
 -dontwarn androidx.lifecycle.**
 
 # ===========================
-# Compose
-# ===========================
--dontwarn androidx.compose.**
-
-# ===========================
 # Compose Navigation
+# We keep this for safe-args or reflection-based route handling
 # ===========================
 -keep class androidx.navigation.compose.** { *; }
 
@@ -108,6 +59,6 @@
 }
 
 # ===========================
-# AVIF Coder
+# AVIF Coder (JNI & Reflection used)
 # ===========================
 -keep class com.radzivon.bartoshyk.avif.** { *; }

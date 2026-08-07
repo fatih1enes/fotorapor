@@ -10,6 +10,18 @@ plugins {
     alias(libs.plugins.baselineprofile) apply false
     alias(libs.plugins.detekt) apply false
     alias(libs.plugins.ktlint) apply false
+    alias(libs.plugins.sonarqube)
+}
+
+extensions.configure<org.sonarqube.gradle.SonarExtension> {
+    properties {
+        property("sonar.projectKey", "PhotoReport")
+        property("sonar.projectName", "PhotoReport")
+        property("sonar.host.url", "https://sonarcloud.io")
+        property("sonar.kotlin.detekt.reportPaths", "**/build/reports/detekt/detekt.xml")
+        property("sonar.androidLint.reportPaths", "**/build/reports/lint-results-*.xml")
+        property("sonar.coverage.jacoco.xmlReportPaths", "**/build/reports/jacoco/test/jacocoTestReport.xml")
+    }
 }
 
 subprojects {

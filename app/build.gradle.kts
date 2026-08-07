@@ -7,6 +7,13 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.hilt.android)
     alias(libs.plugins.baselineprofile)
+    alias(libs.plugins.google.services) apply false
+    alias(libs.plugins.firebase.crashlytics) apply false
+}
+
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+    apply(plugin = "com.google.firebase.crashlytics")
 }
 
 ksp {
@@ -28,9 +35,9 @@ android {
     }
 
     signingConfigs {
-        create("release") {
-            val keystorePropertiesFile = rootProject.file("keystore.properties")
-            if (keystorePropertiesFile.exists()) {
+        val keystorePropertiesFile = rootProject.file("keystore.properties")
+        if (keystorePropertiesFile.exists()) {
+            create("release") {
                 val keystoreProperties = Properties()
                 keystoreProperties.load(FileInputStream(keystorePropertiesFile))
                 val kFile = file(keystoreProperties["storeFile"] as String)
@@ -40,6 +47,13 @@ android {
                     keyAlias = keystoreProperties["keyAlias"] as String
                     keyPassword = keystoreProperties["keyPassword"] as String
                 }
+            }
+        } else if (project.hasProperty("RELEASE_STORE_FILE")) {
+            create("release") {
+                storeFile = file(project.property("RELEASE_STORE_FILE") as String)
+                storePassword = project.property("RELEASE_STORE_PASSWORD") as String
+                keyAlias = project.property("RELEASE_KEY_ALIAS") as String
+                keyPassword = project.property("RELEASE_KEY_PASSWORD") as String
             }
         }
     }
@@ -53,12 +67,19 @@ android {
                 "proguard-rules.pro",
             )
             val releaseConfig = signingConfigs.findByName("release")
-            signingConfig =
-                if (releaseConfig?.storeFile?.exists() == true) {
-                    releaseConfig
-                } else {
-                    signingConfigs.getByName("debug")
+            if (releaseConfig?.storeFile != null && releaseConfig.storeFile!!.exists()) {
+                signingConfig = releaseConfig
+            } else {
+                val isReleaseTask =
+                    gradle.startParameter.taskNames.toString().let {
+                        it.contains("assembleRelease") || it.contains("bundleRelease") || it.contains("publish")
+                    }
+                if (isReleaseTask) {
+                    throw GradleException(
+                        "Release build failed: keystore.properties missing or incomplete. Production builds must be signed.",
+                    )
                 }
+            }
         }
     }
     compileOptions {
@@ -172,6 +193,11 @@ dependencies {
 
     // Lifecycle Compose for collectAsStateWithLifecycle
     implementation(libs.androidx.lifecycle.runtime.compose)
+
+    // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.crashlytics)
 }
 
 kotlin {

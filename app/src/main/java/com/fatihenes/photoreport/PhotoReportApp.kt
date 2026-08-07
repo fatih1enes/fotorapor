@@ -18,6 +18,7 @@ import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.fatihenes.photoreport.worker.TrashCleanupWorker
+import com.google.firebase.crashlytics.FirebaseCrashlytics
 
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -49,19 +50,23 @@ class PhotoReportApp : Application(), SingletonImageLoader.Factory, Configuratio
             cleanupRequest,
         )
 
+        // Crashlytics configuration
+        FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(!BuildConfig.DEBUG)
+
         if (BuildConfig.DEBUG) {
             StrictMode.setThreadPolicy(
                 StrictMode.ThreadPolicy.Builder()
-                    .detectDiskReads()
-                    .detectDiskWrites()
-                    .detectNetwork()
+                    .detectAll() // Detects disk reads, writes, network, and custom slow calls
                     .penaltyLog()
+                    .penaltyFlashScreen()
                     .build()
             )
             StrictMode.setVmPolicy(
                 StrictMode.VmPolicy.Builder()
-                    .detectLeakedSqlLiteObjects()
-                    .detectLeakedClosableObjects()
+                    .detectLeakedRegistrationObjects()
+                    .detectActivityLeaks()
+                    .detectFileUriExposure()
+                    .detectContentUriWithoutPermission()
                     .penaltyLog()
                     .build()
             )

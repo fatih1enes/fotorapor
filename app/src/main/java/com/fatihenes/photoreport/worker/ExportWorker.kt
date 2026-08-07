@@ -6,6 +6,7 @@ import androidx.core.app.NotificationCompat
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import androidx.work.workDataOf
+import androidx.work.ForegroundInfo
 import com.fatihenes.photoreport.R
 import com.fatihenes.photoreport.repository.AppRepository
 import com.fatihenes.photoreport.core.export.HtmlExporter
@@ -29,40 +30,62 @@ class ExportWorker @AssistedInject constructor(
 
     companion object {
         private const val PROGRESS_NOTIFICATION_ID = 1001
+        private const val CHANNEL_ID = "export_channel"
+    }
+
+    override suspend fun getForegroundInfo(): ForegroundInfo {
+        return ForegroundInfo(
+            PROGRESS_NOTIFICATION_ID,
+            createNotification(context.getString(R.string.export_notif_title), "")
+        )
+    }
+
+    private fun createNotification(
+        title: String,
+        content: String,
+        current: Int = 0,
+        total: Int = 0
+    ): android.app.Notification {
+        val channel = android.app.NotificationChannel(
+            CHANNEL_ID,
+            "Export Service",
+            android.app.NotificationManager.IMPORTANCE_LOW
+        )
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+        notificationManager.createNotificationChannel(channel)
+
+        val appIcon = getAppIconBitmap()
+
+        return NotificationCompat.Builder(context, CHANNEL_ID)
+            .setContentTitle(title)
+            .setContentText(content)
+            .setSmallIcon(R.drawable.ic_stat_logo)
+            .setLargeIcon(appIcon)
+            .setOngoing(true)
+            .apply {
+                if (total > 0) {
+                    setProgress(total, current, false)
+                }
+            }
+            .build()
     }
 
     private fun showProgressNotification(projectName: String, current: Int = 0, total: Int = 0) {
         try {
-            val channelId = "export_channel"
-            val channel = android.app.NotificationChannel(
-                channelId,
-                "Export Service",
-                android.app.NotificationManager.IMPORTANCE_LOW
-            )
-            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
-            notificationManager.createNotificationChannel(channel)
-
-            val appIcon = getAppIconBitmap()
-
             val contentText = if (total > 0) {
                 context.getString(R.string.export_progress_text, current, total)
             } else {
                 context.getString(R.string.export_notif_text, projectName)
             }
 
-            val notification = NotificationCompat.Builder(context, channelId)
-                .setContentTitle(context.getString(R.string.export_notif_title))
-                .setContentText(contentText)
-                .setSmallIcon(R.drawable.ic_stat_logo)
-                .setLargeIcon(appIcon)
-                .setOngoing(true)
-                .apply {
-                    if (total > 0) {
-                        setProgress(total, current, false)
-                    }
-                }
-                .build()
+            val notification = createNotification(
+                context.getString(R.string.export_notif_title),
+                contentText,
+                current,
+                total
+            )
 
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
             notificationManager.notify(PROGRESS_NOTIFICATION_ID, notification)
         } catch (e: Exception) {
             Log.w("ExportWorker", "Progress notification could not be shown: ${e.message}")
@@ -80,6 +103,10 @@ class ExportWorker @AssistedInject constructor(
         try {
             val projectId = inputData.getLong("project_id", -1)
             val projectName = inputData.getString("project_name") ?: "Proje"
+
+            // Set as foreground service for long-running export
+            setForeground(getForegroundInfo())
+
             showProgressNotification(projectName)
             val format = inputData.getString("format") ?: return@withContext Result.failure()
             val quality = inputData.getInt("quality", 100)

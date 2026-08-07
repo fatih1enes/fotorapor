@@ -11,7 +11,7 @@ fun <T, K> Flow<T>.groupBy(keySelector: (T) -> K): Flow<Flow<T>> = flow {
         val key = keySelector(item)
         var groupFlow = groups[key]
         if (groupFlow == null) {
-            groupFlow = MutableSharedFlow(extraBufferCapacity = 10)
+            groupFlow = MutableSharedFlow(replay = 1, extraBufferCapacity = 10)
             groups[key] = groupFlow
             emit(groupFlow)
         }
