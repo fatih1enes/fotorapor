@@ -37,20 +37,25 @@ fun NavGraphBuilder.dashboardRoute(
     language: String
 ) {
     composable(Routes.DASHBOARD) {
-        val context = LocalContext.current
         val dashboardViewModel: DashboardViewModel = hiltViewModel()
         val projects by dashboardViewModel.projects.collectAsStateWithLifecycle()
         val actionState by dashboardViewModel.projectActionState.collectAsStateWithLifecycle()
         val isTrashNotEmpty by dashboardViewModel.isTrashNotEmpty.collectAsStateWithLifecycle()
         val isRefreshing by dashboardViewModel.isRefreshing.collectAsStateWithLifecycle()
 
+        val context = LocalContext.current
+
         LaunchedEffect(actionState) {
-            if (actionState is UiState.Success) {
-                scope.launch { snackbarHostState.showSnackbar(context.getString(R.string.project_added_success)) }
-                dashboardViewModel.resetProjectActionState()
-            } else if (actionState is UiState.Error) {
-                scope.launch { snackbarHostState.showSnackbar((actionState as UiState.Error).message) }
-                dashboardViewModel.resetProjectActionState()
+            when (actionState) {
+                is UiState.Success -> {
+                    snackbarHostState.showSnackbar(context.getString(R.string.project_added_success))
+                    dashboardViewModel.resetProjectActionState()
+                }
+                is UiState.Error -> {
+                    snackbarHostState.showSnackbar((actionState as UiState.Error).message)
+                    dashboardViewModel.resetProjectActionState()
+                }
+                else -> {}
             }
         }
 

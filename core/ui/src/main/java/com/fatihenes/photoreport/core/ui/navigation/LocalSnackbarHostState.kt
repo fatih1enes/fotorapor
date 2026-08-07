@@ -4,5 +4,5 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.staticCompositionLocalOf
 
 val LocalSnackbarHostState = staticCompositionLocalOf<SnackbarHostState> {
-    error("No SnackbarHostState provided")
+    error("LocalSnackbarHostState provide edilmedi! AppNavGraph kontrol edilmeli.")
 }

@@ -1,5 +1,6 @@
 package com.fatihenes.photoreport
 
+import androidx.activity.viewModels
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -14,29 +15,28 @@ import com.fatihenes.photoreport.ui.navigation.AppNavGraph
 import com.fatihenes.photoreport.ui.theme.PhotoReportTheme
 import com.fatihenes.photoreport.ui.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+
+    private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-
         setContent {
-            val viewModel: MainViewModel = hiltViewModel()
             val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
             val language by viewModel.language.collectAsStateWithLifecycle()
 
-            // The preference previously lived only in DataStore, so Compose kept
-            // reading the device locale instead of the app language selection.
             LaunchedEffect(language) {
-                val requestedLocales = LocaleListCompat.forLanguageTags(language)
-                if (AppCompatDelegate.getApplicationLocales() != requestedLocales) {
-                    AppCompatDelegate.setApplicationLocales(requestedLocales)
+                if (language.isNotBlank()) {
+                    val requestedLocales = LocaleListCompat.forLanguageTags(language)
+                    if (AppCompatDelegate.getApplicationLocales() != requestedLocales) {
+                        AppCompatDelegate.setApplicationLocales(requestedLocales)
+                    }
                 }
             }
 

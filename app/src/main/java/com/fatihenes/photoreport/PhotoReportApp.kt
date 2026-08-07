@@ -50,8 +50,13 @@ class PhotoReportApp : Application(), SingletonImageLoader.Factory, Configuratio
             cleanupRequest,
         )
 
-        // Crashlytics configuration
-        FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(!BuildConfig.DEBUG)
+        // Crashlytics configuration - Only if Firebase is initialized
+        try {
+            com.google.firebase.FirebaseApp.getInstance()
+            FirebaseCrashlytics.getInstance().setCrashlyticsCollectionEnabled(!BuildConfig.DEBUG)
+        } catch (_: Exception) {
+            // Firebase not initialized, skip Crashlytics setup
+        }
 
         if (BuildConfig.DEBUG) {
             StrictMode.setThreadPolicy(

@@ -286,20 +286,22 @@ fun ProjectDetailDialogs(
     }
 
     selectedPhotoForFullView?.let { photoId ->
-        val index = allProjectPhotos.indexOfFirst { it.id == photoId }.coerceAtLeast(0)
-        AnimatedVisibility(
-            visible = true,
-            enter = fadeIn(tween(250)) + scaleIn(initialScale = 0.92f, animationSpec = tween(250)),
-            exit = fadeOut(tween(200)) + scaleOut(targetScale = 0.92f, animationSpec = tween(200)),
-            modifier = Modifier.fillMaxSize()
-        ) {
-            FullScreenPhotoDialog(
-                photoList = allProjectPhotos,
-                initialIndex = index,
-                onDismiss = onPhotoViewDismiss,
-                onDelete = onDeletePhoto,
-                onUpdateRotation = onUpdateRotation
-            )
+        val index = allProjectPhotos.indexOfFirst { it.id == photoId }
+        if (index != -1 && allProjectPhotos.isNotEmpty()) {
+            AnimatedVisibility(
+                visible = true,
+                enter = fadeIn(tween(250)) + scaleIn(initialScale = 0.92f, animationSpec = tween(250)),
+                exit = fadeOut(tween(200)) + scaleOut(targetScale = 0.92f, animationSpec = tween(200)),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                FullScreenPhotoDialog(
+                    photoList = allProjectPhotos,
+                    initialIndex = index,
+                    onDismiss = onPhotoViewDismiss,
+                    onDelete = onDeletePhoto,
+                    onUpdateRotation = onUpdateRotation
+                )
+            }
         }
     }
 }

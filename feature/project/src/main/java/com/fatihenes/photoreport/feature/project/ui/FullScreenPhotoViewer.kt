@@ -192,37 +192,41 @@ private fun PhotoViewerTopAppBar(
 @Composable
 private fun VideoPlayerItem(photo: Photo, isPageActive: Boolean) {
     val context = LocalContext.current
-    val exoPlayer = remember {
-        androidx.media3.exoplayer.ExoPlayer.Builder(context).build().apply {
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    var exoPlayer by remember { mutableStateOf<androidx.media3.exoplayer.ExoPlayer?>(null) }
+
+    DisposableEffect(photo.filePath) {
+        val player = androidx.media3.exoplayer.ExoPlayer.Builder(context).build().apply {
             setMediaItem(androidx.media3.common.MediaItem.fromUri(photo.filePath.toUri()))
             repeatMode = androidx.media3.common.Player.REPEAT_MODE_ALL
             prepare()
             playWhenReady = false
         }
+        exoPlayer = player
+
+        onDispose {
+            player.release()
+            exoPlayer = null
+        }
     }
 
-    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     DisposableEffect(exoPlayer, lifecycleOwner) {
         val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
             when (event) {
-                androidx.lifecycle.Lifecycle.Event.ON_PAUSE -> exoPlayer.pause()
-                androidx.lifecycle.Lifecycle.Event.ON_RESUME -> if (isPageActive) exoPlayer.play()
-                androidx.lifecycle.Lifecycle.Event.ON_DESTROY -> exoPlayer.release()
+                androidx.lifecycle.Lifecycle.Event.ON_PAUSE -> exoPlayer?.pause()
+                androidx.lifecycle.Lifecycle.Event.ON_RESUME -> if (isPageActive) exoPlayer?.play()
                 else -> {}
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-            exoPlayer.release()
-        }
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    LaunchedEffect(isPageActive) {
-        if (isPageActive) exoPlayer.play() else exoPlayer.pause()
+    LaunchedEffect(isPageActive, exoPlayer) {
+        if (isPageActive) exoPlayer?.play() else exoPlayer?.pause()
     }
 
-    if (isPageActive) {
+    if (isPageActive && exoPlayer != null) {
         AndroidView(
             factory = { ctx ->
                 androidx.media3.ui.PlayerView(ctx).apply {
@@ -235,12 +239,17 @@ private fun VideoPlayerItem(photo: Photo, isPageActive: Boolean) {
             modifier = Modifier.fillMaxSize()
         )
     } else {
-        Box(modifier = Modifier.fillMaxSize().background(Color.Black), contentAlignment = Alignment.Center) {
-            Icon(
-                imageVector = Icons.Default.PlayArrow, contentDescription = null, tint = Color.White.copy(alpha = 0.6f),
-                modifier = Modifier.size(72.dp).background(Color.White.copy(alpha = 0.1f), CircleShape).padding(FotoRaporTokens.SpacingL)
-            )
-        }
+        VideoPlaceholder()
+    }
+}
+
+@Composable
+private fun VideoPlaceholder() {
+    Box(modifier = Modifier.fillMaxSize().background(Color.Black), contentAlignment = Alignment.Center) {
+        Icon(
+            imageVector = Icons.Default.PlayArrow, contentDescription = null, tint = Color.White.copy(alpha = 0.6f),
+            modifier = Modifier.size(72.dp).background(Color.White.copy(alpha = 0.1f), CircleShape).padding(FotoRaporTokens.SpacingL)
+        )
     }
 }
 
