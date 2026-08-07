@@ -12,7 +12,7 @@ out/
 app/build/
 core/common/build/
 core/database/build/
-baselineProfile/build/
+baselineprofile/build/
 captures/
 *.apk
 *.aar
