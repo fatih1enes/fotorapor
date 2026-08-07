@@ -2,7 +2,6 @@
 package com.fatihenes.photoreport.feature.export.ui
 
 import androidx.compose.animation.*
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -25,8 +24,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion
 import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporTokens
+import com.fatihenes.photoreport.core.designsystem.theme.PetrolPrimary
 import com.fatihenes.photoreport.core.designsystem.theme.WarningColor
 import com.fatihenes.photoreport.core.ui.R
 import com.fatihenes.photoreport.core.model.DailyLogWithPhotos
@@ -124,7 +123,7 @@ fun ExportDialog(
                     title = "PDF",
                     description = stringResource(R.string.export_pdf_desc),
                     isSelected = selectedFormat == ExportFormat.PDF,
-                    accentColor = Color(0xFFDC2626),
+                    accentColor = Color(0xFFB23327),
                     onClick = { selectedFormat = ExportFormat.PDF }
                 )
                 FormatCard(
@@ -133,7 +132,7 @@ fun ExportDialog(
                     title = "ZIP",
                     description = stringResource(R.string.export_zip_desc),
                     isSelected = selectedFormat == ExportFormat.ZIP,
-                    accentColor = Color(0xFF2563EB),
+                    accentColor = PetrolPrimary,
                     onClick = { selectedFormat = ExportFormat.ZIP }
                 )
             }
@@ -143,8 +142,8 @@ fun ExportDialog(
             // Quality & Summary (expandable)
             AnimatedVisibility(
                 visible = selectedFormat != null,
-                enter = expandVertically(animationSpec = tween(FotoRaporMotion.DurationLong, easing = FotoRaporMotion.EasingEmphasized)) + fadeIn(),
-                exit = shrinkVertically(animationSpec = tween(FotoRaporMotion.DurationMedium)) + fadeOut()
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
             ) {
                 Column {
                     Text(
@@ -225,15 +224,15 @@ fun ExportDialog(
                                     }
                                 }
                             } else {
-                                InfoRow(stringResource(R.string.export_photo_label), "$photoCount " + stringResource(R.string.export_count_unit), "%.1f MB".format(totalPhotoSizeMB))
+                                InfoRow(stringResource(R.string.export_photo_label), "$photoCount adet", "%.1f MB".format(totalPhotoSizeMB))
                                 if (videoCount > 0) {
                                     if (selectedFormat == ExportFormat.PDF) {
-                                        InfoRow(stringResource(R.string.export_video_label), "$videoCount " + stringResource(R.string.export_count_unit) + " (" + stringResource(R.string.export_video_unplayable) + ")", stringResource(R.string.export_not_included) + " (0.0 MB)")
+                                        InfoRow(stringResource(R.string.export_video_label), "$videoCount adet (Oynatılamaz)", "Dahil edilmez (0.0 MB)")
                                     } else {
-                                        InfoRow(stringResource(R.string.export_video_label), "$videoCount " + stringResource(R.string.export_count_unit) + " (" + stringResource(R.string.export_video_playable) + ")", "%.1f MB".format(totalVideoSizeMB))
+                                        InfoRow(stringResource(R.string.export_video_label), "$videoCount adet (Oynatılabilir)", "%.1f MB".format(totalVideoSizeMB))
                                     }
                                 }
-                                InfoRow(stringResource(R.string.export_day_label), "${logs.size} " + stringResource(R.string.export_count_unit), "")
+                                InfoRow(stringResource(R.string.export_day_label), "${logs.size} gün", "")
 
                                 HorizontalDivider(
                                     modifier = Modifier.padding(vertical = FotoRaporTokens.SpacingS),

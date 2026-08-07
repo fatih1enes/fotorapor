@@ -15,5 +15,6 @@
   ~ limitations under the License.
   -->
 <resources>
-    <color name="ic_launcher_background">#FFFFFF</color>
+    <!-- FotoRapor marka rengi — Ink Indigo 700 -->
+    <color name="ic_launcher_background">#262C58</color>
 </resources>

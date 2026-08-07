@@ -4,6 +4,13 @@ import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.fatihenes.photoreport.core.database.AppDatabase
+import com.fatihenes.photoreport.core.database.DailyLogDao
+import com.fatihenes.photoreport.core.database.DailyLogEntity
+import com.fatihenes.photoreport.core.database.PhotoDao
+import com.fatihenes.photoreport.core.database.PhotoEntity
+import com.fatihenes.photoreport.core.database.ProjectDao
+import com.fatihenes.photoreport.core.database.ProjectEntity
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -51,24 +58,24 @@ class DatabaseTest {
     fun testCascadeDelete() = runBlocking {
         // 1. Create Project
         val projectId = projectDao.insertProject(ProjectEntity(name = "Project X", colorHex = "#000"))
-        
+
         // 2. Create Log
         val logId = dailyLogDao.insertLog(DailyLogEntity(projectId = projectId, date = System.currentTimeMillis(), note = "Note"))
-        
+
         // 3. Create Photo
         photoDao.insertPhoto(PhotoEntity(logId = logId, filePath = "/path/to/img.jpg"))
-        
+
         // 4. Verify linked data exists
         val logs = dailyLogDao.getLogsForProjectSuspend(projectId)
         assertEquals(1, logs.size)
-        
+
         // 5. Hard delete project
         projectDao.hardDeleteProjectById(projectId)
-        
+
         // 6. Verify logs and photos are gone due to CASCADE
         val logsAfter = dailyLogDao.getLogsForProjectSuspend(projectId)
         assertTrue("Logs should be deleted by cascade", logsAfter.isEmpty())
-        
+
         val photosAfter = photoDao.getPhotosForLog(logId).first()
         assertTrue("Photos should be deleted by cascade", photosAfter.isEmpty())
     }
@@ -76,12 +83,12 @@ class DatabaseTest {
     @Test
     fun testSoftDelete() = runBlocking {
         val projectId = projectDao.insertProject(ProjectEntity(name = "Soft Delete Test", colorHex = "#000"))
-        
+
         projectDao.softDeleteProjectById(projectId, System.currentTimeMillis())
-        
+
         val activeProjects = projectDao.getAllProjects().first()
         assertTrue("Should not be in active projects", activeProjects.none { it.id == projectId })
-        
+
         val deletedProjects = projectDao.getDeletedProjects().first()
         assertTrue("Should be in deleted projects", deletedProjects.any { it.id == projectId })
     }

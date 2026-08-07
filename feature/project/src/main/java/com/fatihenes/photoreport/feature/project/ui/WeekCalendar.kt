@@ -4,7 +4,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -62,10 +61,6 @@ fun WeekCalendar(
             currentWeekDays.forEach { date ->
                 val isToday = date == LocalDate.now()
                 val isSelected = date == selectedDay
-                val hasLogs = remember(existingLogDates) {
-                    val targetMillis = com.fatihenes.photoreport.core.common.util.DateUtils.getStartOfDayEpochMillis(date)
-                    existingLogDates.contains(targetMillis)
-                }
 
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -73,7 +68,7 @@ fun WeekCalendar(
                         .weight(1f)
                         .clip(RoundedCornerShape(FotoRaporTokens.RadiusS))
                         .background(
-                            if (isSelected) projectColor.copy(alpha = 0.12f)
+                            if (isSelected) projectColor.copy(alpha = 0.15f)
                             else Color.Transparent
                         )
                         .clickable {
@@ -81,41 +76,32 @@ fun WeekCalendar(
                             selectedDay = date
                             onDateSelected(date)
                         }
-                        .padding(vertical = 10.dp)
+                        .padding(vertical = 8.dp)
                 ) {
                     Text(
                         text = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault()).uppercase(),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
-                        fontSize = 9.sp,
-                        color = if (isSelected) projectColor else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
-                        letterSpacing = 1.sp
+                        fontSize = 10.sp,
+                        color = if (isSelected) projectColor else MaterialTheme.colorScheme.onSurfaceVariant
                     )
-                    Spacer(modifier = Modifier.height(6.dp))
+                    Spacer(modifier = Modifier.height(4.dp))
                     Box(
                         modifier = Modifier
-                            .size(34.dp)
+                            .size(32.dp)
                             .background(
                                 if (isSelected) projectColor
                                 else if (isToday) MaterialTheme.colorScheme.surfaceContainerHigh
                                 else Color.Transparent,
-                                RoundedCornerShape(FotoRaporTokens.RadiusS)
+                                RoundedCornerShape(FotoRaporTokens.RadiusXS)
                             ),
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
                             text = "${date.dayOfMonth}",
                             style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = if (isSelected || isToday) FontWeight.Black else FontWeight.SemiBold,
+                            fontWeight = if (isSelected || isToday) FontWeight.Bold else FontWeight.Medium,
                             color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                    if (hasLogs && !isSelected) {
-                        Spacer(modifier = Modifier.height(4.dp))
-                        Box(
-                            modifier = Modifier
-                                .size(4.dp)
-                                .background(projectColor, CircleShape)
                         )
                     }
                 }

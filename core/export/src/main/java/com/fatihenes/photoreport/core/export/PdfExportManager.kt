@@ -25,6 +25,7 @@ import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@Suppress("AndroidLintAppBundleLocaleChanges")
 interface PdfExportManager {
     suspend fun exportToPdf(
         project: ProjectEntity,
@@ -58,7 +59,7 @@ class NativePdfExportManager @Inject constructor(
             pdfDocument = PdfDocument()
             val sortedLogs = logs.sortedBy { it.log.date }
 
-            val typography = PdfTypography()
+            val typography = PdfTypography(context)
             val pageWidth = PdfTheme.PAGE_WIDTH
             val pageHeight = PdfTheme.PAGE_HEIGHT
             val margin = PdfTheme.MARGIN
@@ -96,7 +97,7 @@ class NativePdfExportManager @Inject constructor(
             fun closeAndStartNewPage(): Float {
                 PdfStyle.drawFooter(canvas, pageNumber, language, typography)
                 pdfDocument.finishPage(currentPage)
-                
+
                 pageNumber++
                 pageInfo = PdfDocument.PageInfo.Builder(pageWidth, pageHeight, pageNumber).create()
                 currentPage = pdfDocument.startPage(pageInfo)
@@ -163,10 +164,10 @@ class NativePdfExportManager @Inject constructor(
                             ImageProcessor.openInputStreamSafe(context, photo.filePath)?.use { input ->
                                 BitmapFactory.decodeStream(input, null, boundsOptions)
                             }
-                            
+
                             val photoW = boundsOptions.outWidth
                             val photoH = boundsOptions.outHeight
-                            
+
                             val layoutResult = layoutHelper.calculateSlot(photoW, photoH)
                             if (layoutResult.isNewPageRequired) {
                                 currentY = closeAndStartNewPage()
@@ -184,7 +185,7 @@ class NativePdfExportManager @Inject constructor(
                             android.util.Log.e("PdfExport", "Photo rendering failed", e)
                         }
                     }
-                    
+
                     if (layoutHelper.getCurrentColumn() > 0) {
                         currentY += (PdfTheme.IMAGE_HEIGHT + PdfTheme.GRID_SPACING)
                         layoutHelper.updateY(currentY)
@@ -262,7 +263,7 @@ class NativePdfExportManager @Inject constructor(
                 activeBitmap.let { bmp ->
                     val captionPrefix = if (language == "en") "Photo" else "Görsel"
                     val captionText = "$captionPrefix #$photoIndex • ${DateUtils.formatDate(date, language)}"
-                    
+
                     PdfStyle.drawPhotoFrame(
                         canvas = canvas,
                         bitmap = bmp,

@@ -5,10 +5,7 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.fatihenes.photoreport.core.database.DailyLogDao
-import com.fatihenes.photoreport.core.database.DailyLogEntity
-import com.fatihenes.photoreport.core.database.PhotoDao
-import com.fatihenes.photoreport.core.database.PhotoEntity
+import com.fatihenes.photoreport.core.database.*
 import com.fatihenes.photoreport.core.common.util.DateUtils
 import com.fatihenes.photoreport.util.MediaProcessor
 import com.fatihenes.photoreport.core.model.WatermarkData
@@ -33,13 +30,13 @@ class PhotoProcessingWorker @AssistedInject constructor(
     }
 
     override suspend fun doWork(): Result {
-        var finalResult: Result = Result.failure()
-        val uriString = inputData.getString("uri")
+        val uriString = inputData.getString("uri") ?: return Result.failure()
+        val uri = uriString.toUri()
         val projectId = inputData.getLong("projectId", -1L)
         val logId = inputData.getLong("logId", -1L)
         val enableAvif = inputData.getBoolean("enableAvif", true)
         val projectName = inputData.getString("projectName") ?: ""
-
+        
         val hasWatermark = inputData.getBoolean("hasWatermark", false)
         val watermarkData = if (hasWatermark) {
             WatermarkData(
@@ -52,41 +49,36 @@ class PhotoProcessingWorker @AssistedInject constructor(
         } else null
 
         try {
-            if (uriString != null) {
-                val uri = uriString.toUri()
-
-                val watermarkedUri = if (watermarkData != null) {
-                    watermarkRenderer.applyWatermark(appContext, uri, watermarkData)
-                } else {
-                    uri
-                }
-
-                val finalUri = mediaProcessor.processAndOptimize(watermarkedUri, enableAvif, projectName)
-
-                val targetLogId = if (logId != -1L) {
-                    logId
-                } else {
-                    val today = DateUtils.getStartOfDayEpochMillis()
-                    logCreationMutex.withLock {
-                        val log = dailyLogDao.getLogForDate(projectId, today)
-                        log?.id ?: dailyLogDao.insertLog(
-                            DailyLogEntity(projectId = projectId, date = today, note = "")
-                        )
-                    }
-                }
-
-                photoDao.insertPhoto(PhotoEntity(logId = targetLogId, filePath = finalUri.toString()))
-                finalResult = Result.success()
+            val watermarkedUri = if (watermarkData != null) {
+                watermarkRenderer.applyWatermark(appContext, uri, watermarkData)
             } else {
-                finalResult = Result.failure()
+                uri
             }
+
+            val finalUri = mediaProcessor.processAndOptimize(watermarkedUri, enableAvif, projectName)
+
+            val targetLogId = if (logId != -1L) {
+                logId
+            } else {
+                val today = DateUtils.getStartOfDayEpochMillis()
+                logCreationMutex.withLock {
+                    val log = dailyLogDao.getLogForDate(projectId, today)
+                    log?.id ?: dailyLogDao.insertLog(
+                        DailyLogEntity(projectId = projectId, date = today, note = "")
+                    )
+                }
+            }
+
+            photoDao.insertPhoto(PhotoEntity(logId = targetLogId, filePath = finalUri.toString()))
+            return Result.success()
         } catch (e: kotlinx.coroutines.CancellationException) {
             throw e
         } catch (e: Exception) {
             android.util.Log.e("PhotoProcessingWorker", "Background photo save failed", e)
-            finalResult = if (runAttemptCount < 3) Result.retry() else Result.failure()
+            if (runAttemptCount < 3) {
+                return Result.retry()
+            }
+            return Result.failure()
         }
-
-        return finalResult
     }
 }

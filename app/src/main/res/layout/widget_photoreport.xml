@@ -25,7 +25,7 @@
             android:layout_height="wrap_content"
             android:text="@string/widget_active_project"
             android:textSize="11sp"
-            android:textColor="#999999" />
+            android:textColor="#C4BFB2" />
 
         <TextView
             android:id="@+id/widget_project_name"
@@ -53,7 +53,7 @@
         android:drawablePadding="1dp"
         android:text="@string/widget_images"
         android:textSize="11sp"
-        android:textColor="#AAAAAA" />
+        android:textColor="#C4BFB2" />
 
     <!-- SAĞ: Kamera Butonu → Fotoğraf Çek -->
     <FrameLayout

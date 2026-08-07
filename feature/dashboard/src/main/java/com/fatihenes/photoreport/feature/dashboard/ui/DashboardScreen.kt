@@ -1,8 +1,9 @@
 package com.fatihenes.photoreport.feature.dashboard.ui
 
-import androidx.compose.animation.*
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -41,7 +42,6 @@ import com.fatihenes.photoreport.core.ui.R
 import com.fatihenes.photoreport.core.ui.components.AppEmptyState
 import com.fatihenes.photoreport.core.ui.components.HeroStatChip
 import com.fatihenes.photoreport.core.ui.components.PillSegmentedControl
-import com.fatihenes.photoreport.core.ui.util.shimmerEffect
 import com.fatihenes.photoreport.feature.dashboard.components.MonthlyCalendar
 import java.time.LocalDate
 
@@ -122,7 +122,7 @@ fun DashboardScreen(
                             Column {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Text(
-                                        text = stringResource(R.string.app_logo_title),
+                                        text = "FOTORAPOR",
                                         style = MaterialTheme.typography.titleLarge,
                                         fontWeight = FontWeight.Black,
                                         letterSpacing = 1.5.sp,
@@ -146,7 +146,7 @@ fun DashboardScreen(
                                             )
                                             Spacer(modifier = Modifier.width(4.dp))
                                             Text(
-                                                text = stringResource(R.string.dashboard_saha_mode),
+                                                text = "SAHA MODU",
                                                 style = MaterialTheme.typography.labelSmall,
                                                 fontWeight = FontWeight.Bold,
                                                 color = MaterialTheme.colorScheme.onTertiaryContainer,
@@ -156,7 +156,7 @@ fun DashboardScreen(
                                     }
                                 }
                                 Text(
-                                    text = stringResource(R.string.dashboard_subtitle),
+                                    text = "Saha Raporlama & Fotoğraf Yönetimi",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
@@ -203,8 +203,8 @@ fun DashboardScreen(
                             )
                             HeroStatChip(
                                 icon = Icons.Default.CalendarMonth,
-                                label = stringResource(R.string.dashboard_tab_calendar),
-                                value = stringResource(R.string.dashboard_stat_days_format, activityDots.size),
+                                label = "Saha Takvimi",
+                                value = "${activityDots.size} Gün",
                                 accentColor = MaterialTheme.colorScheme.tertiary,
                                 modifier = Modifier.weight(1f)
                             )
@@ -220,7 +220,7 @@ fun DashboardScreen(
                             itemTitle = { mode ->
                                 when (mode) {
                                     DashboardViewMode.PROJECTS -> stringResource(R.string.my_projects_title)
-                                    DashboardViewMode.CALENDAR -> stringResource(R.string.dashboard_tab_calendar)
+                                    DashboardViewMode.CALENDAR -> "Saha Takvimi"
                                 }
                             }
                         )
@@ -255,7 +255,7 @@ fun DashboardScreen(
                         }
                     }
 
-                    if (projects.isEmpty() && !isRefreshing) {
+                    if (projects.isEmpty()) {
                         item(key = "projects_empty_state") {
                             AppEmptyState(
                                 icon = Icons.Default.FolderOpen,
@@ -264,12 +264,6 @@ fun DashboardScreen(
                                 actionLabel = stringResource(R.string.empty_projects_action),
                                 onActionClick = { showAddDialog = true }
                             )
-                        }
-                    }
-
-                    if (isRefreshing && projects.isEmpty()) {
-                        items(5) {
-                            ProjectShimmerItem()
                         }
                     }
 
@@ -319,29 +313,6 @@ fun DashboardScreen(
         ) { name, color ->
             onAddProject(name, color)
             showAddDialog = false
-        }
-    }
-}
-
-@Composable
-private fun ProjectShimmerItem() {
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = FotoRaporTokens.ScreenPaddingHorizontal, vertical = FotoRaporTokens.SpacingS)
-            .height(84.dp),
-        shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
-        color = MaterialTheme.colorScheme.surface,
-        border = BorderStroke(FotoRaporTokens.CardBorderWidth, MaterialTheme.colorScheme.outlineVariant)
-    ) {
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(FotoRaporTokens.SpacingL)) {
-            Box(modifier = Modifier.size(52.dp).clip(RoundedCornerShape(FotoRaporTokens.RadiusS)).shimmerEffect())
-            Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingL))
-            Column(modifier = Modifier.weight(1f)) {
-                Box(modifier = Modifier.fillMaxWidth(0.6f).height(16.dp).shimmerEffect())
-                Spacer(modifier = Modifier.height(8.dp))
-                Box(modifier = Modifier.fillMaxWidth(0.3f).height(12.dp).shimmerEffect())
-            }
         }
     }
 }
@@ -399,7 +370,7 @@ private fun ProjectFolderItem(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.96f else 1.0f,
+        targetValue = if (isPressed) 0.98f else 1.0f,
         animationSpec = FotoRaporMotion.pressSpring(),
         label = "card_scale"
     )
@@ -418,7 +389,7 @@ private fun ProjectFolderItem(
             .clip(RoundedCornerShape(FotoRaporTokens.RadiusM))
             .clickable(
                 interactionSource = interactionSource,
-                indication = ripple(),
+                indication = null,
                 onClick = {
                     haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                     onClick()
@@ -429,14 +400,13 @@ private fun ProjectFolderItem(
         border = BorderStroke(
             FotoRaporTokens.CardBorderWidth,
             MaterialTheme.colorScheme.outlineVariant
-        ),
-        tonalElevation = FotoRaporTokens.ElevationXS
+        )
     ) {
         Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
             // Left Accent Edge Bar
             Box(
                 modifier = Modifier
-                    .width(4.dp)
+                    .width(6.dp)
                     .fillMaxHeight()
                     .background(projectColor)
             )
@@ -449,7 +419,7 @@ private fun ProjectFolderItem(
             ) {
                 // Color Folder Icon Badge
                 Surface(
-                    modifier = Modifier.size(52.dp),
+                    modifier = Modifier.size(46.dp),
                     shape = RoundedCornerShape(FotoRaporTokens.RadiusS),
                     color = projectColor.copy(alpha = 0.12f)
                 ) {
@@ -458,7 +428,7 @@ private fun ProjectFolderItem(
                             Icons.Default.Folder,
                             contentDescription = null,
                             tint = projectColor,
-                            modifier = Modifier.size(FotoRaporTokens.IconSizeM + 2.dp)
+                            modifier = Modifier.size(FotoRaporTokens.IconSizeM)
                         )
                     }
                 }
@@ -470,22 +440,28 @@ private fun ProjectFolderItem(
                         text = project.name,
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        maxLines = 1,
-                        overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                        color = MaterialTheme.colorScheme.onSurface
                     )
-                    Spacer(modifier = Modifier.height(2.dp))
-                    Text(
-                        text = stringResource(R.string.folder_summary),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                    )
+                    Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXXS))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Surface(
+                            shape = RoundedCornerShape(100.dp),
+                            color = MaterialTheme.colorScheme.surfaceContainerHigh
+                        ) {
+                            Text(
+                                text = "Saha Klasörü",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
+                            )
+                        }
+                    }
                 }
 
                 Icon(
                     Icons.AutoMirrored.Filled.ArrowForwardIos,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.3f),
+                    contentDescription = stringResource(R.string.my_projects_title),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f),
                     modifier = Modifier.size(FotoRaporTokens.IconSizeXS)
                 )
             }
@@ -529,7 +505,7 @@ private fun AddProjectDialog(
                 value = projectName,
                 onValueChange = { projectName = it },
                 label = { Text(stringResource(R.string.project_name_label)) },
-                placeholder = { Text(stringResource(R.string.dashboard_add_project_placeholder)) },
+                placeholder = { Text("Örn: Kadıköy Şantiyesi El. Raporu") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 shape = RoundedCornerShape(FotoRaporTokens.RadiusM)
@@ -538,7 +514,7 @@ private fun AddProjectDialog(
             Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXXL))
 
             Text(
-                text = stringResource(R.string.dashboard_add_project_color_label),
+                text = "PROJE RENK KODU",
                 style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.SemiBold,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,

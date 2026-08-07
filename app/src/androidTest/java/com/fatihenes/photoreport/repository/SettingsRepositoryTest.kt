@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStoreFile
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import com.fatihenes.photoreport.core.datastore.SettingsPreferencesDataSource
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.TestScope
@@ -33,7 +34,8 @@ class SettingsRepositoryTest {
             scope = testScope,
             produceFile = { context.preferencesDataStoreFile("test_settings") }
         )
-        repository = SettingsRepositoryImpl(testDataStore)
+        val dataSource = SettingsPreferencesDataSource(testDataStore)
+        repository = SettingsRepositoryImpl(dataSource)
     }
 
     @Test

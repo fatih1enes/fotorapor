@@ -305,18 +305,9 @@ fun CameraScreen(
         }
 
         AnimatedVisibility(
-            visible = showCaptureFeedback,
-            enter = fadeIn(tween(50)),
-            exit = fadeOut(tween(300, easing = LinearOutSlowInEasing)),
+            visible = showCaptureFeedback, enter = fadeIn(tween(50)), exit = fadeOut(tween(150)),
             modifier = Modifier.fillMaxSize()
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .background(Color.White.copy(alpha = 0.6f))
-                    .border(4.dp, Color.White.copy(alpha = 0.8f))
-            )
-        }
+        ) { Box(Modifier.fillMaxSize().background(Color.White.copy(alpha = 0.5f))) }
 
         AnimatedVisibility(
             visible = !uiState.isRecording, enter = fadeIn(), exit = fadeOut(),

@@ -63,7 +63,7 @@ class DashboardViewModel @Inject constructor(
                 throw e
             } catch (e: Exception) {
                 _projectActionState.value = UiState.Error(
-                    e.message ?: "Error",
+                    e.message ?: "Bilinmeyen bir hata oluştu",
                 )
             }
         }

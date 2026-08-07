@@ -1,72 +1,100 @@
 package com.fatihenes.photoreport.core.export.pdf
 
+import android.content.Context
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.text.TextPaint
+import androidx.core.content.res.ResourcesCompat
+import com.fatihenes.photoreport.core.export.R
 
-class PdfTypography {
+/**
+ * FotoRapor PDF Tipografisi.
+ *
+ * Müşteriye giden rapor, uygulamanın kendisiyle aynı marka fontlarını
+ * taşır: başlıklarda Space Grotesk, gövde metninde Manrope. Her iki
+ * font da bu modülün içine gömülüdür (res/font) — çevrimdışı üretim
+ * garantisi, harici bir font sağlayıcısına bağımlılık yok.
+ *
+ * Variable font ailesinden `Typeface.create(base, weight, italic)`
+ * (API 29+) ile spesifik ağırlıklar türetilir.
+ */
+class PdfTypography(context: Context) {
+
+    private val spaceGroteskBase: Typeface =
+        ResourcesCompat.getFont(context, R.font.space_grotesk_variable) ?: Typeface.DEFAULT_BOLD
+
+    private val manropeBase: Typeface =
+        ResourcesCompat.getFont(context, R.font.manrope_variable) ?: Typeface.DEFAULT
+
+    private fun display(weight: Int, italic: Boolean = false): Typeface =
+        Typeface.create(spaceGroteskBase, weight, italic)
+
+    private fun body(weight: Int, italic: Boolean = false): Typeface =
+        Typeface.create(manropeBase, weight, italic)
 
     val titlePaint = TextPaint().apply {
         color = PdfTheme.COLOR_PRIMARY_NAVY
         textSize = 18f
-        typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+        typeface = display(700)
         isAntiAlias = true
+        letterSpacing = -0.01f
     }
 
     val subtitlePaint = TextPaint().apply {
         color = PdfTheme.COLOR_ACCENT
         textSize = 10f
-        typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+        typeface = body(800)
         isAntiAlias = true
-        letterSpacing = 0.05f
+        letterSpacing = 0.08f
     }
 
     val metaHeaderPaint = TextPaint().apply {
         color = PdfTheme.COLOR_TEXT_SECONDARY
         textSize = 9.5f
-        typeface = Typeface.DEFAULT
+        typeface = body(500)
         isAntiAlias = true
     }
 
     val dateSectionPaint = TextPaint().apply {
         color = PdfTheme.COLOR_PRIMARY_NAVY
         textSize = 13f
-        typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+        typeface = display(600)
         isAntiAlias = true
     }
 
     val bodyPaint = TextPaint().apply {
         color = PdfTheme.COLOR_TEXT_PRIMARY
         textSize = 10.5f
-        typeface = Typeface.DEFAULT
+        typeface = body(400)
         isAntiAlias = true
     }
 
     val captionPaint = TextPaint().apply {
         color = PdfTheme.COLOR_TEXT_SECONDARY
         textSize = 9f
-        typeface = Typeface.create(Typeface.DEFAULT, Typeface.ITALIC)
+        typeface = body(500, italic = true)
         isAntiAlias = true
     }
 
     val pageNumPaint = TextPaint().apply {
         color = PdfTheme.COLOR_TEXT_MUTED
         textSize = 9f
-        typeface = Typeface.DEFAULT
+        typeface = body(500)
         isAntiAlias = true
     }
 
     val signOffHeaderPaint = TextPaint().apply {
         color = PdfTheme.COLOR_PRIMARY_NAVY
         textSize = 9.5f
-        typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+        typeface = body(700)
         isAntiAlias = true
+        letterSpacing = 0.04f
     }
 
     val signOffSubPaint = TextPaint().apply {
         color = PdfTheme.COLOR_TEXT_MUTED
         textSize = 8.5f
-        typeface = Typeface.DEFAULT
+        typeface = body(500)
         isAntiAlias = true
     }
 

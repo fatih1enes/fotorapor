@@ -127,6 +127,7 @@ object HtmlExporter {
         val dateFormat = SimpleDateFormat("dd MMMM yyyy", locale)
         val dateStr = dateFormat.format(Date())
 
+        val reportKicker = if (language == "en") "Field Inspection &amp; Observation Report" else "Saha Denetim ve Gözlem Raporu"
         val reportDateLabel = if (language == "en") "Report Date" else "Rapor Tarihi"
         val companyLogoAlt = if (language == "en") "Company Logo" else "Şirket Logosu"
         val videoNotSupported = if (language == "en") "Your browser does not support video playback." else "Tarayıcınız video oynatmayı desteklemiyor."
@@ -141,32 +142,44 @@ object HtmlExporter {
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
                 <title>${project.name} - ${if(language == "en") "Report" else "Rapor"}</title>
+                <link rel="preconnect" href="https://fonts.googleapis.com">
+                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+                <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
                 <style>
                     :root {
-                        --bg-color: #f8fafc;
+                        /* FotoRapor "Ink & Brass" — kurumsal kimlik */
+                        --bg-color: #FAF9F6;
                         --card-bg: #ffffff;
-                        --text-primary: #1e293b;
-                        --text-secondary: #64748b;
-                        --accent: #2563eb;
-                        --border: #e2e8f0;
+                        --text-primary: #1C1915;
+                        --text-secondary: #5A5448;
+                        --primary: #2F386F;
+                        --accent: #A6712F;
+                        --border: #DDD9CF;
+                        --shadow: 0 8px 24px -8px rgba(21, 24, 47, 0.14);
                     }
                     @media (prefers-color-scheme: dark) {
                         :root {
-                            --bg-color: #0f172a;
-                            --card-bg: #1e293b;
-                            --text-primary: #f8fafc;
-                            --text-secondary: #94a3b8;
-                            --accent: #3b82f6;
-                            --border: #334155;
+                            --bg-color: #121009;
+                            --card-bg: #1C1915;
+                            --text-primary: #F5F3EE;
+                            --text-secondary: #C4BFB2;
+                            --primary: #8B95D8;
+                            --accent: #D2A25C;
+                            --border: #423D34;
+                            --shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.45);
                         }
                     }
                     body {
-                        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+                        font-family: 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
                         background-color: var(--bg-color);
                         color: var(--text-primary);
                         line-height: 1.6;
                         margin: 0;
                         padding: 0;
+                    }
+                    h1, h2, .day-title {
+                        font-family: 'Space Grotesk', 'Manrope', sans-serif;
+                        letter-spacing: -0.02em;
                     }
                     .container {
                         max-width: 800px;
@@ -181,19 +194,31 @@ object HtmlExporter {
                         background: var(--card-bg);
                         padding: 2rem;
                         border-radius: 16px;
-                        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                        border-top: 4px solid var(--accent);
+                        box-shadow: var(--shadow);
                     }
                     .header-content {
                         flex: 1;
                     }
-                    .header h1 {
-                        font-size: 2.5rem;
-                        margin: 0 0 0.5rem 0;
+                    .header-kicker {
+                        display: inline-block;
+                        font-family: 'Manrope', sans-serif;
+                        font-size: 0.72rem;
+                        font-weight: 700;
+                        letter-spacing: 0.12em;
+                        text-transform: uppercase;
                         color: var(--accent);
+                        margin: 0 0 0.6rem 0;
+                    }
+                    .header h1 {
+                        font-size: 2.3rem;
+                        font-weight: 700;
+                        margin: 0 0 0.5rem 0;
+                        color: var(--primary);
                     }
                     .header p {
                         color: var(--text-secondary);
-                        font-size: 1.1rem;
+                        font-size: 1.05rem;
                         margin: 0;
                     }
                     .company-logo {
@@ -212,7 +237,7 @@ object HtmlExporter {
                         border-radius: 12px;
                         padding: 1.5rem;
                         margin-bottom: 2rem;
-                        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+                        box-shadow: var(--shadow);
                     }
                     .day-header {
                         display: flex;
@@ -225,6 +250,7 @@ object HtmlExporter {
                         font-size: 1.25rem;
                         font-weight: 600;
                         margin: 0;
+                        color: var(--primary);
                     }
                     .note-content {
                         font-size: 1rem;
@@ -258,6 +284,7 @@ object HtmlExporter {
                 <div class="container">
                     <div class="header">
                         <div class="header-content">
+                            <span class="header-kicker">$reportKicker</span>
                             <h1>${project.name}</h1>
                             <p>$reportDateLabel: $dateStr</p>
                         </div>

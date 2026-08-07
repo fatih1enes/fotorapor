@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="primary">#FF2563EB</color>
-    <color name="primary_dark">#FF1D4ED8</color>
-    <color name="secondary">#FF64748B</color>
+    <!-- FotoRapor "Ink & Brass" — legacy (pre-Compose) tema renkleri -->
+    <color name="primary">#FF2F386F</color>
+    <color name="primary_dark">#FF1D2242</color>
+    <color name="secondary">#FFA6712F</color>
     <color name="white">#FFFFFFFF</color>
 </resources>

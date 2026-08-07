@@ -100,7 +100,6 @@
 
     <!-- ViewModels & State -->
     <string name="error_unknown">An unknown error occurred</string>
-
     <!-- ExportWorker Notifications -->
     <string name="export_notif_title">Exporting</string>
     <string name="export_notif_text">Please wait while %s is being prepared…</string>
@@ -210,42 +209,15 @@
     <string name="widget_no_project">No Project</string>
     <string name="widget_images">Images</string>
     <string name="widget_camera_desc">Camera</string>
-
-    <!-- Empty States & Error Strings -->
     <string name="empty_projects_title">No Active Inspection Projects</string>
     <string name="empty_projects_desc">To assemble field inspection reports, you must first initialize a new project folder.</string>
     <string name="empty_projects_action">Initialize Project</string>
-
     <string name="empty_photos_title">No Photographs in Project Gallery</string>
     <string name="empty_photos_desc">There are no inspection images recorded for this project. Use the camera module to capture site findings.</string>
     <string name="empty_photos_action">Capture Site Photo</string>
-
     <string name="empty_trash_title">Recycle Bin is Empty</string>
     <string name="empty_trash_desc">Deleted field projects are temporarily staged here. Currently, there are no discarded items awaiting recovery.</string>
-
     <string name="trash_delete_confirm_title">Permanently Purge Project</string>
     <string name="trash_delete_confirm_desc">Are you sure you wish to permanently erase the selected inspection project and its associated media? This action is irreversible.</string>
     <string name="btn_confirm_delete">Confirm and Erase</string>
-
-    <!-- Hardcoded fixes -->
-    <string name="app_logo_title">PHOTOREPORT</string>
-    <string name="dashboard_saha_mode">FIELD MODE</string>
-    <string name="dashboard_subtitle">Field Reporting &amp; Photo Management</string>
-    <string name="dashboard_stat_days_format">%d Days</string>
-    <string name="dashboard_tab_calendar">Field Calendar</string>
-    <string name="dashboard_folder_tag">Field Folder</string>
-    <string name="dashboard_add_project_color_label">PROJECT COLOR CODE</string>
-    <string name="dashboard_add_project_placeholder">e.g. Site Inspection Report</string>
-    <string name="project_detail_stat_summary">%1$d Field Logs · %2$d Photos</string>
-    <string name="project_detail_get_report">Get Report</string>
-    <string name="project_detail_notif_permission_denied">Background process status cannot be shown because notification permission was not granted.</string>
-    <string name="project_detail_background_tag">(Background)</string>
-    <string name="project_detail_zip_started">ZIP export started in background. Check notifications.</string>
-    <string name="backup_error_unknown">Unknown Error</string>
-    <string name="backup_restore_error">Restore error</string>
-    <string name="camera_init_error">Camera failed to start</string>
-    <string name="export_count_unit">items</string>
-    <string name="export_video_unplayable">Unplayable</string>
-    <string name="export_video_playable">Playable</string>
-    <string name="export_not_included">Not included</string>
 </resources>

@@ -27,6 +27,4 @@ We do not collect, share, or sell any user data. The app does not use any third-
 We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page.
 
 ## 6. Contact Us
-If you have any questions about this Privacy Policy, please contact us at: replace-me@example.com
-
-> Note: Replace the above address with a real contact email before publishing to the Play Store.
+If you have any questions about this Privacy Policy, please contact us at: [Your Contact Email]

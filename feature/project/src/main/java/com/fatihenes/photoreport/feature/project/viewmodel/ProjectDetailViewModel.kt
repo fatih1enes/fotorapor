@@ -60,8 +60,6 @@ class ProjectDetailViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
     private val _noteUpdates = MutableSharedFlow<Pair<Long, String>>(extraBufferCapacity = 10)
-    private val _isSavingNotes = MutableStateFlow(false)
-    val isSavingNotes: StateFlow<Boolean> = _isSavingNotes.asStateFlow()
 
     init {
         observeNoteUpdates()
@@ -75,12 +73,10 @@ class ProjectDetailViewModel @Inject constructor(
                 .collect { groupedFlow ->
                     launch {
                         groupedFlow
-                            .onEach { _isSavingNotes.value = true }
                             .debounce(400.milliseconds)
                             .distinctUntilChanged()
                             .collect { (logId, note) ->
                                 logRepository.updateNote(logId, note)
-                                _isSavingNotes.value = false
                             }
                     }
                 }

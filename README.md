@@ -1,7 +1,7 @@
 <div align="center">
-  <h1>📸 PhotoReport (Elektrik)</h1>
+  <h1>📸 PhotoReport</h1>
   <p><strong>Next-Generation Android Suite for Field Audits, Technical Inspections & Site Documentation</strong></p>
-  
+
   <p>
     <img src="https://img.shields.io/badge/Kotlin-2.0.21-7F52FF.svg?logo=kotlin&logoColor=white" alt="Kotlin 2.0" />
     <img src="https://img.shields.io/badge/Jetpack%20Compose-Material%203-3DDC84.svg?logo=android&logoColor=white" alt="Jetpack Compose" />
@@ -17,7 +17,7 @@
 
 ## 🌟 Overview
 
-**PhotoReport** is an enterprise-grade, offline-first mobile inspection and technical documentation platform designed for engineers, field auditors, site supervisors, and project surveyors. Traditional inspection reporting requires tedious post-processing, organizing messy smartphone galleries, and transferring multi-gigabyte media files to desktop software. 
+**PhotoReport** is an enterprise-grade, offline-first mobile inspection and technical documentation platform designed for engineers, field auditors, site supervisors, and project surveyors. Traditional inspection reporting requires tedious post-processing, organizing messy smartphone galleries, and transferring multi-gigabyte media files to desktop software.
 
 PhotoReport bridges this gap by offering **instantaneous site documentation**—organizing photographic evidence and video logs directly into structured project dossiers, embedding real-time forensic GPS watermarks, utilizing state-of-the-art compression (AVIF & WebP), and exporting comprehensive visual **PDF Reports** and interactive **Web ZIP Archives** on the go.
 
@@ -66,7 +66,7 @@ graph TD
     feat_dash & feat_proj & feat_cam & feat_set & feat_trash & feat_back --> core_dom
     feat_cam & feat_set --> core_media
     feat_proj & feat_set & feat_back --> core_exp
-    
+
     %% Internal Core dependencies
     core_dom --> core_mod
     core_db --> core_mod
@@ -167,6 +167,6 @@ PhotoReport operates on a strictly **Offline-First, Zero-Telemetry** architectur
 
 ## 📄 License & Legal Notice
 
-Copyright © 2026. Distributed under the **MIT License**. 
+Copyright © 2026. Distributed under the **MIT License**.
 
 See the accompanying `LICENSE` file for distribution rights, modification allowances, and warranty limitations. For enterprise localization or licensing inquiries, please contact the development maintainers.

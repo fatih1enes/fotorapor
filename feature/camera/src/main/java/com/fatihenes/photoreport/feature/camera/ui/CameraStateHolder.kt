@@ -289,7 +289,7 @@ class CameraStateHolder(
             true
         } catch (e: Exception) {
             Log.e(TAG, "L3: All bind levels exhausted", e)
-            initializationError = e.message ?: context.getString(com.fatihenes.photoreport.core.ui.R.string.camera_init_error)
+            initializationError = e.message ?: "Kamera başlatılamadı"
             camera = null
             imageCapture = null
             videoCapture = null

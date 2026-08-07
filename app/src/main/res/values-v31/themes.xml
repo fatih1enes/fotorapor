@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
-        <!-- Background color of the splash screen -->
-        <item name="windowSplashScreenBackground">@color/white</item>
+        <!-- Background color of the splash screen — sıcak "kağıt" tonu -->
+        <item name="windowSplashScreenBackground">#FAF9F6</item>
         <!-- Center icon -->
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
         <!-- Splash screen duration (optional) -->

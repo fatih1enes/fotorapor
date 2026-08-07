@@ -1,3 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  FotoRapor Splash Logomark.
+  Ink Indigo rozet + beyaz viewfinder braketleri + Brass odak noktası.
+  ic_launcher_foreground ile aynı görsel dil, splash ekranı için
+  kendi kapalı arka planıyla (dairesel rozet) birlikte.
+-->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt"
     android:width="200dp"
@@ -5,7 +12,7 @@
     android:viewportWidth="288"
     android:viewportHeight="288">
 
-    <!-- Background Circle -->
+    <!-- Background Circle — Ink Indigo -->
     <path
         android:pathData="M 144 144 m -96 0 a 96 96 0 1 0 192 0 a 96 96 0 1 0 -192 0">
         <aapt:attr name="android:fillColor">
@@ -15,24 +22,41 @@
                 android:startY="48"
                 android:endX="240"
                 android:endY="240">
-                <item android:color="#4F46E5" android:offset="0.0" />
-                <item android:color="#3730A3" android:offset="1.0" />
+                <item android:color="#2F386F" android:offset="0.0" />
+                <item android:color="#15182F" android:offset="1.0" />
             </gradient>
         </aapt:attr>
     </path>
 
-    <!-- Camera / Folder Icon -->
-    <!-- Folder body -->
+    <!-- Viewfinder brackets -->
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M192,104h-40l-16,-16h-48c-8.8,0 -16,7.2 -16,16v80c0,8.8 7.2,16 16,16h104c8.8,0 16,-7.2 16,-16v-64C208,111.2 200.8,104 192,104z" />
+        android:strokeColor="#FFF5F3EE"
+        android:strokeWidth="9"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M90,116 L90,90 L116,90" />
+    <path
+        android:strokeColor="#FFF5F3EE"
+        android:strokeWidth="9"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M172,90 L198,90 L198,116" />
+    <path
+        android:strokeColor="#FFF5F3EE"
+        android:strokeWidth="9"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M90,172 L90,198 L116,198" />
+    <path
+        android:strokeColor="#FFF5F3EE"
+        android:strokeWidth="9"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M198,172 L198,198 L172,198" />
 
-    <!-- Camera Lens in Folder -->
+    <!-- Brass focus point -->
     <path
-        android:fillColor="#3730A3"
-        android:pathData="M 144 144 m -24 0 a 24 24 0 1 0 48 0 a 24 24 0 1 0 -48 0" />
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M 144 144 m -10 0 a 10 10 0 1 0 20 0 a 10 10 0 1 0 -20 0" />
+        android:fillColor="#D2A25C"
+        android:pathData="M 144 144 m -15 0 a 15,15 0 1 0 30 0 a 15,15 0 1 0 -30 0" />
 
 </vector>

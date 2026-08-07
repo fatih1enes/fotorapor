@@ -5,7 +5,7 @@
         <item name="colorPrimary">@color/primary</item>
         <item name="colorPrimaryVariant">@color/primary_dark</item>
         <item name="colorOnPrimary">@color/white</item>
-        <!-- Secondary brand color. -->
+        <!-- Secondary brand color (Brass). -->
         <item name="colorSecondary">@color/secondary</item>
         <item name="colorOnSecondary">@color/white</item>
         <!-- Status bar -->
@@ -14,10 +14,10 @@
         <item name="android:windowLightStatusBar">true</item>
     </style>
 
-    <!-- Splash Screen Theme (Android 12+) -->
+    <!-- Splash Screen Theme (pre-API 31 fallback) -->
     <style name="Theme.App.Starting" parent="Theme.SplashScreen">
-        <!-- Background color of the splash screen -->
-        <item name="windowSplashScreenBackground">@color/white</item>
+        <!-- Background color of the splash screen — sıcak "kağıt" tonu -->
+        <item name="windowSplashScreenBackground">#FAF9F6</item>
         <!-- Center icon -->
         <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
         <!-- Splash screen duration (optional) -->
