@@ -25,7 +25,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "PhotoReport"
 include(":app")
-include(":baselineProfile")
+include(":baselineprofile")
 include(":core:common")
 include(":core:database")
 include(":core:model")
