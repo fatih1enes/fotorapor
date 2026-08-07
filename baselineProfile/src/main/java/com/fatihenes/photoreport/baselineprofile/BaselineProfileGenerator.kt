@@ -38,6 +38,10 @@ import org.junit.runner.RunWith
 @LargeTest
 class BaselineProfileGenerator {
 
+    private companion object {
+        private const val TIMEOUT = 3_000L
+    }
+
     @get:Rule
     val rule = BaselineProfileRule()
 
@@ -58,31 +62,64 @@ class BaselineProfileGenerator {
             pressHome()
             startActivityAndWait()
 
-            // Wait for a scrollable element to appear (e.g. the Dashboard lazy column)
+            // 1. Dashboard -> Scroll
             device.wait(Until.hasObject(By.scrollable(true)), 5_000)
-
             val scrollableList = device.findObject(By.scrollable(true))
             if (scrollableList != null) {
-                // Scroll down the dashboard to compile list item rendering
                 scrollableList.setGestureMargin(device.displayWidth / 5)
                 scrollableList.scroll(Direction.DOWN, 1f)
                 device.waitForIdle()
+            }
 
-                // Click on the first clickable element inside the list (a project folder)
-                val firstItem = scrollableList.children.firstOrNull { it.isClickable }
-                if (firstItem != null) {
-                    firstItem.click()
+            // 2. Dashboard -> Settings -> Theme Change Simulation
+            val settingsBtn = device.findObject(By.descContains("Ayarlara git"))
+            if (settingsBtn != null) {
+                settingsBtn.click()
+                device.waitForIdle()
+
+                // Wait for settings screen and click Dark Theme option
+                device.wait(Until.hasObject(By.textContains("Karanlık Tema")), TIMEOUT)
+                val darkThemeOption = device.findObject(By.textContains("Karanlık Tema"))
+                darkThemeOption?.click()
+                device.waitForIdle()
+
+                // Go back to Dashboard
+                val backBtn = device.findObject(By.descContains("Geri"))
+                backBtn?.click()
+                device.waitForIdle()
+            }
+
+            // 3. Dashboard -> Project Detail -> Camera -> Capture Simulation
+            val projectItem = device.findObject(By.scrollable(true))?.children?.firstOrNull { it.isClickable }
+            if (projectItem != null) {
+                projectItem.click()
+                device.waitForIdle()
+
+                // Wait for Project Detail and click Camera FAB
+                // acc_shutter is used for both project detail FAB and camera capture button
+                device.wait(Until.hasObject(By.descContains("Fotoğraf veya video çek")), TIMEOUT)
+                val cameraFab = device.findObject(By.descContains("Fotoğraf veya video çek"))
+                if (cameraFab != null) {
+                    cameraFab.click()
                     device.waitForIdle()
 
-                    // Wait for the timeline to appear and scroll it
-                    device.wait(Until.hasObject(By.scrollable(true)), 5_000)
-                    val timelineList = device.findObject(By.scrollable(true))
-                    if (timelineList != null) {
-                        timelineList.setGestureMargin(device.displayWidth / 5)
-                        timelineList.scroll(Direction.DOWN, 1f)
-                        device.waitForIdle()
-                    }
+                    // Now in Camera Screen, wait for capture button and click
+                    device.wait(Until.hasObject(By.descContains("Fotoğraf veya video çek")), 5_000)
+                    val captureBtn = device.findObject(By.descContains("Fotoğraf veya video çek"))
+                    captureBtn?.click()
+                    device.waitForIdle()
+
+                    // Wait a bit for processing and go back
+                    device.wait(Until.hasObject(By.descContains("Kapat")), 5_000)
+                    val closeCameraBtn = device.findObject(By.descContains("Kapat"))
+                    closeCameraBtn?.click()
+                    device.waitForIdle()
                 }
+
+                // Go back to Dashboard
+                val backToDashBtn = device.findObject(By.descContains("Geri"))
+                backToDashBtn?.click()
+                device.waitForIdle()
             }
         }
     }
