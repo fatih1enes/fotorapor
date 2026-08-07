@@ -63,7 +63,6 @@ class PhotoReportApp : Application(), SingletonImageLoader.Factory, Configuratio
                 StrictMode.ThreadPolicy.Builder()
                     .detectAll() // Detects disk reads, writes, network, and custom slow calls
                     .penaltyLog()
-                    .penaltyFlashScreen()
                     .build()
             )
             StrictMode.setVmPolicy(

@@ -12,6 +12,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.delay
+import com.fatihenes.photoreport.core.model.Project
 import java.util.Locale
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
@@ -23,15 +24,15 @@ class DashboardViewModel @Inject constructor(
     getTrashItemsUseCase: GetTrashItemsUseCase,
 ) : ViewModel() {
 
-    private val _projectActionState = MutableStateFlow<UiState<Unit>?>(null)
-    val projectActionState: StateFlow<UiState<Unit>?> = _projectActionState
+    private val _projectActionState = MutableStateFlow<UiState<Long>?>(null)
+    val projectActionState: StateFlow<UiState<Long>?> = _projectActionState
 
     private val _refreshTrigger = MutableSharedFlow<Unit>(replay = 1).apply { tryEmit(Unit) }
 
     @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-    val projects = _refreshTrigger.flatMapLatest {
+    val projects: StateFlow<List<Project>?> = _refreshTrigger.flatMapLatest {
         getProjectsUseCase()
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
 
     private val _isRefreshing = MutableStateFlow(value = false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
@@ -57,8 +58,8 @@ class DashboardViewModel @Inject constructor(
             _projectActionState.value = UiState.Loading
             try {
                 val colorHex = String.format(Locale.US, "#%06X", 0xFFFFFF and color.toArgb())
-                createProjectUseCase(name, colorHex)
-                _projectActionState.value = UiState.Success(Unit)
+                val newProjectId = createProjectUseCase(name, colorHex)
+                _projectActionState.value = UiState.Success(newProjectId)
             } catch (e: kotlinx.coroutines.CancellationException) {
                 throw e
             } catch (e: Exception) {

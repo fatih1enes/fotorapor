@@ -11,6 +11,14 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+data class MainUiState(
+    val isLoading: Boolean = true,
+    val disclosureShown: Boolean = true,
+    val themeMode: String = "system",
+    val language: String = "tr",
+    val gpsWatermarkEnabled: Boolean = false
+)
+
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val settingsRepository: SettingsRepository,
@@ -18,30 +26,31 @@ class MainViewModel @Inject constructor(
     private val locationManager: LocationManager,
 ) : ViewModel() {
 
-    // Global settings for UI lifecycle
-    val themeMode: StateFlow<String> = settingsRepository.settings
-        .map { it.themeMode }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "system")
-
-    val language: StateFlow<String> = settingsRepository.settings
-        .map { it.language }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), "tr")
-
-    val gpsWatermarkEnabled: StateFlow<Boolean> = settingsRepository.settings
-        .map { it.gpsWatermarkEnabled }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
-
-    val disclosureShown: StateFlow<Boolean> = settingsRepository.settings
-        .map { it.disclosureShown }
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), false)
+    val uiState: StateFlow<MainUiState> = settingsRepository.settings
+        .map { settings ->
+            MainUiState(
+                isLoading = false,
+                disclosureShown = settings.disclosureShown,
+                themeMode = settings.themeMode,
+                language = settings.language,
+                gpsWatermarkEnabled = settings.gpsWatermarkEnabled
+            )
+        }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.Eagerly,
+            initialValue = MainUiState(isLoading = true)
+        )
 
     fun setDisclosureShown(shown: Boolean) {
-        viewModelScope.launch { settingsRepository.setDisclosureShown(shown) }
+        viewModelScope.launch {
+            settingsRepository.setDisclosureShown(shown)
+        }
     }
 
     fun savePhotoInBackground(uri: Uri, projectId: Long, logId: Long, enableAvif: Boolean, projectName: String) {
         viewModelScope.launch {
-            val isGpsEnabled = gpsWatermarkEnabled.value
+            val isGpsEnabled = uiState.value.gpsWatermarkEnabled
             val watermarkData = if (isGpsEnabled) {
                 locationManager.buildWatermarkData(projectName)
             } else {
@@ -51,3 +60,4 @@ class MainViewModel @Inject constructor(
         }
     }
 }
+

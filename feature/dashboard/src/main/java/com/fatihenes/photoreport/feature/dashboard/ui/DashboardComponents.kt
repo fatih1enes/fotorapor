@@ -17,7 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
+import kotlinx.coroutines.launch
 import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion
 import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporTokens
 import com.fatihenes.photoreport.core.model.Project
@@ -63,7 +64,7 @@ fun DashboardFab(onClick: () -> Unit) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScaffold(
-    projects: List<Project>,
+    projects: List<Project>?,
     onProjectClick: (Project) -> Unit,
     onAddProject: () -> Unit,
     onSettingsClick: () -> Unit,
@@ -108,7 +109,7 @@ fun DashboardScaffold(
 @Composable
 fun DashboardContent(
     padding: PaddingValues,
-    projects: List<Project>,
+    projects: List<Project>?,
     isRefreshing: Boolean,
     onRefresh: () -> Unit,
     viewMode: DashboardViewMode,
@@ -124,10 +125,21 @@ fun DashboardContent(
     language: String,
     haptic: HapticFeedback
 ) {
+    val pullState = rememberPullToRefreshState()
     PullToRefreshBox(
         isRefreshing = isRefreshing,
         onRefresh = onRefresh,
-        modifier = Modifier.fillMaxSize()
+        state = pullState,
+        modifier = Modifier.fillMaxSize(),
+        indicator = {
+            if (isRefreshing) {
+                PullToRefreshDefaults.Indicator(
+                    state = pullState,
+                    isRefreshing = true,
+                    modifier = Modifier.align(Alignment.TopCenter)
+                )
+            }
+        }
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(padding).consumeWindowInsets(padding).imePadding(),
@@ -135,7 +147,7 @@ fun DashboardContent(
         ) {
             item(key = "dashboard_hero_header") {
                 DashboardHeroHeader(
-                    projectsCount = projects.size,
+                    projectsCount = projects?.size ?: 0,
                     activityCount = activityDots.size,
                     viewMode = viewMode,
                     onViewModeChange = onViewModeChange,
@@ -191,27 +203,12 @@ fun DashboardHeroHeader(
 private fun DashboardTopRow(onTrashClick: () -> Unit, onSettingsClick: () -> Unit, isTrashNotEmpty: Boolean, haptic: HapticFeedback) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
         Column {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = "FOTORAPOR", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Black, letterSpacing = 1.5.sp, color = MaterialTheme.colorScheme.onBackground)
-                Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingS))
-                SahaModuBadge()
-            }
+            Text(text = "FOTORAPOR", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Black, letterSpacing = 1.5.sp, color = MaterialTheme.colorScheme.onBackground)
             Text(text = "Saha Raporlama & Fotoğraf Yönetimi", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         Row(horizontalArrangement = Arrangement.spacedBy(FotoRaporTokens.SpacingS)) {
             IconActionButton(onClick = { haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove); onTrashClick() }, icon = if (isTrashNotEmpty) Icons.Default.Delete else Icons.Default.DeleteOutline, contentDescription = stringResource(R.string.acc_open_trash), tint = if (isTrashNotEmpty) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant, showBadge = isTrashNotEmpty)
             IconActionButton(onClick = { haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove); onSettingsClick() }, icon = Icons.Default.Settings, contentDescription = stringResource(R.string.acc_open_settings), tint = MaterialTheme.colorScheme.onSurfaceVariant)
-        }
-    }
-}
-
-@Composable
-private fun SahaModuBadge() {
-    Surface(shape = RoundedCornerShape(100.dp), color = MaterialTheme.colorScheme.tertiaryContainer.copy(alpha = 0.6f), modifier = Modifier.height(20.dp)) {
-        Row(modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp), verticalAlignment = Alignment.CenterVertically) {
-            Box(modifier = Modifier.size(6.dp).background(MaterialTheme.colorScheme.tertiary, CircleShape))
-            Spacer(modifier = Modifier.width(4.dp))
-            Text(text = "SAHA MODU", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onTertiaryContainer, fontSize = 9.sp)
         }
     }
 }
@@ -224,20 +221,24 @@ private fun DashboardStatsRow(projectsCount: Int, activityCount: Int) {
     }
 }
 
-fun LazyListScope.projectsView(projects: List<Project>, onProjectClick: (Project) -> Unit, onAddClick: () -> Unit) {
+fun LazyListScope.projectsView(projects: List<Project>?, onProjectClick: (Project) -> Unit, onAddClick: () -> Unit) {
+    val projectCount = projects?.size ?: 0
     item(key = "projects_section_header") {
         Row(modifier = Modifier.fillMaxWidth().padding(horizontal = FotoRaporTokens.ScreenPaddingHorizontal, vertical = FotoRaporTokens.SpacingS), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
             Text(text = stringResource(R.string.active_projects).uppercase(), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant, letterSpacing = 1.5.sp)
-            Text(text = pluralStringResource(R.plurals.project_files, projects.size, projects.size), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(text = pluralStringResource(R.plurals.project_files, projectCount, projectCount), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
-    if (projects.isEmpty()) {
+    if (projects == null) {
+        // Do not render empty state while loading
+    } else if (projects.isEmpty()) {
         item(key = "projects_empty_state") {
             AppEmptyState(icon = Icons.Default.FolderOpen, title = stringResource(R.string.empty_projects_title), description = stringResource(R.string.empty_projects_desc), actionLabel = stringResource(R.string.empty_projects_action), onActionClick = onAddClick)
         }
-    }
-    items(projects, key = { it.id }, contentType = { "project_folder_item" }) { project ->
-        ProjectFolderItem(project = project, onClick = { onProjectClick(project) }, modifier = Modifier.animateItem())
+    } else {
+        items(projects, key = { it.id }, contentType = { "project_folder_item" }) { project ->
+            ProjectFolderItem(project = project, onClick = { onProjectClick(project) }, modifier = Modifier.animateItem())
+        }
     }
 }
 
@@ -267,10 +268,36 @@ fun ProjectFolderItem(project: Project, onClick: () -> Unit, modifier: Modifier 
     val projectColor = remember(project.colorHex) { runCatching { Color(project.colorHex.toColorInt()) }.getOrDefault(Color.Gray) }
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
-    val scale by animateFloatAsState(targetValue = if (isPressed) 0.98f else 1.0f, animationSpec = FotoRaporMotion.pressSpring(), label = "card_scale")
+
+    LaunchedEffect(isPressed) {
+        if (isPressed) {
+            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+        }
+    }
+
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.98f else 1.0f,
+        animationSpec = FotoRaporMotion.pressSpring(),
+        label = "card_scale"
+    )
+
     Surface(
-        modifier = modifier.fillMaxWidth().padding(horizontal = FotoRaporTokens.ScreenPaddingHorizontal, vertical = FotoRaporTokens.SpacingS).graphicsLayer { scaleX = scale; scaleY = scale }.clip(RoundedCornerShape(FotoRaporTokens.RadiusM)).clickable(interactionSource = interactionSource, indication = null) { haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove); onClick() },
-        shape = RoundedCornerShape(FotoRaporTokens.RadiusM), color = MaterialTheme.colorScheme.surface, border = BorderStroke(FotoRaporTokens.CardBorderWidth, MaterialTheme.colorScheme.outlineVariant)
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = FotoRaporTokens.ScreenPaddingHorizontal, vertical = FotoRaporTokens.SpacingS)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .clip(RoundedCornerShape(FotoRaporTokens.RadiusM))
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = onClick
+            ),
+        shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(FotoRaporTokens.CardBorderWidth, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Row(modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min)) {
             Box(modifier = Modifier.width(6.dp).fillMaxHeight().background(projectColor))
@@ -281,10 +308,6 @@ fun ProjectFolderItem(project: Project, onClick: () -> Unit, modifier: Modifier 
                 Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingL))
                 Column(modifier = Modifier.weight(1f)) {
                     Text(text = project.name, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurface)
-                    Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXXS))
-                    Surface(shape = RoundedCornerShape(100.dp), color = MaterialTheme.colorScheme.surfaceContainerHigh) {
-                        Text(text = "Saha Klasörü", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp))
-                    }
                 }
                 Icon(Icons.AutoMirrored.Filled.ArrowForwardIos, null, tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.4f), modifier = Modifier.size(FotoRaporTokens.IconSizeXS))
             }
@@ -298,7 +321,35 @@ fun AddProjectDialog(onDismiss: () -> Unit, onConfirm: (String, Color) -> Unit) 
     var projectName by remember { mutableStateOf("") }
     var selectedColor by remember { mutableStateOf(FotoRaporTokens.ProjectColors.first()) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState, containerColor = MaterialTheme.colorScheme.surface, dragHandle = { BottomSheetDefaults.DragHandle() }, shape = RoundedCornerShape(topStart = FotoRaporTokens.RadiusXL, topEnd = FotoRaporTokens.RadiusXL)) {
+    val scope = rememberCoroutineScope()
+    var isSubmitting by remember { mutableStateOf(false) }
+
+    val handleDismiss = {
+        scope.launch { sheetState.hide() }.invokeOnCompletion {
+            if (!sheetState.isVisible) onDismiss()
+        }
+    }
+
+    val handleConfirm = {
+        if (!isSubmitting && projectName.isNotBlank()) {
+            isSubmitting = true
+            val name = projectName.trim()
+            val color = selectedColor
+            scope.launch {
+                sheetState.hide()
+            }.invokeOnCompletion {
+                onConfirm(name, color)
+            }
+        }
+    }
+
+    ModalBottomSheet(
+        onDismissRequest = { handleDismiss() },
+        sheetState = sheetState,
+        containerColor = MaterialTheme.colorScheme.surface,
+        dragHandle = { BottomSheetDefaults.DragHandle() },
+        shape = RoundedCornerShape(topStart = FotoRaporTokens.RadiusXL, topEnd = FotoRaporTokens.RadiusXL)
+    ) {
         Column(modifier = Modifier.fillMaxWidth().padding(horizontal = FotoRaporTokens.ScreenPaddingHorizontal).padding(bottom = FotoRaporTokens.Spacing3XL)) {
             Text(text = stringResource(R.string.start_new_project), style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
             Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingL))
@@ -306,7 +357,11 @@ fun AddProjectDialog(onDismiss: () -> Unit, onConfirm: (String, Color) -> Unit) 
             Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXXL))
             ProjectColorPicker(selectedColor) { selectedColor = it }
             Spacer(modifier = Modifier.height(FotoRaporTokens.Spacing3XL))
-            ProjectActionButtons(onDismiss, onConfirm = { onConfirm(projectName.trim(), selectedColor) }, isEnabled = projectName.isNotBlank())
+            ProjectActionButtons(
+                onDismiss = { handleDismiss() },
+                onConfirm = { handleConfirm() },
+                isEnabled = projectName.isNotBlank() && !isSubmitting
+            )
         }
     }
 }

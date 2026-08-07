@@ -5,6 +5,8 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.appcompat.app.AppCompatActivity
@@ -23,24 +25,27 @@ class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen()
+        val splashScreen = installSplashScreen()
         enableEdgeToEdge()
         super.onCreate(savedInstanceState)
 
-        setContent {
-            val themeMode by viewModel.themeMode.collectAsStateWithLifecycle()
-            val language by viewModel.language.collectAsStateWithLifecycle()
+        splashScreen.setKeepOnScreenCondition {
+            viewModel.uiState.value.isLoading
+        }
 
-            LaunchedEffect(language) {
-                if (language.isNotBlank()) {
-                    val requestedLocales = LocaleListCompat.forLanguageTags(language)
+        setContent {
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+            LaunchedEffect(uiState.language) {
+                if (uiState.language.isNotBlank()) {
+                    val requestedLocales = LocaleListCompat.forLanguageTags(uiState.language)
                     if (AppCompatDelegate.getApplicationLocales() != requestedLocales) {
                         AppCompatDelegate.setApplicationLocales(requestedLocales)
                     }
                 }
             }
 
-            val isDarkTheme = when (themeMode) {
+            val isDarkTheme = when (uiState.themeMode) {
                 "light" -> false
                 "dark" -> true
                 else -> isSystemInDarkTheme()
@@ -59,12 +64,15 @@ class MainActivity : AppCompatActivity() {
             }
 
             PhotoReportTheme(darkTheme = isDarkTheme) {
-                AppNavGraph(
-                    viewModel = viewModel,
-                    initialCameraProjectId = initialCameraProjectId,
-                    initialProjectDetailId = initialProjectDetailId,
-                )
+                Surface(color = MaterialTheme.colorScheme.background) {
+                    AppNavGraph(
+                        viewModel = viewModel,
+                        initialCameraProjectId = initialCameraProjectId,
+                        initialProjectDetailId = initialProjectDetailId,
+                    )
+                }
             }
         }
     }
 }
+

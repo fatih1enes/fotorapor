@@ -1,11 +1,17 @@
 package com.fatihenes.photoreport.core.designsystem.theme
 
 import android.app.Activity
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.CubicBezierEasing
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -337,12 +343,14 @@ object FotoRaporGradients {
  */
 object FotoRaporMotion {
 
+    // ── Easing ───────────────────────────────────────────────────
     /** Micro-interaction easing'i (butonlar, togglelar) */
     val EasingStandard = FastOutSlowInEasing
 
-    /** Ekran geçişleri için easing */
+    /** Ekran geçişleri için easing — Material 3 Emphasized */
     val EasingEmphasized = CubicBezierEasing(0.2f, 0.0f, 0.0f, 1.0f)
 
+    // ── Duration Tiers ──────────────────────────────────────────
     /** Kısa, anlık feedback */
     val DurationShort = 150
     /** Standart UI animasyonları */
@@ -350,12 +358,27 @@ object FotoRaporMotion {
     /** Büyük geçişler */
     val DurationLong = 350
 
+    // ── Navigation Duration Tiers ───────────────────────────────
+    // Simetrik: ileri = geri aynı hız. Ekran tipine göre kademelendirilmiş.
+    /** Yardımcı/hafif ekranlar: Settings, Trash — hızlı giriş/çıkış */
+    val NavDurationFast = 250
+    /** İçerik ekranları: Project Detail — biraz daha dramatik */
+    val NavDurationStandard = 300
+    /** Overlay / dialog geçişleri */
+    val NavDurationOverlay = 200
+
+    // ── Parallax Oranı ──────────────────────────────────────────
+    /** Arka planda kalan ekranın kayma yüzdesi (iOS-tarzı parallax) */
+    private const val PARALLAX_FRACTION = 0.30f
+
+    // ── Spring Presets ──────────────────────────────────────────
     /** Hafif basma geri bildirimi */
     fun <T> pressSpring() = spring<T>(
         dampingRatio = Spring.DampingRatioMediumBouncy,
         stiffness = 600f
     )
 
+    // ── Tween Presets ───────────────────────────────────────────
     /** Yumuşak açılma animasyonu */
     fun <T> enterTween() = tween<T>(
         durationMillis = DurationMedium,
@@ -367,6 +390,57 @@ object FotoRaporMotion {
         durationMillis = DurationShort,
         easing = EasingStandard
     )
+
+    // ── Navigation Transition Factories ─────────────────────────
+    // Her tier simetrik: enter ve popExit aynı yöne, exit ve popEnter karşı yöne.
+
+    /**
+     * Forward navigasyon enter: sağdan slide-in + fade-in.
+     * @param durationMs geçiş süresi
+     */
+    fun navEnter(durationMs: Int = NavDurationStandard): EnterTransition =
+        slideInHorizontally(
+            initialOffsetX = { fullWidth -> fullWidth },
+            animationSpec = tween(durationMillis = durationMs, easing = EasingEmphasized)
+        ) + fadeIn(
+            animationSpec = tween(durationMillis = (durationMs * 0.5f).toInt(), easing = EasingStandard)
+        )
+
+    /**
+     * Forward navigasyon exit: sola parallax slide + fade-out.
+     * @param durationMs geçiş süresi
+     */
+    fun navExit(durationMs: Int = NavDurationStandard): ExitTransition =
+        slideOutHorizontally(
+            targetOffsetX = { fullWidth -> -(fullWidth * PARALLAX_FRACTION).toInt() },
+            animationSpec = tween(durationMillis = durationMs, easing = EasingEmphasized)
+        ) + fadeOut(
+            animationSpec = tween(durationMillis = (durationMs * 0.4f).toInt(), easing = EasingStandard)
+        )
+
+    /**
+     * Pop (geri) navigasyon enter: soldan parallax slide-in + fade-in.
+     * @param durationMs geçiş süresi
+     */
+    fun navPopEnter(durationMs: Int = NavDurationStandard): EnterTransition =
+        slideInHorizontally(
+            initialOffsetX = { fullWidth -> -(fullWidth * PARALLAX_FRACTION).toInt() },
+            animationSpec = tween(durationMillis = durationMs, easing = EasingEmphasized)
+        ) + fadeIn(
+            animationSpec = tween(durationMillis = (durationMs * 0.5f).toInt(), easing = EasingStandard)
+        )
+
+    /**
+     * Pop (geri) navigasyon exit: sağa slide-out + fade-out.
+     * @param durationMs geçiş süresi
+     */
+    fun navPopExit(durationMs: Int = NavDurationStandard): ExitTransition =
+        slideOutHorizontally(
+            targetOffsetX = { fullWidth -> fullWidth },
+            animationSpec = tween(durationMillis = durationMs, easing = EasingEmphasized)
+        ) + fadeOut(
+            animationSpec = tween(durationMillis = (durationMs * 0.4f).toInt(), easing = EasingStandard)
+        )
 }
 
 // ─── Theme ──────────────────────────────────────────────────────────

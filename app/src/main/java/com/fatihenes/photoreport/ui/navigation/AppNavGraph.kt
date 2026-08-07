@@ -8,9 +8,8 @@ import android.provider.Settings
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
+import androidx.compose.animation.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
@@ -47,10 +46,12 @@ fun AppNavGraph(
     CompositionLocalProvider(LocalSnackbarHostState provides snackbarHostState) {
         val navController = rememberNavController()
         val scope = rememberCoroutineScope()
-        val language by viewModel.language.collectAsStateWithLifecycle()
+        val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-        val disclosureShown by viewModel.disclosureShown.collectAsStateWithLifecycle()
-        if (!disclosureShown) {
+        // Wait until settings are loaded before rendering anything
+        if (uiState.isLoading) return@CompositionLocalProvider
+
+        if (!uiState.disclosureShown) {
             DisclosureDialog { viewModel.setDisclosureShown(shown = true) }
         }
 
@@ -73,13 +74,17 @@ fun AppNavGraph(
         )
 
         // --- Navigation Host ---
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+        ) {
             AppNavHost(
                 navController = navController,
                 viewModel = viewModel,
                 snackbarHostState = snackbarHostState,
                 scope = scope,
-                language = language,
+                language = uiState.language,
                 permissionLauncher = permissionLauncher,
                 onSetPending = { logId, projectId ->
                     pendingLogId = logId
@@ -108,30 +113,15 @@ private fun AppNavHost(
     permissionLauncher: ManagedActivityResultLauncher<String, Boolean>,
     onSetPending: (Long?, Long?) -> Unit
 ) {
-    val enterTransition = remember {
-        fadeIn(animationSpec = tween(FotoRaporMotion.DurationMedium, easing = FotoRaporMotion.EasingEmphasized)) +
-                androidx.compose.animation.scaleIn(initialScale = 0.97f, animationSpec = tween(FotoRaporMotion.DurationMedium, easing = FotoRaporMotion.EasingEmphasized))
-    }
-    val exitTransition = remember {
-        fadeOut(animationSpec = tween(FotoRaporMotion.DurationShort, easing = FotoRaporMotion.EasingStandard)) +
-                androidx.compose.animation.scaleOut(targetScale = 1.03f, animationSpec = tween(FotoRaporMotion.DurationShort, easing = FotoRaporMotion.EasingStandard))
-    }
-    val popEnterTransition = remember {
-        fadeIn(animationSpec = tween(FotoRaporMotion.DurationMedium, easing = FotoRaporMotion.EasingEmphasized)) +
-                androidx.compose.animation.scaleIn(initialScale = 1.03f, animationSpec = tween(FotoRaporMotion.DurationMedium, easing = FotoRaporMotion.EasingEmphasized))
-    }
-    val popExitTransition = remember {
-        fadeOut(animationSpec = tween(FotoRaporMotion.DurationShort, easing = FotoRaporMotion.EasingStandard)) +
-                androidx.compose.animation.scaleOut(targetScale = 0.97f, animationSpec = tween(FotoRaporMotion.DurationShort, easing = FotoRaporMotion.EasingStandard))
-    }
-
+    // Default NavHost transitions — per-route overrides are in NavGraphExtensions.
+    // NavDurationStandard (300ms) is the default; utility routes override with NavDurationFast.
     NavHost(
         navController = navController,
         startDestination = Routes.DASHBOARD,
-        enterTransition = { enterTransition },
-        exitTransition = { exitTransition },
-        popEnterTransition = { popEnterTransition },
-        popExitTransition = { popExitTransition }
+        enterTransition = { FotoRaporMotion.navEnter() },
+        exitTransition = { FotoRaporMotion.navExit() },
+        popEnterTransition = { FotoRaporMotion.navPopEnter() },
+        popExitTransition = { FotoRaporMotion.navPopExit() }
     ) {
         dashboardRoute(navController, snackbarHostState, scope, language)
         settingsRoute(navController)

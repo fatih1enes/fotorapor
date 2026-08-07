@@ -20,12 +20,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
+import coil3.request.CachePolicy
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporTokens
 import com.fatihenes.photoreport.core.ui.R
 import com.fatihenes.photoreport.core.model.Photo
@@ -361,8 +365,14 @@ fun TrashPhotoItem(
             verticalAlignment = Alignment.CenterVertically
         ) {
             // Photo thumbnail
+            val context = LocalContext.current
             AsyncImage(
-                model = photo.filePath,
+                model = ImageRequest.Builder(context)
+                    .data(photo.filePath)
+                    .size(256)
+                    .crossfade(150)
+                    .memoryCachePolicy(CachePolicy.ENABLED)
+                    .build(),
                 contentDescription = stringResource(R.string.photo_label),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier

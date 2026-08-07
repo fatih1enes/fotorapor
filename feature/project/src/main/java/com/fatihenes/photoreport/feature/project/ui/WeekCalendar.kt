@@ -83,11 +83,17 @@ private fun CalendarDayItem(
         date.dayOfWeek.getDisplayName(TextStyle.SHORT, locale).uppercase()
     }
 
+    val animatedBgColor by androidx.compose.animation.animateColorAsState(
+        targetValue = if (isSelected) projectColor.copy(alpha = 0.15f) else Color.Transparent,
+        animationSpec = androidx.compose.animation.core.tween(200),
+        label = "week_day_bg"
+    )
+
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .clip(RoundedCornerShape(FotoRaporTokens.RadiusS))
-            .background(if (isSelected) projectColor.copy(alpha = 0.15f) else Color.Transparent)
+            .background(animatedBgColor)
             .clickable {
                 haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 onClick()
@@ -118,16 +124,28 @@ private fun DayNumberBadge(
     isToday: Boolean,
     projectColor: Color
 ) {
-    val backgroundColor = when {
+    val targetBackgroundColor = when {
         isSelected -> projectColor
         isToday -> MaterialTheme.colorScheme.surfaceContainerHigh
         else -> Color.Transparent
     }
 
-    val textColor = when {
+    val targetTextColor = when {
         isSelected -> Color.White
         else -> MaterialTheme.colorScheme.onSurface
     }
+
+    val backgroundColor by androidx.compose.animation.animateColorAsState(
+        targetValue = targetBackgroundColor,
+        animationSpec = androidx.compose.animation.core.tween(200),
+        label = "day_badge_bg"
+    )
+
+    val textColor by androidx.compose.animation.animateColorAsState(
+        targetValue = targetTextColor,
+        animationSpec = androidx.compose.animation.core.tween(200),
+        label = "day_badge_text"
+    )
 
     val fontWeight = if (isSelected || isToday) FontWeight.Bold else FontWeight.Medium
 

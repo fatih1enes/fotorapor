@@ -1,8 +1,10 @@
 package com.fatihenes.photoreport.core.ui.components
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -76,6 +78,11 @@ fun <T> PillSegmentedControl(
         Row(modifier = Modifier.fillMaxSize()) {
             items.forEach { item ->
                 val isSelected = item == selectedItem
+                val textColor by animateColorAsState(
+                    targetValue = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    animationSpec = tween(durationMillis = 200),
+                    label = "pill_text_color"
+                )
                 Box(
                     modifier = Modifier
                         .weight(1f)
@@ -96,7 +103,7 @@ fun <T> PillSegmentedControl(
                         text = itemTitle(item),
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
+                        color = textColor
                     )
                 }
             }

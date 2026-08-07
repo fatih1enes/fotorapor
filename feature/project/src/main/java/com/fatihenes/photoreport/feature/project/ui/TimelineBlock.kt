@@ -5,10 +5,13 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -31,7 +35,9 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
+import coil3.request.crossfade
 import coil3.video.VideoFrameDecoder
+import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion
 import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporTokens
 import com.fatihenes.photoreport.core.ui.R
 import com.fatihenes.photoreport.core.model.DailyLog
@@ -185,12 +191,29 @@ private fun TimelinePhotoCard(
 ) {
     val haptic = LocalHapticFeedback.current
     val isVideo = photo.filePath.endsWith(".mp4", ignoreCase = true)
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(
+        targetValue = if (isPressed) 0.96f else 1.0f,
+        animationSpec = FotoRaporMotion.pressSpring(),
+        label = "timeline_photo_scale"
+    )
 
     Card(
-        modifier = modifier.aspectRatio(1.33f).clickable {
-            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-            if (isLast) onMorePhotosClick() else onPhotoClick(photo)
-        }.then(if (isSelectionMode && isSelected) Modifier.border(2.5.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(FotoRaporTokens.RadiusM)) else Modifier),
+        modifier = modifier
+            .aspectRatio(1.33f)
+            .graphicsLayer {
+                scaleX = scale
+                scaleY = scale
+            }
+            .clickable(
+                interactionSource = interactionSource,
+                indication = null
+            ) {
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                if (isLast) onMorePhotosClick() else onPhotoClick(photo)
+            }
+            .then(if (isSelectionMode && isSelected) Modifier.border(2.5.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(FotoRaporTokens.RadiusM)) else Modifier),
         shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
         elevation = CardDefaults.cardElevation(defaultElevation = FotoRaporTokens.ElevationNone)
     ) {
@@ -198,7 +221,7 @@ private fun TimelinePhotoCard(
             val context = LocalContext.current
             val request = remember(photo.filePath) {
                 ImageRequest.Builder(context).data(photo.filePath).apply { if (isVideo) decoderFactory(VideoFrameDecoder.Factory()) }
-                    .size(256).memoryCachePolicy(CachePolicy.ENABLED).build()
+                    .size(256).memoryCachePolicy(CachePolicy.ENABLED).crossfade(150).build()
             }
             AsyncImage(
                 model = request, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize(),

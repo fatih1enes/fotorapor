@@ -2,7 +2,9 @@ package com.fatihenes.photoreport.feature.dashboard.ui
 
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.Modifier
 import com.fatihenes.photoreport.core.model.Project
 import java.time.LocalDate
 
@@ -12,7 +14,7 @@ enum class DashboardViewMode { PROJECTS, CALENDAR }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
-    projects: List<Project>,
+    projects: List<Project>?,
     onProjectClick: (Project) -> Unit,
     onAddProject: (String, Color) -> Unit,
     onSettingsClick: () -> Unit,
@@ -27,24 +29,57 @@ fun DashboardScreen(
     var showAddDialog by remember { mutableStateOf(false) }
     var viewMode by remember { mutableStateOf(DashboardViewMode.PROJECTS) }
 
-    DashboardScaffold(
-        projects = projects,
-        onProjectClick = onProjectClick,
-        onAddProject = { showAddDialog = true },
-        onSettingsClick = onSettingsClick,
-        onTrashClick = onTrashClick,
-        onRefresh = onRefresh,
-        language = language,
-        isRefreshing = isRefreshing,
-        activityDots = activityDots,
-        isTrashNotEmpty = isTrashNotEmpty,
-        selectedDate = selectedDate,
-        onDateSelected = { selectedDate = it },
-        viewMode = viewMode,
-        onViewModeChange = { viewMode = it }
-    )
+    var isInitialLoadComplete by remember { mutableStateOf(false) }
+
+    // When projects data arrives for the first time, trigger the entry animation
+    LaunchedEffect(projects) {
+        if (projects != null && !isInitialLoadComplete) {
+            isInitialLoadComplete = true
+        }
+    }
+
+    // Keep the screen completely blank while loading, then smoothly fade/slide in
+    androidx.compose.animation.AnimatedVisibility(
+        visible = isInitialLoadComplete,
+        enter = androidx.compose.animation.fadeIn(
+            animationSpec = androidx.compose.animation.core.tween(
+                durationMillis = 600, 
+                easing = com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion.EasingEmphasized
+            )
+        ) + androidx.compose.animation.slideInVertically(
+            initialOffsetY = { 40 },
+            animationSpec = androidx.compose.animation.core.tween(
+                durationMillis = 600, 
+                easing = com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion.EasingEmphasized
+            )
+        ),
+        modifier = Modifier.fillMaxSize()
+    ) {
+        DashboardScaffold(
+            projects = projects,
+            onProjectClick = onProjectClick,
+            onAddProject = { showAddDialog = true },
+            onSettingsClick = onSettingsClick,
+            onTrashClick = onTrashClick,
+            onRefresh = onRefresh,
+            language = language,
+            isRefreshing = isRefreshing,
+            activityDots = activityDots,
+            isTrashNotEmpty = isTrashNotEmpty,
+            selectedDate = selectedDate,
+            onDateSelected = { selectedDate = it },
+            viewMode = viewMode,
+            onViewModeChange = { viewMode = it }
+        )
+    }
 
     if (showAddDialog) {
-        AddProjectDialog(onDismiss = { showAddDialog = false }, onConfirm = onAddProject)
+        AddProjectDialog(
+            onDismiss = { showAddDialog = false },
+            onConfirm = { name, color ->
+                showAddDialog = false
+                onAddProject(name, color)
+            }
+        )
     }
 }

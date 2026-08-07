@@ -4,6 +4,9 @@ package com.fatihenes.photoreport.ui.navigation
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalContext
@@ -16,6 +19,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.fatihenes.photoreport.R
+import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion
 import com.fatihenes.photoreport.core.ui.state.UiState
 import com.fatihenes.photoreport.feature.camera.ui.CameraScreen
 import com.fatihenes.photoreport.feature.dashboard.ui.DashboardScreen
@@ -26,9 +30,11 @@ import com.fatihenes.photoreport.feature.settings.ui.SettingsScreen
 import com.fatihenes.photoreport.feature.settings.viewmodel.SettingsViewModel
 import com.fatihenes.photoreport.feature.trash.ui.TrashScreen
 import com.fatihenes.photoreport.ui.viewmodel.MainViewModel
-import androidx.compose.material3.SnackbarHostState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+
+// ─── Dashboard ─────────────────────────────────────────────────────
+// Dashboard is the start destination; it inherits NavHost defaults.
 
 fun NavGraphBuilder.dashboardRoute(
     navController: NavController,
@@ -43,19 +49,15 @@ fun NavGraphBuilder.dashboardRoute(
         val isTrashNotEmpty by dashboardViewModel.isTrashNotEmpty.collectAsStateWithLifecycle()
         val isRefreshing by dashboardViewModel.isRefreshing.collectAsStateWithLifecycle()
 
-        val context = LocalContext.current
-
         LaunchedEffect(actionState) {
-            when (actionState) {
-                is UiState.Success -> {
-                    snackbarHostState.showSnackbar(context.getString(R.string.project_added_success))
-                    dashboardViewModel.resetProjectActionState()
-                }
-                is UiState.Error -> {
-                    snackbarHostState.showSnackbar((actionState as UiState.Error).message)
-                    dashboardViewModel.resetProjectActionState()
-                }
-                else -> {}
+            val state = actionState
+            if (state is UiState.Success) {
+                val newProjectId = state.data
+                navController.navigate(Routes.detail(newProjectId))
+                dashboardViewModel.resetProjectActionState()
+            } else if (state is UiState.Error) {
+                snackbarHostState.showSnackbar(state.message)
+                dashboardViewModel.resetProjectActionState()
             }
         }
 
@@ -73,8 +75,17 @@ fun NavGraphBuilder.dashboardRoute(
     }
 }
 
+// ─── Settings ──────────────────────────────────────────────────────
+// Utility screen → fast symmetric transitions (250ms).
+
 fun NavGraphBuilder.settingsRoute(navController: NavController) {
-    composable(Routes.SETTINGS) {
+    composable(
+        route = Routes.SETTINGS,
+        enterTransition = { FotoRaporMotion.navEnter(FotoRaporMotion.NavDurationFast) },
+        exitTransition = { FotoRaporMotion.navExit(FotoRaporMotion.NavDurationFast) },
+        popEnterTransition = { FotoRaporMotion.navPopEnter(FotoRaporMotion.NavDurationFast) },
+        popExitTransition = { FotoRaporMotion.navPopExit(FotoRaporMotion.NavDurationFast) }
+    ) {
         val settingsViewModel: SettingsViewModel = hiltViewModel()
         SettingsScreen(
             onBack = { navController.popBackStack() },
@@ -82,6 +93,9 @@ fun NavGraphBuilder.settingsRoute(navController: NavController) {
         )
     }
 }
+
+// ─── Project Detail ────────────────────────────────────────────────
+// Content screen → standard transitions (300ms) — slightly more dramatic.
 
 fun NavGraphBuilder.detailRoute(
     navController: NavController,
@@ -91,7 +105,11 @@ fun NavGraphBuilder.detailRoute(
 ) {
     composable(
         route = Routes.DETAIL,
-        arguments = listOf(navArgument("projectId") { type = NavType.LongType })
+        arguments = listOf(navArgument("projectId") { type = NavType.LongType }),
+        enterTransition = { FotoRaporMotion.navEnter(FotoRaporMotion.NavDurationStandard) },
+        exitTransition = { FotoRaporMotion.navExit(FotoRaporMotion.NavDurationStandard) },
+        popEnterTransition = { FotoRaporMotion.navPopEnter(FotoRaporMotion.NavDurationStandard) },
+        popExitTransition = { FotoRaporMotion.navPopExit(FotoRaporMotion.NavDurationStandard) }
     ) { backStackEntry ->
         val context = LocalContext.current
         val projectId = backStackEntry.arguments?.getLong("projectId") ?: -1L
@@ -135,6 +153,10 @@ fun NavGraphBuilder.detailRoute(
     }
 }
 
+// ─── Camera ────────────────────────────────────────────────────────
+// Immersive fullscreen → instant cut (no animation), avoids jarring
+// slide over the camera preview.
+
 fun NavGraphBuilder.cameraRoute(
     navController: NavController,
     viewModel: MainViewModel
@@ -144,7 +166,11 @@ fun NavGraphBuilder.cameraRoute(
         arguments = listOf(
             navArgument("logId") { type = NavType.LongType; defaultValue = -1L },
             navArgument("projectId") { type = NavType.LongType; defaultValue = -1L }
-        )
+        ),
+        enterTransition = { EnterTransition.None },
+        exitTransition = { ExitTransition.None },
+        popEnterTransition = { EnterTransition.None },
+        popExitTransition = { ExitTransition.None }
     ) { backStackEntry ->
         val logId = backStackEntry.arguments?.getLong("logId") ?: -1L
         val cameraProjectId = backStackEntry.arguments?.getLong("projectId") ?: -1L
@@ -182,8 +208,17 @@ fun NavGraphBuilder.cameraRoute(
     }
 }
 
+// ─── Trash ─────────────────────────────────────────────────────────
+// Utility screen → fast symmetric transitions (250ms) — same as Settings.
+
 fun NavGraphBuilder.trashRoute(navController: NavController, language: String) {
-    composable(route = Routes.TRASH) {
+    composable(
+        route = Routes.TRASH,
+        enterTransition = { FotoRaporMotion.navEnter(FotoRaporMotion.NavDurationFast) },
+        exitTransition = { FotoRaporMotion.navExit(FotoRaporMotion.NavDurationFast) },
+        popEnterTransition = { FotoRaporMotion.navPopEnter(FotoRaporMotion.NavDurationFast) },
+        popExitTransition = { FotoRaporMotion.navPopExit(FotoRaporMotion.NavDurationFast) }
+    ) {
         TrashScreen(
             onBack = { navController.popBackStack() },
             language = language

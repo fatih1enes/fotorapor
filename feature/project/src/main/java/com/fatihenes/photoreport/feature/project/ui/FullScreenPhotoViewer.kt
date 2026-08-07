@@ -38,6 +38,7 @@ import androidx.core.net.toUri
 import coil3.compose.AsyncImage
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporTokens
 import com.fatihenes.photoreport.core.ui.R
 import com.fatihenes.photoreport.core.model.Photo
@@ -282,7 +283,7 @@ private fun ImageZoomItem(photo: Photo) {
     ) {
         val context = LocalContext.current
         val request = remember(photo.filePath) {
-            ImageRequest.Builder(context).data(photo.filePath).size(2400).memoryCachePolicy(CachePolicy.ENABLED).diskCachePolicy(CachePolicy.ENABLED).build()
+            ImageRequest.Builder(context).data(photo.filePath).size(2400).memoryCachePolicy(CachePolicy.ENABLED).diskCachePolicy(CachePolicy.ENABLED).crossfade(200).build()
         }
         AsyncImage(
             model = request, contentDescription = null, contentScale = ContentScale.Fit,
