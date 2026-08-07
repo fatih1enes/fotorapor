@@ -27,22 +27,7 @@ import javax.inject.Singleton
  * Manages Backup and Restore functionality.
  */
 interface BackupManager {
-    /**
-     * Creates a backup of the entire app state (Database, Preferences, and Media Files)
-     * and streams it to the given [destUri].
-     *
-     * @param destUri The destination URI to write the backup zip archive.
-     * @return A Flow emitting [OperationResult.Loading] with progress, and finally [OperationResult.Success].
-     */
     fun createBackup(destUri: Uri): Flow<OperationResult<Unit>>
-
-    /**
-     * Restores the app state from a given backup [sourceUri].
-     * Handles Room Database schema version checks and safe media extraction.
-     *
-     * @param sourceUri The URI of the backup file.
-     * @return A Flow emitting [OperationResult.Loading] with progress, and finally [OperationResult.Success].
-     */
     fun restoreBackup(sourceUri: Uri): Flow<OperationResult<Unit>>
 }
 
@@ -55,113 +40,26 @@ class LocalBackupManager @Inject constructor(
     private val settingsRepository: com.fatihenes.photoreport.repository.SettingsRepository,
 ) : BackupManager {
 
-    /**
-     * Future-ready output stream provider.
-     * Encryption (e.g., CipherOutputStream) can be easily added here.
-     */
-    private fun getBackupOutputStream(destUri: Uri): java.io.OutputStream? {
-        val baseStream = context.contentResolver.openOutputStream(destUri) ?: return null
-        // Placeholder for future encryption:
-        // return CipherOutputStream(baseStream, secretKey)
-        return baseStream
-    }
+    private fun getBackupOutputStream(destUri: Uri): java.io.OutputStream? =
+        context.contentResolver.openOutputStream(destUri)
 
-    /**
-     * Future-ready input stream provider.
-     */
-    private fun getBackupInputStream(sourceUri: Uri): java.io.InputStream? {
-        val baseStream = context.contentResolver.openInputStream(sourceUri) ?: return null
-        // Placeholder for future decryption:
-        // return CipherInputStream(baseStream, secretKey)
-        return baseStream
-    }
+    private fun getBackupInputStream(sourceUri: Uri): java.io.InputStream? =
+        context.contentResolver.openInputStream(sourceUri)
 
     override fun createBackup(destUri: Uri): Flow<OperationResult<Unit>> = flow {
         emit(OperationResult.Loading(0))
-
         try {
-            // Checkpoint database to ensure WAL is flushed
-            val dbPath = context.getDatabasePath("photoreport_database").absolutePath
-            database.openHelper.writableDatabase.query("PRAGMA wal_checkpoint(FULL)").close()
-
-            val filesToZip = mutableListOf<Pair<String, Any>>() // Can be File or Uri
-
-            // Add DB files
-            val dbFile = File(dbPath)
-            if (dbFile.exists()) filesToZip.add(Pair("database/photoreport_database", dbFile))
-            listOf("-shm", "-wal").forEach { suffix ->
-                val f = File(dbPath + suffix)
-                if (f.exists()) filesToZip.add(Pair("database/photoreport_database$suffix", f))
-            }
-
-            // Add SharedPreferences and DataStore
-            val prefsDir = File(context.applicationInfo.dataDir, "shared_prefs")
-            if (prefsDir.exists() && prefsDir.isDirectory) {
-                prefsDir.listFiles()?.forEach { prefFile ->
-                    filesToZip.add(Pair("prefs/${prefFile.name}", prefFile))
-                }
-            }
-            val dataStoreDirFiles = File(context.filesDir, "datastore")
-            if (dataStoreDirFiles.exists() && dataStoreDirFiles.isDirectory) {
-                dataStoreDirFiles.listFiles()?.forEach { dsFile ->
-                    filesToZip.add(Pair("datastore_files/${dsFile.name}", dsFile))
-                }
-            }
-            val dataStoreDirApp = File(context.applicationInfo.dataDir, "datastore")
-            if (dataStoreDirApp.exists() && dataStoreDirApp.isDirectory) {
-                dataStoreDirApp.listFiles()?.forEach { dsFile ->
-                    filesToZip.add(Pair("datastore_app/${dsFile.name}", dsFile))
-                }
-            }
-
+            checkpointDatabase()
+            val systemFiles = collectSystemFiles()
             emit(OperationResult.Loading(20))
 
             getBackupOutputStream(destUri)?.use { os ->
                 ZipOutputStream(BufferedOutputStream(os)).use { zos ->
-                    val total = filesToZip.size
-                    filesToZip.forEachIndexed { index, (zipPath, item) ->
-                        try {
-                            zos.putNextEntry(ZipEntry(zipPath))
-                            when (item) {
-                                is File -> FileInputStream(item).use { it.copyTo(zos) }
-                                is Uri -> context.contentResolver.openInputStream(item)?.use { it.copyTo(zos) }
-                            }
-                            zos.closeEntry()
-                        } catch (e: Exception) {
-                            android.util.Log.w("BackupManager", "Skipping file in backup: $zipPath", e)
-                        }
-
-                        val progress = 20 + ((index + 1) * 20 / (total.coerceAtLeast(1)))
-                        emit(OperationResult.Loading(progress))
+                    writeZipEntries(zos, systemFiles) { progress ->
+                        emit(OperationResult.Loading(20 + progress * 20 / 100))
                     }
-
-                    // Add media files via chunked streaming to prevent OOM
-                    var offset = 0
-                    val chunkSize = 50
-                    while (true) {
-                        val chunk = photoDao.getAllPhotosChunked(limit = chunkSize, offset = offset)
-                        if (chunk.isEmpty()) break
-
-                        chunk.forEach { photo ->
-                            try {
-                                val uri = photo.filePath.toUri()
-                                val extension = if (uri.scheme == "content") {
-                                    context.contentResolver.getType(uri)?.let {
-                                        MimeTypeMap.getSingleton().getExtensionFromMimeType(it)
-                                    } ?: "jpg"
-                                } else {
-                                    photo.filePath.substringAfterLast(".", "avif")
-                                }
-                                val zipPath = "media/${photo.id}.$extension"
-                                zos.putNextEntry(ZipEntry(zipPath))
-                                context.contentResolver.openInputStream(uri)?.use { it.copyTo(zos) }
-                                zos.closeEntry()
-                            } catch (e: Exception) {
-                                android.util.Log.w("BackupManager", "Skipping media file in backup: ${photo.filePath}", e)
-                            }
-                        }
-                        offset += chunk.size
-                        emit(OperationResult.Loading(80))
+                    zipMediaInChunks(zos) { progress ->
+                        emit(OperationResult.Loading(progress))
                     }
                 }
             } ?: throw Exception("Hedef dosya açılamadı")
@@ -172,103 +70,86 @@ class LocalBackupManager @Inject constructor(
         }
     }.flowOn(Dispatchers.IO)
 
+    private fun checkpointDatabase() {
+        database.openHelper.writableDatabase.query("PRAGMA wal_checkpoint(FULL)").close()
+    }
+
+    private fun collectSystemFiles(): List<Pair<String, File>> {
+        val files = mutableListOf<Pair<String, File>>()
+        val dbPath = context.getDatabasePath("photoreport_database").absolutePath
+        val dbFile = File(dbPath)
+        if (dbFile.exists()) files.add("database/photoreport_database" to dbFile)
+        listOf("-shm", "-wal").forEach { suffix ->
+            val f = File(dbPath + suffix)
+            if (f.exists()) files.add("database/photoreport_database$suffix" to f)
+        }
+
+        val dataDir = context.applicationInfo.dataDir
+        File(dataDir, "shared_prefs").takeIf { it.exists() && it.isDirectory }?.listFiles()?.forEach {
+            files.add("prefs/${it.name}" to it)
+        }
+        File(context.filesDir, "datastore").takeIf { it.exists() && it.isDirectory }?.listFiles()?.forEach {
+            files.add("datastore_files/${it.name}" to it)
+        }
+        File(dataDir, "datastore").takeIf { it.exists() && it.isDirectory }?.listFiles()?.forEach {
+            files.add("datastore_app/${it.name}" to it)
+        }
+        return files
+    }
+
+    private suspend fun writeZipEntries(zos: ZipOutputStream, files: List<Pair<String, File>>, onProgress: suspend (Int) -> Unit) {
+        files.forEachIndexed { index, (path, file) ->
+            try {
+                zos.putNextEntry(ZipEntry(path))
+                FileInputStream(file).use { it.copyTo(zos) }
+                zos.closeEntry()
+            } catch (e: Exception) {
+                android.util.Log.w("BackupManager", "Skipping file: $path", e)
+            }
+            onProgress((index + 1) * 100 / files.size.coerceAtLeast(1))
+        }
+    }
+
+    private suspend fun zipMediaInChunks(zos: ZipOutputStream, onProgress: suspend (Int) -> Unit) {
+        var offset = 0
+        val chunkSize = 50
+        while (true) {
+            val chunk = photoDao.getAllPhotosChunked(chunkSize, offset)
+            if (chunk.isEmpty()) break
+            chunk.forEach { photo ->
+                try {
+                    val uri = photo.filePath.toUri()
+                    val ext = if (uri.scheme == "content") {
+                        context.contentResolver.getType(uri)?.let {
+                            MimeTypeMap.getSingleton().getExtensionFromMimeType(it)
+                        } ?: "jpg"
+                    } else photo.filePath.substringAfterLast(".", "avif")
+
+                    zos.putNextEntry(ZipEntry("media/${photo.id}.$ext"))
+                    context.contentResolver.openInputStream(uri)?.use { it.copyTo(zos) }
+                    zos.closeEntry()
+                } catch (e: Exception) {
+                    android.util.Log.w("BackupManager", "Skipping media: ${photo.filePath}", e)
+                }
+            }
+            offset += chunk.size
+            onProgress(80)
+        }
+    }
+
     override fun restoreBackup(sourceUri: Uri): Flow<OperationResult<Unit>> = flow {
         emit(OperationResult.Loading(0))
         try {
-            // Stop background workers safely
-            try {
-                androidx.work.WorkManager.getInstance(context).cancelAllWork()
-            } catch (e: Exception) {
-                android.util.Log.w("BackupManager", "Could not stop WorkManager during restore", e)
-            }
-
+            cancelAllWork()
             val tempDir = (fileManager.createTempDirectory("restore") as? OperationResult.Success)?.data
                 ?: throw Exception("Geçici klasör oluşturulamadı")
 
-            getBackupInputStream(sourceUri)?.use { ins ->
-                ZipInputStream(BufferedInputStream(ins)).use { zis ->
-                    val destDirCanonical = tempDir.canonicalPath
-                    var entry: ZipEntry? = zis.nextEntry
-                    while (entry != null) {
-                        val outFile = File(tempDir, entry.name)
-                        val canonicalPath = outFile.canonicalPath
-                        if (!canonicalPath.startsWith(destDirCanonical)) {
-                            throw SecurityException("Zip Slip (Path Traversal) zafiyeti tespit edildi: ${entry.name}")
-                        }
-                        if (entry.isDirectory) {
-                            outFile.mkdirs()
-                        } else {
-                            outFile.parentFile?.mkdirs()
-                            FileOutputStream(outFile).use { zis.copyTo(it) }
-                        }
-                        zis.closeEntry()
-                        entry = zis.nextEntry
-                    }
-                }
-            } ?: throw Exception("Yedek dosyası okunamadı")
-
+            unzipToTempDirectory(sourceUri, tempDir)
             emit(OperationResult.Loading(50))
 
-            // 1. Database Restoration via Data Merge (Hot Restore)
-            val extractedDb = File(tempDir, "database/photoreport_database")
-            if (extractedDb.exists()) {
-                val db = database.openHelper.writableDatabase
-                db.beginTransaction()
-                try {
-                    db.execSQL("ATTACH DATABASE '${extractedDb.absolutePath}' AS backup")
-
-                    // Clear and Import Projects (Cascades to logs and photos if correctly set up,
-                    // but we do it explicitly to be safe and handle order)
-                    db.execSQL("DELETE FROM photos")
-                    db.execSQL("DELETE FROM daily_logs")
-                    db.execSQL("DELETE FROM projects")
-
-                    db.execSQL("INSERT INTO projects SELECT * FROM backup.projects")
-                    db.execSQL("INSERT INTO daily_logs SELECT * FROM backup.daily_logs")
-                    db.execSQL("INSERT INTO photos SELECT * FROM backup.photos")
-
-                    db.execSQL("DETACH DATABASE backup")
-                    db.setTransactionSuccessful()
-                } finally {
-                    db.endTransaction()
-                }
-            }
-
-            // 2. Preferences Restoration (Hot Restore)
-            File(tempDir, "datastore_files").listFiles()?.firstOrNull { it.name.endsWith(".preferences_pb") }?.let { extractedDsFile ->
-                try {
-                    val tempDs = androidx.datastore.preferences.core.PreferenceDataStoreFactory.create { extractedDsFile }
-                    val prefs = tempDs.data.first()
-                    val settingsMap = mutableMapOf<String, Any>()
-                    prefs.asMap().forEach { entry ->
-                        settingsMap[entry.key.name] = entry.value
-                    }
-                    if (settingsMap.isNotEmpty()) {
-                        settingsRepository.importSettings(settingsMap)
-                    }
-                } catch (e: Exception) {
-                    android.util.Log.e("BackupManager", "Error restoring settings", e)
-                }
-            }
-
-            // 3. Media Restoration & Path Update
-            File(tempDir, "media").takeIf { it.exists() && it.isDirectory }?.let { extractedMediaDir ->
-                val appMediaDir = File(context.filesDir, "restored_media").apply {
-                    if (exists()) deleteRecursively()
-                    mkdirs()
-                }
-
-                extractedMediaDir.listFiles()?.forEach { mediaFile ->
-                    val destFile = File(appMediaDir, mediaFile.name)
-                    mediaFile.copyTo(destFile, overwrite = true)
-                    mediaFile.name.substringBefore(".").toLongOrNull()?.let { photoId ->
-                        database.openHelper.writableDatabase.execSQL(
-                            "UPDATE photos SET filePath = ? WHERE id = ?",
-                            arrayOf(destFile.absolutePath, photoId)
-                        )
-                    }
-                }
-            }
+            restoreDatabaseFromBackup(tempDir)
+            restoreSettingsFromBackup(tempDir)
+            restoreMediaFiles(tempDir)
 
             fileManager.deleteDirectoryRecursively(tempDir)
             emit(OperationResult.Loading(100))
@@ -277,4 +158,87 @@ class LocalBackupManager @Inject constructor(
             emit(OperationResult.Error(e, "Geri yükleme başarısız oldu."))
         }
     }.flowOn(Dispatchers.IO)
+
+    private fun cancelAllWork() {
+        try {
+            androidx.work.WorkManager.getInstance(context).cancelAllWork()
+        } catch (e: Exception) {
+            android.util.Log.w("BackupManager", "WorkManager stop failed", e)
+        }
+    }
+
+    private fun unzipToTempDirectory(sourceUri: Uri, tempDir: File) {
+        getBackupInputStream(sourceUri)?.use { ins ->
+            ZipInputStream(BufferedInputStream(ins)).use { zis ->
+                val destDirCanonical = tempDir.canonicalPath
+                var entry = zis.nextEntry
+                while (entry != null) {
+                    val outFile = File(tempDir, entry.name)
+                    if (!outFile.canonicalPath.startsWith(destDirCanonical)) {
+                        throw SecurityException("Zip Slip detected: ${entry.name}")
+                    }
+                    if (entry.isDirectory) outFile.mkdirs() else {
+                        outFile.parentFile?.mkdirs()
+                        FileOutputStream(outFile).use { zis.copyTo(it) }
+                    }
+                    zis.closeEntry()
+                    entry = zis.nextEntry
+                }
+            }
+        } ?: throw Exception("Yedek dosyası okunamadı")
+    }
+
+    private fun restoreDatabaseFromBackup(tempDir: File) {
+        val extractedDb = File(tempDir, "database/photoreport_database")
+        if (!extractedDb.exists()) return
+
+        database.openHelper.writableDatabase.apply {
+            beginTransaction()
+            try {
+                execSQL("ATTACH DATABASE '${extractedDb.absolutePath}' AS backup")
+                execSQL("DELETE FROM photos")
+                execSQL("DELETE FROM daily_logs")
+                execSQL("DELETE FROM projects")
+                execSQL("INSERT INTO projects SELECT * FROM backup.projects")
+                execSQL("INSERT INTO daily_logs SELECT * FROM backup.daily_logs")
+                execSQL("INSERT INTO photos SELECT * FROM backup.photos")
+                execSQL("DETACH DATABASE backup")
+                setTransactionSuccessful()
+            } finally {
+                endTransaction()
+            }
+        }
+    }
+
+    private suspend fun restoreSettingsFromBackup(tempDir: File) {
+        File(tempDir, "datastore_files").listFiles()?.firstOrNull { it.name.endsWith(".preferences_pb") }?.let { file ->
+            try {
+                val tempDs = androidx.datastore.preferences.core.PreferenceDataStoreFactory.create { file }
+                val prefs = tempDs.data.first()
+                val settingsMap = prefs.asMap().mapKeys { it.key.name }
+                if (settingsMap.isNotEmpty()) settingsRepository.importSettings(settingsMap)
+            } catch (e: Exception) {
+                android.util.Log.e("BackupManager", "Settings restore failed", e)
+            }
+        }
+    }
+
+    private fun restoreMediaFiles(tempDir: File) {
+        val extractedMediaDir = File(tempDir, "media").takeIf { it.exists() && it.isDirectory } ?: return
+        val appMediaDir = File(context.filesDir, "restored_media").apply {
+            if (exists()) deleteRecursively()
+            mkdirs()
+        }
+
+        extractedMediaDir.listFiles()?.forEach { mediaFile ->
+            val destFile = File(appMediaDir, mediaFile.name)
+            mediaFile.copyTo(destFile, overwrite = true)
+            mediaFile.name.substringBefore(".").toLongOrNull()?.let { photoId ->
+                database.openHelper.writableDatabase.execSQL(
+                    "UPDATE photos SET filePath = ? WHERE id = ?",
+                    arrayOf(destFile.absolutePath, photoId)
+                )
+            }
+        }
+    }
 }

@@ -3,6 +3,7 @@ package com.fatihenes.photoreport.core.ui.util
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Environment
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import com.fatihenes.photoreport.core.ui.R
@@ -94,10 +95,17 @@ object MediaShareUtils {
 
     private fun validateFilePath(context: Context, file: File) {
         val canonicalPath = file.canonicalPath
-        val isAllowed = (canonicalPath.startsWith(context.filesDir.canonicalPath) ||
-                canonicalPath.startsWith(context.cacheDir.canonicalPath) ||
-                context.externalCacheDir?.let { canonicalPath.startsWith(it.canonicalPath) } == true ||
-                context.getExternalFilesDir(null)?.let { canonicalPath.startsWith(it.canonicalPath) } == true)
+
+        val allowedRoots = mutableListOf<String>()
+        allowedRoots.add(context.filesDir.canonicalPath)
+        allowedRoots.add(context.cacheDir.canonicalPath)
+
+        if (Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED) {
+            context.externalCacheDir?.let { allowedRoots.add(it.canonicalPath) }
+            context.getExternalFilesDir(null)?.let { allowedRoots.add(it.canonicalPath) }
+        }
+
+        val isAllowed = allowedRoots.any { canonicalPath.startsWith(it) }
 
         if (!isAllowed) {
             throw SecurityException("Invalid file path: path traversal detected")

@@ -3,61 +3,40 @@ package com.fatihenes.photoreport.ui.navigation
 
 import android.Manifest
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
+import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavType
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
-import com.fatihenes.photoreport.R
-import com.fatihenes.photoreport.feature.camera.ui.CameraScreen
-import com.fatihenes.photoreport.feature.dashboard.ui.DashboardScreen
-import com.fatihenes.photoreport.feature.project.ui.ProjectDetailScreen
-import com.fatihenes.photoreport.feature.settings.ui.SettingsScreen
-import com.fatihenes.photoreport.feature.trash.ui.TrashScreen
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.fatihenes.photoreport.ui.viewmodel.MainViewModel
-import com.fatihenes.photoreport.feature.settings.viewmodel.SettingsViewModel
-import com.fatihenes.photoreport.feature.dashboard.viewmodel.DashboardViewModel
-import com.fatihenes.photoreport.feature.project.viewmodel.ProjectDetailViewModel
-import com.fatihenes.photoreport.core.ui.state.UiState
-import com.fatihenes.photoreport.ui.components.DisclosureDialog
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.core.app.ActivityCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.rememberNavController
+import com.fatihenes.photoreport.R
+import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion
+import com.fatihenes.photoreport.ui.components.DisclosureDialog
+import com.fatihenes.photoreport.ui.viewmodel.MainViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 val LocalSnackbarHostState = com.fatihenes.photoreport.core.ui.navigation.LocalSnackbarHostState
 
-/**
- * Main navigation graph for the PhotoReport app.
- * Extracted from MainActivity to follow SRP — the Activity only sets up
- * the theme and calls this composable.
- */
 @Composable
 fun AppNavGraph(
     viewModel: MainViewModel,
@@ -68,7 +47,6 @@ fun AppNavGraph(
 
     CompositionLocalProvider(LocalSnackbarHostState provides snackbarHostState) {
         val navController = rememberNavController()
-        val context = LocalContext.current
         val scope = rememberCoroutineScope()
         val language by viewModel.language.collectAsStateWithLifecycle()
 
@@ -77,12 +55,100 @@ fun AppNavGraph(
             DisclosureDialog { viewModel.setDisclosureShown(shown = true) }
         }
 
-    // --- Permission Handling ---
-    var pendingLogId by remember { mutableStateOf<Long?>(null) }
-    var pendingProjectId by remember { mutableStateOf<Long?>(null) }
-    var showPermissionRationale by remember { mutableStateOf(false) }
-    var initialNavDone by rememberSaveable { mutableStateOf(false) }
+        // --- Permission & Initial Nav Handling ---
+        var pendingLogId by remember { mutableStateOf<Long?>(null) }
+        var pendingProjectId by remember { mutableStateOf<Long?>(null) }
 
+        HandleInitialNavigation(navController, initialCameraProjectId, initialProjectDetailId)
+
+        val permissionLauncher = rememberCameraPermissionLauncher(
+            navController = navController,
+            snackbarHostState = snackbarHostState,
+            scope = scope,
+            onResetPending = {
+                pendingLogId = null
+                pendingProjectId = null
+            },
+            getPendingLogId = { pendingLogId },
+            getPendingProjectId = { pendingProjectId }
+        )
+
+        // --- Navigation Host ---
+        Box(modifier = Modifier.fillMaxSize()) {
+            AppNavHost(
+                navController = navController,
+                viewModel = viewModel,
+                snackbarHostState = snackbarHostState,
+                scope = scope,
+                language = language,
+                permissionLauncher = permissionLauncher,
+                onSetPending = { logId, projectId ->
+                    pendingLogId = logId
+                    pendingProjectId = projectId
+                }
+            )
+
+            SnackbarHost(
+                hostState = snackbarHostState,
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .imePadding()
+                    .navigationBarsPadding()
+            )
+        }
+    }
+}
+
+@Composable
+private fun AppNavHost(
+    navController: NavHostController,
+    viewModel: MainViewModel,
+    snackbarHostState: SnackbarHostState,
+    scope: CoroutineScope,
+    language: String,
+    permissionLauncher: ManagedActivityResultLauncher<String, Boolean>,
+    onSetPending: (Long?, Long?) -> Unit
+) {
+    val enterTransition = remember {
+        fadeIn(animationSpec = tween(FotoRaporMotion.DurationMedium, easing = FotoRaporMotion.EasingEmphasized)) +
+                androidx.compose.animation.scaleIn(initialScale = 0.97f, animationSpec = tween(FotoRaporMotion.DurationMedium, easing = FotoRaporMotion.EasingEmphasized))
+    }
+    val exitTransition = remember {
+        fadeOut(animationSpec = tween(FotoRaporMotion.DurationShort, easing = FotoRaporMotion.EasingStandard)) +
+                androidx.compose.animation.scaleOut(targetScale = 1.03f, animationSpec = tween(FotoRaporMotion.DurationShort, easing = FotoRaporMotion.EasingStandard))
+    }
+    val popEnterTransition = remember {
+        fadeIn(animationSpec = tween(FotoRaporMotion.DurationMedium, easing = FotoRaporMotion.EasingEmphasized)) +
+                androidx.compose.animation.scaleIn(initialScale = 1.03f, animationSpec = tween(FotoRaporMotion.DurationMedium, easing = FotoRaporMotion.EasingEmphasized))
+    }
+    val popExitTransition = remember {
+        fadeOut(animationSpec = tween(FotoRaporMotion.DurationShort, easing = FotoRaporMotion.EasingStandard)) +
+                androidx.compose.animation.scaleOut(targetScale = 0.97f, animationSpec = tween(FotoRaporMotion.DurationShort, easing = FotoRaporMotion.EasingStandard))
+    }
+
+    NavHost(
+        navController = navController,
+        startDestination = Routes.DASHBOARD,
+        enterTransition = { enterTransition },
+        exitTransition = { exitTransition },
+        popEnterTransition = { popEnterTransition },
+        popExitTransition = { popExitTransition }
+    ) {
+        dashboardRoute(navController, snackbarHostState, scope, language)
+        settingsRoute(navController)
+        detailRoute(navController, language, permissionLauncher, onSetPending)
+        cameraRoute(navController, viewModel)
+        trashRoute(navController, language)
+    }
+}
+
+@Composable
+private fun HandleInitialNavigation(
+    navController: NavHostController,
+    initialCameraProjectId: Long,
+    initialProjectDetailId: Long
+) {
+    var initialNavDone by rememberSaveable { mutableStateOf(false) }
     LaunchedEffect(initialCameraProjectId, initialProjectDetailId) {
         if (!initialNavDone) {
             if (initialCameraProjectId != -1L) {
@@ -94,12 +160,25 @@ fun AppNavGraph(
             }
         }
     }
+}
+
+@Composable
+private fun rememberCameraPermissionLauncher(
+    navController: NavController,
+    snackbarHostState: SnackbarHostState,
+    scope: CoroutineScope,
+    onResetPending: () -> Unit,
+    getPendingLogId: () -> Long?,
+    getPendingProjectId: () -> Long?
+): ManagedActivityResultLauncher<String, Boolean> {
+    val context = LocalContext.current
+    var showPermissionRationale by remember { mutableStateOf(false) }
 
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (isGranted) {
-            navController.navigate(Routes.camera(pendingLogId, pendingProjectId))
+            navController.navigate(Routes.camera(getPendingLogId(), getPendingProjectId()))
         } else {
             val activity = context as? android.app.Activity
             if (activity != null && (!ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.CAMERA))) {
@@ -110,8 +189,7 @@ fun AppNavGraph(
                 }
             }
         }
-        pendingLogId = null
-        pendingProjectId = null
+        onResetPending()
     }
 
     if (showPermissionRationale) {
@@ -127,196 +205,9 @@ fun AppNavGraph(
         )
     }
 
-    // --- Navigation Host ---
-    Box(modifier = Modifier.fillMaxSize()) {
-        NavHost(
-            navController = navController,
-        startDestination = Routes.DASHBOARD,
-        modifier = Modifier,
-        enterTransition = {
-            fadeIn(animationSpec = tween(FotoRaporMotion.DurationMedium, easing = FotoRaporMotion.EasingEmphasized)) +
-            androidx.compose.animation.scaleIn(initialScale = 0.97f, animationSpec = tween(FotoRaporMotion.DurationMedium, easing = FotoRaporMotion.EasingEmphasized))
-        },
-        exitTransition = {
-            fadeOut(animationSpec = tween(FotoRaporMotion.DurationShort, easing = FotoRaporMotion.EasingStandard)) +
-            androidx.compose.animation.scaleOut(targetScale = 1.03f, animationSpec = tween(FotoRaporMotion.DurationShort, easing = FotoRaporMotion.EasingStandard))
-        },
-        popEnterTransition = {
-            fadeIn(animationSpec = tween(FotoRaporMotion.DurationMedium, easing = FotoRaporMotion.EasingEmphasized)) +
-            androidx.compose.animation.scaleIn(initialScale = 1.03f, animationSpec = tween(FotoRaporMotion.DurationMedium, easing = FotoRaporMotion.EasingEmphasized))
-        },
-        popExitTransition = {
-            fadeOut(animationSpec = tween(FotoRaporMotion.DurationShort, easing = FotoRaporMotion.EasingStandard)) +
-            androidx.compose.animation.scaleOut(targetScale = 0.97f, animationSpec = tween(FotoRaporMotion.DurationShort, easing = FotoRaporMotion.EasingStandard))
-        }
-    ) {
-        composable(Routes.DASHBOARD) {
-            val dashboardViewModel: DashboardViewModel = hiltViewModel()
-            val projects by dashboardViewModel.projects.collectAsStateWithLifecycle()
-            val actionState by dashboardViewModel.projectActionState.collectAsStateWithLifecycle()
-            val isTrashNotEmpty by dashboardViewModel.isTrashNotEmpty.collectAsStateWithLifecycle()
-            val isRefreshing by dashboardViewModel.isRefreshing.collectAsStateWithLifecycle()
-
-            LaunchedEffect(actionState) {
-                if (actionState is UiState.Success) {
-                    scope.launch { snackbarHostState.showSnackbar(context.getString(R.string.project_added_success)) }
-                    dashboardViewModel.resetProjectActionState()
-                } else if (actionState is UiState.Error) {
-                    scope.launch { snackbarHostState.showSnackbar((actionState as UiState.Error).message) }
-                    dashboardViewModel.resetProjectActionState()
-                }
-            }
-
-            DashboardScreen(
-                projects = projects,
-                language = language,
-                isTrashNotEmpty = isTrashNotEmpty,
-                isRefreshing = isRefreshing,
-                onProjectClick = { project ->
-                    navController.navigate(Routes.detail(project.id))
-                },
-                onAddProject = { name, color ->
-                    dashboardViewModel.addProject(name, color)
-                },
-                onSettingsClick = {
-                    navController.navigate(Routes.SETTINGS)
-                },
-                onTrashClick = { navController.navigate(Routes.TRASH) },
-                onRefresh = { dashboardViewModel.refresh() }
-            )
-        }
-
-        composable(Routes.SETTINGS) {
-            val settingsViewModel: SettingsViewModel = hiltViewModel()
-            SettingsScreen(
-                onBack = { navController.popBackStack() },
-                viewModel = settingsViewModel
-            )
-        }
-
-        composable(
-            route = Routes.DETAIL,
-            arguments = listOf(navArgument("projectId") { type = NavType.LongType })
-        ) { backStackEntry ->
-            val projectId = backStackEntry.arguments?.getLong("projectId") ?: -1L
-            val detailViewModel: ProjectDetailViewModel = hiltViewModel()
-
-            LaunchedEffect(projectId) {
-                detailViewModel.setProjectId(projectId)
-            }
-
-            val project by detailViewModel.selectedProject.collectAsStateWithLifecycle()
-            val currentLogs by detailViewModel.currentProjectLogs.collectAsStateWithLifecycle()
-
-            ProjectDetailScreen(
-                project = project,
-                logs = currentLogs,
-                viewModel = detailViewModel,
-                onBack = { navController.popBackStack() },
-                onDeleteProject = {
-                    project?.let { detailViewModel.deleteProject(it.id) }
-                    navController.popBackStack()
-                },
-                onAddPhoto = { logId ->
-                    if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-                        navController.navigate(Routes.camera(logId, projectId))
-                    } else {
-                        pendingLogId = logId
-                        pendingProjectId = projectId
-                        permissionLauncher.launch(Manifest.permission.CAMERA)
-                    }
-                },
-                onDeletePhoto = { photo ->
-                    detailViewModel.deletePhoto(photo)
-                },
-                onDeletePhotos = { ids ->
-                    detailViewModel.deletePhotos(ids)
-                },
-                onNoteChange = { logId, note ->
-                    detailViewModel.updateNote(logId, note)
-                },
-                onUpdateRotation = { photoId, rotation ->
-                    detailViewModel.updatePhotoRotation(photoId, rotation)
-                },
-                onAddLogForDate = { date ->
-                    project?.let { detailViewModel.addLogForDate(it.id, date) }
-                },
-                onImportPhotoToLog = { logId, filePath ->
-                    detailViewModel.addPhotoToLog(logId, filePath)
-                },
-                onExportProject = { format, quality, lang ->
-                    project?.let { detailViewModel.exportProject(it.id, it.name, format, quality, lang) }
-                },
-                language = language
-            )
-        }
-
-        composable(
-            route = Routes.CAMERA,
-            arguments = listOf(
-                navArgument("logId") { type = NavType.LongType; defaultValue = -1L },
-                navArgument("projectId") { type = NavType.LongType; defaultValue = -1L }
-            )
-        ) { backStackEntry ->
-            val logId = backStackEntry.arguments?.getLong("logId") ?: -1L
-            val cameraProjectId = backStackEntry.arguments?.getLong("projectId") ?: -1L
-
-            val detailViewModel: ProjectDetailViewModel = hiltViewModel()
-            val settingsViewModel: SettingsViewModel = hiltViewModel()
-
-            val settings by settingsViewModel.settings.collectAsStateWithLifecycle()
-            val cameraOpt = settings?.cameraOptimization ?: true
-            val avifEnabled = settings?.avifEnabled ?: true
-
-            val projectState by detailViewModel.selectedProject.collectAsStateWithLifecycle()
-            val projectName = projectState?.name ?: ""
-
-            // Set projectId so the ViewModel knows which project we're working with
-            LaunchedEffect(cameraProjectId) {
-                if (cameraProjectId != -1L) {
-                    detailViewModel.setProjectId(cameraProjectId)
-                }
-            }
-
-            CameraScreen(
-                onPhotoCaptured = { uri ->
-                    if (logId != -1L) {
-                        viewModel.savePhotoInBackground(uri, cameraProjectId, logId, avifEnabled, projectName)
-                    } else if (cameraProjectId != -1L) {
-                        viewModel.savePhotoInBackground(uri, cameraProjectId, -1L, avifEnabled, projectName)
-                    }
-                },
-                onClose = { navController.popBackStack() },
-                enableOptimization = cameraOpt,
-                enableAvif = avifEnabled,
-                onToggleOptimization = { settingsViewModel.setCameraOptimization(it) },
-                onToggleAvif = { settingsViewModel.setAvifEnabled(it) }
-            )
-        }
-
-        composable(route = Routes.TRASH) {
-            TrashScreen(
-                onBack = { navController.popBackStack() },
-                language = language
-            )
-        }
-    }
-
-    // Global SnackbarHost over the NavHost
-    SnackbarHost(
-        hostState = snackbarHostState,
-        modifier = Modifier
-            .align(Alignment.BottomCenter)
-            .imePadding()
-            .navigationBarsPadding()
-    )
-    } // End of Box
-    } // End of CompositionLocalProvider
+    return permissionLauncher
 }
 
-/**
- * Dialog shown when camera permission has been permanently denied.
- */
 @Composable
 private fun CameraPermissionRationaleDialog(
     onDismiss: () -> Unit,

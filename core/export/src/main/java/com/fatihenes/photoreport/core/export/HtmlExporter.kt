@@ -21,6 +21,9 @@ import java.util.zip.ZipOutputStream
 
 object HtmlExporter {
 
+    private const val DIV_CLOSE = "</div>"
+    private const val LOGO_ASSET_PATH = "assets/company_logo.png"
+
     suspend fun exportToHtmlZip(
         context: Context,
         project: ProjectEntity,
@@ -35,83 +38,68 @@ object HtmlExporter {
             val zipFile = File(context.cacheDir, "${zipNamePrefix}_$sanitizedName.zip")
             if (zipFile.exists()) zipFile.delete()
 
-            Log.d("HtmlExporter", "Creating streaming ZIP file: ${zipFile.absolutePath}")
-
             val photoMap = mutableMapOf<Long, String>()
-            var logoAssetPath: String? = null
-
             ZipOutputStream(FileOutputStream(zipFile)).use { zos ->
-                if (CompanyLogoManager.hasLogo(context)) {
-                    val logoUri = CompanyLogoManager.getLogoUri(context)
-                    if (logoUri != null) {
-                        try {
-                            val entry = ZipEntry("assets/company_logo.png")
-                            zos.putNextEntry(entry)
-                            ImageProcessor.openInputStreamSafe(context, logoUri.toString())?.use { input ->
-                                input.copyTo(zos, bufferSize = 8192)
-                            }
-                            zos.closeEntry()
-                            logoAssetPath = "assets/company_logo.png"
-                        } catch (e: Exception) {
-                            Log.e("HtmlExporter", "Error streaming logo", e)
-                        }
-                    }
-                }
+                val logoPath = streamLogoToZip(context, zos)
+                streamMediaToZip(context, zos, photos, quality, photoMap)
 
-                photos.forEach { photo ->
-                    Log.d("HtmlExporter", "Streaming photo: ${photo.id}, path: ${photo.filePath}")
-                    val isVideo = photo.filePath.endsWith(".mp4", ignoreCase = true)
-                    val fileName = if (isVideo) "video_${photo.id}.mp4" else "photo_${photo.id}.jpg"
-
-                    try {
-                        val entry = ZipEntry("assets/$fileName")
-                        zos.putNextEntry(entry)
-                        var writeSuccess = false
-
-                        if (isVideo || (quality == 100)) {
-                            ImageProcessor.openInputStreamSafe(context, photo.filePath)?.use { input ->
-                                input.copyTo(zos, bufferSize = 8192)
-                                writeSuccess = true
-                            }
-                        } else {
-                            writeSuccess = ImageProcessor.compressToStream(context, photo.filePath, zos, quality)
-                            if (!writeSuccess) {
-                                ImageProcessor.openInputStreamSafe(context, photo.filePath)?.use { input ->
-                                    input.copyTo(zos, bufferSize = 8192)
-                                    writeSuccess = true
-                                }
-                            }
-                        }
-                        zos.closeEntry()
-
-                        if (writeSuccess) {
-                            photoMap[photo.id] = "assets/$fileName"
-                        }
-                    } catch (e: kotlinx.coroutines.CancellationException) {
-                        throw e
-                    } catch (e: Exception) {
-                        Log.e("HtmlExporter", "Error streaming media: ${photo.id}", e)
-                    }
-                }
-
-                val htmlContent = generateHtmlContent(project, logs, photos, photoMap, logoAssetPath, language)
-                val htmlEntry = ZipEntry("index.html")
-                zos.putNextEntry(htmlEntry)
+                val htmlContent = generateHtmlContent(project, logs, photos, photoMap, logoPath, language)
+                zos.putNextEntry(ZipEntry("index.html"))
                 zos.write(htmlContent.toByteArray(Charsets.UTF_8))
                 zos.closeEntry()
             }
 
-            return@withContext FileProvider.getUriForFile(
-                context,
-                "${context.packageName}.fileprovider",
-                zipFile,
-            )
-
-        } catch (e: kotlinx.coroutines.CancellationException) {
-            throw e
+            return@withContext FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", zipFile)
         } catch (e: Exception) {
-            Log.e("HtmlExporter", "Error exporting to HTML ZIP", e)
-            return@withContext null
+            if (e is kotlinx.coroutines.CancellationException) throw e
+            Log.e("HtmlExporter", "Export failed", e)
+            null
+        }
+    }
+
+    private fun streamLogoToZip(context: Context, zos: ZipOutputStream): String? {
+        if (!CompanyLogoManager.hasLogo(context)) return null
+        val logoUri = CompanyLogoManager.getLogoUri(context) ?: return null
+        return try {
+            zos.putNextEntry(ZipEntry(LOGO_ASSET_PATH))
+            ImageProcessor.openInputStreamSafe(context, logoUri.toString())?.use { it.copyTo(zos, 8192) }
+            zos.closeEntry()
+            LOGO_ASSET_PATH
+        } catch (e: Exception) {
+            Log.e("HtmlExporter", "Logo stream failed", e)
+            null
+        }
+    }
+
+    private fun streamMediaToZip(
+        context: Context,
+        zos: ZipOutputStream,
+        photos: List<PhotoEntity>,
+        quality: Int,
+        photoMap: MutableMap<Long, String>
+    ) {
+        photos.forEach { photo ->
+            val isVideo = photo.filePath.endsWith(".mp4", ignoreCase = true)
+            val fileName = if (isVideo) "video_${photo.id}.mp4" else "photo_${photo.id}.jpg"
+            val entryPath = "assets/$fileName"
+            try {
+                zos.putNextEntry(ZipEntry(entryPath))
+                val success = writeMediaContent(context, zos, photo.filePath, isVideo, quality)
+                zos.closeEntry()
+                if (success) photoMap[photo.id] = entryPath
+            } catch (e: Exception) {
+                if (e is kotlinx.coroutines.CancellationException) throw e
+                Log.e("HtmlExporter", "Media stream failed: ${photo.id}", e)
+            }
+        }
+    }
+
+    private fun writeMediaContent(context: Context, zos: ZipOutputStream, path: String, isVideo: Boolean, quality: Int): Boolean {
+        return if (isVideo || quality == 100) {
+            ImageProcessor.openInputStreamSafe(context, path)?.use { it.copyTo(zos, 8192); true } ?: false
+        } else {
+            ImageProcessor.compressToStream(context, path, zos, quality) ||
+                    ImageProcessor.openInputStreamSafe(context, path)?.use { it.copyTo(zos, 8192); true } ?: false
         }
     }
 
@@ -120,230 +108,102 @@ object HtmlExporter {
         logs: List<DailyLogEntity>,
         photos: List<PhotoEntity>,
         photoMap: Map<Long, String>,
-        logoAssetPath: String?,
+        logoPath: String?,
         language: String,
     ): String {
         val locale = if (language == "en") Locale.US else Locale.forLanguageTag("tr-TR")
         val dateFormat = SimpleDateFormat("dd MMMM yyyy", locale)
         val dateStr = dateFormat.format(Date())
 
-        val reportKicker = if (language == "en") "Field Inspection &amp; Observation Report" else "Saha Denetim ve Gözlem Raporu"
-        val reportDateLabel = if (language == "en") "Report Date" else "Rapor Tarihi"
-        val companyLogoAlt = if (language == "en") "Company Logo" else "Şirket Logosu"
-        val videoNotSupported = if (language == "en") "Your browser does not support video playback." else "Tarayıcınız video oynatmayı desteklemiyor."
-        val photoAlt = if (language == "en") "Photo" else "Fotoğraf"
+        return buildString {
+            append(generateHtmlHead(project.name, language))
+            append("<body><div class=\"container\">")
+            append(generateHtmlHeader(project.name, dateStr, logoPath, language))
+            append("<div class=\"timeline\">")
 
-        val builder = StringBuilder()
-        builder.append(
-            """
-            <!DOCTYPE html>
-            <html lang="$language">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>${project.name} - ${if(language == "en") "Report" else "Rapor"}</title>
-                <link rel="preconnect" href="https://fonts.googleapis.com">
-                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-                <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
-                <style>
-                    :root {
-                        /* FotoRapor "Ink & Brass" — kurumsal kimlik */
-                        --bg-color: #FAF9F6;
-                        --card-bg: #ffffff;
-                        --text-primary: #1C1915;
-                        --text-secondary: #5A5448;
-                        --primary: #2F386F;
-                        --accent: #A6712F;
-                        --border: #DDD9CF;
-                        --shadow: 0 8px 24px -8px rgba(21, 24, 47, 0.14);
-                    }
-                    @media (prefers-color-scheme: dark) {
-                        :root {
-                            --bg-color: #121009;
-                            --card-bg: #1C1915;
-                            --text-primary: #F5F3EE;
-                            --text-secondary: #C4BFB2;
-                            --primary: #8B95D8;
-                            --accent: #D2A25C;
-                            --border: #423D34;
-                            --shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.45);
-                        }
-                    }
-                    body {
-                        font-family: 'Manrope', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-                        background-color: var(--bg-color);
-                        color: var(--text-primary);
-                        line-height: 1.6;
-                        margin: 0;
-                        padding: 0;
-                    }
-                    h1, h2, .day-title {
-                        font-family: 'Space Grotesk', 'Manrope', sans-serif;
-                        letter-spacing: -0.02em;
-                    }
-                    .container {
-                        max-width: 800px;
-                        margin: 0 auto;
-                        padding: 2rem 1rem;
-                    }
-                    .header {
-                        display: flex;
-                        align-items: center;
-                        justify-content: space-between;
-                        margin-bottom: 3rem;
-                        background: var(--card-bg);
-                        padding: 2rem;
-                        border-radius: 16px;
-                        border-top: 4px solid var(--accent);
-                        box-shadow: var(--shadow);
-                    }
-                    .header-content {
-                        flex: 1;
-                    }
-                    .header-kicker {
-                        display: inline-block;
-                        font-family: 'Manrope', sans-serif;
-                        font-size: 0.72rem;
-                        font-weight: 700;
-                        letter-spacing: 0.12em;
-                        text-transform: uppercase;
-                        color: var(--accent);
-                        margin: 0 0 0.6rem 0;
-                    }
-                    .header h1 {
-                        font-size: 2.3rem;
-                        font-weight: 700;
-                        margin: 0 0 0.5rem 0;
-                        color: var(--primary);
-                    }
-                    .header p {
-                        color: var(--text-secondary);
-                        font-size: 1.05rem;
-                        margin: 0;
-                    }
-                    .company-logo {
-                        max-width: 120px;
-                        max-height: 120px;
-                        object-fit: contain;
-                        border-radius: 12px;
-                        margin-left: 2rem;
-                    }
-                    .timeline {
-                        position: relative;
-                    }
-                    .day-card {
-                        background-color: var(--card-bg);
-                        border: 1px solid var(--border);
-                        border-radius: 12px;
-                        padding: 1.5rem;
-                        margin-bottom: 2rem;
-                        box-shadow: var(--shadow);
-                    }
-                    .day-header {
-                        display: flex;
-                        align-items: center;
-                        margin-bottom: 1rem;
-                        padding-bottom: 1rem;
-                        border-bottom: 1px solid var(--border);
-                    }
-                    .day-title {
-                        font-size: 1.25rem;
-                        font-weight: 600;
-                        margin: 0;
-                        color: var(--primary);
-                    }
-                    .note-content {
-                        font-size: 1rem;
-                        white-space: pre-wrap;
-                        margin-bottom: 1.5rem;
-                    }
-                    .media-grid {
-                        display: grid;
-                        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-                        gap: 1rem;
-                    }
-                    .media-item {
-                        border-radius: 8px;
-                        overflow: hidden;
-                        background: #000;
-                        aspect-ratio: 3/4;
-                        position: relative;
-                    }
-                    .media-item img, .media-item video {
-                        width: 100%;
-                        height: 100%;
-                        object-fit: contain;
-                        background-color: #000;
-                    }
-                    video[controls] {
-                        max-height: 100%;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="container">
-                    <div class="header">
-                        <div class="header-content">
-                            <span class="header-kicker">$reportKicker</span>
-                            <h1>${project.name}</h1>
-                            <p>$reportDateLabel: $dateStr</p>
-                        </div>
-                        ${if (logoAssetPath != null) "<img src=\"$logoAssetPath\" class=\"company-logo\" alt=\"$companyLogoAlt\">" else ""}
-                    </div>
-                    <div class="timeline">
-        """.trimIndent(),
-        )
-
-        logs.sortedByDescending { it.date }.forEach { log ->
-            val logDateStr = dateFormat.format(Date(log.date))
-            val dayPhotos = photos.filter { it.logId == log.id }
-
-            if (log.note.trim().isNotEmpty() || dayPhotos.isNotEmpty()) {
-                builder.append(
-                    """
-                    <div class="day-card">
-                        <div class="day-header">
-                            <h2 class="day-title">$logDateStr</h2>
-                        </div>
-                """.trimIndent()
-                )
-
-                if (log.note.trim().isNotEmpty()) {
-                    builder.append("<div class=\"note-content\">${log.note.htmlEncode()}</div>")
+            logs.sortedByDescending { it.date }.forEach { log ->
+                val dayPhotos = photos.filter { it.logId == log.id }
+                if (log.note.isNotBlank() || dayPhotos.isNotEmpty()) {
+                    append(generateDayCard(log, dayPhotos, photoMap, dateFormat, language))
                 }
-
-                if (dayPhotos.isNotEmpty()) {
-                    builder.append("<div class=\"media-grid\">")
-                    dayPhotos.forEach { photo ->
-                        val assetPath = photoMap[photo.id]
-                        if (assetPath != null) {
-                            val isVideo = assetPath.endsWith(".mp4", ignoreCase = true)
-                            builder.append("<div class=\"media-item\">")
-                            if (isVideo) {
-                                builder.append("<video controls preload=\"metadata\"><source src=\"$assetPath\" type=\"video/mp4\">$videoNotSupported</video>")
-                            } else {
-                                val transform = if (photo.rotation != 0f) "transform: rotate(${photo.rotation}deg);" else ""
-                                builder.append("<a href=\"$assetPath\" target=\"_blank\"><img src=\"$assetPath\" alt=\"$photoAlt\" loading=\"lazy\" style=\"$transform\"></a>")
-                            }
-                            builder.append("</div>")
-                        }
-                    }
-                    builder.append("</div>")
-                }
-
-                builder.append("</div>")
             }
+
+            append("</div></div></body></html>")
         }
+    }
 
-        builder.append(
-            """
-                    </div>
+    private fun generateHtmlHead(title: String, lang: String): String = """
+        <!DOCTYPE html>
+        <html lang="$lang">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>$title - ${if (lang == "en") "Report" else "Rapor"}</title>
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+            <style>
+                :root { --bg-color: #FAF9F6; --card-bg: #ffffff; --text-primary: #1C1915; --text-secondary: #5A5448; --primary: #2F386F; --accent: #A6712F; --border: #DDD9CF; --shadow: 0 8px 24px -8px rgba(21, 24, 47, 0.14); }
+                @media (prefers-color-scheme: dark) { :root { --bg-color: #121009; --card-bg: #1C1915; --text-primary: #F5F3EE; --text-secondary: #C4BFB2; --primary: #8B95D8; --accent: #D2A25C; --border: #423D34; --shadow: 0 8px 24px -8px rgba(0, 0, 0, 0.45); } }
+                body { font-family: 'Manrope', sans-serif; background-color: var(--bg-color); color: var(--text-primary); line-height: 1.6; margin: 0; padding: 0; }
+                .container { max-width: 800px; margin: 0 auto; padding: 2rem 1rem; }
+                .header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 3rem; background: var(--card-bg); padding: 2rem; border-radius: 16px; border-top: 4px solid var(--accent); box-shadow: var(--shadow); }
+                .header-kicker { display: inline-block; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); margin-bottom: 0.6rem; }
+                .header h1 { font-size: 2.3rem; font-weight: 700; margin: 0 0 0.5rem 0; color: var(--primary); }
+                .company-logo { max-width: 120px; max-height: 120px; object-fit: contain; border-radius: 12px; margin-left: 2rem; }
+                .day-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; box-shadow: var(--shadow); }
+                .day-header { border-bottom: 1px solid var(--border); margin-bottom: 1rem; padding-bottom: 1rem; }
+                .day-title { font-size: 1.25rem; font-weight: 600; margin: 0; color: var(--primary); }
+                .note-content { white-space: pre-wrap; margin-bottom: 1.5rem; }
+                .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
+                .media-item { border-radius: 8px; overflow: hidden; background: #000; aspect-ratio: 3/4; position: relative; }
+                .media-item img, .media-item video { width: 100%; height: 100%; object-fit: contain; }
+            </style>
+        </head>
+    """.trimIndent()
+
+    private fun generateHtmlHeader(name: String, date: String, logo: String?, lang: String): String {
+        val kicker = if (lang == "en") "Field Inspection Report" else "Saha Denetim Raporu"
+        val label = if (lang == "en") "Report Date" else "Rapor Tarihi"
+        val logoAlt = if (lang == "en") "Logo" else "Logosu"
+        return """
+            <div class="header">
+                <div class="header-content">
+                    <span class="header-kicker">$kicker</span>
+                    <h1>$name</h1>
+                    <p>$label: $date</p>
                 </div>
-            </body>
-            </html>
-        """.trimIndent(),
-        )
+                ${if (logo != null) "<img src=\"$logo\" class=\"company-logo\" alt=\"$logoAlt\">" else ""}
+            </div>
+        """.trimIndent()
+    }
 
-        return builder.toString()
+    private fun generateDayCard(log: DailyLogEntity, photos: List<PhotoEntity>, map: Map<Long, String>, df: SimpleDateFormat, lang: String): String {
+        return buildString {
+            append("<div class=\"day-card\"><div class=\"day-header\"><h2 class=\"day-title\">${df.format(Date(log.date))}</h2></div>")
+            if (log.note.isNotBlank()) append("<div class=\"note-content\">${log.note.htmlEncode()}</div>")
+            if (photos.isNotEmpty()) {
+                append("<div class=\"media-grid\">")
+                photos.forEach { photo -> map[photo.id]?.let { append(generateMediaItem(it, photo.rotation, lang)) } }
+                append(DIV_CLOSE)
+            }
+            append(DIV_CLOSE)
+        }
+    }
+
+    private fun generateMediaItem(path: String, rotation: Float, lang: String): String {
+        val isVideo = path.endsWith(".mp4", ignoreCase = true)
+        val videoMsg = if (lang == "en") "Video not supported" else "Video desteklenmiyor"
+        val photoAlt = if (lang == "en") "Photo" else "Fotoğraf"
+        return buildString {
+            append("<div class=\"media-item\">")
+            if (isVideo) {
+                append("<video controls preload=\"metadata\"><source src=\"$path\" type=\"video/mp4\">$videoMsg</video>")
+            } else {
+                val style = if (rotation != 0f) "style=\"transform: rotate(${rotation}deg);\"" else ""
+                append("<a href=\"$path\" target=\"_blank\"><img src=\"$path\" alt=\"$photoAlt\" loading=\"lazy\" $style></a>")
+            }
+            append(DIV_CLOSE)
+        }
     }
 }

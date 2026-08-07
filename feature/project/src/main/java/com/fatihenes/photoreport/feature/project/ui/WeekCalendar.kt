@@ -22,7 +22,6 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.TextStyle
 import java.time.temporal.TemporalAdjusters
-import java.util.Locale
 
 @Composable
 fun WeekCalendar(
@@ -30,13 +29,8 @@ fun WeekCalendar(
     onDateSelected: (LocalDate) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val haptic = LocalHapticFeedback.current
     var selectedDay by remember { mutableStateOf(LocalDate.now()) }
-    val currentWeekDays = remember {
-        val today = LocalDate.now()
-        val monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-        (0..6).map { monday.plusDays(it.toLong()) }
-    }
+    val currentWeekDays = remember { calculateCurrentWeekDays() }
 
     Surface(
         modifier = modifier
@@ -44,66 +38,110 @@ fun WeekCalendar(
             .padding(bottom = FotoRaporTokens.SpacingL),
         shape = RoundedCornerShape(FotoRaporTokens.RadiusL),
         color = MaterialTheme.colorScheme.surface,
-        border = androidx.compose.foundation.BorderStroke(
-            1.dp,
-            MaterialTheme.colorScheme.outlineVariant
-        )
+        border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(FotoRaporTokens.SpacingM),
+            modifier = Modifier.fillMaxWidth().padding(FotoRaporTokens.SpacingM),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             currentWeekDays.forEach { date ->
-                val isToday = date == LocalDate.now()
-                val isSelected = date == selectedDay
-
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .weight(1f)
-                        .clip(RoundedCornerShape(FotoRaporTokens.RadiusS))
-                        .background(
-                            if (isSelected) projectColor.copy(alpha = 0.15f)
-                            else Color.Transparent,
-                        )
-                        .clickable {
-                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                            selectedDay = date
-                            onDateSelected(date)
-                        }
-                        .padding(vertical = 8.dp)
-                ) {
-                    Text(
-                        text = date.dayOfWeek.getDisplayName(TextStyle.SHORT, androidx.compose.ui.text.intl.Locale.current.platformLocale as Locale).uppercase(),
-                        style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 10.sp,
-                        color = if (isSelected) projectColor else MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Box(
-                        modifier = Modifier
-                            .size(32.dp)
-                            .background(
-                                if (isSelected) projectColor
-                                else if (isToday) MaterialTheme.colorScheme.surfaceContainerHigh
-                                else Color.Transparent,
-                                RoundedCornerShape(FotoRaporTokens.RadiusXS)
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = date.dayOfMonth.toString(),
-                            style = MaterialTheme.typography.bodyMedium,
-                            fontWeight = if (isSelected || isToday) FontWeight.Bold else FontWeight.Medium,
-                            color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface,
-                        )
-                    }
-                }
+                CalendarDayItem(
+                    date = date,
+                    isSelected = date == selectedDay,
+                    projectColor = projectColor,
+                    onClick = {
+                        selectedDay = date
+                        onDateSelected(date)
+                    },
+                    modifier = Modifier.weight(1f)
+                )
             }
         }
+    }
+}
+
+private fun calculateCurrentWeekDays(): List<LocalDate> {
+    val today = LocalDate.now()
+    val monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+    return (0..6).map { monday.plusDays(it.toLong()) }
+}
+
+@Composable
+private fun CalendarDayItem(
+    date: LocalDate,
+    isSelected: Boolean,
+    projectColor: Color,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val haptic = LocalHapticFeedback.current
+    val isToday = remember(date) { date == LocalDate.now() }
+    val locale = androidx.compose.ui.text.intl.Locale.current.platformLocale
+
+    val dayName = remember(date, locale) {
+        date.dayOfWeek.getDisplayName(TextStyle.SHORT, locale).uppercase()
+    }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = modifier
+            .clip(RoundedCornerShape(FotoRaporTokens.RadiusS))
+            .background(if (isSelected) projectColor.copy(alpha = 0.15f) else Color.Transparent)
+            .clickable {
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                onClick()
+            }
+            .padding(vertical = 8.dp)
+    ) {
+        Text(
+            text = dayName,
+            style = MaterialTheme.typography.labelSmall,
+            fontWeight = FontWeight.Bold,
+            fontSize = 10.sp,
+            color = if (isSelected) projectColor else MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        DayNumberBadge(
+            dayOfMonth = date.dayOfMonth,
+            isSelected = isSelected,
+            isToday = isToday,
+            projectColor = projectColor
+        )
+    }
+}
+
+@Composable
+private fun DayNumberBadge(
+    dayOfMonth: Int,
+    isSelected: Boolean,
+    isToday: Boolean,
+    projectColor: Color
+) {
+    val backgroundColor = when {
+        isSelected -> projectColor
+        isToday -> MaterialTheme.colorScheme.surfaceContainerHigh
+        else -> Color.Transparent
+    }
+
+    val textColor = when {
+        isSelected -> Color.White
+        else -> MaterialTheme.colorScheme.onSurface
+    }
+
+    val fontWeight = if (isSelected || isToday) FontWeight.Bold else FontWeight.Medium
+
+    Box(
+        modifier = Modifier
+            .size(32.dp)
+            .background(backgroundColor, RoundedCornerShape(FotoRaporTokens.RadiusXS)),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = dayOfMonth.toString(),
+            style = MaterialTheme.typography.bodyMedium,
+            fontWeight = fontWeight,
+            color = textColor,
+        )
     }
 }

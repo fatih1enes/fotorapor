@@ -23,8 +23,6 @@ import kotlin.coroutines.resume
 
 /**
  * Lightweight location utility for GPS watermark feature.
- * Uses FusedLocationProviderClient for efficient battery-friendly location retrieval.
- * Falls back gracefully if permissions are denied or location is unavailable.
  */
 @Singleton
 class LocationManager @Inject constructor(
@@ -38,9 +36,6 @@ class LocationManager @Inject constructor(
         LocationServices.getFusedLocationProviderClient(context)
     }
 
-    /**
-     * Checks if location permission is granted.
-     */
     fun hasLocationPermission(): Boolean {
         return ContextCompat.checkSelfPermission(
             context, Manifest.permission.ACCESS_FINE_LOCATION
@@ -50,23 +45,15 @@ class LocationManager @Inject constructor(
         ) == PackageManager.PERMISSION_GRANTED
     }
 
-    /**
-     * Retrieves the current location, or null if unavailable.
-     * Uses withTimeout to prevent hanging in poor signal areas.
-     */
     @android.annotation.SuppressLint("MissingPermission")
     suspend fun getCurrentLocation(): Location? = withContext(Dispatchers.IO) {
         if (!hasLocationPermission()) return@withContext null
 
         try {
-            // Priority 1: Fresh location with strict timeout (10 seconds)
             val freshLocation = kotlinx.coroutines.withTimeoutOrNull(kotlin.time.Duration.parse("10s")) {
                 getFreshLocation()
             }
-            if (freshLocation != null) return@withContext freshLocation
-
-            // Priority 2: Last known location as fallback
-            getLastKnownLocation()
+            freshLocation ?: getLastKnownLocation()
         } catch (e: Exception) {
             Log.w(TAG, "Failed to get location safely", e)
             null
@@ -97,51 +84,53 @@ class LocationManager @Inject constructor(
 
     /**
      * Reverse-geocodes coordinates to a human-readable address.
-     * Returns null if geocoding fails or is unavailable.
      */
-    suspend fun getAddressFromLocation(latitude: Double, longitude: Double): String? {
-        return withContext(Dispatchers.IO) {
-            try {
-                if (!Geocoder.isPresent()) return@withContext null
-                val geocoder = Geocoder(context, Locale.getDefault())
-
-                val address: android.location.Address? = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
-                    suspendCancellableCoroutine { cont ->
-                        geocoder.getFromLocation(latitude, longitude, 1, object : Geocoder.GeocodeListener {
-                            override fun onGeocode(addresses: MutableList<android.location.Address>) {
-                                if (cont.isActive) cont.resume(addresses.firstOrNull())
-                            }
-                            override fun onError(errorMessage: String?) {
-                                Log.w(TAG, "Geocoding onError: $errorMessage")
-                                if (cont.isActive) cont.resume(null)
-                            }
-                        })
-                    }
-                } else {
-                    @Suppress("DEPRECATION")
-                    val addresses = geocoder.getFromLocation(latitude, longitude, 1)
-                    addresses?.firstOrNull()
-                }
-
-                address?.let { addr ->
-                    buildString {
-                        addr.thoroughfare?.let { append(it) }
-                        addr.subThoroughfare?.let { if (isNotEmpty()) append(" "); append(it) }
-                        addr.subLocality?.let { if (isNotEmpty()) append(", "); append(it) }
-                        addr.locality?.let { if (isNotEmpty()) append(", "); append(it) }
-                        addr.adminArea?.let { if (isNotEmpty()) append(", "); append(it) }
-                    }.ifEmpty { null }
-                }
-            } catch (e: Exception) {
-                Log.w(TAG, "Geocoding failed", e)
-                null
-            }
+    suspend fun getAddressFromLocation(latitude: Double, longitude: Double): String? = withContext(Dispatchers.IO) {
+        try {
+            val address = fetchAddress(latitude, longitude)
+            address?.let { formatAddress(it) }
+        } catch (e: Exception) {
+            Log.w(TAG, "Geocoding failed", e)
+            null
         }
     }
 
-    /**
-     * Builds a complete WatermarkData object by fetching current GPS + address.
-     */
+    private suspend fun fetchAddress(lat: Double, lng: Double): android.location.Address? {
+        if (!Geocoder.isPresent()) return null
+        val geocoder = Geocoder(context, Locale.getDefault())
+        return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.TIRAMISU) {
+            fetchAddressTiramisu(geocoder, lat, lng)
+        } else {
+            @Suppress("DEPRECATION")
+            geocoder.getFromLocation(lat, lng, 1)?.firstOrNull()
+        }
+    }
+
+    @androidx.annotation.RequiresApi(android.os.Build.VERSION_CODES.TIRAMISU)
+    private suspend fun fetchAddressTiramisu(geocoder: Geocoder, lat: Double, lng: Double): android.location.Address? =
+        suspendCancellableCoroutine { cont ->
+            geocoder.getFromLocation(lat, lng, 1, object : Geocoder.GeocodeListener {
+                override fun onGeocode(addresses: MutableList<android.location.Address>) {
+                    if (cont.isActive) cont.resume(addresses.firstOrNull())
+                }
+                override fun onError(errorMessage: String?) {
+                    Log.w(TAG, "Geocoding onError: $errorMessage")
+                    if (cont.isActive) cont.resume(null)
+                }
+            })
+        }
+
+    private fun formatAddress(addr: android.location.Address): String? {
+        val parts = listOfNotNull(
+            addr.thoroughfare,
+            addr.subThoroughfare,
+            addr.subLocality,
+            addr.locality,
+            addr.adminArea
+        )
+        return if (parts.isEmpty()) null else parts.joinToString(", ")
+    }
+
     suspend fun buildWatermarkData(projectName: String): WatermarkData {
         val now = java.time.LocalDateTime.now()
         val dateFormatter = java.time.format.DateTimeFormatter.ofPattern("dd.MM.yyyy", Locale.getDefault())

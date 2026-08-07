@@ -57,351 +57,256 @@ fun TimelineBlock(
     onImportPhotoClick: (Uri) -> Unit,
     language: String = "tr"
 ) {
-    val haptic = LocalHapticFeedback.current
+    Row(modifier = Modifier.fillMaxWidth().padding(end = FotoRaporTokens.SpacingS)) {
+        TimelineRail(projectColor)
+        TimelineContent(
+            log = log,
+            photos = photos,
+            projectColor = projectColor,
+            isSelectionMode = isSelectionMode,
+            selectedPhotoIds = selectedPhotoIds,
+            onPhotoClick = onPhotoClick,
+            onMorePhotosClick = onMorePhotosClick,
+            onNoteChange = onNoteChange,
+            onAddPhotoClick = onAddPhotoClick,
+            onImportPhotoClick = onImportPhotoClick,
+            language = language
+        )
+    }
+}
 
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(end = FotoRaporTokens.SpacingS)
-    ) {
-        // ── Timeline Rail ────────────────────────────
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.width(28.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .size(10.dp)
-                    .border(2.dp, projectColor, CircleShape)
-                    .background(MaterialTheme.colorScheme.surface, CircleShape)
-            )
-            Box(
-                modifier = Modifier
-                    .width(1.5.dp)
-                    .fillMaxHeight()
-                    .weight(1f)
-                    .background(
-                        Brush.verticalGradient(
-                            listOf(
-                                projectColor.copy(alpha = 0.25f),
-                                Color.Transparent
-                            )
-                        )
-                    )
-            )
+@Composable
+private fun RowScope.TimelineContent(
+    log: DailyLog,
+    photos: List<Photo>,
+    projectColor: Color,
+    isSelectionMode: Boolean,
+    selectedPhotoIds: List<Long>,
+    onPhotoClick: (Photo) -> Unit,
+    onMorePhotosClick: () -> Unit,
+    onNoteChange: (String) -> Unit,
+    onAddPhotoClick: () -> Unit,
+    onImportPhotoClick: (Uri) -> Unit,
+    language: String
+) {
+    Column(modifier = Modifier.weight(1f).padding(start = FotoRaporTokens.SpacingM, bottom = FotoRaporTokens.Spacing4XL)) {
+        Text(
+            text = DateUtils.formatDate(log.date, language),
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground
+        )
+        Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingM))
+
+        if (photos.isNotEmpty()) {
+            TimelinePhotoGrid(photos, isSelectionMode, selectedPhotoIds, onPhotoClick, onMorePhotosClick)
+            Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingM))
         }
 
-        // ── Content ──────────────────────────────────
-        Column(
-            modifier = Modifier
-                .weight(1f)
-                .padding(start = FotoRaporTokens.SpacingM, bottom = FotoRaporTokens.Spacing4XL)
-        ) {
-            // Date heading
-            Text(
-                text = DateUtils.formatDate(log.date, language),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground
+        TimelineNoteInput(log, onNoteChange)
+        Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingM))
+
+        TimelineActionButtons(projectColor, onAddPhotoClick, onImportPhotoClick)
+    }
+}
+
+@Composable
+private fun TimelineRail(color: Color) {
+    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(28.dp)) {
+        Box(modifier = Modifier.size(10.dp).border(2.dp, color, CircleShape).background(MaterialTheme.colorScheme.surface, CircleShape))
+        Box(
+            modifier = Modifier.width(1.5.dp).fillMaxHeight().weight(1f)
+                .background(Brush.verticalGradient(listOf(color.copy(alpha = 0.25f), Color.Transparent)))
+        )
+    }
+}
+
+@Composable
+private fun TimelinePhotoGrid(
+    photos: List<Photo>,
+    isSelectionMode: Boolean,
+    selectedPhotoIds: List<Long>,
+    onPhotoClick: (Photo) -> Unit,
+    onMorePhotosClick: () -> Unit
+) {
+    val displayPhotos = remember(photos) { photos.take(4) }
+    val remaining = remember(photos) { photos.size - 4 }
+    val rows = remember(displayPhotos) { displayPhotos.chunked(2) }
+
+    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(FotoRaporTokens.SpacingS)) {
+        rows.forEach { rowPhotos ->
+            TimelinePhotoRow(rowPhotos, displayPhotos, remaining, isSelectionMode, selectedPhotoIds, onPhotoClick, onMorePhotosClick)
+        }
+    }
+}
+
+@Composable
+private fun TimelinePhotoRow(
+    rowPhotos: List<Photo>,
+    displayPhotos: List<Photo>,
+    remaining: Int,
+    isSelectionMode: Boolean,
+    selectedPhotoIds: List<Long>,
+    onPhotoClick: (Photo) -> Unit,
+    onMorePhotosClick: () -> Unit
+) {
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(FotoRaporTokens.SpacingS)) {
+        repeat(2) { i ->
+            if (i < rowPhotos.size) {
+                val photo = rowPhotos[i]
+                val index = displayPhotos.indexOf(photo)
+                TimelinePhotoCard(
+                    photo = photo,
+                    isLast = index == 3 && remaining > 0,
+                    remainingCount = remaining,
+                    isSelected = selectedPhotoIds.contains(photo.id),
+                    isSelectionMode = isSelectionMode,
+                    onPhotoClick = onPhotoClick,
+                    onMorePhotosClick = onMorePhotosClick,
+                    modifier = Modifier.weight(1f)
+                )
+            } else {
+                Spacer(modifier = Modifier.weight(1f).aspectRatio(1.33f))
+            }
+        }
+    }
+}
+
+@Composable
+private fun TimelinePhotoCard(
+    photo: Photo,
+    isLast: Boolean,
+    remainingCount: Int,
+    isSelected: Boolean,
+    isSelectionMode: Boolean,
+    onPhotoClick: (Photo) -> Unit,
+    onMorePhotosClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val haptic = LocalHapticFeedback.current
+    val isVideo = photo.filePath.endsWith(".mp4", ignoreCase = true)
+
+    Card(
+        modifier = modifier.aspectRatio(1.33f).clickable {
+            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+            if (isLast) onMorePhotosClick() else onPhotoClick(photo)
+        }.then(if (isSelectionMode && isSelected) Modifier.border(2.5.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(FotoRaporTokens.RadiusM)) else Modifier),
+        shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
+        elevation = CardDefaults.cardElevation(defaultElevation = FotoRaporTokens.ElevationNone)
+    ) {
+        Box(modifier = Modifier.fillMaxSize()) {
+            val context = LocalContext.current
+            val request = remember(photo.filePath) {
+                ImageRequest.Builder(context).data(photo.filePath).apply { if (isVideo) decoderFactory(VideoFrameDecoder.Factory()) }
+                    .size(256).memoryCachePolicy(CachePolicy.ENABLED).build()
+            }
+            AsyncImage(
+                model = request, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize(),
+                placeholder = androidx.compose.ui.graphics.painter.ColorPainter(MaterialTheme.colorScheme.surfaceContainerHigh),
+                error = androidx.compose.ui.graphics.painter.ColorPainter(MaterialTheme.colorScheme.surfaceContainerHigh)
             )
-            Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingM))
+            if (isVideo && !isLast) VideoOverlay()
+            if (isLast) MorePhotosOverlay(remainingCount, onMorePhotosClick)
+            if (isSelectionMode && !isLast) SelectionOverlay(isSelected)
+        }
+    }
+}
 
-            // ── Photo Grid ───────────────────────────
-            if (photos.isNotEmpty()) {
-                val displayPhotos = remember(photos) { photos.take(4) }
-                val remaining = remember(photos) { photos.size - 4 }
+@Composable
+private fun VideoOverlay() {
+    Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.15f)), contentAlignment = Alignment.Center) {
+        Icon(imageVector = Icons.Default.PlayCircleFilled, contentDescription = null, tint = Color.White.copy(alpha = 0.9f), modifier = Modifier.size(FotoRaporTokens.IconSizeL))
+    }
+}
 
-                Column(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalArrangement = Arrangement.spacedBy(FotoRaporTokens.SpacingS)
-                ) {
-                    val rows = remember(displayPhotos) { displayPhotos.chunked(2) }
-                    for (rowPhotos in rows) {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(FotoRaporTokens.SpacingS)
-                        ) {
-                            for (i in 0 until 2) {
-                                if (i < rowPhotos.size) {
-                                    val photo = rowPhotos[i]
-                                    val index = displayPhotos.indexOf(photo)
-                                    val isSelected = selectedPhotoIds.contains(photo.id)
-                                    val isLast = index == 3 && remaining > 0
-                                    val isVideo = photo.filePath.endsWith(".mp4", ignoreCase = true)
+@Composable
+private fun MorePhotosOverlay(count: Int, onClick: () -> Unit) {
+    Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.55f)).clickable(onClick = onClick), contentAlignment = Alignment.Center) {
+        Text("+$count", color = Color.White, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.SemiBold)
+    }
+}
 
-                                    Card(
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .aspectRatio(1.33f)
-                                            .clickable {
-                                                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                                                if (isLast) onMorePhotosClick() else onPhotoClick(photo)
-                                            }
-                                            .then(
-                                                if (isSelectionMode && isSelected) {
-                                                    Modifier.border(
-                                                        2.5.dp,
-                                                        MaterialTheme.colorScheme.primary,
-                                                        RoundedCornerShape(FotoRaporTokens.RadiusM)
-                                                    )
-                                                } else Modifier
-                                            ),
-                                        shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
-                                        elevation = CardDefaults.cardElevation(
-                                            defaultElevation = FotoRaporTokens.ElevationNone
-                                        )
-                                    ) {
-                                        val context = LocalContext.current
-                                        val request = remember(photo.filePath) {
-                                            ImageRequest.Builder(context)
-                                                .data(photo.filePath)
-                                                .apply {
-                                                    if (isVideo) {
-                                                        decoderFactory(VideoFrameDecoder.Factory())
-                                                    }
-                                                }
-                                                .size(256)
-                                                .memoryCachePolicy(CachePolicy.ENABLED)
-                                                .build()
-                                        }
+@Composable
+private fun BoxScope.SelectionOverlay(isSelected: Boolean) {
+    Box(modifier = Modifier.fillMaxSize().background(if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f) else Color.Transparent))
+    Checkbox(checked = isSelected, onCheckedChange = null, modifier = Modifier.align(Alignment.TopEnd))
+}
 
-                                        Box(modifier = Modifier.fillMaxSize()) {
-                                            AsyncImage(
-                                                model = request,
-                                                contentDescription = stringResource(R.string.photo_label),
-                                                placeholder = androidx.compose.ui.graphics.painter.ColorPainter(
-                                                    MaterialTheme.colorScheme.surfaceContainerHigh
-                                                ),
-                                                error = androidx.compose.ui.graphics.painter.ColorPainter(
-                                                    MaterialTheme.colorScheme.surfaceContainerHigh
-                                                ),
-                                                modifier = Modifier.fillMaxSize(),
-                                                contentScale = ContentScale.Crop
-                                            )
-                                            if (isVideo && !isLast) {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .fillMaxSize()
-                                                        .background(Color.Black.copy(alpha = 0.15f)),
-                                                    contentAlignment = Alignment.Center
-                                                ) {
-                                                    Icon(
-                                                        imageVector = Icons.Default.PlayCircleFilled,
-                                                        contentDescription = stringResource(R.string.loading),
-                                                        tint = Color.White.copy(alpha = 0.9f),
-                                                        modifier = Modifier.size(FotoRaporTokens.IconSizeL)
-                                                    )
-                                                }
-                                            }
-                                            if (isLast) {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .fillMaxSize()
-                                                        .background(Color.Black.copy(alpha = 0.55f))
-                                                        .clickable { onMorePhotosClick() },
-                                                    contentAlignment = Alignment.Center
-                                                ) {
-                                                    Text(
-                                                        "+$remaining",
-                                                        color = Color.White,
-                                                        style = MaterialTheme.typography.headlineSmall,
-                                                        fontWeight = FontWeight.SemiBold
-                                                    )
-                                                }
-                                            }
-                                            if (isSelectionMode && !isLast) {
-                                                Box(
-                                                    modifier = Modifier
-                                                        .fillMaxSize()
-                                                        .background(
-                                                            if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f)
-                                                            else Color.Transparent
-                                                        )
-                                                )
-                                                Checkbox(
-                                                    checked = isSelected,
-                                                    onCheckedChange = null,
-                                                    modifier = Modifier.align(Alignment.TopEnd)
-                                                )
-                                            }
-                                        }
-                                    }
-                                } else {
-                                    Spacer(
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .aspectRatio(1.33f)
-                                    )
-                                }
-                            }
-                        }
-                    }
+@Composable
+private fun TimelineNoteInput(log: DailyLog, onNoteChange: (String) -> Unit) {
+    var noteText by remember(log.id) { mutableStateOf(log.note) }
+    LaunchedEffect(log.note) { if (noteText != log.note) noteText = log.note }
+
+    Surface(
+        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
+        color = MaterialTheme.colorScheme.surface, border = BorderStroke(FotoRaporTokens.CardBorderWidth, MaterialTheme.colorScheme.outlineVariant)
+    ) {
+        TextField(
+            value = noteText, onValueChange = { noteText = it; onNoteChange(it) },
+            placeholder = { Text(stringResource(R.string.note_placeholder), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f), style = MaterialTheme.typography.bodyMedium) },
+            modifier = Modifier.fillMaxWidth().heightIn(min = FotoRaporTokens.ButtonHeightL),
+            colors = TextFieldDefaults.colors(focusedContainerColor = Color.Transparent, unfocusedContainerColor = Color.Transparent, disabledContainerColor = Color.Transparent, focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent),
+            textStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface, lineHeight = 20.sp)
+        )
+    }
+}
+
+@Composable
+private fun TimelineActionButtons(color: Color, onAddPhotoClick: () -> Unit, onImportPhotoClick: (Uri) -> Unit) {
+    val haptic = LocalHapticFeedback.current
+    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(FotoRaporTokens.SpacingS)) {
+        Button(
+            onClick = { haptic.performHapticFeedback(HapticFeedbackType.LongPress); onAddPhotoClick() },
+            colors = ButtonDefaults.buttonColors(containerColor = color, contentColor = Color.White),
+            shape = RoundedCornerShape(FotoRaporTokens.RadiusM), modifier = Modifier.weight(1f).height(FotoRaporTokens.ButtonHeightM),
+            elevation = ButtonDefaults.buttonElevation(defaultElevation = FotoRaporTokens.ElevationNone)
+        ) {
+            Icon(Icons.Default.CameraAlt, null, modifier = Modifier.size(FotoRaporTokens.IconSizeXS + 2.dp), tint = Color.White)
+            Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingXS + 2.dp))
+            Text(stringResource(R.string.camera_btn), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+        }
+        GalleryImportButton(color, onImportPhotoClick)
+    }
+}
+
+@Composable
+private fun RowScope.GalleryImportButton(color: Color, onImportPhotoClick: (Uri) -> Unit) {
+    val context = LocalContext.current
+    val haptic = LocalHapticFeedback.current
+    var isImporting by remember { mutableStateOf(false) }
+    val scope = rememberCoroutineScope()
+    val snackbarHost = LocalSnackbarHostState.current
+
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia()) { uris ->
+        if (uris.isNotEmpty()) {
+            isImporting = true
+            scope.launch(Dispatchers.IO) {
+                var hasError = false
+                uris.forEach { uri ->
+                    val local = PhotoManager.copyUriToInternalStorage(context, uri)
+                    if (local != null) withContext(Dispatchers.Main) { onImportPhotoClick(local) } else hasError = true
                 }
-                Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingM))
-            }
-
-            // ── Note Input ──────────────────────────
-            var noteText by remember(log.id) { mutableStateOf(log.note) }
-            LaunchedEffect(log.note) {
-                if (noteText != log.note) {
-                    noteText = log.note
+                withContext(Dispatchers.Main) {
+                    isImporting = false
+                    if (hasError) scope.launch { snackbarHost.showSnackbar(context.getString(R.string.import_error)) }
                 }
             }
+        }
+    }
 
-            Surface(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
-                color = MaterialTheme.colorScheme.surface,
-                border = BorderStroke(
-                    FotoRaporTokens.CardBorderWidth,
-                    MaterialTheme.colorScheme.outlineVariant
-                )
-            ) {
-                TextField(
-                    value = noteText,
-                    onValueChange = { noteText = it; onNoteChange(it) },
-                    placeholder = {
-                        Text(
-                            stringResource(R.string.note_placeholder),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .heightIn(min = FotoRaporTokens.ButtonHeightL),
-                    colors = TextFieldDefaults.colors(
-                        focusedContainerColor = Color.Transparent,
-                        unfocusedContainerColor = Color.Transparent,
-                        disabledContainerColor = Color.Transparent,
-                        focusedIndicatorColor = Color.Transparent,
-                        unfocusedIndicatorColor = Color.Transparent
-                    ),
-                    textStyle = MaterialTheme.typography.bodyMedium.copy(
-                        color = MaterialTheme.colorScheme.onSurface,
-                        lineHeight = 20.sp
-                    )
-                )
-            }
-
-            Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingM))
-
-            // ── Action Buttons ───────────────────────
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(FotoRaporTokens.SpacingS)
-            ) {
-                // Camera button
-                Button(
-                    onClick = {
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        onAddPhotoClick()
-                    },
-                    colors = ButtonDefaults.buttonColors(
-                        containerColor = projectColor,
-                        contentColor = Color.White
-                    ),
-                    shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(FotoRaporTokens.ButtonHeightM),
-                    elevation = ButtonDefaults.buttonElevation(
-                        defaultElevation = FotoRaporTokens.ElevationNone
-                    )
-                ) {
-                    Icon(
-                        Icons.Default.CameraAlt,
-                        contentDescription = stringResource(R.string.acc_shutter),
-                        modifier = Modifier.size(FotoRaporTokens.IconSizeXS + 2.dp),
-                        tint = Color.White
-                    )
-                    Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingXS + 2.dp))
-                    Text(
-                        stringResource(R.string.camera_btn),
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.SemiBold,
-                        color = Color.White
-                    )
-                }
-
-                // Gallery import button
-                val context = LocalContext.current
-                var isImporting by remember { mutableStateOf(false) }
-                val coroutineScope = rememberCoroutineScope()
-                val snackbarHost = LocalSnackbarHostState.current
-
-                val galleryLauncher = rememberLauncherForActivityResult(
-                    contract = ActivityResultContracts.PickMultipleVisualMedia()
-                ) { uris ->
-                    if (uris.isNotEmpty()) {
-                        isImporting = true
-                        coroutineScope.launch(Dispatchers.IO) {
-                            var hasError = false
-                            uris.forEach { uri ->
-                                val localUri = PhotoManager.copyUriToInternalStorage(context, uri)
-                                if (localUri != null) {
-                                    withContext(Dispatchers.Main) {
-                                        onImportPhotoClick(localUri)
-                                    }
-                                } else {
-                                    hasError = true
-                                }
-                            }
-                            withContext(Dispatchers.Main) {
-                                isImporting = false
-                                if (hasError) {
-                                    coroutineScope.launch { snackbarHost.showSnackbar(context.getString(R.string.import_error)) }
-                                }
-                            }
-                        }
-                    }
-                }
-
-                OutlinedButton(
-                    onClick = {
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        galleryLauncher.launch(
-                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)
-                        )
-                    },
-                    border = BorderStroke(1.dp, projectColor.copy(alpha = 0.5f)),
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = projectColor),
-                    shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
-                    modifier = Modifier
-                        .weight(1f)
-                        .height(FotoRaporTokens.ButtonHeightM),
-                    enabled = !isImporting
-                ) {
-                    if (isImporting) {
-                        CircularProgressIndicator(
-                            modifier = Modifier.size(FotoRaporTokens.IconSizeXS + 2.dp),
-                            color = projectColor,
-                            strokeWidth = 2.dp
-                        )
-                        Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingXS + 2.dp))
-                        Text(
-                            stringResource(R.string.loading),
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.SemiBold,
-                            color = projectColor
-                        )
-                    } else {
-                        Icon(
-                            Icons.Default.PhotoLibrary,
-                            contentDescription = stringResource(R.string.acc_gallery),
-                            modifier = Modifier.size(FotoRaporTokens.IconSizeXS + 2.dp),
-                            tint = projectColor
-                        )
-                        Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingXS + 2.dp))
-                        Text(
-                            stringResource(R.string.gallery_btn),
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.SemiBold,
-                            color = projectColor
-                        )
-                    }
-                }
-            }
+    OutlinedButton(
+        onClick = { haptic.performHapticFeedback(HapticFeedbackType.LongPress); launcher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)) },
+        border = BorderStroke(1.dp, color.copy(alpha = 0.5f)), colors = ButtonDefaults.outlinedButtonColors(contentColor = color),
+        shape = RoundedCornerShape(FotoRaporTokens.RadiusM), modifier = Modifier.weight(1f).height(FotoRaporTokens.ButtonHeightM), enabled = !isImporting
+    ) {
+        if (isImporting) {
+            CircularProgressIndicator(modifier = Modifier.size(FotoRaporTokens.IconSizeXS + 2.dp), color = color, strokeWidth = 2.dp)
+            Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingXS + 2.dp))
+            Text(stringResource(R.string.loading), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+        } else {
+            Icon(Icons.Default.PhotoLibrary, null, modifier = Modifier.size(FotoRaporTokens.IconSizeXS + 2.dp), tint = color)
+            Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingXS + 2.dp))
+            Text(stringResource(R.string.gallery_btn), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
         }
     }
 }

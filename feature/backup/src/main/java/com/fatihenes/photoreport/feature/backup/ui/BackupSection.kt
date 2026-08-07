@@ -14,12 +14,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fatihenes.photoreport.core.common.util.result.OperationResult
@@ -27,7 +27,6 @@ import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporTokens
 import com.fatihenes.photoreport.core.ui.R
 import com.fatihenes.photoreport.core.ui.navigation.LocalSnackbarHostState
 import com.fatihenes.photoreport.feature.backup.viewmodel.BackupViewModel
-import kotlinx.coroutines.launch
 
 @Composable
 fun BackupSection(
@@ -35,7 +34,6 @@ fun BackupSection(
     viewModel: BackupViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    val scope = rememberCoroutineScope()
     val haptic = LocalHapticFeedback.current
     val snackbarHost = LocalSnackbarHostState.current
 
@@ -44,45 +42,40 @@ fun BackupSection(
 
     val createBackupLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("application/zip")
-    ) { uri ->
-        if (uri != null) {
-            viewModel.createBackup(uri)
-        }
-    }
+    ) { uri -> uri?.let { viewModel.createBackup(it) } }
 
     val restoreBackupLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument()
-    ) { uri ->
-        if (uri != null) {
-            viewModel.restoreBackup(uri)
-        }
-    }
+    ) { uri -> uri?.let { viewModel.restoreBackup(it) } }
 
-    LaunchedEffect(backupState) {
-        if (backupState is OperationResult.Success) {
-            scope.launch { snackbarHost.showSnackbar(context.getString(R.string.backup_success)) }
+    HandleOperationResult(
+        state = backupState,
+        onSuccess = {
+            snackbarHost.showSnackbar(context.getString(R.string.backup_success))
             viewModel.resetBackupState()
-        } else if (backupState is OperationResult.Error) {
-            scope.launch { snackbarHost.showSnackbar((backupState as OperationResult.Error).message ?: "Bilinmeyen Hata") }
+        },
+        onError = { message ->
+            snackbarHost.showSnackbar(message ?: "Bilinmeyen Hata")
             viewModel.resetBackupState()
         }
-    }
+    )
 
-    LaunchedEffect(restoreState) {
-        if (restoreState is OperationResult.Success) {
+    HandleOperationResult(
+        state = restoreState,
+        onSuccess = {
             snackbarHost.showSnackbar(
                 message = context.getString(R.string.backup_success),
                 duration = SnackbarDuration.Short
             )
             viewModel.resetRestoreState()
-        } else if (restoreState is OperationResult.Error) {
-            snackbarHost.showSnackbar((restoreState as OperationResult.Error).message ?: "Geri yükleme hatası")
+        },
+        onError = { message ->
+            snackbarHost.showSnackbar(message ?: "Geri yükleme hatası")
             viewModel.resetRestoreState()
         }
-    }
+    )
 
     Column(modifier = modifier.fillMaxWidth()) {
-        // Section title (matching Settings pattern)
         Text(
             text = stringResource(R.string.settings_backup_title).uppercase(),
             style = MaterialTheme.typography.labelSmall,
@@ -105,69 +98,18 @@ fun BackupSection(
             )
         ) {
             Column(modifier = Modifier.padding(FotoRaporTokens.SpacingXS)) {
-                // Progress indicators
-                if (backupState is OperationResult.Loading) {
-                    val progress = (backupState as OperationResult.Loading).progress ?: 0
-                    LinearProgressIndicator(
-                        progress = { progress / 100f },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                horizontal = FotoRaporTokens.SpacingL,
-                                vertical = FotoRaporTokens.SpacingS
-                            ),
-                        trackColor = MaterialTheme.colorScheme.surfaceContainerHigh
-                    )
-                }
-                if (restoreState is OperationResult.Loading) {
-                    val progress = (restoreState as OperationResult.Loading).progress ?: 0
-                    LinearProgressIndicator(
-                        progress = { progress / 100f },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                horizontal = FotoRaporTokens.SpacingL,
-                                vertical = FotoRaporTokens.SpacingS
-                            ),
-                        trackColor = MaterialTheme.colorScheme.surfaceContainerHigh
-                    )
-                }
+                BackupProgressIndicator(backupState)
+                BackupProgressIndicator(restoreState)
 
-                // Create Backup Row
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                            createBackupLauncher.launch("FotoRapor_Yedek.zip")
-                        }
-                        .padding(
-                            horizontal = FotoRaporTokens.SpacingL,
-                            vertical = FotoRaporTokens.SpacingM
-                        ),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        Icons.Default.Backup,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(FotoRaporTokens.IconSizeS)
-                    )
-                    Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingL))
-                    Column {
-                        Text(
-                            stringResource(R.string.settings_backup_create),
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXXS))
-                        Text(
-                            stringResource(R.string.settings_backup_create_desc),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                BackupItemRow(
+                    icon = Icons.Default.Backup,
+                    title = stringResource(R.string.settings_backup_create),
+                    description = stringResource(R.string.settings_backup_create_desc),
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        createBackupLauncher.launch("FotoRapor_Yedek.zip")
                     }
-                }
+                )
 
                 HorizontalDivider(
                     modifier = Modifier.padding(horizontal = FotoRaporTokens.SpacingL),
@@ -175,42 +117,88 @@ fun BackupSection(
                     color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.6f)
                 )
 
-                // Restore Backup Row
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                            restoreBackupLauncher.launch(arrayOf("application/zip"))
-                        }
-                        .padding(
-                            horizontal = FotoRaporTokens.SpacingL,
-                            vertical = FotoRaporTokens.SpacingM
-                        ),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        Icons.Default.Restore,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(FotoRaporTokens.IconSizeS)
-                    )
-                    Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingL))
-                    Column {
-                        Text(
-                            stringResource(R.string.settings_backup_restore),
-                            style = MaterialTheme.typography.bodyLarge,
-                            fontWeight = FontWeight.SemiBold
-                        )
-                        Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXXS))
-                        Text(
-                            stringResource(R.string.settings_backup_restore_desc),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                BackupItemRow(
+                    icon = Icons.Default.Restore,
+                    title = stringResource(R.string.settings_backup_restore),
+                    description = stringResource(R.string.settings_backup_restore_desc),
+                    onClick = {
+                        haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                        restoreBackupLauncher.launch(arrayOf("application/zip"))
                     }
-                }
+                )
             }
+        }
+    }
+}
+
+@Composable
+private fun HandleOperationResult(
+    state: OperationResult<*>?,
+    onSuccess: suspend () -> Unit,
+    onError: suspend (String?) -> Unit
+) {
+    LaunchedEffect(state) {
+        when (state) {
+            is OperationResult.Success -> onSuccess()
+            is OperationResult.Error -> onError(state.message)
+            else -> {}
+        }
+    }
+}
+
+@Composable
+private fun BackupProgressIndicator(state: OperationResult<*>?) {
+    if (state is OperationResult.Loading) {
+        val progress = state.progress ?: 0
+        LinearProgressIndicator(
+            progress = { progress / 100f },
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = FotoRaporTokens.SpacingL,
+                    vertical = FotoRaporTokens.SpacingS
+                ),
+            trackColor = MaterialTheme.colorScheme.surfaceContainerHigh
+        )
+    }
+}
+
+@Composable
+private fun BackupItemRow(
+    icon: ImageVector,
+    title: String,
+    description: String,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick)
+            .padding(
+                horizontal = FotoRaporTokens.SpacingL,
+                vertical = FotoRaporTokens.SpacingM
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(
+            icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(FotoRaporTokens.IconSizeS)
+        )
+        Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingL))
+        Column {
+            Text(
+                title,
+                style = MaterialTheme.typography.bodyLarge,
+                fontWeight = FontWeight.SemiBold
+            )
+            Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXXS))
+            Text(
+                description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }

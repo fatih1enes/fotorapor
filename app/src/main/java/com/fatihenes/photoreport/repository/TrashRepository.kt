@@ -41,89 +41,43 @@ class TrashRepositoryImpl @Inject constructor(
     override suspend fun restorePhoto(id: Long) = photoDao.restorePhoto(id)
 
     override suspend fun hardDeleteProject(projectId: Long) = withContext(Dispatchers.IO) {
-        val logsWithPhotos = dailyLogDao.getLogsWithPhotosForProjectSuspend(projectId)
-        val allPhotos = logsWithPhotos.flatMap { it.photos }
-        val photoIds = mutableListOf<Long>()
-        
-        for (photo in allPhotos) {
-            fileManager.deletePhysicalFile(photo.filePath)
-            photoIds.add(photo.id)
-        }
-        
-        if (photoIds.isNotEmpty()) {
-            photoDao.hardDeletePhotosByIds(photoIds)
-        }
-        
-        projectDao.hardDeleteProjectById(projectId)
+        deleteProjectPermanently(projectId)
         projectRepository.refreshWidgetData()
     }
 
     override suspend fun hardDeletePhoto(photo: PhotoEntity) = withContext(Dispatchers.IO) {
-        fileManager.deletePhysicalFile(photo.filePath)
-        photoDao.hardDeletePhotoById(photo.id)
+        deletePhotosPermanently(listOf(photo))
     }
 
     override suspend fun emptyTrash() = withContext(Dispatchers.IO) {
-        val deletedProjects = projectDao.getDeletedProjects().first()
-        for (project in deletedProjects) {
-            val logsWithPhotos = dailyLogDao.getLogsWithPhotosForProjectSuspend(project.id)
-            val allPhotos = logsWithPhotos.flatMap { it.photos }
-            val photoIds = mutableListOf<Long>()
-            
-            for (photo in allPhotos) {
-                fileManager.deletePhysicalFile(photo.filePath)
-                photoIds.add(photo.id)
-            }
-            if (photoIds.isNotEmpty()) {
-                photoDao.hardDeletePhotosByIds(photoIds)
-            }
-            projectDao.hardDeleteProjectById(project.id)
-        }
+        val projects = projectDao.getDeletedProjects().first()
+        projects.forEach { deleteProjectPermanently(it.id) }
 
-        val deletedPhotos = photoDao.getDeletedPhotos().first()
-        val standalonePhotoIds = mutableListOf<Long>()
-        
-        for (photo in deletedPhotos) {
-            fileManager.deletePhysicalFile(photo.filePath)
-            standalonePhotoIds.add(photo.id)
-        }
-        if (standalonePhotoIds.isNotEmpty()) {
-            photoDao.hardDeletePhotosByIds(standalonePhotoIds)
-        }
+        val photos = photoDao.getDeletedPhotos().first()
+        deletePhotosPermanently(photos)
 
         projectRepository.refreshWidgetData()
     }
 
     override suspend fun cleanOldTrash(threshold: Long) = withContext(Dispatchers.IO) {
-        val deletedProjects = projectDao.getDeletedProjects().first()
-        for (project in deletedProjects) {
-            val projectDeletedAt = project.deletedAt
-            if (projectDeletedAt != null && projectDeletedAt < threshold) {
-                val logsWithPhotos = dailyLogDao.getLogsWithPhotosForProjectSuspend(project.id)
-                val allPhotos = logsWithPhotos.flatMap { it.photos }
-                val photoIds = mutableListOf<Long>()
-                for (photo in allPhotos) {
-                    fileManager.deletePhysicalFile(photo.filePath)
-                    photoIds.add(photo.id)
-                }
-                if (photoIds.isNotEmpty()) {
-                    photoDao.hardDeletePhotosByIds(photoIds)
-                }
-                projectDao.hardDeleteProjectById(project.id)
-            }
-        }
+        val projects = projectDao.getDeletedProjects().first()
+        projects.filter { (it.deletedAt ?: 0L) < threshold }.forEach { deleteProjectPermanently(it.id) }
 
-        val deletedPhotos = photoDao.getDeletedPhotos().first()
-        val standalonePhotoIds = mutableListOf<Long>()
-        for (photo in deletedPhotos) {
-            val photoDeletedAt = photo.deletedAt
-            if (photoDeletedAt != null && photoDeletedAt < threshold) {
-                fileManager.deletePhysicalFile(photo.filePath)
-                standalonePhotoIds.add(photo.id)
-            }
-        }
-        if (standalonePhotoIds.isNotEmpty()) {
-            photoDao.hardDeletePhotosByIds(standalonePhotoIds)
-        }
+        val photos = photoDao.getDeletedPhotos().first()
+        val oldPhotos = photos.filter { (it.deletedAt ?: 0L) < threshold }
+        deletePhotosPermanently(oldPhotos)
+    }
+
+    private suspend fun deleteProjectPermanently(projectId: Long) {
+        val logsWithPhotos = dailyLogDao.getLogsWithPhotosForProjectSuspend(projectId)
+        val allPhotos = logsWithPhotos.flatMap { it.photos }
+        deletePhotosPermanently(allPhotos)
+        projectDao.hardDeleteProjectById(projectId)
+    }
+
+    private suspend fun deletePhotosPermanently(photos: List<PhotoEntity>) {
+        if (photos.isEmpty()) return
+        photos.forEach { fileManager.deletePhysicalFile(it.filePath) }
+        photoDao.hardDeletePhotosByIds(photos.map { it.id })
     }
 }

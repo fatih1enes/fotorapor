@@ -101,60 +101,99 @@ fun ToolbarItems(
     onQualityChange: (Quality) -> Unit,
     onClose: (() -> Unit)? = null
 ) {
-    if (onClose != null) {
-        ToolbarBtn(rotation = rotation, onClick = onClose) {
-            Icon(Icons.Default.Close, stringResource(R.string.close_label), tint = Color.White, modifier = Modifier.size(22.dp))
-        }
-    }
+    onClose?.let { CloseButton(rotation, it) }
 
     if (cameraMode == "PHOTO") {
-        ToolbarBtn(rotation = rotation, onClick = {
-            val nextFlash = when (flashMode) {
-                ImageCapture.FLASH_MODE_OFF -> ImageCapture.FLASH_MODE_AUTO
-                ImageCapture.FLASH_MODE_AUTO -> ImageCapture.FLASH_MODE_ON
-                else -> ImageCapture.FLASH_MODE_OFF
-            }
-            onFlashChange(nextFlash)
-            cameraState.setFlashMode(nextFlash)
-        }) {
-            Icon(
-                when (flashMode) {
-                    ImageCapture.FLASH_MODE_ON -> Icons.Default.FlashOn
-                    ImageCapture.FLASH_MODE_AUTO -> Icons.Default.FlashAuto
-                    else -> Icons.Default.FlashOff
-                },
-                stringResource(R.string.flash_label),
-                tint = if (flashMode != ImageCapture.FLASH_MODE_OFF) Amber else Color.White,
-                modifier = Modifier.size(22.dp)
-            )
-        }
+        FlashButton(flashMode, rotation, cameraState, onFlashChange)
     }
 
     if (cameraMode == "VIDEO") {
-        val qt = when (videoQuality) { Quality.SD -> "SD"; Quality.HD -> "HD"; Quality.FHD -> "FHD"; Quality.UHD -> "4K"; else -> "FHD" }
-        ToolbarBtn(rotation = rotation, onClick = {
-            if (cameraState.supportedQualities.isNotEmpty()) {
-                val i = cameraState.supportedQualities.indexOf(videoQuality)
-                onQualityChange(cameraState.supportedQualities[if (i != -1) (i + 1) % cameraState.supportedQualities.size else 0])
-            }
-        }) { Text(qt, color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold) }
+        QualityButton(videoQuality, rotation, cameraState, onQualityChange)
     }
 
+    AspectRatioButton(aspectRatio, rotation, onAspectChange)
+    GridButton(isGridVisible, rotation, onGridChange)
+    SettingsButton(showSettingsPanel, rotation, onSettingsChange)
+}
+
+@Composable
+private fun CloseButton(rotation: Float, onClick: () -> Unit) {
+    ToolbarBtn(rotation = rotation, onClick = onClick) {
+        Icon(Icons.Default.Close, stringResource(R.string.close_label), tint = Color.White, modifier = Modifier.size(22.dp))
+    }
+}
+
+@Composable
+private fun FlashButton(flashMode: Int, rotation: Float, cameraState: CameraStateHolder, onFlashChange: (Int) -> Unit) {
+    ToolbarBtn(rotation = rotation, onClick = {
+        val nextFlash = when (flashMode) {
+            ImageCapture.FLASH_MODE_OFF -> ImageCapture.FLASH_MODE_AUTO
+            ImageCapture.FLASH_MODE_AUTO -> ImageCapture.FLASH_MODE_ON
+            else -> ImageCapture.FLASH_MODE_OFF
+        }
+        onFlashChange(nextFlash)
+        cameraState.setFlashMode(nextFlash)
+    }) {
+        Icon(
+            when (flashMode) {
+                ImageCapture.FLASH_MODE_ON -> Icons.Default.FlashOn
+                ImageCapture.FLASH_MODE_AUTO -> Icons.Default.FlashAuto
+                else -> Icons.Default.FlashOff
+            },
+            stringResource(R.string.flash_label),
+            tint = if (flashMode != ImageCapture.FLASH_MODE_OFF) Amber else Color.White,
+            modifier = Modifier.size(22.dp)
+        )
+    }
+}
+
+@Composable
+private fun QualityButton(videoQuality: Quality, rotation: Float, cameraState: CameraStateHolder, onQualityChange: (Quality) -> Unit) {
+    val qt = when (videoQuality) {
+        Quality.SD -> "SD"
+        Quality.HD -> "HD"
+        Quality.FHD -> "FHD"
+        Quality.UHD -> "4K"
+        else -> "FHD"
+    }
+    ToolbarBtn(rotation = rotation, onClick = {
+        if (cameraState.supportedQualities.isNotEmpty()) {
+            val i = cameraState.supportedQualities.indexOf(videoQuality)
+            val nextIdx = if (i != -1) (i + 1) % cameraState.supportedQualities.size else 0
+            onQualityChange(cameraState.supportedQualities[nextIdx])
+        }
+    }) { Text(qt, color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold) }
+}
+
+@Composable
+private fun AspectRatioButton(aspectRatio: Int, rotation: Float, onAspectChange: (Int) -> Unit) {
     ToolbarBtn(rotation = rotation, onClick = {
         onAspectChange(if (aspectRatio == androidx.camera.core.AspectRatio.RATIO_4_3) androidx.camera.core.AspectRatio.RATIO_16_9 else androidx.camera.core.AspectRatio.RATIO_4_3)
     }) {
-        Text(if (aspectRatio == androidx.camera.core.AspectRatio.RATIO_4_3) "4:3" else "16:9",
-            color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+        Text(
+            if (aspectRatio == androidx.camera.core.AspectRatio.RATIO_4_3) "4:3" else "16:9",
+            color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold
+        )
     }
+}
 
+@Composable
+private fun GridButton(isGridVisible: Boolean, rotation: Float, onGridChange: (Boolean) -> Unit) {
     ToolbarBtn(rotation = rotation, onClick = { onGridChange(!isGridVisible) }) {
-        Icon(Icons.Default.GridOn, stringResource(R.string.grid_label),
-            tint = if (isGridVisible) Amber else Color.White, modifier = Modifier.size(22.dp))
+        Icon(
+            Icons.Default.GridOn, stringResource(R.string.grid_label),
+            tint = if (isGridVisible) Amber else Color.White, modifier = Modifier.size(22.dp)
+        )
     }
+}
 
+@Composable
+private fun SettingsButton(showSettingsPanel: Boolean, rotation: Float, onSettingsChange: (Boolean) -> Unit) {
     ToolbarBtn(rotation = rotation, onClick = { onSettingsChange(!showSettingsPanel) }) {
-        Icon(Icons.Default.Settings, "Ayarlar",
-            tint = if (showSettingsPanel) Amber else Color.White, modifier = Modifier.size(22.dp))
+        Icon(
+            Icons.Default.Settings, "Ayarlar",
+            tint = if (showSettingsPanel) Amber else Color.White, modifier = Modifier.size(22.dp)
+        )
     }
 }
 

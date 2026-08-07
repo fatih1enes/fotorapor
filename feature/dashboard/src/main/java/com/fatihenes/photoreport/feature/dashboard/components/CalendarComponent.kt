@@ -36,11 +36,8 @@ fun MonthlyCalendar(
     activityDots: Map<LocalDate, List<Color>> = emptyMap(),
     locale: Locale = Locale.getDefault()
 ) {
-    val haptic = LocalHapticFeedback.current
     var currentMonth by remember { mutableStateOf(YearMonth.from(selectedDate)) }
-    val daysInMonth = currentMonth.lengthOfMonth()
     val firstDayOfWeek = remember(locale) { WeekFields.of(locale).firstDayOfWeek }
-    val firstDayOfMonth = (currentMonth.atDay(1).dayOfWeek.value - firstDayOfWeek.value + 7) % 7
     val weekdayNames = remember(locale, firstDayOfWeek) {
         (0 until 7).map { offset ->
             firstDayOfWeek.plus(offset.toLong()).getDisplayName(TextStyle.NARROW, locale)
@@ -52,145 +49,196 @@ fun MonthlyCalendar(
             .fillMaxWidth()
             .padding(FotoRaporTokens.SpacingL)
     ) {
-        // ── Header ──────────────────────────────────────
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            IconButton(
-                onClick = { currentMonth = currentMonth.minusMonths(1) },
-                modifier = Modifier.size(36.dp)
-            ) {
-                Icon(
-                    Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                    contentDescription = stringResource(R.string.back_label),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(FotoRaporTokens.IconSizeS)
-                )
-            }
-
-            Text(
-                text = buildString {
-                    append(currentMonth.month.getDisplayName(TextStyle.FULL, locale)
-                        .replaceFirstChar { it.uppercase() })
-                    append(" ")
-                    append(currentMonth.year)
-                },
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold,
-                color = MaterialTheme.colorScheme.onSurface
-            )
-
-            IconButton(
-                onClick = { currentMonth = currentMonth.plusMonths(1) },
-                modifier = Modifier.size(36.dp)
-            ) {
-                Icon(
-                    Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                    contentDescription = stringResource(R.string.acc_expand),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.size(FotoRaporTokens.IconSizeS)
-                )
-            }
-        }
+        CalendarHeader(
+            currentMonth = currentMonth,
+            locale = locale,
+            onPreviousMonth = { currentMonth = currentMonth.minusMonths(1) },
+            onNextMonth = { currentMonth = currentMonth.plusMonths(1) }
+        )
 
         Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingL))
 
-        // ── Weekday Labels ──────────────────────────────
-        Row(modifier = Modifier.fillMaxWidth()) {
-            weekdayNames.forEach { day ->
-                Text(
-                    text = day,
-                    modifier = Modifier.weight(1f),
-                    textAlign = TextAlign.Center,
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Medium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
-                )
-            }
-        }
+        WeekdayLabels(weekdayNames)
 
         Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingS))
 
-        // ── Date Grid ───────────────────────────────────
-        val totalCells = ((daysInMonth + firstDayOfMonth + 6) / 7) * 7
-        for (row in 0 until totalCells / 7) {
-            Row(modifier = Modifier.fillMaxWidth()) {
-                for (col in 0 until 7) {
-                    val dayIndex = row * 7 + col - firstDayOfMonth + 1
-                    if (dayIndex in 1..daysInMonth) {
-                        val date = currentMonth.atDay(dayIndex)
-                        val isSelected = date == selectedDate
-                        val isToday = date == LocalDate.now()
-                        val dots = activityDots[date] ?: emptyList()
+        CalendarMonthGrid(
+            currentMonth = currentMonth,
+            selectedDate = selectedDate,
+            firstDayOfWeek = firstDayOfWeek,
+            activityDots = activityDots,
+            onDateSelected = onDateSelected
+        )
+    }
+}
 
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .aspectRatio(1f)
-                                .clip(RoundedCornerShape(FotoRaporTokens.RadiusS))
-                                .clickable {
-                                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                                    onDateSelected(date)
-                                },
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(34.dp)
-                                        .background(
-                                            color = when {
-                                                isSelected -> MaterialTheme.colorScheme.primary
-                                                isToday -> MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
-                                                else -> Color.Transparent
-                                            },
-                                            shape = RoundedCornerShape(FotoRaporTokens.RadiusS)
-                                        )
-                                        .then(
-                                            if (isToday && !isSelected) {
-                                                Modifier.border(
-                                                    width = 1.dp,
-                                                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
-                                                    shape = RoundedCornerShape(FotoRaporTokens.RadiusS)
-                                                )
-                                            } else Modifier
-                                        ),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    Text(
-                                        text = dayIndex.toString(),
-                                        style = MaterialTheme.typography.bodySmall,
-                                        fontWeight = if (isSelected || isToday) FontWeight.SemiBold else FontWeight.Normal,
-                                        color = when {
-                                            isSelected -> MaterialTheme.colorScheme.onPrimary
-                                            isToday -> MaterialTheme.colorScheme.primary
-                                            else -> MaterialTheme.colorScheme.onSurface
-                                        }
-                                    )
-                                }
+@Composable
+private fun CalendarHeader(
+    currentMonth: YearMonth,
+    locale: Locale,
+    onPreviousMonth: () -> Unit,
+    onNextMonth: () -> Unit
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        IconButton(onClick = onPreviousMonth, modifier = Modifier.size(36.dp)) {
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                contentDescription = stringResource(R.string.back_label),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(FotoRaporTokens.IconSizeS)
+            )
+        }
 
-                                // Activity Dots
-                                Row(
-                                    modifier = Modifier.padding(top = 3.dp),
-                                    horizontalArrangement = Arrangement.spacedBy(2.dp)
-                                ) {
-                                    dots.take(3).forEach { color ->
-                                        Box(
-                                            modifier = Modifier
-                                                .size(4.dp)
-                                                .background(color, CircleShape)
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    } else {
-                        Spacer(modifier = Modifier.weight(1f))
-                    }
+        Text(
+            text = buildString {
+                append(currentMonth.month.getDisplayName(TextStyle.FULL, locale)
+                    .replaceFirstChar { it.uppercase() })
+                append(" ")
+                append(currentMonth.year)
+            },
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+
+        IconButton(onClick = onNextMonth, modifier = Modifier.size(36.dp)) {
+            Icon(
+                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = stringResource(R.string.acc_expand),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(FotoRaporTokens.IconSizeS)
+            )
+        }
+    }
+}
+
+@Composable
+private fun WeekdayLabels(weekdayNames: List<String>) {
+    Row(modifier = Modifier.fillMaxWidth()) {
+        weekdayNames.forEach { day ->
+            Text(
+                text = day,
+                modifier = Modifier.weight(1f),
+                textAlign = TextAlign.Center,
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f)
+            )
+        }
+    }
+}
+
+@Composable
+private fun CalendarMonthGrid(
+    currentMonth: YearMonth,
+    selectedDate: LocalDate,
+    firstDayOfWeek: java.time.DayOfWeek,
+    activityDots: Map<LocalDate, List<Color>>,
+    onDateSelected: (LocalDate) -> Unit
+) {
+    val daysInMonth = currentMonth.lengthOfMonth()
+    val firstDayOfMonth = (currentMonth.atDay(1).dayOfWeek.value - firstDayOfWeek.value + 7) % 7
+    val totalCells = ((daysInMonth + firstDayOfMonth + 6) / 7) * 7
+
+    for (row in 0 until totalCells / 7) {
+        Row(modifier = Modifier.fillMaxWidth()) {
+            for (col in 0 until 7) {
+                val dayIndex = row * 7 + col - firstDayOfMonth + 1
+                if (dayIndex in 1..daysInMonth) {
+                    val date = currentMonth.atDay(dayIndex)
+                    CalendarDateCell(
+                        date = date,
+                        dayIndex = dayIndex,
+                        isSelected = date == selectedDate,
+                        isToday = date == LocalDate.now(),
+                        dots = activityDots[date] ?: emptyList(),
+                        onDateSelected = onDateSelected
+                    )
+                } else {
+                    Spacer(modifier = Modifier.weight(1f))
                 }
             }
+        }
+    }
+}
+
+@Composable
+private fun RowScope.CalendarDateCell(
+    date: LocalDate,
+    dayIndex: Int,
+    isSelected: Boolean,
+    isToday: Boolean,
+    dots: List<Color>,
+    onDateSelected: (LocalDate) -> Unit
+) {
+    val haptic = LocalHapticFeedback.current
+    Box(
+        modifier = Modifier
+            .weight(1f)
+            .aspectRatio(1f)
+            .clip(RoundedCornerShape(FotoRaporTokens.RadiusS))
+            .clickable {
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                onDateSelected(date)
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            DateCellBackground(dayIndex, isSelected, isToday)
+            ActivityDotsRow(dots)
+        }
+    }
+}
+
+@Composable
+private fun DateCellBackground(dayIndex: Int, isSelected: Boolean, isToday: Boolean) {
+    Box(
+        modifier = Modifier
+            .size(34.dp)
+            .background(
+                color = when {
+                    isSelected -> MaterialTheme.colorScheme.primary
+                    isToday -> MaterialTheme.colorScheme.primary.copy(alpha = 0.08f)
+                    else -> Color.Transparent
+                },
+                shape = RoundedCornerShape(FotoRaporTokens.RadiusS)
+            )
+            .then(
+                if (isToday && !isSelected) {
+                    Modifier.border(
+                        width = 1.dp,
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f),
+                        shape = RoundedCornerShape(FotoRaporTokens.RadiusS)
+                    )
+                } else Modifier
+            ),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = dayIndex.toString(),
+            style = MaterialTheme.typography.bodySmall,
+            fontWeight = if (isSelected || isToday) FontWeight.SemiBold else FontWeight.Normal,
+            color = when {
+                isSelected -> MaterialTheme.colorScheme.onPrimary
+                isToday -> MaterialTheme.colorScheme.primary
+                else -> MaterialTheme.colorScheme.onSurface
+            }
+        )
+    }
+}
+
+@Composable
+private fun ActivityDotsRow(dots: List<Color>) {
+    Row(
+        modifier = Modifier.padding(top = 3.dp),
+        horizontalArrangement = Arrangement.spacedBy(2.dp)
+    ) {
+        dots.take(3).forEach { color ->
+            Box(modifier = Modifier.size(4.dp).background(color, CircleShape))
         }
     }
 }
