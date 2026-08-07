@@ -33,7 +33,7 @@ camera = "1.6.1"
 activity = "1.13.0"
 ksp = "2.3.11"
 googleServices = "4.5.0"
-firebaseBom = "33.1.2"
+firebaseBom = "34.17.0"
 firebaseCrashlyticsPlugin = "3.0.7"
 
 datastore = "1.2.1"
