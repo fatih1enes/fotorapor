@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<issues format="6" by="lint 9.3.1" type="baseline" client="gradle" dependencies="false" name="AGP (9.3.1)" variant="all" version="9.3.1">
+
+    <issue
+        id="Typos"
+        message="&quot;adres&quot; is a common misspelling; did you mean &quot;address&quot;?"
+        errorLine1="    &lt;string name=&quot;disclosure_location_desc&quot;>PhotoReport, çektiğiniz fotoğrafların üzerine konum bilgisini (koordinat ve adres) filigran olarak ekleyebilmek için konum verilerini kullanır. Bu işlem tamamen cihazınızda gerçekleşir ve verileriniz hiçbir sunucuya gönderilmez.&lt;/string>"
+        errorLine2="                                                                                                                        ~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="204"
+            column="121"/>
+    </issue>
+
+    <issue
+        id="PluralsCandidate"
+        message="Formatting %d followed by words (&quot;işleniyor&quot;): This should probably be a plural rather than a string"
+        errorLine1="    &lt;string name=&quot;export_progress_text&quot;>Görsel %1$d / %2$d işleniyor…&lt;/string>"
+        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="107"
+            column="5"/>
+    </issue>
+
+    <issue
+        id="UseOfNonLambdaOffsetOverload"
+        message="State backed values should use the lambda overload of Modifier.offset"
+        errorLine1="                .offset(x = indicatorOffset)"
+        errorLine2="                 ~~~~~~">
+        <location
+            file="src/main/java/com/fatihenes/photoreport/core/ui/components/PillSegmentedControl.kt"
+            line="63"
+            column="18"/>
+    </issue>
+
+</issues>

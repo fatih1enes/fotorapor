@@ -1,0 +1,12 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>FunctionNaming:BackupSection.kt$@Composable fun BackupSection( modifier: Modifier = Modifier, viewModel: BackupViewModel = hiltViewModel() )</ID>
+    <ID>LongMethod:BackupSection.kt$@Composable fun BackupSection( modifier: Modifier = Modifier, viewModel: BackupViewModel = hiltViewModel() )</ID>
+    <ID>MaxLineLength:BackupSection.kt$scope.launch { snackbarHost.showSnackbar((backupState as OperationResult.Error).message ?: "Bilinmeyen Hata") }</ID>
+    <ID>WildcardImport:BackupSection.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:BackupSection.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:BackupSection.kt$import androidx.compose.runtime.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

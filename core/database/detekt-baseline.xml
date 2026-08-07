@@ -1,0 +1,18 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>MagicNumber:AppDatabase.kt$AppDatabase.Companion.&lt;no name provided&gt;$3</ID>
+    <ID>MagicNumber:AppDatabase.kt$AppDatabase.Companion.&lt;no name provided&gt;$4</ID>
+    <ID>MagicNumber:AppDatabase.kt$AppDatabase.Companion.&lt;no name provided&gt;$5</ID>
+    <ID>MaxLineLength:Daos.kt$PhotoDao$@Query("SELECT photos.* FROM photos INNER JOIN daily_logs ON photos.logId = daily_logs.id WHERE daily_logs.projectId = :projectId AND photos.isDeleted = 0 ORDER BY photos.id ASC LIMIT :limit OFFSET :offset")</ID>
+    <ID>MaxLineLength:Daos.kt$PhotoDao$@Query("SELECT photos.* FROM photos INNER JOIN daily_logs ON photos.logId = daily_logs.id WHERE daily_logs.projectId = :projectId AND photos.isDeleted = 0 ORDER BY photos.id DESC")</ID>
+    <ID>MaxLineLength:DatabaseModule.kt$DatabaseModule$.</ID>
+    <ID>TooManyFunctions:Daos.kt$PhotoDao</ID>
+    <ID>WildcardImport:Daos.kt$import androidx.room.*</ID>
+    <ID>WildcardImport:LocalDataSourcesImpl.kt$import com.fatihenes.photoreport.core.database.*</ID>
+    <ID>WildcardImport:LocalDataSourcesImpl.kt$import com.fatihenes.photoreport.core.database.mapper.*</ID>
+    <ID>WildcardImport:LocalDataSourcesImpl.kt$import com.fatihenes.photoreport.core.domain.datasource.*</ID>
+    <ID>WildcardImport:LocalDataSourcesImpl.kt$import com.fatihenes.photoreport.core.model.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

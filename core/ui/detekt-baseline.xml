@@ -1,0 +1,24 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>FunctionNaming:AppButton.kt$@Composable fun AppButton( text: String, onClick: () -&gt; Unit, modifier: Modifier = Modifier, icon: ImageVector? = null, enabled: Boolean = true, fullWidth: Boolean = false, containerColor: Color = MaterialTheme.colorScheme.primary, contentColor: Color = MaterialTheme.colorScheme.onPrimary )</ID>
+    <ID>FunctionNaming:AppEmptyState.kt$@Composable fun AppEmptyState( icon: ImageVector, title: String, description: String, modifier: Modifier = Modifier, actionLabel: String? = null, onActionClick: (() -&gt; Unit)? = null, actionHintText: String? = null )</ID>
+    <ID>FunctionNaming:HeroStatChip.kt$@Composable fun HeroStatChip( icon: ImageVector, label: String, value: String, accentColor: Color, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:PillSegmentedControl.kt$@Composable fun &lt;T&gt; PillSegmentedControl( items: List&lt;T&gt;, selectedItem: T, onItemSelected: (T) -&gt; Unit, itemTitle: @Composable (T) -&gt; String, modifier: Modifier = Modifier )</ID>
+    <ID>LongMethod:AppEmptyState.kt$@Composable fun AppEmptyState( icon: ImageVector, title: String, description: String, modifier: Modifier = Modifier, actionLabel: String? = null, onActionClick: (() -&gt; Unit)? = null, actionHintText: String? = null )</ID>
+    <ID>LongMethod:PillSegmentedControl.kt$@Composable fun &lt;T&gt; PillSegmentedControl( items: List&lt;T&gt;, selectedItem: T, onItemSelected: (T) -&gt; Unit, itemTitle: @Composable (T) -&gt; String, modifier: Modifier = Modifier )</ID>
+    <ID>LongParameterList:AppButton.kt$( text: String, onClick: () -&gt; Unit, modifier: Modifier = Modifier, icon: ImageVector? = null, enabled: Boolean = true, fullWidth: Boolean = false, containerColor: Color = MaterialTheme.colorScheme.primary, contentColor: Color = MaterialTheme.colorScheme.onPrimary )</ID>
+    <ID>LongParameterList:AppEmptyState.kt$( icon: ImageVector, title: String, description: String, modifier: Modifier = Modifier, actionLabel: String? = null, onActionClick: (() -&gt; Unit)? = null, actionHintText: String? = null )</ID>
+    <ID>MagicNumber:AppEmptyState.kt$0.7f</ID>
+    <ID>MagicNumber:AppEmptyState.kt$0.85f</ID>
+    <ID>MagicNumber:AppEmptyState.kt$2000</ID>
+    <ID>MagicNumber:ShimmerEffect.kt$1200</ID>
+    <ID>MaxLineLength:PillSegmentedControl.kt$color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant</ID>
+    <ID>TooGenericExceptionCaught:MediaShareUtils.kt$MediaShareUtils$e: Exception</ID>
+    <ID>WildcardImport:HeroStatChip.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:PillSegmentedControl.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:PillSegmentedControl.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:ShimmerEffect.kt$import androidx.compose.animation.core.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

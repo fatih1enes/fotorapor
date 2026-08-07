@@ -49,7 +49,7 @@ fun SettingsScreen(
     val scope = rememberCoroutineScope()
     val snackbarHost = LocalSnackbarHostState.current
     val settings by viewModel.settings.collectAsStateWithLifecycle()
-    
+
     val themeMode = settings?.themeMode ?: "system"
     val language = settings?.language ?: "tr"
     val gpsWatermarkEnabled = settings?.gpsWatermarkEnabled ?: false
@@ -76,16 +76,15 @@ fun SettingsScreen(
         ImageCropperDialog(
             imageUri = imageToCropUri!!,
             onDismiss = { imageToCropUri = null },
-            onCropSuccess = { bitmap ->
-                scope.launch {
-                    CompanyLogoManager.saveLogo(context, bitmap)
-                    logoUri = CompanyLogoManager.getLogoUri(context)
-                    logoVersion = System.currentTimeMillis()
-                    imageToCropUri = null
-                    bitmap.recycle() // OOM önlemi
-                }
-            },
-        )
+        ) { bitmap ->
+            scope.launch {
+                CompanyLogoManager.saveLogo(context, bitmap)
+                logoUri = CompanyLogoManager.getLogoUri(context)
+                logoVersion = System.currentTimeMillis()
+                imageToCropUri = null
+                bitmap.recycle() // OOM önlemi
+            }
+        }
     }
 
     Scaffold(
@@ -283,7 +282,7 @@ fun SettingsScreen(
                         Text(
                             stringResource(R.string.settings_gps_watermark_title),
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.SemiBold
+                            fontWeight = FontWeight.SemiBold,
                         )
                         Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXXS))
                         Text(

@@ -1,0 +1,69 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CommentOverPrivateFunction:Font.kt$@OptIn(ExperimentalTextApi::class) private fun variableFont(resId: Int, weight: FontWeight): Font</ID>
+    <ID>FunctionNaming:Theme.kt$@Composable fun PhotoReportTheme( darkTheme: Boolean = isSystemInDarkTheme(), dynamicColor: Boolean = false, content: @Composable () -&gt; Unit )</ID>
+    <ID>MagicNumber:Color.kt$0xFF121009</ID>
+    <ID>MagicNumber:Color.kt$0xFF15182F</ID>
+    <ID>MagicNumber:Color.kt$0xFF163F2A</ID>
+    <ID>MagicNumber:Color.kt$0xFF1C1915</ID>
+    <ID>MagicNumber:Color.kt$0xFF1D2242</ID>
+    <ID>MagicNumber:Color.kt$0xFF1D7A4C</ID>
+    <ID>MagicNumber:Color.kt$0xFF1F6E72</ID>
+    <ID>MagicNumber:Color.kt$0xFF211D17</ID>
+    <ID>MagicNumber:Color.kt$0xFF262C58</ID>
+    <ID>MagicNumber:Color.kt$0xFF2C2822</ID>
+    <ID>MagicNumber:Color.kt$0xFF2F386F</ID>
+    <ID>MagicNumber:Color.kt$0xFF2F6D4C</ID>
+    <ID>MagicNumber:Color.kt$0xFF3A2610</ID>
+    <ID>MagicNumber:Color.kt$0xFF3D0E09</ID>
+    <ID>MagicNumber:Color.kt$0xFF3D4791</ID>
+    <ID>MagicNumber:Color.kt$0xFF423D34</ID>
+    <ID>MagicNumber:Color.kt$0xFF503511</ID>
+    <ID>MagicNumber:Color.kt$0xFF5762B0</ID>
+    <ID>MagicNumber:Color.kt$0xFF5A5448</ID>
+    <ID>MagicNumber:Color.kt$0xFF5C160E</ID>
+    <ID>MagicNumber:Color.kt$0xFF5C2E12</ID>
+    <ID>MagicNumber:Color.kt$0xFF5FC98B</ID>
+    <ID>MagicNumber:Color.kt$0xFF6B4C7A</ID>
+    <ID>MagicNumber:Color.kt$0xFF6B6B2E</ID>
+    <ID>MagicNumber:Color.kt$0xFF6D481E</ID>
+    <ID>MagicNumber:Color.kt$0xFF766F60</ID>
+    <ID>MagicNumber:Color.kt$0xFF7C3048</ID>
+    <ID>MagicNumber:Color.kt$0xFF895C26</ID>
+    <ID>MagicNumber:Color.kt$0xFF8B95D8</ID>
+    <ID>MagicNumber:Color.kt$0xFF9C9585</ID>
+    <ID>MagicNumber:Color.kt$0xFFA6712F</ID>
+    <ID>MagicNumber:Color.kt$0xFFA8B0E0</ID>
+    <ID>MagicNumber:Color.kt$0xFFB23327</ID>
+    <ID>MagicNumber:Color.kt$0xFFB54A23</ID>
+    <ID>MagicNumber:Color.kt$0xFFB5502E</ID>
+    <ID>MagicNumber:Color.kt$0xFFBE8843</ID>
+    <ID>MagicNumber:Color.kt$0xFFC4BFB2</ID>
+    <ID>MagicNumber:Color.kt$0xFFD2A25C</ID>
+    <ID>MagicNumber:Color.kt$0xFFD3D8F0</ID>
+    <ID>MagicNumber:Color.kt$0xFFD8F0E1</ID>
+    <ID>MagicNumber:Color.kt$0xFFDDD9CF</ID>
+    <ID>MagicNumber:Color.kt$0xFFE2887C</ID>
+    <ID>MagicNumber:Color.kt$0xFFE2BE82</ID>
+    <ID>MagicNumber:Color.kt$0xFFE38A5C</ID>
+    <ID>MagicNumber:Color.kt$0xFFEDEAE3</ID>
+    <ID>MagicNumber:Color.kt$0xFFEDEFF9</ID>
+    <ID>MagicNumber:Color.kt$0xFFF0DBB6</ID>
+    <ID>MagicNumber:Color.kt$0xFFF5F3EE</ID>
+    <ID>MagicNumber:Color.kt$0xFFF6DAD5</ID>
+    <ID>MagicNumber:Color.kt$0xFFF6E1D2</ID>
+    <ID>MagicNumber:Color.kt$0xFFFAF1E4</ID>
+    <ID>MagicNumber:Color.kt$0xFFFAF9F6</ID>
+    <ID>MagicNumber:Color.kt$0xFFFFFFFF</ID>
+    <ID>MagicNumber:Theme.kt$0xFF000000</ID>
+    <ID>MagicNumber:Theme.kt$FotoRaporMotion$0.2f</ID>
+    <ID>MagicNumber:Theme.kt$FotoRaporMotion$150</ID>
+    <ID>MagicNumber:Theme.kt$FotoRaporMotion$250</ID>
+    <ID>MagicNumber:Theme.kt$FotoRaporMotion$350</ID>
+    <ID>MayBeConst:Theme.kt$FotoRaporMotion$/** Büyük geçişler */ val DurationLong = 350</ID>
+    <ID>MayBeConst:Theme.kt$FotoRaporMotion$/** Kısa, anlık feedback */ val DurationShort = 150</ID>
+    <ID>MayBeConst:Theme.kt$FotoRaporMotion$/** Standart UI animasyonları */ val DurationMedium = 250</ID>
+  </CurrentIssues>
+</SmellBaseline>

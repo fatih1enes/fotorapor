@@ -35,7 +35,7 @@ import com.fatihenes.photoreport.feature.dashboard.ui.DashboardScreen
 import com.fatihenes.photoreport.feature.project.ui.ProjectDetailScreen
 import com.fatihenes.photoreport.feature.settings.ui.SettingsScreen
 import com.fatihenes.photoreport.feature.trash.ui.TrashScreen
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.fatihenes.photoreport.ui.viewmodel.MainViewModel
 import com.fatihenes.photoreport.feature.settings.viewmodel.SettingsViewModel
 import com.fatihenes.photoreport.feature.dashboard.viewmodel.DashboardViewModel
@@ -62,7 +62,7 @@ val LocalSnackbarHostState = com.fatihenes.photoreport.core.ui.navigation.LocalS
 fun AppNavGraph(
     viewModel: MainViewModel,
     initialCameraProjectId: Long = -1L,
-    initialProjectDetailId: Long = -1L
+    initialProjectDetailId: Long = -1L,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -74,7 +74,7 @@ fun AppNavGraph(
 
         val disclosureShown by viewModel.disclosureShown.collectAsStateWithLifecycle()
         if (!disclosureShown) {
-            DisclosureDialog(onDismiss = { viewModel.setDisclosureShown(true) })
+            DisclosureDialog { viewModel.setDisclosureShown(shown = true) }
         }
 
     // --- Permission Handling ---
@@ -102,7 +102,7 @@ fun AppNavGraph(
             navController.navigate(Routes.camera(pendingLogId, pendingProjectId))
         } else {
             val activity = context as? android.app.Activity
-            if (activity != null && !ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.CAMERA)) {
+            if (activity != null && (!ActivityCompat.shouldShowRequestPermissionRationale(activity, Manifest.permission.CAMERA))) {
                 showPermissionRationale = true
             } else {
                 scope.launch {
@@ -263,7 +263,7 @@ fun AppNavGraph(
 
             val detailViewModel: ProjectDetailViewModel = hiltViewModel()
             val settingsViewModel: SettingsViewModel = hiltViewModel()
-            
+
             val settings by settingsViewModel.settings.collectAsStateWithLifecycle()
             val cameraOpt = settings?.cameraOptimization ?: true
             val avifEnabled = settings?.avifEnabled ?: true
@@ -301,7 +301,7 @@ fun AppNavGraph(
             )
         }
     }
-    
+
     // Global SnackbarHost over the NavHost
     SnackbarHost(
         hostState = snackbarHostState,

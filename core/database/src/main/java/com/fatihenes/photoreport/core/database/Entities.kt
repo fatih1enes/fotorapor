@@ -10,8 +10,8 @@ import androidx.room.ForeignKey
     tableName = "projects",
     indices = [
         androidx.room.Index(value = ["isDeleted"]),
-        androidx.room.Index(value = ["deletedAt"])
-    ]
+        androidx.room.Index(value = ["deletedAt"]),
+    ],
 )
 data class ProjectEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,
@@ -60,8 +60,8 @@ data class DailyLogEntity(
     indices = [
         androidx.room.Index(value = ["logId"]),
         androidx.room.Index(value = ["isDeleted"]),
-        androidx.room.Index(value = ["deletedAt"])
-    ]
+        androidx.room.Index(value = ["deletedAt"]),
+    ],
 )
 data class PhotoEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0,

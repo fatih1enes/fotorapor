@@ -1,0 +1,10 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>LongParameterList:PhotoRepository.kt$PhotoRepository$(uriString: String, projectId: Long, logId: Long, enableWebp: Boolean, projectName: String, watermarkData: WatermarkData? = null)</ID>
+    <ID>LongParameterList:PhotoUseCases.kt$ProcessAndSavePhotoUseCase$( uriString: String, projectId: Long, logId: Long, enableWebp: Boolean, projectName: String, watermarkData: WatermarkData? = null )</ID>
+    <ID>MaxLineLength:LogUseCases.kt$GetLogsWithPhotosUseCase$operator fun invoke(projectId: Long): Flow&lt;List&lt;DailyLogWithPhotos&gt;&gt;</ID>
+    <ID>MaxLineLength:PhotoRepository.kt$PhotoRepository$fun processAndSavePhotoInBackground(uriString: String, projectId: Long, logId: Long, enableWebp: Boolean, projectName: String, watermarkData: WatermarkData? = null)</ID>
+  </CurrentIssues>
+</SmellBaseline>

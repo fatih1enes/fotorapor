@@ -1,0 +1,67 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:FullGalleryDialog.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun FullGalleryDialog( log: DailyLog, photos: List&lt;Photo&gt;, onDismiss: () -&gt; Unit, onPhotoClick: (Photo) -&gt; Unit, onDeletePhotos: (List&lt;Long&gt;) -&gt; Unit, )</ID>
+    <ID>CyclomaticComplexMethod:FullScreenPhotoViewer.kt$@androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class) @OptIn(ExperimentalMaterial3Api::class) @Composable fun FullScreenPhotoDialog( photoList: List&lt;Photo&gt;, initialIndex: Int, onDismiss: () -&gt; Unit, onDelete: (Photo) -&gt; Unit, onUpdateRotation: (Long, Float) -&gt; Unit )</ID>
+    <ID>CyclomaticComplexMethod:TimelineBlock.kt$@Composable fun TimelineBlock( log: DailyLog, photos: List&lt;Photo&gt;, projectColor: Color, isSelectionMode: Boolean, selectedPhotoIds: List&lt;Long&gt;, onPhotoClick: (Photo) -&gt; Unit, onMorePhotosClick: () -&gt; Unit, onNoteChange: (String) -&gt; Unit, onAddPhotoClick: () -&gt; Unit, onImportPhotoClick: (Uri) -&gt; Unit, language: String = "tr" )</ID>
+    <ID>FunctionNaming:FullGalleryDialog.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun FullGalleryDialog( log: DailyLog, photos: List&lt;Photo&gt;, onDismiss: () -&gt; Unit, onPhotoClick: (Photo) -&gt; Unit, onDeletePhotos: (List&lt;Long&gt;) -&gt; Unit, )</ID>
+    <ID>FunctionNaming:FullScreenPhotoViewer.kt$@androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class) @OptIn(ExperimentalMaterial3Api::class) @Composable fun FullScreenPhotoDialog( photoList: List&lt;Photo&gt;, initialIndex: Int, onDismiss: () -&gt; Unit, onDelete: (Photo) -&gt; Unit, onUpdateRotation: (Long, Float) -&gt; Unit )</ID>
+    <ID>FunctionNaming:ProjectDetailScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ProjectDetailScreen( project: Project?, logs: List&lt;DailyLogWithPhotos&gt;, onBack: () -&gt; Unit, onDeleteProject: () -&gt; Unit, onAddPhoto: (Long?) -&gt; Unit, onDeletePhoto: (Photo) -&gt; Unit, onDeletePhotos: (List&lt;Long&gt;) -&gt; Unit, onNoteChange: (Long, String) -&gt; Unit, onUpdateRotation: (Long, Float) -&gt; Unit, onAddLogForDate: (Long) -&gt; Unit, onImportPhotoToLog: (Long, String) -&gt; Unit, onExportProject: (String, Int, String) -&gt; Unit, viewModel: ProjectDetailViewModel, language: String = "tr", )</ID>
+    <ID>FunctionNaming:TimelineBlock.kt$@Composable fun TimelineBlock( log: DailyLog, photos: List&lt;Photo&gt;, projectColor: Color, isSelectionMode: Boolean, selectedPhotoIds: List&lt;Long&gt;, onPhotoClick: (Photo) -&gt; Unit, onMorePhotosClick: () -&gt; Unit, onNoteChange: (String) -&gt; Unit, onAddPhotoClick: () -&gt; Unit, onImportPhotoClick: (Uri) -&gt; Unit, language: String = "tr" )</ID>
+    <ID>FunctionNaming:WeekCalendar.kt$@Composable fun WeekCalendar( projectColor: Color, onDateSelected: (LocalDate) -&gt; Unit, modifier: Modifier = Modifier, )</ID>
+    <ID>LongMethod:FullGalleryDialog.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun FullGalleryDialog( log: DailyLog, photos: List&lt;Photo&gt;, onDismiss: () -&gt; Unit, onPhotoClick: (Photo) -&gt; Unit, onDeletePhotos: (List&lt;Long&gt;) -&gt; Unit, )</ID>
+    <ID>LongMethod:FullScreenPhotoViewer.kt$@androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class) @OptIn(ExperimentalMaterial3Api::class) @Composable fun FullScreenPhotoDialog( photoList: List&lt;Photo&gt;, initialIndex: Int, onDismiss: () -&gt; Unit, onDelete: (Photo) -&gt; Unit, onUpdateRotation: (Long, Float) -&gt; Unit )</ID>
+    <ID>LongMethod:ProjectDetailScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ProjectDetailScreen( project: Project?, logs: List&lt;DailyLogWithPhotos&gt;, onBack: () -&gt; Unit, onDeleteProject: () -&gt; Unit, onAddPhoto: (Long?) -&gt; Unit, onDeletePhoto: (Photo) -&gt; Unit, onDeletePhotos: (List&lt;Long&gt;) -&gt; Unit, onNoteChange: (Long, String) -&gt; Unit, onUpdateRotation: (Long, Float) -&gt; Unit, onAddLogForDate: (Long) -&gt; Unit, onImportPhotoToLog: (Long, String) -&gt; Unit, onExportProject: (String, Int, String) -&gt; Unit, viewModel: ProjectDetailViewModel, language: String = "tr", )</ID>
+    <ID>LongMethod:TimelineBlock.kt$@Composable fun TimelineBlock( log: DailyLog, photos: List&lt;Photo&gt;, projectColor: Color, isSelectionMode: Boolean, selectedPhotoIds: List&lt;Long&gt;, onPhotoClick: (Photo) -&gt; Unit, onMorePhotosClick: () -&gt; Unit, onNoteChange: (String) -&gt; Unit, onAddPhotoClick: () -&gt; Unit, onImportPhotoClick: (Uri) -&gt; Unit, language: String = "tr" )</ID>
+    <ID>LongMethod:WeekCalendar.kt$@Composable fun WeekCalendar( projectColor: Color, onDateSelected: (LocalDate) -&gt; Unit, modifier: Modifier = Modifier, )</ID>
+    <ID>LongParameterList:ProjectDetailScreen.kt$( project: Project?, logs: List&lt;DailyLogWithPhotos&gt;, onBack: () -&gt; Unit, onDeleteProject: () -&gt; Unit, onAddPhoto: (Long?) -&gt; Unit, onDeletePhoto: (Photo) -&gt; Unit, onDeletePhotos: (List&lt;Long&gt;) -&gt; Unit, onNoteChange: (Long, String) -&gt; Unit, onUpdateRotation: (Long, Float) -&gt; Unit, onAddLogForDate: (Long) -&gt; Unit, onImportPhotoToLog: (Long, String) -&gt; Unit, onExportProject: (String, Int, String) -&gt; Unit, viewModel: ProjectDetailViewModel, language: String = "tr", )</ID>
+    <ID>LongParameterList:TimelineBlock.kt$( log: DailyLog, photos: List&lt;Photo&gt;, projectColor: Color, isSelectionMode: Boolean, selectedPhotoIds: List&lt;Long&gt;, onPhotoClick: (Photo) -&gt; Unit, onMorePhotosClick: () -&gt; Unit, onNoteChange: (String) -&gt; Unit, onAddPhotoClick: () -&gt; Unit, onImportPhotoClick: (Uri) -&gt; Unit, language: String = "tr" )</ID>
+    <ID>MagicNumber:FullGalleryDialog.kt$256</ID>
+    <ID>MagicNumber:FullGalleryDialog.kt$3</ID>
+    <ID>MagicNumber:FullScreenPhotoViewer.kt$2400</ID>
+    <ID>MagicNumber:FullScreenPhotoViewer.kt$360f</ID>
+    <ID>MagicNumber:FullScreenPhotoViewer.kt$5f</ID>
+    <ID>MagicNumber:FullScreenPhotoViewer.kt$90f</ID>
+    <ID>MagicNumber:ProjectDetailScreen.kt$200</ID>
+    <ID>MagicNumber:ProjectDetailScreen.kt$250</ID>
+    <ID>MagicNumber:ProjectDetailScreen.kt$3</ID>
+    <ID>MagicNumber:ProjectDetailViewModel.kt$ProjectDetailViewModel$5000</ID>
+    <ID>MagicNumber:TimelineBlock.kt$1.33f</ID>
+    <ID>MagicNumber:TimelineBlock.kt$256</ID>
+    <ID>MagicNumber:TimelineBlock.kt$3</ID>
+    <ID>MagicNumber:TimelineBlock.kt$4</ID>
+    <ID>MagicNumber:WeekCalendar.kt$6</ID>
+    <ID>MaxLineLength:FullScreenPhotoViewer.kt$currentPhoto?.let { MediaShareUtils.shareSingleMedia(context, it.filePath) { msg -&gt; scope.launch { snackbarHost.showSnackbar(msg) } } }</ID>
+    <ID>MaxLineLength:FullScreenPhotoViewer.kt$val currentPhoto = if (pagerState.currentPage &lt; photoList.size) photoList[pagerState.currentPage] else null</ID>
+    <ID>MaxLineLength:FullScreenPhotoViewer.kt$var offset by remember(photo.id) { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }</ID>
+    <ID>MaxLineLength:ProjectDetailScreen.kt$coroutineScope.launch { snackbarHost.showSnackbar("Bildirim izni verilmediği için arkaplan işlemi durumu gösterilemeyecek.") }</ID>
+    <ID>MaxLineLength:ProjectDetailScreen.kt$coroutineScope.launch { snackbarHost.showSnackbar("ZIP dışa aktarımı arka planda başlatıldı. Bildirimleri kontrol edin.") }</ID>
+    <ID>MaxLineLength:ProjectDetailScreen.kt$coroutineScope.launch { snackbarHost.showSnackbar(context.getString(R.string.pdf_preparing) + " (Arka plan)") }</ID>
+    <ID>MaxLineLength:ProjectDetailScreen.kt$if (hasPermission) showExportDialog = true else notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)</ID>
+    <ID>MaxLineLength:ProjectDetailScreen.kt$val hasPermission = ContextCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) == android.content.pm.PackageManager.PERMISSION_GRANTED</ID>
+    <ID>MaxLineLength:TimelineBlock.kt$coroutineScope.launch { snackbarHost.showSnackbar(context.getString(R.string.import_error)) }</ID>
+    <ID>MaxLineLength:TimelineBlock.kt$if</ID>
+    <ID>MaxLineLength:WeekCalendar.kt$text = date.dayOfWeek.getDisplayName(TextStyle.SHORT, androidx.compose.ui.text.intl.Locale.current.platformLocale as java.util.Locale).uppercase()</ID>
+    <ID>TooManyFunctions:ProjectDetailViewModel.kt$ProjectDetailViewModel : ViewModel</ID>
+    <ID>WildcardImport:FullGalleryDialog.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:FullGalleryDialog.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:FullGalleryDialog.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:FullGalleryDialog.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:FullScreenPhotoViewer.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:FullScreenPhotoViewer.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:FullScreenPhotoViewer.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:FullScreenPhotoViewer.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:ProjectDetailScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:ProjectDetailScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:ProjectDetailScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:ProjectDetailScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:ProjectDetailViewModel.kt$import kotlinx.coroutines.flow.*</ID>
+    <ID>WildcardImport:TimelineBlock.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:TimelineBlock.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:TimelineBlock.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:TimelineBlock.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:WeekCalendar.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:WeekCalendar.kt$import androidx.compose.runtime.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

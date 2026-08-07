@@ -49,10 +49,10 @@ fun FullGalleryDialog(
     photos: List<Photo>,
     onDismiss: () -> Unit,
     onPhotoClick: (Photo) -> Unit,
-    onDeletePhotos: (List<Long>) -> Unit
+    onDeletePhotos: (List<Long>) -> Unit,
 ) {
     val haptic = LocalHapticFeedback.current
-    var isSelectionMode by remember { mutableStateOf(false) }
+    var isSelectionMode by remember { mutableStateOf(value = false) }
     val selectedIds = remember { mutableStateListOf<Long>() }
     var showBulkDeleteConfirm by remember { mutableStateOf(false) }
 
@@ -130,7 +130,10 @@ fun FullGalleryDialog(
                                 val snackbarHost = LocalSnackbarHostState.current
                                 IconButton(onClick = {
                                     if (selectedIds.isNotEmpty()) {
-                                        val selectedPaths = photos.filter { selectedIds.contains(it.id) }.map { it.filePath }
+                                        val selectedPaths = photos.asSequence()
+                            .filter { selectedIds.contains(it.id) }
+                            .map { it.filePath }
+                            .toList()
                                         MediaShareUtils.shareMultipleMedia(context, selectedPaths) { msg ->
                                             coroutineScope.launch { snackbarHost.showSnackbar(msg) }
                                         }

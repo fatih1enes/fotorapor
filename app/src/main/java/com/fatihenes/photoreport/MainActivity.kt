@@ -14,7 +14,7 @@ import com.fatihenes.photoreport.ui.navigation.AppNavGraph
 import com.fatihenes.photoreport.ui.theme.PhotoReportTheme
 import com.fatihenes.photoreport.ui.viewmodel.MainViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 
 @AndroidEntryPoint
@@ -62,7 +62,7 @@ class MainActivity : AppCompatActivity() {
                 AppNavGraph(
                     viewModel = viewModel,
                     initialCameraProjectId = initialCameraProjectId,
-                    initialProjectDetailId = initialProjectDetailId
+                    initialProjectDetailId = initialProjectDetailId,
                 )
             }
         }

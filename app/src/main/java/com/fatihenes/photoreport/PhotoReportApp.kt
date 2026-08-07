@@ -37,7 +37,7 @@ class PhotoReportApp : Application(), SingletonImageLoader.Factory, Configuratio
         super.onCreate()
 
         val constraints = androidx.work.Constraints.Builder()
-            .setRequiresBatteryNotLow(true)
+            .setRequiresBatteryNotLow(requiresBatteryNotLow = true)
             .build()
 
         val cleanupRequest = PeriodicWorkRequestBuilder<TrashCleanupWorker>(24, TimeUnit.HOURS)
@@ -46,7 +46,7 @@ class PhotoReportApp : Application(), SingletonImageLoader.Factory, Configuratio
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
             "TrashCleanupWork",
             ExistingPeriodicWorkPolicy.KEEP,
-            cleanupRequest
+            cleanupRequest,
         )
 
         if (BuildConfig.DEBUG) {

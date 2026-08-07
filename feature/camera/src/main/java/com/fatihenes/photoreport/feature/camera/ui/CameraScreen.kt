@@ -69,7 +69,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 
 private val Amber = Color(0xFFFFD60A)
 
@@ -81,7 +81,7 @@ fun CameraScreen(
     enableAvif: Boolean = true,
     onToggleOptimization: (Boolean) -> Unit = {},
     onToggleAvif: (Boolean) -> Unit = {},
-    cameraViewModel: CameraViewModel = hiltViewModel()
+    cameraViewModel: CameraViewModel = hiltViewModel(),
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
@@ -93,7 +93,7 @@ fun CameraScreen(
 
     val uiState by cameraViewModel.uiState.collectAsStateWithLifecycle()
 
-    var showCaptureFeedback by remember { mutableStateOf(false) }
+    var showCaptureFeedback by remember { mutableStateOf(value = false) }
     var tapOffset by remember { mutableStateOf<Offset?>(null) }
     var currentRotation by remember { mutableIntStateOf(Surface.ROTATION_0) }
 
@@ -201,7 +201,7 @@ fun CameraScreen(
                 cameraState.isCapturing = true
                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
 
-                if (uiState.lensFacing == CameraSelector.LENS_FACING_FRONT && uiState.flashMode != ImageCapture.FLASH_MODE_OFF) {
+                if ((uiState.lensFacing == CameraSelector.LENS_FACING_FRONT && uiState.flashMode != ImageCapture.FLASH_MODE_OFF)) {
                     showCaptureFeedback = true
                     scope.launch { delay(250.milliseconds); showCaptureFeedback = false }
                 } else {
@@ -252,15 +252,18 @@ fun CameraScreen(
     val focusRequester = remember { FocusRequester() }
     LaunchedEffect(Unit) { focusRequester.requestFocus() }
 
-    Box(Modifier.fillMaxSize().background(Color.Black)
-        .focusRequester(focusRequester)
-        .focusable()
-        .onKeyEvent { event ->
-            if (event.type == KeyEventType.KeyDown && (event.key == Key.VolumeUp || event.key == Key.VolumeDown)) {
-                triggerShutter()
-                true
-            } else false
-        }
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black)
+            .focusRequester(focusRequester)
+            .focusable()
+            .onKeyEvent { event ->
+                if (event.type == KeyEventType.KeyDown && (event.key == Key.VolumeUp || event.key == Key.VolumeDown)) {
+                    triggerShutter()
+                    true
+                } else false
+            }
     ) {
         Box(
             modifier = Modifier.fillMaxWidth().aspectRatio(previewAspect).align(Alignment.Center).clip(RoundedCornerShape(12.dp))

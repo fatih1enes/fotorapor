@@ -1,6 +1,5 @@
 package com.fatihenes.photoreport.feature.dashboard.ui
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -88,7 +87,7 @@ fun DashboardScreen(
                 Icon(
                     Icons.Default.Add,
                     contentDescription = stringResource(R.string.acc_add_project),
-                    modifier = Modifier.size(FotoRaporTokens.IconSizeM)
+                    modifier = Modifier.size(FotoRaporTokens.IconSizeM),
                 )
             }
         }
@@ -390,11 +389,10 @@ private fun ProjectFolderItem(
             .clickable(
                 interactionSource = interactionSource,
                 indication = null,
-                onClick = {
-                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                    onClick()
-                }
-            ),
+            ) {
+                haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                onClick()
+            },
         shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
         color = MaterialTheme.colorScheme.surface,
         border = BorderStroke(

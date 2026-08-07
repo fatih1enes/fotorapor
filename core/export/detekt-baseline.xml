@@ -1,0 +1,118 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:HtmlExporter.kt$HtmlExporter$private fun generateHtmlContent( project: ProjectEntity, logs: List&lt;DailyLogEntity&gt;, photos: List&lt;PhotoEntity&gt;, photoMap: Map&lt;Long, String&gt;, logoAssetPath: String?, language: String, ): String</ID>
+    <ID>CyclomaticComplexMethod:HtmlExporter.kt$HtmlExporter$suspend fun exportToHtmlZip( context: Context, project: ProjectEntity, logs: List&lt;DailyLogEntity&gt;, photos: List&lt;PhotoEntity&gt;, quality: Int = 100, language: String = "tr", ): Uri?</ID>
+    <ID>CyclomaticComplexMethod:PdfExportManager.kt$NativePdfExportManager$override suspend fun exportToPdf( project: ProjectEntity, logs: List&lt;LogWithPhotos&gt;, quality: Int, language: String, onProgress: ((current: Int, total: Int) -&gt; Unit)? ): OperationResult&lt;Uri&gt;</ID>
+    <ID>LongMethod:HtmlExporter.kt$HtmlExporter$private fun generateHtmlContent( project: ProjectEntity, logs: List&lt;DailyLogEntity&gt;, photos: List&lt;PhotoEntity&gt;, photoMap: Map&lt;Long, String&gt;, logoAssetPath: String?, language: String, ): String</ID>
+    <ID>LongMethod:HtmlExporter.kt$HtmlExporter$suspend fun exportToHtmlZip( context: Context, project: ProjectEntity, logs: List&lt;DailyLogEntity&gt;, photos: List&lt;PhotoEntity&gt;, quality: Int = 100, language: String = "tr", ): Uri?</ID>
+    <ID>LongMethod:PdfExportManager.kt$NativePdfExportManager$override suspend fun exportToPdf( project: ProjectEntity, logs: List&lt;LogWithPhotos&gt;, quality: Int, language: String, onProgress: ((current: Int, total: Int) -&gt; Unit)? ): OperationResult&lt;Uri&gt;</ID>
+    <ID>LongParameterList:HtmlExporter.kt$HtmlExporter$( context: Context, project: ProjectEntity, logs: List&lt;DailyLogEntity&gt;, photos: List&lt;PhotoEntity&gt;, quality: Int = 100, language: String = "tr", )</ID>
+    <ID>LongParameterList:HtmlExporter.kt$HtmlExporter$( project: ProjectEntity, logs: List&lt;DailyLogEntity&gt;, photos: List&lt;PhotoEntity&gt;, photoMap: Map&lt;Long, String&gt;, logoAssetPath: String?, language: String, )</ID>
+    <ID>LongParameterList:PdfExportManager.kt$NativePdfExportManager$( context: Context, photo: PhotoEntity, rect: PdfRect, canvas: android.graphics.Canvas, typography: PdfTypography, date: Long, language: String, photoIndex: Int, quality: Int )</ID>
+    <ID>LongParameterList:PdfMetadataWriter.kt$PdfMetadataWriter$( pdfFile: File, title: String, author: String = "FotoRapor Licensed Field Professional", creator: String = "FotoRapor Enterprise Engineering Suite v2.5", subject: String = "Saha Denetim ve Teknik Gözlem Raporu", keywords: String = "mühendislik, şantiye, denetim, raporlama, fotorapor, md3", )</ID>
+    <ID>LongParameterList:PdfStyle.kt$PdfStyle$( canvas: Canvas, bitmap: Bitmap, x: Float, y: Float, width: Float, height: Float, captionText: String, typography: PdfTypography )</ID>
+    <ID>LongParameterList:PdfStyle.kt$PdfStyle$( canvas: Canvas, projectName: String, dateStr: String, timeStr: String, reportId: String, logoBmp: Bitmap?, language: String, typography: PdfTypography, )</ID>
+    <ID>MagicNumber:HtmlExporter.kt$HtmlExporter$100</ID>
+    <ID>MagicNumber:PdfExportManager.kt$NativePdfExportManager$1.25f</ID>
+    <ID>MagicNumber:PdfExportManager.kt$NativePdfExportManager$10</ID>
+    <ID>MagicNumber:PdfExportManager.kt$NativePdfExportManager$100</ID>
+    <ID>MagicNumber:PdfExportManager.kt$NativePdfExportManager$1000</ID>
+    <ID>MagicNumber:PdfExportManager.kt$NativePdfExportManager$12f</ID>
+    <ID>MagicNumber:PdfExportManager.kt$NativePdfExportManager$1500</ID>
+    <ID>MagicNumber:PdfExportManager.kt$NativePdfExportManager$22f</ID>
+    <ID>MagicNumber:PdfExportManager.kt$NativePdfExportManager$28f</ID>
+    <ID>MagicNumber:PdfExportManager.kt$NativePdfExportManager$360f</ID>
+    <ID>MagicNumber:PdfExportManager.kt$NativePdfExportManager$4</ID>
+    <ID>MagicNumber:PdfExportManager.kt$NativePdfExportManager$4f</ID>
+    <ID>MagicNumber:PdfExportManager.kt$NativePdfExportManager$500</ID>
+    <ID>MagicNumber:PdfMetadataWriter.kt$PdfMetadataWriter$1024L</ID>
+    <ID>MagicNumber:PdfMetadataWriter.kt$PdfMetadataWriter$50</ID>
+    <ID>MagicNumber:PdfMetadataWriter.kt$PdfMetadataWriter$9999</ID>
+    <ID>MagicNumber:PdfStyle.kt$PdfStyle$105f</ID>
+    <ID>MagicNumber:PdfStyle.kt$PdfStyle$10f</ID>
+    <ID>MagicNumber:PdfStyle.kt$PdfStyle$12f</ID>
+    <ID>MagicNumber:PdfStyle.kt$PdfStyle$15f</ID>
+    <ID>MagicNumber:PdfStyle.kt$PdfStyle$18f</ID>
+    <ID>MagicNumber:PdfStyle.kt$PdfStyle$20</ID>
+    <ID>MagicNumber:PdfStyle.kt$PdfStyle$22f</ID>
+    <ID>MagicNumber:PdfStyle.kt$PdfStyle$24f</ID>
+    <ID>MagicNumber:PdfStyle.kt$PdfStyle$26f</ID>
+    <ID>MagicNumber:PdfStyle.kt$PdfStyle$3</ID>
+    <ID>MagicNumber:PdfStyle.kt$PdfStyle$32</ID>
+    <ID>MagicNumber:PdfStyle.kt$PdfStyle$36f</ID>
+    <ID>MagicNumber:PdfStyle.kt$PdfStyle$38f</ID>
+    <ID>MagicNumber:PdfStyle.kt$PdfStyle$45f</ID>
+    <ID>MagicNumber:PdfStyle.kt$PdfStyle$4f</ID>
+    <ID>MagicNumber:PdfStyle.kt$PdfStyle$5f</ID>
+    <ID>MagicNumber:PdfStyle.kt$PdfStyle$6f</ID>
+    <ID>MagicNumber:PdfStyle.kt$PdfStyle$75f</ID>
+    <ID>MagicNumber:PdfStyle.kt$PdfStyle$7f</ID>
+    <ID>MagicNumber:PdfStyle.kt$PdfStyle$8f</ID>
+    <ID>MagicNumber:PdfStyle.kt$PdfStyle$92f</ID>
+    <ID>MagicNumber:PdfStyle.kt$PdfStyle$95f</ID>
+    <ID>MagicNumber:PdfTheme.kt$PdfTheme$0x15</ID>
+    <ID>MagicNumber:PdfTheme.kt$PdfTheme$0x19</ID>
+    <ID>MagicNumber:PdfTheme.kt$PdfTheme$0x1C</ID>
+    <ID>MagicNumber:PdfTheme.kt$PdfTheme$0x22</ID>
+    <ID>MagicNumber:PdfTheme.kt$PdfTheme$0x42</ID>
+    <ID>MagicNumber:PdfTheme.kt$PdfTheme$0x48</ID>
+    <ID>MagicNumber:PdfTheme.kt$PdfTheme$0x54</ID>
+    <ID>MagicNumber:PdfTheme.kt$PdfTheme$0x5A</ID>
+    <ID>MagicNumber:PdfTheme.kt$PdfTheme$0x71</ID>
+    <ID>MagicNumber:PdfTheme.kt$PdfTheme$0x85</ID>
+    <ID>MagicNumber:PdfTheme.kt$PdfTheme$0x95</ID>
+    <ID>MagicNumber:PdfTheme.kt$PdfTheme$0x9C</ID>
+    <ID>MagicNumber:PdfTheme.kt$PdfTheme$0xA6</ID>
+    <ID>MagicNumber:PdfTheme.kt$PdfTheme$0xCF</ID>
+    <ID>MagicNumber:PdfTheme.kt$PdfTheme$0xD9</ID>
+    <ID>MagicNumber:PdfTheme.kt$PdfTheme$0xDD</ID>
+    <ID>MagicNumber:PdfTheme.kt$PdfTheme$0xF6</ID>
+    <ID>MagicNumber:PdfTheme.kt$PdfTheme$0xF9</ID>
+    <ID>MagicNumber:PdfTheme.kt$PdfTheme$0xFA</ID>
+    <ID>MagicNumber:PdfTypography.kt$PdfTypography$0.01f</ID>
+    <ID>MagicNumber:PdfTypography.kt$PdfTypography$0.04f</ID>
+    <ID>MagicNumber:PdfTypography.kt$PdfTypography$0.08f</ID>
+    <ID>MagicNumber:PdfTypography.kt$PdfTypography$10.5f</ID>
+    <ID>MagicNumber:PdfTypography.kt$PdfTypography$10f</ID>
+    <ID>MagicNumber:PdfTypography.kt$PdfTypography$13f</ID>
+    <ID>MagicNumber:PdfTypography.kt$PdfTypography$18f</ID>
+    <ID>MagicNumber:PdfTypography.kt$PdfTypography$3f</ID>
+    <ID>MagicNumber:PdfTypography.kt$PdfTypography$400</ID>
+    <ID>MagicNumber:PdfTypography.kt$PdfTypography$500</ID>
+    <ID>MagicNumber:PdfTypography.kt$PdfTypography$5f</ID>
+    <ID>MagicNumber:PdfTypography.kt$PdfTypography$600</ID>
+    <ID>MagicNumber:PdfTypography.kt$PdfTypography$700</ID>
+    <ID>MagicNumber:PdfTypography.kt$PdfTypography$8.5f</ID>
+    <ID>MagicNumber:PdfTypography.kt$PdfTypography$800</ID>
+    <ID>MagicNumber:PdfTypography.kt$PdfTypography$9.5f</ID>
+    <ID>MagicNumber:PdfTypography.kt$PdfTypography$9f</ID>
+    <ID>MaxLineLength:AdaptivePdfLayoutHelperTest.kt$AdaptivePdfLayoutHelperTest$assertEquals("Second photo should be in col 1", margin + PdfTheme.IMAGE_WIDTH + PdfTheme.GRID_SPACING, second.rect.left, 0.1f)</ID>
+    <ID>MaxLineLength:AdaptivePdfLayoutHelperTest.kt$AdaptivePdfLayoutHelperTest$assertEquals("Width should be full page width minus margins", PdfTheme.FULL_WIDTH_IMAGE_WIDTH, result.rect.width(), 0.1f)</ID>
+    <ID>MaxLineLength:HtmlExporter.kt$HtmlExporter$builder.append("&lt;a href=\"$assetPath\" target=\"_blank\"&gt;&lt;img src=\"$assetPath\" alt=\"$photoAlt\" loading=\"lazy\" style=\"$transform\"&gt;&lt;/a&gt;")</ID>
+    <ID>MaxLineLength:HtmlExporter.kt$HtmlExporter$builder.append("&lt;video controls preload=\"metadata\"&gt;&lt;source src=\"$assetPath\" type=\"video/mp4\"&gt;$videoNotSupported&lt;/video&gt;")</ID>
+    <ID>MaxLineLength:HtmlExporter.kt$HtmlExporter$val reportKicker = if (language == "en") "Field Inspection &amp;amp; Observation Report" else "Saha Denetim ve Gözlem Raporu"</ID>
+    <ID>MaxLineLength:HtmlExporter.kt$HtmlExporter$val transform = if (photo.rotation != 0f) "transform: rotate(${photo.rotation}deg);" else ""</ID>
+    <ID>MaxLineLength:HtmlExporter.kt$HtmlExporter$val videoNotSupported = if (language == "en") "Your browser does not support video playback." else "Tarayıcınız video oynatmayı desteklemiyor."</ID>
+    <ID>MaxLineLength:PdfExportManager.kt$NativePdfExportManager$drawPhoto(context, photo, layoutResult.rect, canvas, typography, log.date, language, photoIndex++, quality)</ID>
+    <ID>MaxLineLength:PdfExportManager.kt$NativePdfExportManager$drawPhoto(context, photo, retryResult.rect, canvas, typography, log.date, language, photoIndex++, quality)</ID>
+    <ID>MaxLineLength:PdfExportManager.kt$NativePdfExportManager$val errMsg = if (language == "en") "Error occurred while generating PDF report." else "PDF raporu oluşturulurken bir hata meydana geldi."</ID>
+    <ID>MaxLineLength:PdfExportManager.kt$NativePdfExportManager$val subjectTitle = if (language == "en") "Field Inspection &amp; Technical Report" else "Saha Denetim ve Teknik Gözlem Raporu"</ID>
+    <ID>MaxLineLength:PdfStyle.kt$PdfStyle$val displayCaption = if (captionText.length &gt; maxChars) captionText.take(maxChars - 3) + "..." else captionText</ID>
+    <ID>MaxLineLength:PdfStyle.kt$PdfStyle$val displayTitle = if (projectName.length &gt; maxTitleChars) projectName.take(maxTitleChars - 3) + "..." else projectName</ID>
+    <ID>MaxLineLength:PdfStyle.kt$PdfStyle$val reportSubtitle = if (language == "en") "FIELD INSPECTION &amp; OBSERVATION REPORT" else "SAHA DENETİM VE GÖZLEM RAPORU"</ID>
+    <ID>MaxLineLength:PdfStyle.kt$PdfStyle$val sysText = if (language == "en") "FotoRapor Executive Field Inspection System" else "FotoRapor Kurumsal Saha Denetim Mimarisi"</ID>
+    <ID>NestedBlockDepth:HtmlExporter.kt$HtmlExporter$private fun generateHtmlContent( project: ProjectEntity, logs: List&lt;DailyLogEntity&gt;, photos: List&lt;PhotoEntity&gt;, photoMap: Map&lt;Long, String&gt;, logoAssetPath: String?, language: String, ): String</ID>
+    <ID>NestedBlockDepth:PdfExportManager.kt$NativePdfExportManager$private fun drawPhoto( context: Context, photo: PhotoEntity, rect: PdfRect, canvas: android.graphics.Canvas, typography: PdfTypography, date: Long, language: String, photoIndex: Int, quality: Int )</ID>
+    <ID>NestedBlockDepth:PdfMetadataWriter.kt$PdfMetadataWriter$private fun findOldStartXref(raf: RandomAccessFile): Long</ID>
+    <ID>ReturnCount:PdfMetadataWriter.kt$PdfMetadataWriter$fun injectMetadata( pdfFile: File, title: String, author: String = "FotoRapor Licensed Field Professional", creator: String = "FotoRapor Enterprise Engineering Suite v2.5", subject: String = "Saha Denetim ve Teknik Gözlem Raporu", keywords: String = "mühendislik, şantiye, denetim, raporlama, fotorapor, md3", ): Boolean</ID>
+    <ID>TooGenericExceptionCaught:HtmlExporter.kt$HtmlExporter$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:PdfExportManager.kt$NativePdfExportManager$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:PdfMetadataWriter.kt$PdfMetadataWriter$e: Exception</ID>
+    <ID>WildcardImport:AdaptivePdfLayoutHelperTest.kt$import org.junit.Assert.*</ID>
+    <ID>WildcardImport:HtmlExporter.kt$import com.fatihenes.photoreport.core.database.*</ID>
+    <ID>WildcardImport:PdfExportManager.kt$import com.fatihenes.photoreport.core.database.*</ID>
+    <ID>WildcardImport:PdfExportManager.kt$import com.fatihenes.photoreport.core.export.pdf.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

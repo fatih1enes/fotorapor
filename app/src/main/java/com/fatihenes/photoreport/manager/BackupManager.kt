@@ -52,7 +52,7 @@ class LocalBackupManager @Inject constructor(
     private val database: AppDatabase,
     private val fileManager: FileManager,
     private val photoDao: PhotoDao,
-    private val settingsRepository: com.fatihenes.photoreport.repository.SettingsRepository
+    private val settingsRepository: com.fatihenes.photoreport.repository.SettingsRepository,
 ) : BackupManager {
 
     /**
@@ -131,7 +131,7 @@ class LocalBackupManager @Inject constructor(
                             android.util.Log.w("BackupManager", "Skipping file in backup: $zipPath", e)
                         }
 
-                        val progress = 20 + ((index + 1) * 20 / total.coerceAtLeast(1))
+                        val progress = 20 + ((index + 1) * 20 / (total.coerceAtLeast(1)))
                         emit(OperationResult.Loading(progress))
                     }
 
@@ -146,8 +146,8 @@ class LocalBackupManager @Inject constructor(
                             try {
                                 val uri = photo.filePath.toUri()
                                 val extension = if (uri.scheme == "content") {
-                                    context.contentResolver.getType(uri)?.let { 
-                                        MimeTypeMap.getSingleton().getExtensionFromMimeType(it) 
+                                    context.contentResolver.getType(uri)?.let {
+                                        MimeTypeMap.getSingleton().getExtensionFromMimeType(it)
                                     } ?: "jpg"
                                 } else {
                                     photo.filePath.substringAfterLast(".", "avif")
@@ -182,9 +182,8 @@ class LocalBackupManager @Inject constructor(
                 android.util.Log.w("BackupManager", "Could not stop WorkManager during restore", e)
             }
 
-            val tempDirResult = fileManager.createTempDirectory("restore")
-            if (tempDirResult !is OperationResult.Success) throw Exception("Geçici klasör oluşturulamadı")
-            val tempDir = tempDirResult.data
+            val tempDir = (fileManager.createTempDirectory("restore") as? OperationResult.Success)?.data
+                ?: throw Exception("Geçici klasör oluşturulamadı")
 
             getBackupInputStream(sourceUri)?.use { ins ->
                 ZipInputStream(BufferedInputStream(ins)).use { zis ->
@@ -217,17 +216,17 @@ class LocalBackupManager @Inject constructor(
                 db.beginTransaction()
                 try {
                     db.execSQL("ATTACH DATABASE '${extractedDb.absolutePath}' AS backup")
-                    
-                    // Clear and Import Projects (Cascades to logs and photos if correctly set up, 
+
+                    // Clear and Import Projects (Cascades to logs and photos if correctly set up,
                     // but we do it explicitly to be safe and handle order)
                     db.execSQL("DELETE FROM photos")
                     db.execSQL("DELETE FROM daily_logs")
                     db.execSQL("DELETE FROM projects")
-                    
+
                     db.execSQL("INSERT INTO projects SELECT * FROM backup.projects")
                     db.execSQL("INSERT INTO daily_logs SELECT * FROM backup.daily_logs")
                     db.execSQL("INSERT INTO photos SELECT * FROM backup.photos")
-                    
+
                     db.execSQL("DETACH DATABASE backup")
                     db.setTransactionSuccessful()
                 } finally {
@@ -238,9 +237,7 @@ class LocalBackupManager @Inject constructor(
             // 2. Preferences Restoration (Hot Restore)
             File(tempDir, "datastore_files").listFiles()?.firstOrNull { it.name.endsWith(".preferences_pb") }?.let { extractedDsFile ->
                 try {
-                    val tempDs = androidx.datastore.preferences.core.PreferenceDataStoreFactory.create(
-                        produceFile = { extractedDsFile }
-                    )
+                    val tempDs = androidx.datastore.preferences.core.PreferenceDataStoreFactory.create { extractedDsFile }
                     val prefs = tempDs.data.first()
                     val settingsMap = mutableMapOf<String, Any>()
                     prefs.asMap().forEach { entry ->
@@ -256,17 +253,17 @@ class LocalBackupManager @Inject constructor(
 
             // 3. Media Restoration & Path Update
             File(tempDir, "media").takeIf { it.exists() && it.isDirectory }?.let { extractedMediaDir ->
-                val appMediaDir = File(context.filesDir, "restored_media").apply { 
+                val appMediaDir = File(context.filesDir, "restored_media").apply {
                     if (exists()) deleteRecursively()
                     mkdirs()
                 }
-                
+
                 extractedMediaDir.listFiles()?.forEach { mediaFile ->
                     val destFile = File(appMediaDir, mediaFile.name)
                     mediaFile.copyTo(destFile, overwrite = true)
                     mediaFile.name.substringBefore(".").toLongOrNull()?.let { photoId ->
                         database.openHelper.writableDatabase.execSQL(
-                            "UPDATE photos SET filePath = ? WHERE id = ?", 
+                            "UPDATE photos SET filePath = ? WHERE id = ?",
                             arrayOf(destFile.absolutePath, photoId)
                         )
                     }

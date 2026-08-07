@@ -22,7 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporTokens
 import com.fatihenes.photoreport.core.designsystem.theme.PetrolPrimary
@@ -44,14 +44,14 @@ fun ExportDialog(
     onDismiss: () -> Unit,
     onExportPdf: (Int) -> Unit,
     onExportZip: (Int) -> Unit,
-    viewModel: ExportViewModel = hiltViewModel()
+    viewModel: ExportViewModel = hiltViewModel(),
 ) {
     val allPhotos = remember(logs) { logs.flatMap { it.photos } }
     val context = LocalContext.current
 
     var selectedFormat by remember { mutableStateOf<ExportFormat?>(null) }
     var selectedQuality by remember { mutableIntStateOf(100) }
-    var isExporting by remember { mutableStateOf(false) }
+    var isExporting by remember { mutableStateOf(value = false) }
     val snackbarHost = LocalSnackbarHostState.current
     val coroutineScope = rememberCoroutineScope()
 
@@ -336,7 +336,7 @@ fun ExportDialog(
                         .weight(1f)
                         .height(FotoRaporTokens.ButtonHeightL),
                     shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
-                    enabled = selectedFormat != null && !isCalculatingSizes && !isExporting,
+                    enabled = (selectedFormat != null && !isCalculatingSizes && !isExporting),
                     elevation = ButtonDefaults.buttonElevation(
                         defaultElevation = FotoRaporTokens.ElevationNone,
                         pressedElevation = FotoRaporTokens.ElevationNone

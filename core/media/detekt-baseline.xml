@@ -1,0 +1,36 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:ImageCompressor.kt$ImageCompressor$fun compressToStream( context: Context, pathString: String, outputStream: OutputStream, quality: Int, maxDimension: Int = 2000 ): Boolean</ID>
+    <ID>LongMethod:MediaProcessor.kt$MediaProcessor$suspend fun processAndOptimize( originalUri: Uri, enableAvif: Boolean, projectName: String ): Uri</ID>
+    <ID>MagicNumber:CompanyLogoManager.kt$CompanyLogoManager$100</ID>
+    <ID>MagicNumber:ImageScaler.kt$ImageScaler$3_000_000</ID>
+    <ID>MagicNumber:MediaProcessor.kt$MediaProcessor$2560</ID>
+    <ID>MagicNumber:MetadataReader.kt$MetadataReader$180f</ID>
+    <ID>MagicNumber:MetadataReader.kt$MetadataReader$270f</ID>
+    <ID>MagicNumber:MetadataReader.kt$MetadataReader$90f</ID>
+    <ID>MagicNumber:WatermarkRenderer.kt$WatermarkRenderer$0.022f</ID>
+    <ID>MagicNumber:WatermarkRenderer.kt$WatermarkRenderer$0.35f</ID>
+    <ID>MagicNumber:WatermarkRenderer.kt$WatermarkRenderer$0.85f</ID>
+    <ID>MagicNumber:WatermarkRenderer.kt$WatermarkRenderer$0.8f</ID>
+    <ID>MagicNumber:WatermarkRenderer.kt$WatermarkRenderer$1.5f</ID>
+    <ID>MagicNumber:WatermarkRenderer.kt$WatermarkRenderer$20f</ID>
+    <ID>MagicNumber:WatermarkRenderer.kt$WatermarkRenderer$2560</ID>
+    <ID>MagicNumber:WatermarkRenderer.kt$WatermarkRenderer$3f</ID>
+    <ID>MagicNumber:WatermarkRenderer.kt$WatermarkRenderer$60f</ID>
+    <ID>MagicNumber:WatermarkRenderer.kt$WatermarkRenderer$95</ID>
+    <ID>MaxLineLength:MediaProcessor.kt$MediaProcessor$val optimizedUri = appContext.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)</ID>
+    <ID>MaxLineLength:PhotoManager.kt$PhotoManager$fun</ID>
+    <ID>ReturnCount:ImageCompressor.kt$ImageCompressor$fun compressToStream( context: Context, pathString: String, outputStream: OutputStream, quality: Int, maxDimension: Int = 2000 ): Boolean</ID>
+    <ID>ReturnCount:ImageScaler.kt$ImageScaler$private fun loadScaledBitmapViaContentResolver( context: Context, pathString: String, targetWidth: Int, targetHeight: Int, config: Bitmap.Config ): Bitmap?</ID>
+    <ID>ReturnCount:MetadataReader.kt$MetadataReader$fun getExifRotation(context: Context, pathString: String): Float</ID>
+    <ID>SwallowedException:ImageCompressor.kt$ImageCompressor$e: Exception</ID>
+    <ID>SwallowedException:ImageScaler.kt$ImageScaler$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ImageCompressor.kt$ImageCompressor$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ImageScaler.kt$ImageScaler$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:MediaProcessor.kt$MediaProcessor$e: Throwable</ID>
+    <ID>TooGenericExceptionCaught:PhotoManager.kt$PhotoManager$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:WatermarkRenderer.kt$WatermarkRenderer$e: Exception</ID>
+  </CurrentIssues>
+</SmellBaseline>

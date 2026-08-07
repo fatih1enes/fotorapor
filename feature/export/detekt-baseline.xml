@@ -1,0 +1,38 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:ExportDialog.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ExportDialog( project: Project, logs: List&lt;DailyLogWithPhotos&gt;, onDismiss: () -&gt; Unit, onExportPdf: (Int) -&gt; Unit, onExportZip: (Int) -&gt; Unit, viewModel: ExportViewModel = hiltViewModel(), )</ID>
+    <ID>FunctionNaming:ExportDialog.kt$@Composable private fun FormatCard( modifier: Modifier = Modifier, icon: ImageVector, title: String, description: String, isSelected: Boolean, accentColor: Color, onClick: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:ExportDialog.kt$@Composable private fun InfoRow(label: String, value: String, size: String)</ID>
+    <ID>FunctionNaming:ExportDialog.kt$@Composable private fun QualityOption( modifier: Modifier = Modifier, title: String, subtitle: String, isSelected: Boolean, onClick: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:ExportDialog.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ExportDialog( project: Project, logs: List&lt;DailyLogWithPhotos&gt;, onDismiss: () -&gt; Unit, onExportPdf: (Int) -&gt; Unit, onExportZip: (Int) -&gt; Unit, viewModel: ExportViewModel = hiltViewModel(), )</ID>
+    <ID>LongMethod:ExportDialog.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ExportDialog( project: Project, logs: List&lt;DailyLogWithPhotos&gt;, onDismiss: () -&gt; Unit, onExportPdf: (Int) -&gt; Unit, onExportZip: (Int) -&gt; Unit, viewModel: ExportViewModel = hiltViewModel(), )</ID>
+    <ID>LongParameterList:ExportDialog.kt$( modifier: Modifier = Modifier, icon: ImageVector, title: String, description: String, isSelected: Boolean, accentColor: Color, onClick: () -&gt; Unit )</ID>
+    <ID>LongParameterList:ExportDialog.kt$( project: Project, logs: List&lt;DailyLogWithPhotos&gt;, onDismiss: () -&gt; Unit, onExportPdf: (Int) -&gt; Unit, onExportZip: (Int) -&gt; Unit, viewModel: ExportViewModel = hiltViewModel(), )</ID>
+    <ID>MagicNumber:ExportDialog.kt$0.1</ID>
+    <ID>MagicNumber:ExportDialog.kt$0xFFB23327</ID>
+    <ID>MagicNumber:ExportDialog.kt$100</ID>
+    <ID>MagicNumber:ExportDialog.kt$1024.0</ID>
+    <ID>MagicNumber:ExportDialog.kt$1024L</ID>
+    <ID>MagicNumber:ExportDialog.kt$20</ID>
+    <ID>MagicNumber:ExportDialog.kt$30</ID>
+    <ID>MagicNumber:ExportDialog.kt$50</ID>
+    <ID>MagicNumber:ExportDialog.kt$85</ID>
+    <ID>MatchingDeclarationName:ExportDialog.kt$ExportFormat</ID>
+    <ID>MaxLineLength:ExportDialog.kt$InfoRow(stringResource(R.string.export_photo_label), "$photoCount adet", "%.1f MB".format(totalPhotoSizeMB))</ID>
+    <ID>MaxLineLength:ExportDialog.kt$InfoRow(stringResource(R.string.export_video_label), "$videoCount adet (Oynatılabilir)", "%.1f MB".format(totalVideoSizeMB))</ID>
+    <ID>MaxLineLength:ExportDialog.kt$InfoRow(stringResource(R.string.export_video_label), "$videoCount adet (Oynatılamaz)", "Dahil edilmez (0.0 MB)")</ID>
+    <ID>MaxLineLength:ExportDialog.kt$color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface</ID>
+    <ID>MaxLineLength:ExportDialog.kt$color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f) else MaterialTheme.colorScheme.onSurfaceVariant</ID>
+    <ID>MaxLineLength:ExportDialog.kt$coroutineScope.launch { snackbarHost.showSnackbar(context.getString(R.string.export_started_toast)) }</ID>
+    <ID>MaxLineLength:ExportDialog.kt$if (isExporting) stringResource(R.string.export_notif_title) else stringResource(R.string.export_share_btn)</ID>
+    <ID>MaxLineLength:ExportDialog.kt$if (selectedQuality == 100) stringResource(R.string.export_zip_original_desc) else stringResource(R.string.export_zip_compressed_desc)</ID>
+    <ID>MaxLineLength:ExportDialog.kt$val bgColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f) else MaterialTheme.colorScheme.surfaceContainerLow</ID>
+    <ID>WildcardImport:ExportDialog.kt$import androidx.compose.animation.*</ID>
+    <ID>WildcardImport:ExportDialog.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:ExportDialog.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:ExportDialog.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:ExportDialog.kt$import androidx.compose.runtime.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

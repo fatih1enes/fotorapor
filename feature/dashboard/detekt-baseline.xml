@@ -1,0 +1,36 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:CalendarComponent.kt$@Composable fun MonthlyCalendar( selectedDate: LocalDate, onDateSelected: (LocalDate) -&gt; Unit, activityDots: Map&lt;LocalDate, List&lt;Color&gt;&gt; = emptyMap(), locale: Locale = Locale.getDefault() )</ID>
+    <ID>FunctionNaming:CalendarComponent.kt$@Composable fun MonthlyCalendar( selectedDate: LocalDate, onDateSelected: (LocalDate) -&gt; Unit, activityDots: Map&lt;LocalDate, List&lt;Color&gt;&gt; = emptyMap(), locale: Locale = Locale.getDefault() )</ID>
+    <ID>FunctionNaming:DashboardScreen.kt$@Composable private fun IconActionButton( onClick: () -&gt; Unit, icon: androidx.compose.ui.graphics.vector.ImageVector, contentDescription: String, tint: Color, showBadge: Boolean = false )</ID>
+    <ID>FunctionNaming:DashboardScreen.kt$@Composable private fun ProjectFolderItem( project: Project, onClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:DashboardScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun DashboardScreen( projects: List&lt;Project&gt;, onProjectClick: (Project) -&gt; Unit, onAddProject: (String, Color) -&gt; Unit, onSettingsClick: () -&gt; Unit, onTrashClick: () -&gt; Unit, onRefresh: () -&gt; Unit, language: String = "tr", isRefreshing: Boolean = false, activityDots: Map&lt;LocalDate, List&lt;Color&gt;&gt; = emptyMap(), isTrashNotEmpty: Boolean = false, )</ID>
+    <ID>FunctionNaming:DashboardScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun AddProjectDialog( onDismiss: () -&gt; Unit, onConfirm: (String, Color) -&gt; Unit )</ID>
+    <ID>LongMethod:CalendarComponent.kt$@Composable fun MonthlyCalendar( selectedDate: LocalDate, onDateSelected: (LocalDate) -&gt; Unit, activityDots: Map&lt;LocalDate, List&lt;Color&gt;&gt; = emptyMap(), locale: Locale = Locale.getDefault() )</ID>
+    <ID>LongMethod:DashboardScreen.kt$@Composable private fun ProjectFolderItem( project: Project, onClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
+    <ID>LongMethod:DashboardScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun DashboardScreen( projects: List&lt;Project&gt;, onProjectClick: (Project) -&gt; Unit, onAddProject: (String, Color) -&gt; Unit, onSettingsClick: () -&gt; Unit, onTrashClick: () -&gt; Unit, onRefresh: () -&gt; Unit, language: String = "tr", isRefreshing: Boolean = false, activityDots: Map&lt;LocalDate, List&lt;Color&gt;&gt; = emptyMap(), isTrashNotEmpty: Boolean = false, )</ID>
+    <ID>LongMethod:DashboardScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun AddProjectDialog( onDismiss: () -&gt; Unit, onConfirm: (String, Color) -&gt; Unit )</ID>
+    <ID>LongParameterList:DashboardScreen.kt$( projects: List&lt;Project&gt;, onProjectClick: (Project) -&gt; Unit, onAddProject: (String, Color) -&gt; Unit, onSettingsClick: () -&gt; Unit, onTrashClick: () -&gt; Unit, onRefresh: () -&gt; Unit, language: String = "tr", isRefreshing: Boolean = false, activityDots: Map&lt;LocalDate, List&lt;Color&gt;&gt; = emptyMap(), isTrashNotEmpty: Boolean = false, )</ID>
+    <ID>MagicNumber:CalendarComponent.kt$3</ID>
+    <ID>MagicNumber:CalendarComponent.kt$6</ID>
+    <ID>MagicNumber:CalendarComponent.kt$7</ID>
+    <ID>MagicNumber:DashboardViewModel.kt$DashboardViewModel$0xFFFFFF</ID>
+    <ID>MagicNumber:DashboardViewModel.kt$DashboardViewModel$5000</ID>
+    <ID>MatchingDeclarationName:DashboardScreen.kt$DashboardViewMode</ID>
+    <ID>MaxLineLength:CalendarComponent.kt$fontWeight = if (isSelected || isToday) FontWeight.SemiBold else FontWeight.Normal</ID>
+    <ID>MaxLineLength:DashboardScreen.kt$tint = if (isTrashNotEmpty) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant</ID>
+    <ID>TooGenericExceptionCaught:DashboardViewModel.kt$DashboardViewModel$e: Exception</ID>
+    <ID>WildcardImport:CalendarComponent.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:CalendarComponent.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:CalendarComponent.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:DashboardScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:DashboardScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:DashboardScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:DashboardScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:DashboardViewModel.kt$import kotlinx.coroutines.flow.*</ID>
+    <ID>WildcardImport:DashboardViewModelTest.kt$import kotlinx.coroutines.test.*</ID>
+    <ID>WildcardImport:DashboardViewModelTest.kt$import org.mockito.Mockito.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

@@ -1,7 +1,6 @@
 package com.fatihenes.photoreport.feature.project.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,9 +27,8 @@ import java.util.Locale
 @Composable
 fun WeekCalendar(
     projectColor: Color,
-    existingLogDates: Set<Long>,
     onDateSelected: (LocalDate) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val haptic = LocalHapticFeedback.current
     var selectedDay by remember { mutableStateOf(LocalDate.now()) }
@@ -69,7 +67,7 @@ fun WeekCalendar(
                         .clip(RoundedCornerShape(FotoRaporTokens.RadiusS))
                         .background(
                             if (isSelected) projectColor.copy(alpha = 0.15f)
-                            else Color.Transparent
+                            else Color.Transparent,
                         )
                         .clickable {
                             haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
@@ -79,11 +77,11 @@ fun WeekCalendar(
                         .padding(vertical = 8.dp)
                 ) {
                     Text(
-                        text = date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault()).uppercase(),
+                        text = date.dayOfWeek.getDisplayName(TextStyle.SHORT, androidx.compose.ui.text.intl.Locale.current.platformLocale as java.util.Locale).uppercase(),
                         style = MaterialTheme.typography.labelSmall,
                         fontWeight = FontWeight.Bold,
                         fontSize = 10.sp,
-                        color = if (isSelected) projectColor else MaterialTheme.colorScheme.onSurfaceVariant
+                        color = if (isSelected) projectColor else MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                     Box(
@@ -98,10 +96,10 @@ fun WeekCalendar(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "${date.dayOfMonth}",
+                            text = date.dayOfMonth.toString(),
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = if (isSelected || isToday) FontWeight.Bold else FontWeight.Medium,
-                            color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface
+                            color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface,
                         )
                     }
                 }

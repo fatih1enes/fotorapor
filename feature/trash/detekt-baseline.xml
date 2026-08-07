@@ -1,0 +1,19 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>FunctionNaming:TrashScreen.kt$@Composable fun TrashPhotoItem( photo: Photo, language: String, onRestore: () -&gt; Unit, onDelete: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:TrashScreen.kt$@Composable fun TrashProjectItem( project: Project, language: String, onRestore: () -&gt; Unit, onDelete: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:TrashScreen.kt$@Composable private fun AppConfirmDialog( title: String, message: String, confirmLabel: String, onConfirm: () -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:TrashScreen.kt$@Composable private fun TrashSectionHeader(title: String)</ID>
+    <ID>FunctionNaming:TrashScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun TrashScreen( onBack: () -&gt; Unit, language: String = "tr", viewModel: TrashViewModel = hiltViewModel(), )</ID>
+    <ID>LongMethod:TrashScreen.kt$@Composable fun TrashPhotoItem( photo: Photo, language: String, onRestore: () -&gt; Unit, onDelete: () -&gt; Unit )</ID>
+    <ID>LongMethod:TrashScreen.kt$@Composable fun TrashProjectItem( project: Project, language: String, onRestore: () -&gt; Unit, onDelete: () -&gt; Unit )</ID>
+    <ID>LongMethod:TrashScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun TrashScreen( onBack: () -&gt; Unit, language: String = "tr", viewModel: TrashViewModel = hiltViewModel(), )</ID>
+    <ID>MaxLineLength:TrashScreen.kt$val dateStr = photo.deletedAt?.let { DateUtils.formatDateTime(it, language) } ?: stringResource(R.string.unknown_date)</ID>
+    <ID>MaxLineLength:TrashScreen.kt$val dateStr = project.deletedAt?.let { DateUtils.formatDateTime(it, language) } ?: stringResource(R.string.unknown_date)</ID>
+    <ID>WildcardImport:TrashScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:TrashScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:TrashScreen.kt$import androidx.compose.runtime.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

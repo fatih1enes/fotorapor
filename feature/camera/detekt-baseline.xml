@@ -1,0 +1,127 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CyclomaticComplexMethod:CameraComponents.kt$@Composable fun ToolbarItems( cameraMode: String, flashMode: Int, videoQuality: Quality, aspectRatio: Int, isGridVisible: Boolean, showSettingsPanel: Boolean, rotation: Float, cameraState: CameraStateHolder, onFlashChange: (Int) -&gt; Unit, onAspectChange: (Int) -&gt; Unit, onGridChange: (Boolean) -&gt; Unit, onSettingsChange: (Boolean) -&gt; Unit, onQualityChange: (Quality) -&gt; Unit, onClose: (() -&gt; Unit)? = null )</ID>
+    <ID>CyclomaticComplexMethod:CameraScreen.kt$@Composable fun CameraScreen( onPhotoCaptured: (Uri) -&gt; Unit, onClose: () -&gt; Unit, enableOptimization: Boolean = true, enableAvif: Boolean = true, onToggleOptimization: (Boolean) -&gt; Unit = {}, onToggleAvif: (Boolean) -&gt; Unit = {}, cameraViewModel: CameraViewModel = hiltViewModel(), )</ID>
+    <ID>EmptyFunctionBlock:CameraScreen.kt$&lt;no name provided&gt;${}</ID>
+    <ID>FunctionNaming:CameraComponents.kt$@Composable fun FocusRing(offset: Offset)</ID>
+    <ID>FunctionNaming:CameraComponents.kt$@Composable fun GridOverlay()</ID>
+    <ID>FunctionNaming:CameraComponents.kt$@Composable fun LevelerOverlay(angle: Float)</ID>
+    <ID>FunctionNaming:CameraComponents.kt$@Composable fun ModeText(text: String, isSelected: Boolean, rotation: Float = 0f, onClick: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:CameraComponents.kt$@Composable fun ShutterButton(isVideo: Boolean, isRecording: Boolean, onClick: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:CameraComponents.kt$@Composable fun ToolbarBtn(size: Int = 44, rotation: Float = 0f, onClick: () -&gt; Unit, content: @Composable () -&gt; Unit)</ID>
+    <ID>FunctionNaming:CameraComponents.kt$@Composable fun ToolbarItems( cameraMode: String, flashMode: Int, videoQuality: Quality, aspectRatio: Int, isGridVisible: Boolean, showSettingsPanel: Boolean, rotation: Float, cameraState: CameraStateHolder, onFlashChange: (Int) -&gt; Unit, onAspectChange: (Int) -&gt; Unit, onGridChange: (Boolean) -&gt; Unit, onSettingsChange: (Boolean) -&gt; Unit, onQualityChange: (Quality) -&gt; Unit, onClose: (() -&gt; Unit)? = null )</ID>
+    <ID>FunctionNaming:CameraComponents.kt$@Composable fun ZoomPill(text: String, isSelected: Boolean, rotation: Float = 0f, onClick: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:CameraScreen.kt$@Composable fun CameraScreen( onPhotoCaptured: (Uri) -&gt; Unit, onClose: () -&gt; Unit, enableOptimization: Boolean = true, enableAvif: Boolean = true, onToggleOptimization: (Boolean) -&gt; Unit = {}, onToggleAvif: (Boolean) -&gt; Unit = {}, cameraViewModel: CameraViewModel = hiltViewModel(), )</ID>
+    <ID>LongMethod:CameraScreen.kt$@Composable fun CameraScreen( onPhotoCaptured: (Uri) -&gt; Unit, onClose: () -&gt; Unit, enableOptimization: Boolean = true, enableAvif: Boolean = true, onToggleOptimization: (Boolean) -&gt; Unit = {}, onToggleAvif: (Boolean) -&gt; Unit = {}, cameraViewModel: CameraViewModel = hiltViewModel(), )</ID>
+    <ID>LongParameterList:CameraComponents.kt$( cameraMode: String, flashMode: Int, videoQuality: Quality, aspectRatio: Int, isGridVisible: Boolean, showSettingsPanel: Boolean, rotation: Float, cameraState: CameraStateHolder, onFlashChange: (Int) -&gt; Unit, onAspectChange: (Int) -&gt; Unit, onGridChange: (Boolean) -&gt; Unit, onSettingsChange: (Boolean) -&gt; Unit, onQualityChange: (Quality) -&gt; Unit, onClose: (() -&gt; Unit)? = null )</ID>
+    <ID>LongParameterList:CameraScreen.kt$( onPhotoCaptured: (Uri) -&gt; Unit, onClose: () -&gt; Unit, enableOptimization: Boolean = true, enableAvif: Boolean = true, onToggleOptimization: (Boolean) -&gt; Unit = {}, onToggleAvif: (Boolean) -&gt; Unit = {}, cameraViewModel: CameraViewModel = hiltViewModel(), )</ID>
+    <ID>LongParameterList:CameraStateHolder.kt$CameraStateHolder$( previewView: PreviewView, lensFacing: Int, aspectRatio: Int, cameraMode: String, videoQuality: Quality, currentRotation: Int, flashMode: Int, enableOptimization: Boolean = true )</ID>
+    <ID>LongParameterList:CameraStateHolder.kt$CameraStateHolder$( provider: ProcessCameraProvider, extensions: ExtensionsManager, previewView: PreviewView, lensFacing: Int, aspectRatio: Int, cameraMode: String, videoQuality: Quality, currentRotation: Int, flashMode: Int, enableOptimization: Boolean, caps: CameraCapabilities )</ID>
+    <ID>LongParameterList:CameraStateHolder.kt$CameraStateHolder$( provider: ProcessCameraProvider, previewView: PreviewView, lensFacing: Int, aspectRatio: Int, cameraMode: String, videoQuality: Quality, currentRotation: Int, flashMode: Int )</ID>
+    <ID>LongParameterList:CameraStateHolder.kt$CameraStateHolder$( provider: ProcessCameraProvider, previewView: PreviewView, lensFacing: Int, cameraMode: String, currentRotation: Int, flashMode: Int )</ID>
+    <ID>MagicNumber:CameraCapabilities.kt$33</ID>
+    <ID>MagicNumber:CameraComponents.kt$0x66000000</ID>
+    <ID>MagicNumber:CameraComponents.kt$0xFFFFD60A</ID>
+    <ID>MagicNumber:CameraComponents.kt$1.5f</ID>
+    <ID>MagicNumber:CameraComponents.kt$180f</ID>
+    <ID>MagicNumber:CameraComponents.kt$250</ID>
+    <ID>MagicNumber:CameraComponents.kt$90f</ID>
+    <ID>MagicNumber:CameraScreen.kt$0.8f</ID>
+    <ID>MagicNumber:CameraScreen.kt$0.9f</ID>
+    <ID>MagicNumber:CameraScreen.kt$0xFFFFD60A</ID>
+    <ID>MagicNumber:CameraScreen.kt$1.1f</ID>
+    <ID>MagicNumber:CameraScreen.kt$1.9f</ID>
+    <ID>MagicNumber:CameraScreen.kt$150</ID>
+    <ID>MagicNumber:CameraScreen.kt$16f</ID>
+    <ID>MagicNumber:CameraScreen.kt$2.1f</ID>
+    <ID>MagicNumber:CameraScreen.kt$3f</ID>
+    <ID>MagicNumber:CameraScreen.kt$4</ID>
+    <ID>MagicNumber:CameraScreen.kt$4.9f</ID>
+    <ID>MagicNumber:CameraScreen.kt$4f</ID>
+    <ID>MagicNumber:CameraScreen.kt$5.1f</ID>
+    <ID>MagicNumber:CameraScreen.kt$50</ID>
+    <ID>MagicNumber:CameraScreen.kt$5f</ID>
+    <ID>MagicNumber:CameraScreen.kt$60</ID>
+    <ID>MagicNumber:CameraScreen.kt$9f</ID>
+    <ID>MagicNumber:CameraScreen.kt$&lt;no name provided&gt;$134</ID>
+    <ID>MagicNumber:CameraScreen.kt$&lt;no name provided&gt;$135</ID>
+    <ID>MagicNumber:CameraScreen.kt$&lt;no name provided&gt;$224</ID>
+    <ID>MagicNumber:CameraScreen.kt$&lt;no name provided&gt;$225</ID>
+    <ID>MagicNumber:CameraScreen.kt$&lt;no name provided&gt;$314</ID>
+    <ID>MagicNumber:CameraScreen.kt$&lt;no name provided&gt;$45</ID>
+    <ID>MagicNumber:CameraStateHolder.kt$CameraStateHolder$0.20f</ID>
+    <ID>MagicNumber:CameraStateHolder.kt$CameraStateHolder$100</ID>
+    <ID>MagicNumber:CameraStateHolder.kt$CameraStateHolder$4</ID>
+    <ID>MagicNumber:CameraStateHolder.kt$CameraStateHolder$8f</ID>
+    <ID>MaxLineLength:CameraCapabilities.kt$Log.d(TAG, "Capabilities: hw=$hwLevel, edge=$supportsEdgeHQ, nr=$supportsNrHQ, prevStab=$supportsPreviewStab, ois=$supportsOis")</ID>
+    <ID>MaxLineLength:CameraCapabilities.kt$val stabilizationModes = chars.get(CameraCharacteristics.CONTROL_AVAILABLE_VIDEO_STABILIZATION_MODES) ?: intArrayOf()</ID>
+    <ID>MaxLineLength:CameraComponents.kt$Box(Modifier.fillMaxSize().padding(innerPad).background(if (isVideo) Color.Red else Color.White, RoundedCornerShape(corner)))</ID>
+    <ID>MaxLineLength:CameraComponents.kt$Icon(Icons.Default.Close, stringResource(R.string.close_label), tint = Color.White, modifier = Modifier.size(22.dp))</ID>
+    <ID>MaxLineLength:CameraComponents.kt$modifier</ID>
+    <ID>MaxLineLength:CameraComponents.kt$onAspectChange(if (aspectRatio == androidx.camera.core.AspectRatio.RATIO_4_3) androidx.camera.core.AspectRatio.RATIO_16_9 else androidx.camera.core.AspectRatio.RATIO_4_3)</ID>
+    <ID>MaxLineLength:CameraComponents.kt$onQualityChange(cameraState.supportedQualities[if (i != -1) (i + 1) % cameraState.supportedQualities.size else 0])</ID>
+    <ID>MaxLineLength:CameraComponents.kt$val qt = when (videoQuality) { Quality.SD -&gt; "SD"; Quality.HD -&gt; "HD"; Quality.FHD -&gt; "FHD"; Quality.UHD -&gt; "4K"; else -&gt; "FHD" }</ID>
+    <ID>MaxLineLength:CameraScreen.kt$.</ID>
+    <ID>MaxLineLength:CameraScreen.kt$AsyncImage(model = uiState.lastCapturedUri, contentDescription = stringResource(R.string.acc_gallery), contentScale = androidx.compose.ui.layout.ContentScale.Crop, modifier = Modifier.size(44.dp).clip(CircleShape).border(1.dp, Color.White, CircleShape).clickable { onClose() })</ID>
+    <ID>MaxLineLength:CameraScreen.kt$Box</ID>
+    <ID>MaxLineLength:CameraScreen.kt$Button</ID>
+    <ID>MaxLineLength:CameraScreen.kt$Icon(Icons.Default.Close, stringResource(R.string.close_label), tint = Color.White, modifier = Modifier.size(22.dp))</ID>
+    <ID>MaxLineLength:CameraScreen.kt$Icon(Icons.Default.WbSunny, null, tint = Color.White.copy(alpha = 0.5f), modifier = Modifier.size(16.dp))</ID>
+    <ID>MaxLineLength:CameraScreen.kt$Icon(if (uiState.isPaused) Icons.Default.PlayArrow else Icons.Default.Pause, stringResource(R.string.loading), tint = Color.White)</ID>
+    <ID>MaxLineLength:CameraScreen.kt$LaunchedEffect</ID>
+    <ID>MaxLineLength:CameraScreen.kt$ModeText(stringResource(R.string.camera_mode_photo), uiState.cameraMode == "PHOTO", iconRotateAngle) { if (!uiState.isRecording) cameraViewModel.setCameraMode("PHOTO") }</ID>
+    <ID>MaxLineLength:CameraScreen.kt$ModeText(stringResource(R.string.camera_mode_video), uiState.cameraMode == "VIDEO", iconRotateAngle) { if (!uiState.isRecording) cameraViewModel.setCameraMode("VIDEO") }</ID>
+    <ID>MaxLineLength:CameraScreen.kt$Row</ID>
+    <ID>MaxLineLength:CameraScreen.kt$ShutterButton(isVideo = uiState.cameraMode == "VIDEO", isRecording = uiState.isRecording) { triggerShutter() }</ID>
+    <ID>MaxLineLength:CameraScreen.kt$Slider(value = uiState.exposureValue, onValueChange = { cameraViewModel.setExposureValue(it); cameraState.setExposure(it.toInt()); cameraViewModel.setShowExposure(true) }, valueRange = cameraState.exposureRange, modifier = Modifier.weight(1f).padding(horizontal = 8.dp), colors = SliderDefaults.colors(thumbColor = Amber, activeTrackColor = Amber.copy(alpha = 0.6f), inactiveTrackColor = Color.White.copy(alpha = 0.2f)))</ID>
+    <ID>MaxLineLength:CameraScreen.kt$Switch(checked = enableOptimization, onCheckedChange = onToggleOptimization, modifier = Modifier.scale(0.8f))</ID>
+    <ID>MaxLineLength:CameraScreen.kt$Text("EV ${if (cameraState.exposureIndex &gt; 0) "+" else ""}${cameraState.exposureIndex}", color = Amber, fontSize = 11.sp, fontWeight = FontWeight.Bold, modifier = Modifier.padding(bottom = 2.dp))</ID>
+    <ID>MaxLineLength:CameraScreen.kt$Text(stringResource(R.string.camera_avif_title), color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)</ID>
+    <ID>MaxLineLength:CameraScreen.kt$Text(stringResource(R.string.camera_hdr_title), color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)</ID>
+    <ID>MaxLineLength:CameraScreen.kt$Text(stringResource(R.string.camera_settings_title), color = Color.White, fontWeight = FontWeight.Bold, fontSize = 15.sp, modifier = Modifier.padding(bottom = 8.dp))</ID>
+    <ID>MaxLineLength:CameraScreen.kt$Text(uiState.sessionPhotoCount.toString(), color = Color.Black, fontSize = 10.sp, fontWeight = FontWeight.Bold)</ID>
+    <ID>MaxLineLength:CameraScreen.kt$ToolbarBtn(rotation = iconRotateAngle, size = 44, onClick = { cameraViewModel.toggleLensFacing() }) { Icon(Icons.Default.Cameraswitch, stringResource(R.string.acc_flip_camera), tint = Color.White) }</ID>
+    <ID>MaxLineLength:CameraScreen.kt$ToolbarBtn(rotation = iconRotateAngle, size = 44, onClick = { if (uiState.isPaused) { activeRecording?.resume(); cameraViewModel.setIsPaused(false) } else { activeRecording?.pause(); cameraViewModel.setIsPaused(true) } }) { Icon(if (uiState.isPaused) Icons.Default.PlayArrow else Icons.Default.Pause, stringResource(R.string.loading), tint = Color.White) }</ID>
+    <ID>MaxLineLength:CameraScreen.kt$ZoomPill("1x", uiState.zoomRatio in 0.9f..1.1f, iconRotateAngle) { cameraViewModel.setZoomRatio(1f); cameraState.setZoom(1f) }</ID>
+    <ID>MaxLineLength:CameraScreen.kt$ZoomPill("☀", uiState.showExposure, iconRotateAngle) { cameraViewModel.setShowExposure(!uiState.showExposure) }</ID>
+    <ID>MaxLineLength:CameraScreen.kt$ZoomPill(String.format(java.util.Locale.US, "%.1fx", cameraState.minZoom), uiState.zoomRatio &lt; 0.9f, iconRotateAngle) { cameraViewModel.setZoomRatio(cameraState.minZoom); cameraState.setZoom(cameraState.minZoom) }</ID>
+    <ID>MaxLineLength:CameraScreen.kt$if</ID>
+    <ID>MaxLineLength:CameraScreen.kt$if (cameraState.maxZoom &gt;= 2f) { Spacer(Modifier.width(8.dp)); ZoomPill("2x", uiState.zoomRatio in 1.9f..2.1f, iconRotateAngle) { cameraViewModel.setZoomRatio(2f); cameraState.setZoom(2f) } }</ID>
+    <ID>MaxLineLength:CameraScreen.kt$if (cameraState.maxZoom &gt;= 5f) { Spacer(Modifier.width(8.dp)); ZoomPill("5x", uiState.zoomRatio in 4.9f..5.1f, iconRotateAngle) { cameraViewModel.setZoomRatio(5f); cameraState.setZoom(5f) } }</ID>
+    <ID>MaxLineLength:CameraScreen.kt$model = uiState.lastCapturedUri</ID>
+    <ID>MaxLineLength:CameraScreen.kt$modifier = Modifier.fillMaxWidth().aspectRatio(previewAspect).align(Alignment.Center).clip(RoundedCornerShape(12.dp))</ID>
+    <ID>MaxLineLength:CameraScreen.kt$modifier = Modifier.size(44.dp).clip(CircleShape).border(1.dp, Color.White, CircleShape).clickable { onClose() }</ID>
+    <ID>MaxLineLength:CameraScreen.kt$takePhoto</ID>
+    <ID>MaxLineLength:CameraScreen.kt$uiState.cameraMode</ID>
+    <ID>MaxLineLength:CameraScreen.kt$val hasAudio = ContextCompat.checkSelfPermission(context, android.Manifest.permission.RECORD_AUDIO) == android.content.pm.PackageManager.PERMISSION_GRANTED</ID>
+    <ID>MaxLineLength:CameraScreen.kt$val toolbarPadding = if (isLandscape) Modifier.padding(start = 16.dp) else Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 16.dp, vertical = 10.dp)</ID>
+    <ID>MaxLineLength:CameraScreen.kt${ cameraViewModel.setFlashMode(it) }</ID>
+    <ID>MaxLineLength:CameraScreen.kt$}</ID>
+    <ID>MaxLineLength:CameraStateHolder.kt$CameraStateHolder$.</ID>
+    <ID>MaxLineLength:CameraStateHolder.kt$CameraStateHolder$extender.setCaptureRequestOption(CaptureRequest.NOISE_REDUCTION_MODE, CaptureRequest.NOISE_REDUCTION_MODE_HIGH_QUALITY)</ID>
+    <ID>MaxLineLength:CameraStateHolder.kt$CameraStateHolder$private suspend</ID>
+    <ID>MaxLineLength:CameraStateHolder.kt$CameraStateHolder$val safeFlashMode = if (lensFacing == CameraSelector.LENS_FACING_FRONT) ImageCapture.FLASH_MODE_OFF else flashMode</ID>
+    <ID>NestedBlockDepth:CameraScreen.kt$@Composable fun CameraScreen( onPhotoCaptured: (Uri) -&gt; Unit, onClose: () -&gt; Unit, enableOptimization: Boolean = true, enableAvif: Boolean = true, onToggleOptimization: (Boolean) -&gt; Unit = {}, onToggleAvif: (Boolean) -&gt; Unit = {}, cameraViewModel: CameraViewModel = hiltViewModel(), )</ID>
+    <ID>TooGenericExceptionCaught:CameraCapabilities.kt$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:CameraScreen.kt$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:CameraStateHolder.kt$CameraStateHolder$e: Exception</ID>
+    <ID>TooManyFunctions:CameraStateHolder.kt$CameraStateHolder</ID>
+    <ID>TooManyFunctions:CameraViewModel.kt$CameraViewModel : ViewModel</ID>
+    <ID>WildcardImport:CameraComponents.kt$import androidx.compose.animation.*</ID>
+    <ID>WildcardImport:CameraComponents.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:CameraComponents.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:CameraScreen.kt$import androidx.camera.core.*</ID>
+    <ID>WildcardImport:CameraScreen.kt$import androidx.camera.video.*</ID>
+    <ID>WildcardImport:CameraScreen.kt$import androidx.compose.animation.*</ID>
+    <ID>WildcardImport:CameraScreen.kt$import androidx.compose.animation.core.*</ID>
+    <ID>WildcardImport:CameraScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:CameraScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:CameraScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:CameraScreen.kt$import com.fatihenes.photoreport.feature.camera.ui.components.*</ID>
+    <ID>WildcardImport:CameraStateHolder.kt$import androidx.camera.core.*</ID>
+    <ID>WildcardImport:CameraStateHolder.kt$import androidx.camera.video.*</ID>
+    <ID>WildcardImport:CameraStateHolder.kt$import androidx.compose.runtime.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

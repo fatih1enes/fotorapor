@@ -1,0 +1,41 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>FunctionNaming:ImageCropperDialog.kt$@Composable fun ImageCropperDialog( imageUri: Uri, onDismiss: () -&gt; Unit, onCropSuccess: (Bitmap) -&gt; Unit )</ID>
+    <ID>FunctionNaming:ImageCropperDialog.kt$@Composable private fun RatioButton(label: String, ratio: Float, currentRatio: Float, onClick: () -&gt; Unit)</ID>
+    <ID>FunctionNaming:SettingsScreen.kt$@Composable private fun LanguageOption( title: String, isSelected: Boolean, onClick: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:SettingsScreen.kt$@Composable private fun SettingsCard(content: @Composable () -&gt; Unit)</ID>
+    <ID>FunctionNaming:SettingsScreen.kt$@Composable private fun SettingsDivider()</ID>
+    <ID>FunctionNaming:SettingsScreen.kt$@Composable private fun SettingsSectionTitle(title: String)</ID>
+    <ID>FunctionNaming:SettingsScreen.kt$@Composable private fun ThemeOption( title: String, icon: ImageVector, isSelected: Boolean, onClick: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:SettingsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun SettingsScreen( onBack: () -&gt; Unit, viewModel: SettingsViewModel, )</ID>
+    <ID>LongMethod:ImageCropperDialog.kt$@Composable fun ImageCropperDialog( imageUri: Uri, onDismiss: () -&gt; Unit, onCropSuccess: (Bitmap) -&gt; Unit )</ID>
+    <ID>LongMethod:SettingsScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun SettingsScreen( onBack: () -&gt; Unit, viewModel: SettingsViewModel, )</ID>
+    <ID>MagicNumber:ImageCropperDialog.kt$0.01f</ID>
+    <ID>MagicNumber:ImageCropperDialog.kt$0.1f</ID>
+    <ID>MagicNumber:ImageCropperDialog.kt$0.8f</ID>
+    <ID>MagicNumber:ImageCropperDialog.kt$1024</ID>
+    <ID>MagicNumber:ImageCropperDialog.kt$16f</ID>
+    <ID>MagicNumber:ImageCropperDialog.kt$3f</ID>
+    <ID>MagicNumber:ImageCropperDialog.kt$4f</ID>
+    <ID>MagicNumber:ImageCropperDialog.kt$512</ID>
+    <ID>MagicNumber:ImageCropperDialog.kt$9f</ID>
+    <ID>MagicNumber:SettingsViewModel.kt$SettingsViewModel$5000</ID>
+    <ID>MaxLineLength:ImageCropperDialog.kt$.</ID>
+    <ID>MaxLineLength:ImageCropperDialog.kt$Icon(Icons.Default.Check, contentDescription = stringResource(R.string.save_label), tint = if (originalBitmap != null) Color.White else Color.Gray)</ID>
+    <ID>MaxLineLength:ImageCropperDialog.kt$Icon(Icons.Default.Close, contentDescription = stringResource(R.string.cancel_label), tint = Color.White)</ID>
+    <ID>MaxLineLength:ImageCropperDialog.kt$Text(label, fontWeight = if (isSelected) androidx.compose.ui.text.font.FontWeight.Bold else androidx.compose.ui.text.font.FontWeight.Normal)</ID>
+    <ID>MaxLineLength:ImageCropperDialog.kt$Text(stringResource(R.string.crop_logo_title), color = Color.White, style = MaterialTheme.typography.titleMedium)</ID>
+    <ID>MaxLineLength:SettingsScreen.kt$scope.launch { snackbarHost.showSnackbar(context.getString(R.string.location_permission_required)) }</ID>
+    <ID>MaxLineLength:SettingsScreen.kt$targetValue = if (isSelected) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f) else Color.Transparent</ID>
+    <ID>MaxLineLength:SettingsScreen.kt$tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant</ID>
+    <ID>WildcardImport:ImageCropperDialog.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:ImageCropperDialog.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:ImageCropperDialog.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:SettingsScreen.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:SettingsScreen.kt$import androidx.compose.material.icons.filled.*</ID>
+    <ID>WildcardImport:SettingsScreen.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:SettingsScreen.kt$import androidx.compose.runtime.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

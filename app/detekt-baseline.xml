@@ -1,0 +1,154 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>CommentOverPrivateFunction:AppNavGraph.kt$@Composable private fun CameraPermissionRationaleDialog( onDismiss: () -&gt; Unit, onGoToSettings: () -&gt; Unit )</ID>
+    <ID>CommentOverPrivateFunction:BackupManager.kt$LocalBackupManager$private fun getBackupInputStream(sourceUri: Uri): java.io.InputStream?</ID>
+    <ID>CommentOverPrivateFunction:BackupManager.kt$LocalBackupManager$private fun getBackupOutputStream(destUri: Uri): java.io.OutputStream?</ID>
+    <ID>CyclomaticComplexMethod:AppNavGraph.kt$@Composable fun AppNavGraph( viewModel: MainViewModel, initialCameraProjectId: Long = -1L, initialProjectDetailId: Long = -1L, )</ID>
+    <ID>CyclomaticComplexMethod:BackupManager.kt$LocalBackupManager$override fun createBackup(destUri: Uri): Flow&lt;OperationResult&lt;Unit&gt;&gt;</ID>
+    <ID>CyclomaticComplexMethod:BackupManager.kt$LocalBackupManager$override fun restoreBackup(sourceUri: Uri): Flow&lt;OperationResult&lt;Unit&gt;&gt;</ID>
+    <ID>CyclomaticComplexMethod:ExportWorker.kt$ExportWorker$override suspend fun doWork(): Result</ID>
+    <ID>EmptyElseBlock:LocationManager.kt$LocationManager$if (isNotEmpty()) append(" ")</ID>
+    <ID>EmptyElseBlock:LocationManager.kt$LocationManager$if (isNotEmpty()) append(", ")</ID>
+    <ID>ExplicitGarbageCollectionCall:PerformanceBenchmarkTest.kt$PerformanceBenchmarkTest$gc()</ID>
+    <ID>FunctionNaming:AppButton.kt$@Composable fun AppButton( text: String, onClick: () -&gt; Unit, modifier: Modifier = Modifier, icon: ImageVector? = null, enabled: Boolean = true, fullWidth: Boolean = false, containerColor: Color = MaterialTheme.colorScheme.primary, contentColor: Color = MaterialTheme.colorScheme.onPrimary )</ID>
+    <ID>FunctionNaming:AppEmptyState.kt$@Composable fun AppEmptyState( icon: ImageVector, title: String, description: String, modifier: Modifier = Modifier, actionLabel: String? = null, onActionClick: (() -&gt; Unit)? = null, actionHintText: String? = null )</ID>
+    <ID>FunctionNaming:AppNavGraph.kt$@Composable fun AppNavGraph( viewModel: MainViewModel, initialCameraProjectId: Long = -1L, initialProjectDetailId: Long = -1L, )</ID>
+    <ID>FunctionNaming:AppNavGraph.kt$@Composable private fun CameraPermissionRationaleDialog( onDismiss: () -&gt; Unit, onGoToSettings: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:DisclosureDialog.kt$@Composable private fun DisclosureItem( icon: ImageVector, title: String, description: String )</ID>
+    <ID>FunctionNaming:DisclosureDialog.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun DisclosureDialog( onDismiss: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:Theme.kt$@Composable fun PhotoReportTheme( darkTheme: Boolean = isSystemInDarkTheme(), dynamicColor: Boolean = false, content: @Composable () -&gt; Unit )</ID>
+    <ID>ImplicitDefaultLocale:PerformanceBenchmarkTest.kt$PerformanceBenchmarkTest$String.format( "| %-14d | %6d ms | %8.2f MB | %17d | %17s | %21s |", count, metrics.durationMs, metrics.peakMemoryMb, metrics.gcCountDelta, "0 (IO Isolated)", metrics.estimatedBatteryImpact )</ID>
+    <ID>InstanceOfCheckForException:ExportWorker.kt$ExportWorker$e is OutOfMemoryError</ID>
+    <ID>InstanceOfCheckForException:ExportWorker.kt$ExportWorker$e is android.database.sqlite.SQLiteException</ID>
+    <ID>InstanceOfCheckForException:ExportWorker.kt$ExportWorker$e is java.io.IOException</ID>
+    <ID>LongMethod:AppNavGraph.kt$@Composable fun AppNavGraph( viewModel: MainViewModel, initialCameraProjectId: Long = -1L, initialProjectDetailId: Long = -1L, )</ID>
+    <ID>LongMethod:BackupManager.kt$LocalBackupManager$override fun createBackup(destUri: Uri): Flow&lt;OperationResult&lt;Unit&gt;&gt;</ID>
+    <ID>LongMethod:BackupManager.kt$LocalBackupManager$override fun restoreBackup(sourceUri: Uri): Flow&lt;OperationResult&lt;Unit&gt;&gt;</ID>
+    <ID>LongMethod:DisclosureDialog.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun DisclosureDialog( onDismiss: () -&gt; Unit )</ID>
+    <ID>LongParameterList:AppButton.kt$( text: String, onClick: () -&gt; Unit, modifier: Modifier = Modifier, icon: ImageVector? = null, enabled: Boolean = true, fullWidth: Boolean = false, containerColor: Color = MaterialTheme.colorScheme.primary, contentColor: Color = MaterialTheme.colorScheme.onPrimary )</ID>
+    <ID>LongParameterList:AppEmptyState.kt$( icon: ImageVector, title: String, description: String, modifier: Modifier = Modifier, actionLabel: String? = null, onActionClick: (() -&gt; Unit)? = null, actionHintText: String? = null )</ID>
+    <ID>LongParameterList:AppRepository.kt$AppRepository$(uri: android.net.Uri, projectId: Long, logId: Long, enableWebp: Boolean, projectName: String, watermarkData: com.fatihenes.photoreport.core.model.WatermarkData? = null)</ID>
+    <ID>LongParameterList:PhotoRepository.kt$PhotoRepository$(uri: Uri, projectId: Long, logId: Long, enableWebp: Boolean, projectName: String, watermarkData: WatermarkData? = null)</ID>
+    <ID>MagicNumber:BackupManager.kt$LocalBackupManager$100</ID>
+    <ID>MagicNumber:BackupManager.kt$LocalBackupManager$20</ID>
+    <ID>MagicNumber:BackupManager.kt$LocalBackupManager$50</ID>
+    <ID>MagicNumber:BackupManager.kt$LocalBackupManager$80</ID>
+    <ID>MagicNumber:DomainRepositoriesImpl.kt$DomainReportRepositoryImpl$0.15</ID>
+    <ID>MagicNumber:DomainRepositoriesImpl.kt$DomainReportRepositoryImpl$0.4</ID>
+    <ID>MagicNumber:DomainRepositoriesImpl.kt$DomainReportRepositoryImpl$1.5</ID>
+    <ID>MagicNumber:DomainRepositoriesImpl.kt$DomainReportRepositoryImpl$10</ID>
+    <ID>MagicNumber:DomainRepositoriesImpl.kt$DomainReportRepositoryImpl$1024</ID>
+    <ID>MagicNumber:ExportWorker.kt$ExportWorker$100</ID>
+    <ID>MagicNumber:ExportWorker.kt$ExportWorker$108</ID>
+    <ID>MagicNumber:ExportWorker.kt$ExportWorker$3</ID>
+    <ID>MagicNumber:MainViewModel.kt$MainViewModel$5000</ID>
+    <ID>MagicNumber:PhotoProcessingWorker.kt$PhotoProcessingWorker$3</ID>
+    <ID>MagicNumber:PhotoReportApp.kt$PhotoReportApp$0.10</ID>
+    <ID>MagicNumber:PhotoReportApp.kt$PhotoReportApp$0.25</ID>
+    <ID>MagicNumber:PhotoReportApp.kt$PhotoReportApp$24</ID>
+    <ID>MagicNumber:PhotoReportWidgetProvider.kt$PhotoReportWidgetProvider$1000</ID>
+    <ID>MagicNumber:PhotoReportWidgetProvider.kt$PhotoReportWidgetProvider$2000</ID>
+    <ID>MagicNumber:ReportRepository.kt$ReportRepositoryImpl$0.15</ID>
+    <ID>MagicNumber:ReportRepository.kt$ReportRepositoryImpl$0.4</ID>
+    <ID>MagicNumber:ReportRepository.kt$ReportRepositoryImpl$1.5</ID>
+    <ID>MagicNumber:ReportRepository.kt$ReportRepositoryImpl$1024</ID>
+    <ID>MagicNumber:TrashCleanupWorker.kt$TrashCleanupWorker$1000L</ID>
+    <ID>MagicNumber:TrashCleanupWorker.kt$TrashCleanupWorker$24</ID>
+    <ID>MagicNumber:TrashCleanupWorker.kt$TrashCleanupWorker$3</ID>
+    <ID>MagicNumber:TrashCleanupWorker.kt$TrashCleanupWorker$30</ID>
+    <ID>MagicNumber:TrashCleanupWorker.kt$TrashCleanupWorker$60</ID>
+    <ID>MaxLineLength:AppModule.kt$AppModule$fun</ID>
+    <ID>MaxLineLength:AppNavGraph.kt$androidx.compose.animation.scaleIn(initialScale = 0.97f, animationSpec = tween(FotoRaporMotion.DurationMedium, easing = FotoRaporMotion.EasingEmphasized))</ID>
+    <ID>MaxLineLength:AppNavGraph.kt$androidx.compose.animation.scaleIn(initialScale = 1.03f, animationSpec = tween(FotoRaporMotion.DurationMedium, easing = FotoRaporMotion.EasingEmphasized))</ID>
+    <ID>MaxLineLength:AppNavGraph.kt$androidx.compose.animation.scaleOut(targetScale = 0.97f, animationSpec = tween(FotoRaporMotion.DurationShort, easing = FotoRaporMotion.EasingStandard))</ID>
+    <ID>MaxLineLength:AppNavGraph.kt$androidx.compose.animation.scaleOut(targetScale = 1.03f, animationSpec = tween(FotoRaporMotion.DurationShort, easing = FotoRaporMotion.EasingStandard))</ID>
+    <ID>MaxLineLength:AppNavGraph.kt$if</ID>
+    <ID>MaxLineLength:AppRepository.kt$AppRepository$fun processAndSavePhotoInBackground(uri: android.net.Uri, projectId: Long, logId: Long, enableWebp: Boolean, projectName: String, watermarkData: com.fatihenes.photoreport.core.model.WatermarkData? = null)</ID>
+    <ID>MaxLineLength:AppRepository.kt$AppRepositoryImpl$override</ID>
+    <ID>MaxLineLength:AppRepository.kt$AppRepositoryImpl$override fun getLogsForProject(projectId: Long): Flow&lt;List&lt;DailyLogEntity&gt;&gt;</ID>
+    <ID>MaxLineLength:AppRepository.kt$AppRepositoryImpl$override fun getLogsWithPhotosForProjectFlow(projectId: Long): Flow&lt;List&lt;LogWithPhotos&gt;&gt;</ID>
+    <ID>MaxLineLength:AppRepository.kt$AppRepositoryImpl$override fun getPhotosForProject(projectId: Long): Flow&lt;List&lt;PhotoEntity&gt;&gt;</ID>
+    <ID>MaxLineLength:AppRepository.kt$AppRepositoryImpl$override suspend fun getLogForDate(projectId: Long, date: Long): DailyLogEntity?</ID>
+    <ID>MaxLineLength:AppRepository.kt$AppRepositoryImpl$override suspend fun getLogsWithPhotosForProject(projectId: Long): List&lt;LogWithPhotos&gt;</ID>
+    <ID>MaxLineLength:AppRepository.kt$AppRepositoryImpl$override suspend fun getProjectByIdSuspend(projectId: Long): ProjectEntity?</ID>
+    <ID>MaxLineLength:AppRepository.kt$AppRepositoryImpl$override suspend fun updatePhotoRotation(id: Long, rotation: Float)</ID>
+    <ID>MaxLineLength:BackupManager.kt$LocalBackupManager$File(tempDir, "datastore_files").listFiles()?.firstOrNull { it.name.endsWith(".preferences_pb") }</ID>
+    <ID>MaxLineLength:BackupManager.kt$LocalBackupManager$android.util.Log.w("BackupManager", "Skipping media file in backup: ${photo.filePath}", e)</ID>
+    <ID>MaxLineLength:BackupManager.kt$LocalBackupManager$val tempDs = androidx.datastore.preferences.core.PreferenceDataStoreFactory.create { extractedDsFile }</ID>
+    <ID>MaxLineLength:BackupManagerTest.kt$BackupManagerTest$assertTrue("Should emit error state on path traversal", errorState != null &amp;&amp; errorState.error is SecurityException)</ID>
+    <ID>MaxLineLength:DomainRepositoriesImpl.kt$DomainLogRepositoryImpl$override fun getLogsForProject(projectId: Long): Flow&lt;List&lt;DailyLog&gt;&gt;</ID>
+    <ID>MaxLineLength:DomainRepositoriesImpl.kt$DomainLogRepositoryImpl$override fun getLogsWithPhotosForProjectFlow(projectId: Long): Flow&lt;List&lt;DailyLogWithPhotos&gt;&gt;</ID>
+    <ID>MaxLineLength:DomainRepositoriesImpl.kt$DomainLogRepositoryImpl$override suspend fun getLogForDate(projectId: Long, date: Long): DailyLog?</ID>
+    <ID>MaxLineLength:DomainRepositoriesImpl.kt$DomainLogRepositoryImpl$override suspend fun getLogsWithPhotosForProject(projectId: Long): List&lt;DailyLogWithPhotos&gt;</ID>
+    <ID>MaxLineLength:DomainRepositoriesImpl.kt$DomainPhotoRepositoryImpl$legacyPhotoRepository.processAndSavePhotoInBackground(uriString.toUri(), projectId, logId, enableWebp, projectName, watermarkData)</ID>
+    <ID>MaxLineLength:DomainRepositoriesImpl.kt$DomainPhotoRepositoryImpl$override</ID>
+    <ID>MaxLineLength:DomainRepositoriesImpl.kt$DomainPhotoRepositoryImpl$override fun getPhotosForProject(projectId: Long): Flow&lt;List&lt;Photo&gt;&gt;</ID>
+    <ID>MaxLineLength:DomainRepositoriesImpl.kt$DomainPhotoRepositoryImpl$override suspend fun deletePhoto(photo: Photo)</ID>
+    <ID>MaxLineLength:DomainRepositoriesImpl.kt$DomainPhotoRepositoryImpl$override suspend fun softDeletePhoto(photo: Photo)</ID>
+    <ID>MaxLineLength:DomainRepositoriesImpl.kt$DomainPhotoRepositoryImpl$override suspend fun updatePhotoRotation(id: Long, rotation: Float)</ID>
+    <ID>MaxLineLength:DomainRepositoriesImpl.kt$DomainProjectRepositoryImpl$override suspend fun getProjectByIdSuspend(projectId: Long): Project?</ID>
+    <ID>MaxLineLength:DomainRepositoriesImpl.kt$DomainReportRepositoryImpl$override</ID>
+    <ID>MaxLineLength:ExportWorker.kt$ExportWorker$val</ID>
+    <ID>MaxLineLength:ExportWorker.kt$ExportWorker$val drawable = androidx.core.content.ContextCompat.getDrawable(applicationContext, R.mipmap.ic_launcher) ?: return null</ID>
+    <ID>MaxLineLength:ExportWorker.kt$ExportWorker$val formatName = if (format == "PDF") context.getString(R.string.export_format_pdf) else context.getString(R.string.export_format_zip)</ID>
+    <ID>MaxLineLength:ExportWorker.kt$ExportWorker$val isRetryable = e is java.io.IOException || e is OutOfMemoryError || e is android.database.sqlite.SQLiteException</ID>
+    <ID>MaxLineLength:ExportWorker.kt$ExportWorker$val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager</ID>
+    <ID>MaxLineLength:ExportWorker.kt$ExportWorker$val project = repository.getProjectByIdSuspend(projectId) ?: return@withContext Result.failure(workDataOf("error" to "Project not found"))</ID>
+    <ID>MaxLineLength:FileManager.kt$LocalFileManager$override suspend</ID>
+    <ID>MaxLineLength:ImageUtils.kt$ImageUtils$)</ID>
+    <ID>MaxLineLength:LocationManager.kt$LocationManager$val</ID>
+    <ID>MaxLineLength:LogRepository.kt$LogRepositoryImpl$override fun getLogsForProject(projectId: Long): Flow&lt;List&lt;DailyLogEntity&gt;&gt;</ID>
+    <ID>MaxLineLength:LogRepository.kt$LogRepositoryImpl$override suspend fun getLogForDate(projectId: Long, date: Long): DailyLogEntity?</ID>
+    <ID>MaxLineLength:LogRepositoryTest.kt$LogRepositoryTest$val dummyLog = DailyLogEntity(id = 1L, projectId = projectId, date = System.currentTimeMillis(), note = "Test Log")</ID>
+    <ID>MaxLineLength:PerformanceBenchmarkTest.kt$PerformanceBenchmarkTest$*</ID>
+    <ID>MaxLineLength:PerformanceBenchmarkTest.kt$PerformanceBenchmarkTest$// ARGB_8888 (32-bit, 4 bayt/piksel) 1000x1000 yüksek çözünürlük görsel bellek tahsisi ve streaming simülasyonu</ID>
+    <ID>MaxLineLength:PerformanceBenchmarkTest.kt$PerformanceBenchmarkTest$assert(metrics.peakMemoryMb &lt; 100.0) { "OOM Tehlikesi: RAM $count fotoğrafta aşırı yükseldi (${metrics.peakMemoryMb} MB)" }</ID>
+    <ID>MaxLineLength:PerformanceBenchmarkTest.kt$PerformanceBenchmarkTest$println("| Senaryo (Foto) | Export Süresi | Tepe RAM Tüketimi | GC Çalışma Sayısı | Frame Drop / Jank | Tahmini Batarya Eforu |")</ID>
+    <ID>MaxLineLength:PerformanceBenchmarkTest.kt$PerformanceBenchmarkTest$println("|----------------|---------------|-------------------|-------------------|-------------------|-----------------------|")</ID>
+    <ID>MaxLineLength:PhotoManager.kt$PhotoManager$fun</ID>
+    <ID>MaxLineLength:PhotoProcessingWorker.kt$PhotoProcessingWorker$latitude = if (inputData.keyValueMap.containsKey("latitude")) inputData.getDouble("latitude", 0.0) else null</ID>
+    <ID>MaxLineLength:PhotoProcessingWorker.kt$PhotoProcessingWorker$longitude = if (inputData.keyValueMap.containsKey("longitude")) inputData.getDouble("longitude", 0.0) else null</ID>
+    <ID>MaxLineLength:PhotoRepository.kt$PhotoRepository$fun processAndSavePhotoInBackground(uri: Uri, projectId: Long, logId: Long, enableWebp: Boolean, projectName: String, watermarkData: WatermarkData? = null)</ID>
+    <ID>MaxLineLength:PhotoRepository.kt$PhotoRepositoryImpl$override</ID>
+    <ID>MaxLineLength:PhotoRepository.kt$PhotoRepositoryImpl$override suspend fun deletePhoto(photo: PhotoEntity)</ID>
+    <ID>MaxLineLength:ProjectRepository.kt$ProjectRepositoryImpl$override suspend fun getProjectByIdSuspend(projectId: Long): ProjectEntity?</ID>
+    <ID>ReturnCount:ExportWorker.kt$ExportWorker$private fun getAppIconBitmap(): android.graphics.Bitmap?</ID>
+    <ID>ReturnCount:PhotoProcessingWorker.kt$PhotoProcessingWorker$override suspend fun doWork(): Result</ID>
+    <ID>SwallowedException:MediaShareUtils.kt$MediaShareUtils$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:BackupManager.kt$LocalBackupManager$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ExportWorker.kt$ExportWorker$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:ExportWorker.kt$ExportWorker$e: Throwable</ID>
+    <ID>TooGenericExceptionCaught:FileManager.kt$LocalFileManager$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:LocationManager.kt$LocationManager$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:MediaShareUtils.kt$MediaShareUtils$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:PhotoProcessingWorker.kt$PhotoProcessingWorker$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:TrashCleanupWorker.kt$TrashCleanupWorker$e: Exception</ID>
+    <ID>TooGenericExceptionThrown:BackupManager.kt$LocalBackupManager$throw Exception("Geçici klasör oluşturulamadı")</ID>
+    <ID>TooGenericExceptionThrown:BackupManager.kt$LocalBackupManager$throw Exception("Hedef dosya açılamadı")</ID>
+    <ID>TooGenericExceptionThrown:BackupManager.kt$LocalBackupManager$throw Exception("Yedek dosyası okunamadı")</ID>
+    <ID>TooManyFunctions:AppRepository.kt$AppRepository</ID>
+    <ID>TooManyFunctions:AppRepository.kt$AppRepositoryImpl : AppRepository</ID>
+    <ID>WildcardImport:AppModule.kt$import com.fatihenes.photoreport.core.common.manager.*</ID>
+    <ID>WildcardImport:AppModule.kt$import com.fatihenes.photoreport.core.database.*</ID>
+    <ID>WildcardImport:AppModule.kt$import com.fatihenes.photoreport.manager.*</ID>
+    <ID>WildcardImport:AppModule.kt$import com.fatihenes.photoreport.repository.*</ID>
+    <ID>WildcardImport:AppNavGraph.kt$import androidx.compose.runtime.*</ID>
+    <ID>WildcardImport:AppRepository.kt$import com.fatihenes.photoreport.core.database.*</ID>
+    <ID>WildcardImport:BackupManager.kt$import com.fatihenes.photoreport.core.database.*</ID>
+    <ID>WildcardImport:BackupManagerTest.kt$import com.fatihenes.photoreport.core.database.*</ID>
+    <ID>WildcardImport:DisclosureDialog.kt$import androidx.compose.foundation.layout.*</ID>
+    <ID>WildcardImport:DisclosureDialog.kt$import androidx.compose.material3.*</ID>
+    <ID>WildcardImport:DomainRepositoriesImpl.kt$import com.fatihenes.photoreport.core.domain.repository.*</ID>
+    <ID>WildcardImport:DomainRepositoriesImpl.kt$import com.fatihenes.photoreport.core.model.*</ID>
+    <ID>WildcardImport:ExampleUnitTest.kt$import org.junit.Assert.*</ID>
+    <ID>WildcardImport:LogRepository.kt$import com.fatihenes.photoreport.core.database.*</ID>
+    <ID>WildcardImport:LogRepositoryTest.kt$import com.fatihenes.photoreport.core.database.*</ID>
+    <ID>WildcardImport:MainViewModel.kt$import kotlinx.coroutines.flow.*</ID>
+    <ID>WildcardImport:PhotoProcessingWorker.kt$import com.fatihenes.photoreport.core.database.*</ID>
+    <ID>WildcardImport:PhotoRepository.kt$import com.fatihenes.photoreport.core.database.*</ID>
+    <ID>WildcardImport:ProjectRepository.kt$import com.fatihenes.photoreport.core.database.*</ID>
+    <ID>WildcardImport:TrashRepository.kt$import com.fatihenes.photoreport.core.database.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

@@ -12,7 +12,6 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -71,7 +70,7 @@ fun ProjectDetailScreen(
     onImportPhotoToLog: (Long, String) -> Unit,
     onExportProject: (String, Int, String) -> Unit,
     viewModel: ProjectDetailViewModel,
-    language: String = "tr"
+    language: String = "tr",
 ) {
     if (project == null) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -89,8 +88,8 @@ fun ProjectDetailScreen(
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val snackbarHost = LocalSnackbarHostState.current
-    var showMenu by remember { mutableStateOf(false) }
-    var showDeleteConfirm by remember { mutableStateOf(false) }
+    var showMenu by remember { mutableStateOf(value = false) }
+    var showDeleteConfirm by remember { mutableStateOf(value = false) }
     var showExportDialog by remember { mutableStateOf(false) }
     var selectedPhotoForFullView by remember { mutableStateOf<Long?>(null) }
     var showFullGalleryByLogId by remember { mutableStateOf<Long?>(null) }
@@ -180,10 +179,10 @@ fun ProjectDetailScreen(
                                         color = MaterialTheme.colorScheme.error
                                     )
                                 },
-                                onClick = { 
+                                onClick = {
                                     haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                     showMenu = false
-                                    showDeleteConfirm = true 
+                                    showDeleteConfirm = true
                                 },
                                 leadingIcon = {
                                     Icon(
@@ -223,10 +222,6 @@ fun ProjectDetailScreen(
                 }
             }
         ) { padding ->
-            val existingLogDates = remember(logs) {
-                logs.map { it.log.date }.toSet()
-            }
-
             LazyColumn(
                 state = listState,
                 modifier = Modifier
@@ -300,7 +295,6 @@ fun ProjectDetailScreen(
                 item(key = "week_calendar") {
                     WeekCalendar(
                         projectColor = projectColor,
-                        existingLogDates = existingLogDates,
                         onDateSelected = { date ->
                             coroutineScope.launch {
                                 val targetMillis = DateUtils.getStartOfDayEpochMillis(date)
@@ -421,10 +415,9 @@ fun ProjectDetailScreen(
                     onPhotoClick = { photo ->
                         selectedPhotoForFullView = photo.id
                     },
-                    onDeletePhotos = { ids ->
-                        onDeletePhotos(ids)
-                    }
-                )
+                ) { ids ->
+                    onDeletePhotos(ids)
+                }
             }
         }
 

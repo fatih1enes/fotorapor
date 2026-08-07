@@ -1,5 +1,5 @@
-import java.util.Properties
 import java.io.FileInputStream
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -50,14 +50,15 @@ android {
             isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
             val releaseConfig = signingConfigs.findByName("release")
-            signingConfig = if (releaseConfig?.storeFile?.exists() == true) {
-                releaseConfig
-            } else {
-                signingConfigs.getByName("debug")
-            }
+            signingConfig =
+                if (releaseConfig?.storeFile?.exists() == true) {
+                    releaseConfig
+                } else {
+                    signingConfigs.getByName("debug")
+                }
         }
     }
     compileOptions {
@@ -72,9 +73,6 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
-    }
-    lint {
-        abortOnError = true
     }
     testOptions {
         unitTests {
@@ -107,7 +105,7 @@ dependencies {
     implementation(libs.androidx.profileinstaller)
     implementation(libs.material)
     implementation(libs.androidx.icons.extended)
-    
+
     // Compose
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui)
@@ -133,7 +131,7 @@ dependencies {
     implementation(libs.androidx.camera.extensions)
     implementation(libs.androidx.camera.video)
     implementation(libs.androidx.exifinterface)
-    
+
     // Media3 (ExoPlayer)
     implementation(libs.androidx.media3.exoplayer)
     implementation(libs.androidx.media3.ui)
@@ -170,7 +168,8 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
-    
+    debugImplementation(libs.leakcanary.android)
+
     // Lifecycle Compose for collectAsStateWithLifecycle
     implementation(libs.androidx.lifecycle.runtime.compose)
 }

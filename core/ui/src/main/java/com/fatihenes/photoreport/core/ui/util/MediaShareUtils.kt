@@ -30,6 +30,7 @@ object MediaShareUtils {
             chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(chooser)
         } catch (e: Exception) {
+            android.util.Log.e("MediaShareUtils", "Could not share media", e)
             onShowMessage(context.getString(R.string.share_failed))
         }
     }
@@ -62,6 +63,7 @@ object MediaShareUtils {
             chooser.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             context.startActivity(chooser)
         } catch (e: Exception) {
+            android.util.Log.e("MediaShareUtils", "Could not share media", e)
             onShowMessage(context.getString(R.string.share_failed))
         }
     }
@@ -92,10 +94,10 @@ object MediaShareUtils {
 
     private fun validateFilePath(context: Context, file: File) {
         val canonicalPath = file.canonicalPath
-        val isAllowed = canonicalPath.startsWith(context.filesDir.canonicalPath) ||
+        val isAllowed = (canonicalPath.startsWith(context.filesDir.canonicalPath) ||
                 canonicalPath.startsWith(context.cacheDir.canonicalPath) ||
                 context.externalCacheDir?.let { canonicalPath.startsWith(it.canonicalPath) } == true ||
-                context.getExternalFilesDir(null)?.let { canonicalPath.startsWith(it.canonicalPath) } == true
+                context.getExternalFilesDir(null)?.let { canonicalPath.startsWith(it.canonicalPath) } == true)
 
         if (!isAllowed) {
             throw SecurityException("Invalid file path: path traversal detected")

@@ -24,7 +24,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import coil3.compose.AsyncImage
 import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporTokens
 import com.fatihenes.photoreport.core.ui.R
@@ -42,7 +42,7 @@ fun TrashScreen(
 ) {
     val deletedProjects by viewModel.deletedProjects.collectAsState(initial = emptyList())
     val deletedPhotos by viewModel.deletedPhotos.collectAsState(initial = emptyList())
-    
+
     var showDeleteConfirmProject by remember { mutableStateOf<Long?>(null) }
     var showDeleteConfirmPhoto by remember { mutableStateOf<Photo?>(null) }
 
