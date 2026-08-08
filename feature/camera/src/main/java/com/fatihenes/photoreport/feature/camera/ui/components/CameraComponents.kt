@@ -148,7 +148,12 @@ private fun FlashButton(flashMode: Int, rotation: Float, cameraState: CameraStat
 }
 
 @Composable
-private fun QualityButton(videoQuality: Quality, rotation: Float, cameraState: CameraStateHolder, onQualityChange: (Quality) -> Unit) {
+private fun QualityButton(
+    videoQuality: Quality,
+    rotation: Float,
+    cameraState: CameraStateHolder,
+    onQualityChange: (Quality) -> Unit
+) {
     val qt = when (videoQuality) {
         Quality.SD -> "SD"
         Quality.HD -> "HD"

@@ -1,3 +1,4 @@
+@file:Suppress("LocalContextGetResourceValueCall", "MaxLineLength", "TooManyFunctions")
 package com.fatihenes.photoreport.feature.dashboard.ui
 
 import androidx.compose.animation.core.animateFloatAsState
@@ -7,7 +8,24 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.consumeWindowInsets
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.statusBarsPadding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
@@ -15,10 +33,44 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowForwardIos
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.material3.pulltorefresh.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DeleteOutline
+import androidx.compose.material.icons.filled.Folder
+import androidx.compose.material.icons.filled.FolderOpen
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.BottomSheetDefaults
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.pulltorefresh.PullToRefreshDefaults
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,24 +97,32 @@ import com.fatihenes.photoreport.feature.dashboard.components.MonthlyCalendar
 import java.time.LocalDate
 
 @Composable
+@Suppress("FunctionName")
 fun DashboardFab(onClick: () -> Unit) {
     FloatingActionButton(
         onClick = onClick,
         containerColor = MaterialTheme.colorScheme.primary,
         contentColor = MaterialTheme.colorScheme.onPrimary,
         shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
-        modifier = Modifier.padding(bottom = FotoRaporTokens.SpacingS).size(FotoRaporTokens.FabSize),
+        modifier = Modifier
+            .padding(bottom = FotoRaporTokens.SpacingS)
+            .size(FotoRaporTokens.FabSize),
         elevation = FloatingActionButtonDefaults.elevation(
             defaultElevation = FotoRaporTokens.ElevationM,
             pressedElevation = FotoRaporTokens.ElevationL,
         ),
     ) {
-        Icon(Icons.Default.Add, stringResource(R.string.acc_add_project), modifier = Modifier.size(FotoRaporTokens.IconSizeM))
+        Icon(
+            Icons.Default.Add,
+            stringResource(R.string.acc_add_project),
+            modifier = Modifier.size(FotoRaporTokens.IconSizeM)
+        )
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+@Suppress("LongParameterList", "FunctionName")
 fun DashboardScaffold(
     projects: List<Project>?,
     onProjectClick: (Project) -> Unit,
@@ -107,6 +167,7 @@ fun DashboardScaffold(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+@Suppress("LongParameterList", "FunctionName", "LongMethod")
 fun DashboardContent(
     padding: PaddingValues,
     projects: List<Project>?,
@@ -170,6 +231,7 @@ fun DashboardContent(
 }
 
 @Composable
+@Suppress("LongParameterList", "FunctionName")
 fun DashboardHeroHeader(
     projectsCount: Int,
     activityCount: Int,
@@ -180,7 +242,12 @@ fun DashboardHeroHeader(
     isTrashNotEmpty: Boolean,
     haptic: HapticFeedback
 ) {
-    Column(modifier = Modifier.fillMaxWidth().padding(horizontal = FotoRaporTokens.ScreenPaddingHorizontal).padding(top = FotoRaporTokens.SpacingL, bottom = FotoRaporTokens.SpacingM)) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = FotoRaporTokens.ScreenPaddingHorizontal)
+            .padding(top = FotoRaporTokens.SpacingL, bottom = FotoRaporTokens.SpacingM)
+    ) {
         DashboardTopRow(onTrashClick, onSettingsClick, isTrashNotEmpty, haptic)
         Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingL))
         DashboardStatsRow(projectsCount, activityCount)
@@ -201,43 +268,131 @@ fun DashboardHeroHeader(
 
 @Composable
 private fun DashboardTopRow(onTrashClick: () -> Unit, onSettingsClick: () -> Unit, isTrashNotEmpty: Boolean, haptic: HapticFeedback) {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Column {
-            Text(text = "FOTORAPOR", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Black, letterSpacing = 1.5.sp, color = MaterialTheme.colorScheme.onBackground)
-            Text(text = "Saha Raporlama & Fotoğraf Yönetimi", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(
+                text = "FOTORAPOR",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Black,
+                letterSpacing = 1.5.sp,
+                color = MaterialTheme.colorScheme.onBackground
+            )
+            Text(
+                text = "Saha Raporlama & Fotoğraf Yönetimi",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
         Row(horizontalArrangement = Arrangement.spacedBy(FotoRaporTokens.SpacingS)) {
-            IconActionButton(onClick = { haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove); onTrashClick() }, icon = if (isTrashNotEmpty) Icons.Default.Delete else Icons.Default.DeleteOutline, contentDescription = stringResource(R.string.acc_open_trash), tint = if (isTrashNotEmpty) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant, showBadge = isTrashNotEmpty)
-            IconActionButton(onClick = { haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove); onSettingsClick() }, icon = Icons.Default.Settings, contentDescription = stringResource(R.string.acc_open_settings), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            val trashIcon = if (isTrashNotEmpty) {
+                Icons.Default.Delete
+            } else {
+                Icons.Default.DeleteOutline
+            }
+            val trashTint = if (isTrashNotEmpty) {
+                MaterialTheme.colorScheme.error
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant
+            }
+
+            IconActionButton(
+                onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    onTrashClick()
+                },
+                icon = trashIcon,
+                contentDescription = stringResource(R.string.acc_open_trash),
+                tint = trashTint,
+                showBadge = isTrashNotEmpty
+            )
+            IconActionButton(
+                onClick = {
+                    haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                    onSettingsClick()
+                },
+                icon = Icons.Default.Settings,
+                contentDescription = stringResource(R.string.acc_open_settings),
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
 
+@Suppress("FunctionName")
 @Composable
 private fun DashboardStatsRow(projectsCount: Int, activityCount: Int) {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(FotoRaporTokens.SpacingM)) {
-        HeroStatChip(icon = Icons.Default.Folder, label = stringResource(R.string.active_projects), value = projectsCount.toString(), accentColor = MaterialTheme.colorScheme.primary, modifier = Modifier.weight(1f))
-        HeroStatChip(icon = Icons.Default.CalendarMonth, label = "Saha Takvimi", value = "$activityCount Gün", accentColor = MaterialTheme.colorScheme.tertiary, modifier = Modifier.weight(1f))
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(FotoRaporTokens.SpacingM)
+    ) {
+        HeroStatChip(
+            icon = Icons.Default.Folder,
+            label = stringResource(R.string.active_projects),
+            value = projectsCount.toString(),
+            accentColor = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.weight(1f)
+        )
+        HeroStatChip(
+            icon = Icons.Default.CalendarMonth,
+            label = "Saha Takvimi",
+            value = "$activityCount Gün",
+            accentColor = MaterialTheme.colorScheme.tertiary,
+            modifier = Modifier.weight(1f)
+        )
     }
 }
 
 fun LazyListScope.projectsView(projects: List<Project>?, onProjectClick: (Project) -> Unit, onAddClick: () -> Unit) {
     val projectCount = projects?.size ?: 0
     item(key = "projects_section_header") {
-        Row(modifier = Modifier.fillMaxWidth().padding(horizontal = FotoRaporTokens.ScreenPaddingHorizontal, vertical = FotoRaporTokens.SpacingS), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
-            Text(text = stringResource(R.string.active_projects).uppercase(), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant, letterSpacing = 1.5.sp)
-            Text(text = pluralStringResource(R.plurals.project_files, projectCount, projectCount), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    horizontal = FotoRaporTokens.ScreenPaddingHorizontal,
+                    vertical = FotoRaporTokens.SpacingS
+                ),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = stringResource(R.string.active_projects).uppercase(),
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                letterSpacing = 1.5.sp
+            )
+            Text(
+                text = pluralStringResource(R.plurals.project_files, projectCount, projectCount),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
     if (projects == null) {
         // Do not render empty state while loading
     } else if (projects.isEmpty()) {
         item(key = "projects_empty_state") {
-            AppEmptyState(icon = Icons.Default.FolderOpen, title = stringResource(R.string.empty_projects_title), description = stringResource(R.string.empty_projects_desc), actionLabel = stringResource(R.string.empty_projects_action), onActionClick = onAddClick)
+            AppEmptyState(
+                icon = Icons.Default.FolderOpen,
+                title = stringResource(R.string.empty_projects_title),
+                description = stringResource(R.string.empty_projects_desc),
+                actionLabel = stringResource(R.string.empty_projects_action),
+                onActionClick = onAddClick
+            )
         }
-    } else {
+    }
+ else {
         items(projects, key = { it.id }, contentType = { "project_folder_item" }) { project ->
-            ProjectFolderItem(project = project, onClick = { onProjectClick(project) }, modifier = Modifier.animateItem())
+            ProjectFolderItem(
+                project = project,
+                onClick = { onProjectClick(project) },
+                modifier = Modifier.animateItem()
+            )
         }
     }
 }

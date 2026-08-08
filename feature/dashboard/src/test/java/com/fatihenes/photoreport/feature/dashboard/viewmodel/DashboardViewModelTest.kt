@@ -35,11 +35,11 @@ class DashboardViewModelTest {
         Dispatchers.setMain(testDispatcher)
         deletedProjectsFlow.value = emptyList()
         deletedPhotosFlow.value = emptyList()
-        
+
         `when`(mockGetProjectsUseCase()).thenReturn(flowOf(emptyList()))
         `when`(mockGetTrashItemsUseCase.getProjects()).thenReturn(deletedProjectsFlow)
         `when`(mockGetTrashItemsUseCase.getPhotos()).thenReturn(deletedPhotosFlow)
-        
+
         viewModel = DashboardViewModel(mockGetProjectsUseCase, mockCreateProjectUseCase, mockGetTrashItemsUseCase)
     }
 
@@ -52,7 +52,7 @@ class DashboardViewModelTest {
     fun `initial projects state is empty`() = runTest {
         val collectJob = launch { viewModel.projects.collect() }
         advanceUntilIdle()
-        assertEquals(0, viewModel.projects.value.size)
+        assertEquals(0, viewModel.projects.value?.size ?: 0)
         collectJob.cancel()
     }
 
@@ -60,13 +60,13 @@ class DashboardViewModelTest {
     fun `refresh updates projects flow`() = runTest {
         val projectList = listOf(Project(id = 1L, name = "Test", colorHex = "#FF0000"))
         `when`(mockGetProjectsUseCase()).thenReturn(flowOf(projectList))
-        
+
         val collectJob = launch { viewModel.projects.collect() }
         viewModel.refresh()
         advanceUntilIdle()
-        
-        assertEquals(1, viewModel.projects.value.size)
-        assertEquals("Test", viewModel.projects.value[0].name)
+
+        assertEquals(1, viewModel.projects.value?.size ?: 0)
+        assertEquals("Test", viewModel.projects.value?.get(0)?.name)
         collectJob.cancel()
     }
 
@@ -75,10 +75,10 @@ class DashboardViewModelTest {
         val collectJob = launch { viewModel.isTrashNotEmpty.collect() }
         advanceUntilIdle()
         assertEquals(false, viewModel.isTrashNotEmpty.value)
-        
+
         deletedProjectsFlow.value = listOf(Project(id=1L, name="Deleted", colorHex="#000"))
         advanceUntilIdle()
-        
+
         assertEquals(true, viewModel.isTrashNotEmpty.value)
         collectJob.cancel()
     }

@@ -32,6 +32,7 @@ interface BackupManager {
 }
 
 @Singleton
+@Suppress("TooManyFunctions")
 class LocalBackupManager @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val database: AppDatabase,
@@ -85,19 +86,29 @@ class LocalBackupManager @Inject constructor(
         }
 
         val dataDir = context.applicationInfo.dataDir
-        File(dataDir, "shared_prefs").takeIf { it.exists() && it.isDirectory }?.listFiles()?.forEach {
-            files.add("prefs/${it.name}" to it)
-        }
-        File(context.filesDir, "datastore").takeIf { it.exists() && it.isDirectory }?.listFiles()?.forEach {
-            files.add("datastore_files/${it.name}" to it)
-        }
-        File(dataDir, "datastore").takeIf { it.exists() && it.isDirectory }?.listFiles()?.forEach {
-            files.add("datastore_app/${it.name}" to it)
-        }
+        File(dataDir, "shared_prefs")
+            .takeIf { it.exists() && it.isDirectory }
+            ?.listFiles()?.forEach {
+                files.add("prefs/${it.name}" to it)
+            }
+        File(context.filesDir, "datastore")
+            .takeIf { it.exists() && it.isDirectory }
+            ?.listFiles()?.forEach {
+                files.add("datastore_files/${it.name}" to it)
+            }
+        File(dataDir, "datastore")
+            .takeIf { it.exists() && it.isDirectory }
+            ?.listFiles()?.forEach {
+                files.add("datastore_app/${it.name}" to it)
+            }
         return files
     }
 
-    private suspend fun writeZipEntries(zos: ZipOutputStream, files: List<Pair<String, File>>, onProgress: suspend (Int) -> Unit) {
+    private suspend fun writeZipEntries(
+        zos: ZipOutputStream,
+        files: List<Pair<String, File>>,
+        onProgress: suspend (Int) -> Unit
+    ) {
         files.forEachIndexed { index, (path, file) ->
             try {
                 zos.putNextEntry(ZipEntry(path))
@@ -110,6 +121,7 @@ class LocalBackupManager @Inject constructor(
         }
     }
 
+    @Suppress("NestedBlockDepth")
     private suspend fun zipMediaInChunks(zos: ZipOutputStream, onProgress: suspend (Int) -> Unit) {
         var offset = 0
         val chunkSize = 50
@@ -167,6 +179,7 @@ class LocalBackupManager @Inject constructor(
         }
     }
 
+    @Suppress("NestedBlockDepth")
     private fun unzipToTempDirectory(sourceUri: Uri, tempDir: File) {
         getBackupInputStream(sourceUri)?.use { ins ->
             ZipInputStream(BufferedInputStream(ins)).use { zis ->

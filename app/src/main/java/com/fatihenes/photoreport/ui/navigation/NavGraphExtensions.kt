@@ -39,7 +39,6 @@ import kotlinx.coroutines.launch
 fun NavGraphBuilder.dashboardRoute(
     navController: NavController,
     snackbarHostState: SnackbarHostState,
-    scope: CoroutineScope,
     language: String
 ) {
     composable(Routes.DASHBOARD) {
@@ -132,7 +131,12 @@ fun NavGraphBuilder.detailRoute(
                 navController.popBackStack()
             },
             onAddPhoto = { logId ->
-                if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
+                val hasPermission = ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.CAMERA
+                ) == PackageManager.PERMISSION_GRANTED
+
+                if (hasPermission) {
                     navController.navigate(Routes.camera(logId, projectId))
                 } else {
                     onSetPending(logId, projectId)

@@ -28,6 +28,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.graphics.toColorInt
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.fatihenes.photoreport.core.common.util.DateUtils
+import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion
 import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporTokens
 import com.fatihenes.photoreport.core.model.DailyLogWithPhotos
 import com.fatihenes.photoreport.core.model.Photo
@@ -39,6 +40,7 @@ import com.fatihenes.photoreport.feature.project.viewmodel.ProjectDetailViewMode
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
+@Suppress("LongParameterList", "LongMethod", "FunctionName")
 @Composable
 fun ProjectDetailScreen(
     project: Project?,
@@ -57,7 +59,9 @@ fun ProjectDetailScreen(
     language: String = "tr",
 ) {
     val displayProject = project ?: Project(id = -1L, name = "", colorHex = "#808080")
-    val projectColor = remember(displayProject.colorHex) { runCatching { Color(displayProject.colorHex.toColorInt()) }.getOrDefault(Color.Gray) }
+    val projectColor = remember(displayProject.colorHex) {
+        runCatching { Color(displayProject.colorHex.toColorInt()) }.getOrDefault(Color.Gray)
+    }
     val haptic = LocalHapticFeedback.current
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -70,9 +74,8 @@ fun ProjectDetailScreen(
     var isTransitionFinished by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
-        // Wait for the NavGraph transition (300ms) to completely finish
-        // before doing heavy composition of the timeline. This eliminates tearing/jank.
-        kotlinx.coroutines.delay(350)
+        // Wait partially through the NavGraph transition
+        kotlinx.coroutines.delay(FotoRaporMotion.DurationShort.toLong())
         isTransitionFinished = true
     }
 
@@ -80,7 +83,9 @@ fun ProjectDetailScreen(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         if (!isGranted) {
-            coroutineScope.launch { snackbarHost.showSnackbar("Bildirim izni verilmediği için arkaplan işlemi durumu gösterilemeyecek.") }
+            coroutineScope.launch {
+                snackbarHost.showSnackbar("Bildirim izni verilmediği için arkaplan işlemi durumu gösterilemeyecek.")
+            }
         }
         showExportDialog = true
     }
@@ -99,8 +104,15 @@ fun ProjectDetailScreen(
                 onBack = onBack,
                 onShareClick = {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-                        val hasPermission = ContextCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) == android.content.pm.PackageManager.PERMISSION_GRANTED
-                        if (hasPermission) showExportDialog = true else notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                        val hasPermission = ContextCompat.checkSelfPermission(
+                            context,
+                            android.Manifest.permission.POST_NOTIFICATIONS
+                        ) == android.content.pm.PackageManager.PERMISSION_GRANTED
+                        if (hasPermission) {
+                            showExportDialog = true
+                        } else {
+                            notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                        }
                     } else {
                         showExportDialog = true
                     }
@@ -141,19 +153,36 @@ fun ProjectDetailScreen(
                 .imePadding(),
             contentPadding = PaddingValues(top = FotoRaporTokens.SpacingS)
         ) {
-            projectHeroSection(displayProject, logs.size, allProjectPhotos.size, projectColor, onExportClick = { showExportDialog = true })
+            projectHeroSection(
+                displayProject,
+                logs.size,
+                allProjectPhotos.size,
+                projectColor,
+                onExportClick = { showExportDialog = true }
+            )
 
             calendarAndAddSection(projectColor, onAddLogForDate) { date ->
                 coroutineScope.launch {
                     val targetMillis = DateUtils.getStartOfDayEpochMillis(date)
                     val index = logs.indexOfFirst { it.log.date == targetMillis }
-                    if (index != -1) listState.animateScrollToItem(index + 3)
+                    if (index != -1) {
+                        // Offset to account for hero and calendar sections
+                        listState.animateScrollToItem(index + 3)
+                    }
                 }
             }
 
-            if (isTransitionFinished) {
-                timelineSection(logs, projectColor, language, onPhotoClick = { selectedPhotoForFullView = it.id }, onMorePhotosClick = { showFullGalleryByLogId = it }, onNoteChange, onAddPhoto, onImportPhotoToLog)
-            }
+            timelineSection(
+                logs = logs,
+                color = projectColor,
+                language = language,
+                isTransitionFinished = isTransitionFinished,
+                onPhotoClick = { selectedPhotoForFullView = it.id },
+                onMorePhotosClick = { showFullGalleryByLogId = it },
+                onNoteChange = onNoteChange,
+                onAddPhoto = onAddPhoto,
+                onImportPhotoToLog = onImportPhotoToLog
+            )
 
             item { Spacer(modifier = Modifier.height(96.dp)) }
         }
@@ -181,24 +210,23 @@ fun ProjectDetailScreen(
     )
 }
 
-@Composable
-private fun LoadingIndicator() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        CircularProgressIndicator(
-            modifier = Modifier.size(FotoRaporTokens.IconSizeL),
-            strokeWidth = 2.5.dp,
-            color = MaterialTheme.colorScheme.primary
-        )
-    }
-}
-
-private fun LazyListScope.projectHeroSection(project: Project, logCount: Int, photoCount: Int, color: Color, onExportClick: () -> Unit) {
+private fun LazyListScope.projectHeroSection(
+    project: Project,
+    logCount: Int,
+    photoCount: Int,
+    color: Color,
+    onExportClick: () -> Unit
+) {
     item(key = "project_hero_banner") {
         ProjectHeroBanner(project.name, logCount, photoCount, color, onExportClick)
     }
 }
 
-private fun LazyListScope.calendarAndAddSection(color: Color, onAddLogForDate: (Long) -> Unit, onDateSelected: (java.time.LocalDate) -> Unit) {
+private fun LazyListScope.calendarAndAddSection(
+    color: Color,
+    onAddLogForDate: (Long) -> Unit,
+    onDateSelected: (java.time.LocalDate) -> Unit
+) {
     item(key = "week_calendar") {
         WeekCalendar(projectColor = color, onDateSelected = onDateSelected)
     }
@@ -207,10 +235,12 @@ private fun LazyListScope.calendarAndAddSection(color: Color, onAddLogForDate: (
     }
 }
 
+@Suppress("LongParameterList", "LongMethod")
 private fun LazyListScope.timelineSection(
     logs: List<DailyLogWithPhotos>,
     color: Color,
     language: String,
+    isTransitionFinished: Boolean,
     onPhotoClick: (Photo) -> Unit,
     onMorePhotosClick: (Long) -> Unit,
     onNoteChange: (Long, String) -> Unit,
@@ -218,79 +248,84 @@ private fun LazyListScope.timelineSection(
     onImportPhotoToLog: (Long, String) -> Unit
 ) {
     item(key = "timeline_header") {
-        var isVisible by remember { mutableStateOf(false) }
-        LaunchedEffect(Unit) { isVisible = true }
-        
-        androidx.compose.animation.AnimatedVisibility(
-            visible = isVisible,
-            enter = androidx.compose.animation.fadeIn(animationSpec = androidx.compose.animation.core.tween(400))
-        ) {
-            Column {
-                Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXXL))
-                Text(
-                    stringResource(R.string.timeline_label).uppercase(),
-                    style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    letterSpacing = 1.5.sp
-                )
-                Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingL))
+        Column {
+            Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXXL))
+            Text(
+                stringResource(R.string.timeline_label).uppercase(),
+                style = MaterialTheme.typography.labelSmall,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                letterSpacing = 1.5.sp
+            )
+            Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingL))
+        }
+    }
+    if (isTransitionFinished) {
+        if (logs.isEmpty()) {
+            item(key = "timeline_empty_state") {
+                var isVisible by remember { mutableStateOf(false) }
+                LaunchedEffect(Unit) { isVisible = true }
+
+                androidx.compose.animation.AnimatedVisibility(
+                    visible = isVisible,
+                    enter = androidx.compose.animation.fadeIn(
+                        animationSpec = androidx.compose.animation.core.tween(FotoRaporMotion.NavDurationStandard)
+                    ) + androidx.compose.animation.slideInVertically(
+                        initialOffsetY = { 30 },
+                        animationSpec = androidx.compose.animation.core.tween(FotoRaporMotion.NavDurationStandard)
+                    )
+                ) {
+                    AppEmptyState(
+                        icon = Icons.Default.CameraAlt,
+                        title = stringResource(R.string.empty_photos_title),
+                        description = stringResource(R.string.empty_photos_desc),
+                        actionLabel = stringResource(R.string.empty_photos_action),
+                        onActionClick = { onAddPhoto(null) }
+                    )
+                }
             }
         }
     }
-    if (logs.isEmpty()) {
-        item(key = "timeline_empty_state") {
+    if (isTransitionFinished) {
+        items(logs, key = { it.log.id }, contentType = { "timeline_block" }) { logWithPhotos ->
             var isVisible by remember { mutableStateOf(false) }
             LaunchedEffect(Unit) { isVisible = true }
-            
+
             androidx.compose.animation.AnimatedVisibility(
                 visible = isVisible,
-                enter = androidx.compose.animation.fadeIn(animationSpec = androidx.compose.animation.core.tween(500)) + 
-                        androidx.compose.animation.slideInVertically(initialOffsetY = { 30 }, animationSpec = androidx.compose.animation.core.tween(500))
+                enter = androidx.compose.animation.fadeIn(
+                    animationSpec = androidx.compose.animation.core.tween(
+                        durationMillis = FotoRaporMotion.NavDurationStandard,
+                        easing = FotoRaporMotion.EasingEmphasized
+                    )
+                ) + androidx.compose.animation.slideInVertically(
+                    initialOffsetY = { 40 },
+                    animationSpec = androidx.compose.animation.core.tween(
+                        durationMillis = FotoRaporMotion.NavDurationStandard,
+                        easing = FotoRaporMotion.EasingEmphasized
+                    )
+                )
             ) {
-                AppEmptyState(
-                    icon = Icons.Default.CameraAlt,
-                    title = stringResource(R.string.empty_photos_title),
-                    description = stringResource(R.string.empty_photos_desc),
-                    actionLabel = stringResource(R.string.empty_photos_action),
-                    onActionClick = { onAddPhoto(null) }
+                val sortedPhotos = remember(logWithPhotos.photos) {
+                    logWithPhotos.photos.sortedByDescending { it.id }
+                }
+                TimelineBlock(
+                    log = logWithPhotos.log,
+                    photos = sortedPhotos,
+                    projectColor = color,
+                    isSelectionMode = false,
+                    selectedPhotoIds = emptyList(),
+                    language = language,
+                    onPhotoClick = onPhotoClick,
+                    onMorePhotosClick = { onMorePhotosClick(logWithPhotos.log.id) },
+                    onNoteChange = { onNoteChange(logWithPhotos.log.id, it) },
+                    onAddPhotoClick = { onAddPhoto(logWithPhotos.log.id) },
+                    onImportPhotoClick = { localUri ->
+                        onImportPhotoToLog(logWithPhotos.log.id, localUri.toString())
+                    }
                 )
             }
-        }
-    }
-    items(logs, key = { it.log.id }, contentType = { "timeline_block" }) { logWithPhotos ->
-        var isVisible by remember { mutableStateOf(false) }
-        LaunchedEffect(Unit) { isVisible = true }
-        
-        androidx.compose.animation.AnimatedVisibility(
-            visible = isVisible,
-            enter = androidx.compose.animation.fadeIn(
-                animationSpec = androidx.compose.animation.core.tween(
-                    durationMillis = 500, 
-                    easing = com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion.EasingEmphasized
-                )
-            ) + androidx.compose.animation.slideInVertically(
-                initialOffsetY = { 40 },
-                animationSpec = androidx.compose.animation.core.tween(
-                    durationMillis = 500, 
-                    easing = com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion.EasingEmphasized
-                )
-            )
-        ) {
-            val sortedPhotos = remember(logWithPhotos.photos) { logWithPhotos.photos.sortedByDescending { it.id } }
-            TimelineBlock(
-                log = logWithPhotos.log,
-                photos = sortedPhotos,
-                projectColor = color,
-                isSelectionMode = false,
-                selectedPhotoIds = emptyList(),
-                language = language,
-                onPhotoClick = onPhotoClick,
-                onMorePhotosClick = { onMorePhotosClick(logWithPhotos.log.id) },
-                onNoteChange = { onNoteChange(logWithPhotos.log.id, it) },
-                onAddPhotoClick = { onAddPhoto(logWithPhotos.log.id) },
-                onImportPhotoClick = { localUri -> onImportPhotoToLog(logWithPhotos.log.id, localUri.toString()) }
-            )
         }
     }
 }
+

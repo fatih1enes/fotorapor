@@ -25,6 +25,7 @@ import dagger.assisted.AssistedInject
 import androidx.hilt.work.HiltWorker
 
 @HiltWorker
+@Suppress("TooManyFunctions")
 class ExportWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted params: WorkerParameters,
@@ -44,9 +45,19 @@ class ExportWorker @AssistedInject constructor(
         )
     }
 
-    private fun createNotification(title: String, content: String, current: Int = 0, total: Int = 0): android.app.Notification {
-        val channel = android.app.NotificationChannel(CHANNEL_ID, "Export Service", android.app.NotificationManager.IMPORTANCE_LOW)
-        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+    private fun createNotification(
+        title: String,
+        content: String,
+        current: Int = 0,
+        total: Int = 0
+    ): android.app.Notification {
+        val channel = android.app.NotificationChannel(
+            CHANNEL_ID,
+            "Export Service",
+            android.app.NotificationManager.IMPORTANCE_LOW
+        )
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE)
+                as android.app.NotificationManager
         notificationManager.createNotificationChannel(channel)
 
         return NotificationCompat.Builder(context, CHANNEL_ID)
@@ -64,8 +75,14 @@ class ExportWorker @AssistedInject constructor(
             val contentText = if (total > 0) context.getString(R.string.export_progress_text, current, total)
             else context.getString(R.string.export_notif_text, projectName)
 
-            val notification = createNotification(context.getString(R.string.export_notif_title), contentText, current, total)
-            val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+            val notification = createNotification(
+                context.getString(R.string.export_notif_title),
+                contentText,
+                current,
+                total
+            )
+            val nm = context.getSystemService(Context.NOTIFICATION_SERVICE)
+                as android.app.NotificationManager
             nm.notify(PROGRESS_NOTIFICATION_ID, notification)
         } catch (e: Exception) {
             Log.w("ExportWorker", "Notification failed: ${e.message}")
@@ -74,7 +91,8 @@ class ExportWorker @AssistedInject constructor(
 
     private fun cancelProgressNotification() {
         try {
-            val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+            val nm = context.getSystemService(Context.NOTIFICATION_SERVICE)
+                as android.app.NotificationManager
             nm.cancel(PROGRESS_NOTIFICATION_ID)
         } catch (_: Exception) { }
     }
@@ -98,7 +116,8 @@ class ExportWorker @AssistedInject constructor(
         setForeground(getForegroundInfo())
         showProgressNotification(projectName)
 
-        val data = fetchExportData() ?: return Result.failure(workDataOf("error" to "Data not found"))
+        val data = fetchExportData()
+            ?: return Result.failure(workDataOf("error" to "Data not found"))
         val uri = performExportAction(data.first, data.second, projectName)
 
         return handleExportResult(uri, projectName)
@@ -106,13 +125,20 @@ class ExportWorker @AssistedInject constructor(
 
     private fun handleExportResult(uri: Uri?, projectName: String): Result {
         return if (uri != null) {
-            showCompletionNotification(uri, inputData.getString("format") ?: "PDF", projectName)
+            showCompletionNotification(
+                uri,
+                inputData.getString("format") ?: "PDF",
+                projectName
+            )
             Result.success()
         } else {
-            Result.failure(workDataOf("error" to context.getString(R.string.error_unknown)))
+            Result.failure(
+                workDataOf("error" to context.getString(R.string.error_unknown))
+            )
         }
     }
 
+    @Suppress("ReturnCount")
     private suspend fun fetchExportData(): Pair<ProjectEntity, List<LogWithPhotos>>? {
         val projectId = inputData.getLong("project_id", -1)
         if (projectId == -1L) return null
@@ -121,7 +147,11 @@ class ExportWorker @AssistedInject constructor(
         return project to logs
     }
 
-    private suspend fun performExportAction(project: ProjectEntity, logs: List<LogWithPhotos>, projectName: String): Uri? {
+    private suspend fun performExportAction(
+        project: ProjectEntity,
+        logs: List<LogWithPhotos>,
+        projectName: String
+    ): Uri? {
         val format = inputData.getString("format") ?: "PDF"
         val quality = inputData.getInt("quality", 100)
         val language = inputData.getString("language") ?: "tr"
@@ -133,14 +163,25 @@ class ExportWorker @AssistedInject constructor(
         }
     }
 
-    private suspend fun exportPdf(project: ProjectEntity, logs: List<LogWithPhotos>, quality: Int, language: String, projectName: String): Uri? {
+    private suspend fun exportPdf(
+        project: ProjectEntity,
+        logs: List<LogWithPhotos>,
+        quality: Int,
+        language: String,
+        projectName: String
+    ): Uri? {
         val res = pdfExportManager.exportToPdf(project, logs, quality, language) { cur, tot ->
             showProgressNotification(projectName, cur, tot)
         }
         return if (res is OperationResult.Success) res.data else null
     }
 
-    private suspend fun exportZip(project: ProjectEntity, logs: List<LogWithPhotos>, quality: Int, language: String): Uri? {
+    private suspend fun exportZip(
+        project: ProjectEntity,
+        logs: List<LogWithPhotos>,
+        quality: Int,
+        language: String
+    ): Uri? {
         val dailyLogs: List<DailyLogEntity> = logs.map { it.log }
         val photoEntities: List<PhotoEntity> = logs.flatMap { it.photos }
         return HtmlExporter.exportToHtmlZip(context, project, dailyLogs, photoEntities, quality, language)
@@ -148,7 +189,9 @@ class ExportWorker @AssistedInject constructor(
 
     private fun handleExportError(e: Throwable, projectName: String): Result {
         Log.e("ExportWorker", "Export failed", e)
-        val isRetryable = e is java.io.IOException || e is OutOfMemoryError || e is android.database.sqlite.SQLiteException
+        val isRetryable = e is java.io.IOException ||
+                e is OutOfMemoryError ||
+                e is android.database.sqlite.SQLiteException
         if (isRetryable && runAttemptCount < 3) return Result.retry()
 
         val msg = when (e) {
@@ -163,13 +206,20 @@ class ExportWorker @AssistedInject constructor(
     private fun showFailureNotification(projectName: String, errorMessage: String) {
         cancelProgressNotification()
         val channelId = "export_error_channel"
-        val channel = android.app.NotificationChannel(channelId, context.getString(R.string.export_error_channel_name), android.app.NotificationManager.IMPORTANCE_HIGH)
-        val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+        val channel = android.app.NotificationChannel(
+            channelId,
+            context.getString(R.string.export_error_channel_name),
+            android.app.NotificationManager.IMPORTANCE_HIGH
+        )
+        val nm = context.getSystemService(Context.NOTIFICATION_SERVICE)
+                as android.app.NotificationManager
         nm.createNotificationChannel(channel)
 
         val notification = NotificationCompat.Builder(context, channelId)
             .setContentTitle(context.getString(R.string.export_failed_title))
-            .setContentText(context.getString(R.string.export_failed_text, projectName, errorMessage))
+            .setContentText(
+                context.getString(R.string.export_failed_text, projectName, errorMessage)
+            )
             .setSmallIcon(R.drawable.ic_stat_logo)
             .setAutoCancel(true)
             .build()
@@ -186,18 +236,30 @@ class ExportWorker @AssistedInject constructor(
         val chooser = android.content.Intent.createChooser(intent, context.getString(R.string.export_share_chooser)).apply {
             addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
         }
-        val pendingIntent = android.app.PendingIntent.getActivity(context, uri.hashCode(), chooser, android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE)
+        val pendingIntent = android.app.PendingIntent.getActivity(
+            context,
+            uri.hashCode(),
+            chooser,
+            android.app.PendingIntent.FLAG_UPDATE_CURRENT or android.app.PendingIntent.FLAG_IMMUTABLE
+        )
 
         val channelId = "export_complete_channel"
-        val channel = android.app.NotificationChannel(channelId, context.getString(R.string.export_complete_channel), android.app.NotificationManager.IMPORTANCE_HIGH)
-        val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as android.app.NotificationManager
+        val channel = android.app.NotificationChannel(
+            channelId,
+            context.getString(R.string.export_complete_channel),
+            android.app.NotificationManager.IMPORTANCE_HIGH
+        )
+        val nm = context.getSystemService(Context.NOTIFICATION_SERVICE)
+                as android.app.NotificationManager
         nm.createNotificationChannel(channel)
 
         val formatName = if (format == "PDF") context.getString(R.string.export_format_pdf) else context.getString(R.string.export_format_zip)
         val appIcon = getAppIconBitmap()
         val notification = NotificationCompat.Builder(context, channelId)
             .setContentTitle(context.getString(R.string.export_ready_title))
-            .setContentText(context.getString(R.string.export_ready_text, projectName, formatName))
+            .setContentText(
+                context.getString(R.string.export_ready_text, projectName, formatName)
+            )
             .setSmallIcon(R.drawable.ic_stat_logo)
             .setLargeIcon(appIcon)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -211,7 +273,11 @@ class ExportWorker @AssistedInject constructor(
     private fun getAppIconBitmap(): android.graphics.Bitmap? {
         val drawable = androidx.core.content.ContextCompat.getDrawable(context, R.mipmap.ic_launcher) ?: return null
         if (drawable is android.graphics.drawable.BitmapDrawable) return drawable.bitmap
-        val bitmap = createBitmap((drawable.intrinsicWidth.takeIf { it > 0 } ?: 108), (drawable.intrinsicHeight.takeIf { it > 0 } ?: 108), android.graphics.Bitmap.Config.ARGB_8888)
+        val bitmap = createBitmap(
+            (drawable.intrinsicWidth.takeIf { it > 0 } ?: 108),
+            (drawable.intrinsicHeight.takeIf { it > 0 } ?: 108),
+            android.graphics.Bitmap.Config.ARGB_8888
+        )
         val canvas = android.graphics.Canvas(bitmap)
         drawable.setBounds(0, 0, canvas.width, canvas.height)
         drawable.draw(canvas)

@@ -23,6 +23,7 @@ object HtmlExporter {
 
     private const val DIV_CLOSE = "</div>"
     private const val LOGO_ASSET_PATH = "assets/company_logo.png"
+    private const val COPY_BUFFER_SIZE = 8192
 
     suspend fun exportToHtmlZip(
         context: Context,
@@ -51,18 +52,21 @@ object HtmlExporter {
 
             return@withContext FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", zipFile)
         } catch (e: Exception) {
+            @Suppress("InstanceOfCheckForException")
             if (e is kotlinx.coroutines.CancellationException) throw e
             Log.e("HtmlExporter", "Export failed", e)
             null
         }
     }
 
+    @Suppress("ReturnCount")
     private fun streamLogoToZip(context: Context, zos: ZipOutputStream): String? {
         if (!CompanyLogoManager.hasLogo(context)) return null
         val logoUri = CompanyLogoManager.getLogoUri(context) ?: return null
         return try {
             zos.putNextEntry(ZipEntry(LOGO_ASSET_PATH))
-            ImageProcessor.openInputStreamSafe(context, logoUri.toString())?.use { it.copyTo(zos, 8192) }
+            ImageProcessor.openInputStreamSafe(context, logoUri.toString())
+                ?.use { it.copyTo(zos, COPY_BUFFER_SIZE) }
             zos.closeEntry()
             LOGO_ASSET_PATH
         } catch (e: Exception) {
@@ -88,18 +92,27 @@ object HtmlExporter {
                 zos.closeEntry()
                 if (success) photoMap[photo.id] = entryPath
             } catch (e: Exception) {
+                @Suppress("InstanceOfCheckForException")
                 if (e is kotlinx.coroutines.CancellationException) throw e
                 Log.e("HtmlExporter", "Media stream failed: ${photo.id}", e)
             }
         }
     }
 
-    private fun writeMediaContent(context: Context, zos: ZipOutputStream, path: String, isVideo: Boolean, quality: Int): Boolean {
+    private fun writeMediaContent(
+        context: Context,
+        zos: ZipOutputStream,
+        path: String,
+        isVideo: Boolean,
+        quality: Int
+    ): Boolean {
         return if (isVideo || quality == 100) {
-            ImageProcessor.openInputStreamSafe(context, path)?.use { it.copyTo(zos, 8192); true } ?: false
+            ImageProcessor.openInputStreamSafe(context, path)
+                ?.use { it.copyTo(zos, COPY_BUFFER_SIZE); true } ?: false
         } else {
             ImageProcessor.compressToStream(context, path, zos, quality) ||
-                    ImageProcessor.openInputStreamSafe(context, path)?.use { it.copyTo(zos, 8192); true } ?: false
+                    ImageProcessor.openInputStreamSafe(context, path)
+                        ?.use { it.copyTo(zos, COPY_BUFFER_SIZE); true } ?: false
         }
     }
 
@@ -178,13 +191,28 @@ object HtmlExporter {
         """.trimIndent()
     }
 
-    private fun generateDayCard(log: DailyLogEntity, photos: List<PhotoEntity>, map: Map<Long, String>, df: SimpleDateFormat, lang: String): String {
+    private fun generateDayCard(
+        log: DailyLogEntity,
+        photos: List<PhotoEntity>,
+        map: Map<Long, String>,
+        df: SimpleDateFormat,
+        lang: String
+    ): String {
         return buildString {
-            append("<div class=\"day-card\"><div class=\"day-header\"><h2 class=\"day-title\">${df.format(Date(log.date))}</h2></div>")
-            if (log.note.isNotBlank()) append("<div class=\"note-content\">${log.note.htmlEncode()}</div>")
+            append("<div class=\"day-card\">")
+            append("<div class=\"day-header\">")
+            append("<h2 class=\"day-title\">${df.format(Date(log.date))}</h2>")
+            append("</div>")
+
+            if (log.note.isNotBlank()) {
+                append("<div class=\"note-content\">${log.note.htmlEncode()}</div>")
+            }
+
             if (photos.isNotEmpty()) {
                 append("<div class=\"media-grid\">")
-                photos.forEach { photo -> map[photo.id]?.let { append(generateMediaItem(it, photo.rotation, lang)) } }
+                photos.forEach { photo ->
+                    map[photo.id]?.let { append(generateMediaItem(it, photo.rotation, lang)) }
+                }
                 append(DIV_CLOSE)
             }
             append(DIV_CLOSE)
@@ -198,10 +226,16 @@ object HtmlExporter {
         return buildString {
             append("<div class=\"media-item\">")
             if (isVideo) {
-                append("<video controls preload=\"metadata\"><source src=\"$path\" type=\"video/mp4\">$videoMsg</video>")
+                append("<video controls preload=\"metadata\">")
+                append("<source src=\"$path\" type=\"video/mp4\">")
+                append("$videoMsg</video>")
             } else {
-                val style = if (rotation != 0f) "style=\"transform: rotate(${rotation}deg);\"" else ""
-                append("<a href=\"$path\" target=\"_blank\"><img src=\"$path\" alt=\"$photoAlt\" loading=\"lazy\" $style></a>")
+                val style = if (rotation != 0f) {
+                    "style=\"transform: rotate(${rotation}deg);\""
+                } else ""
+                append("<a href=\"$path\" target=\"_blank\">")
+                append("<img src=\"$path\" alt=\"$photoAlt\" loading=\"lazy\" $style>")
+                append("</a>")
             }
             append(DIV_CLOSE)
         }

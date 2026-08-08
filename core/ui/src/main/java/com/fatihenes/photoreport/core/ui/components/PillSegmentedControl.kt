@@ -79,7 +79,11 @@ fun <T> PillSegmentedControl(
             items.forEach { item ->
                 val isSelected = item == selectedItem
                 val textColor by animateColorAsState(
-                    targetValue = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                    targetValue = if (isSelected) {
+                        MaterialTheme.colorScheme.primary
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
                     animationSpec = tween(durationMillis = 200),
                     label = "pill_text_color"
                 )

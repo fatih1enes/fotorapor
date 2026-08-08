@@ -37,6 +37,8 @@ import com.fatihenes.photoreport.core.model.Project
 import com.fatihenes.photoreport.core.common.util.DateUtils
 import com.fatihenes.photoreport.feature.trash.viewmodel.TrashViewModel
 
+private const val THUMB_SIZE = 256
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TrashScreen(
@@ -369,8 +371,8 @@ fun TrashPhotoItem(
             AsyncImage(
                 model = ImageRequest.Builder(context)
                     .data(photo.filePath)
-                    .size(256)
-                    .crossfade(150)
+                    .size(THUMB_SIZE)
+                    .crossfade(com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion.DurationShort)
                     .memoryCachePolicy(CachePolicy.ENABLED)
                     .build(),
                 contentDescription = stringResource(R.string.photo_label),

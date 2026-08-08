@@ -39,6 +39,7 @@ import coil3.compose.AsyncImage
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion
 import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporTokens
 import com.fatihenes.photoreport.core.ui.R
 import com.fatihenes.photoreport.core.model.Photo
@@ -50,6 +51,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 @OptIn(ExperimentalMaterial3Api::class)
+@Suppress("FunctionName", "LongMethod")
 @Composable
 fun FullScreenPhotoDialog(
     photoList: List<Photo>,
@@ -81,10 +83,12 @@ fun FullScreenPhotoDialog(
 
             AnimatedVisibility(
                 visible = isVisible,
-                enter = fadeIn(animationSpec = androidx.compose.animation.core.tween(200)) +
-                        scaleIn(initialScale = 0.96f),
-                exit = fadeOut(animationSpec = androidx.compose.animation.core.tween(150)) +
-                        scaleOut(targetScale = 0.96f)
+                enter = fadeIn(
+                    animationSpec = androidx.compose.animation.core.tween(FotoRaporMotion.DurationMedium)
+                ) + scaleIn(initialScale = 0.96f),
+                exit = fadeOut(
+                    animationSpec = androidx.compose.animation.core.tween(FotoRaporMotion.DurationShort)
+                ) + scaleOut(targetScale = 0.96f)
             ) {
                 Scaffold(
                     containerColor = Color.Black,
@@ -104,7 +108,13 @@ fun FullScreenPhotoDialog(
                         )
                     }
                 ) { padding ->
-                    Box(modifier = Modifier.fillMaxSize().padding(padding).background(Color.Black), contentAlignment = Alignment.Center) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(padding)
+                            .background(Color.Black),
+                        contentAlignment = Alignment.Center
+                    ) {
                         HorizontalPager(
                             state = pagerState,
                             modifier = Modifier.fillMaxSize(),
@@ -141,6 +151,7 @@ fun FullScreenPhotoDialog(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
+@Suppress("LongParameterList", "FunctionName")
 @Composable
 private fun PhotoViewerTopAppBar(
     currentPage: Int,
@@ -165,12 +176,22 @@ private fun PhotoViewerTopAppBar(
         },
         navigationIcon = {
             IconButton(onClick = onDismiss) {
-                Icon(Icons.Default.Close, stringResource(R.string.acc_close), tint = Color.White, modifier = Modifier.size(FotoRaporTokens.IconSizeS))
+                Icon(
+                    Icons.Default.Close,
+                    stringResource(R.string.acc_close),
+                    tint = Color.White,
+                    modifier = Modifier.size(FotoRaporTokens.IconSizeS)
+                )
             }
         },
         actions = {
             IconButton(onClick = onRotate) {
-                Icon(Icons.AutoMirrored.Filled.RotateRight, stringResource(R.string.acc_rotate), tint = Color.White, modifier = Modifier.size(FotoRaporTokens.IconSizeS))
+                Icon(
+                    Icons.AutoMirrored.Filled.RotateRight,
+                    stringResource(R.string.acc_rotate),
+                    tint = Color.White,
+                    modifier = Modifier.size(FotoRaporTokens.IconSizeS)
+                )
             }
             IconButton(onClick = {
                 if (currentPage < photoList.size) {
@@ -179,16 +200,27 @@ private fun PhotoViewerTopAppBar(
                     }
                 }
             }) {
-                Icon(Icons.Default.Share, stringResource(R.string.acc_share), tint = Color.White, modifier = Modifier.size(FotoRaporTokens.IconSizeS))
+                Icon(
+                    Icons.Default.Share,
+                    stringResource(R.string.acc_share),
+                    tint = Color.White,
+                    modifier = Modifier.size(FotoRaporTokens.IconSizeS)
+                )
             }
             IconButton(onClick = onShowDelete) {
-                Icon(Icons.Default.Delete, stringResource(R.string.acc_delete), tint = Color.White, modifier = Modifier.size(FotoRaporTokens.IconSizeS))
+                Icon(
+                    Icons.Default.Delete,
+                    stringResource(R.string.acc_delete),
+                    tint = Color.White,
+                    modifier = Modifier.size(FotoRaporTokens.IconSizeS)
+                )
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
     )
 }
 
+@Suppress("FunctionName")
 @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 @Composable
 private fun VideoPlayerItem(photo: Photo, isPageActive: Boolean) {
@@ -244,77 +276,135 @@ private fun VideoPlayerItem(photo: Photo, isPageActive: Boolean) {
     }
 }
 
+@Suppress("FunctionName")
 @Composable
 private fun VideoPlaceholder() {
-    Box(modifier = Modifier.fillMaxSize().background(Color.Black), contentAlignment = Alignment.Center) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black),
+        contentAlignment = Alignment.Center
+    ) {
         Icon(
-            imageVector = Icons.Default.PlayArrow, contentDescription = null, tint = Color.White.copy(alpha = 0.6f),
-            modifier = Modifier.size(72.dp).background(Color.White.copy(alpha = 0.1f), CircleShape).padding(FotoRaporTokens.SpacingL)
+            imageVector = Icons.Default.PlayArrow,
+            contentDescription = null,
+            tint = Color.White.copy(alpha = 0.6f),
+            modifier = Modifier
+                .size(72.dp)
+                .background(Color.White.copy(alpha = 0.1f), CircleShape)
+                .padding(FotoRaporTokens.SpacingL)
         )
     }
 }
 
+@Suppress("FunctionName")
 @Composable
 private fun ImageZoomItem(photo: Photo) {
     var scale by remember(photo.id) { mutableFloatStateOf(1f) }
     var offset by remember(photo.id) { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
 
     Box(
-        modifier = Modifier.fillMaxSize().pointerInput(photo.id) {
-            awaitEachGesture {
-                awaitFirstDown()
-                do {
-                    val event = awaitPointerEvent()
-                    val zoom = event.calculateZoom()
-                    val pan = event.calculatePan()
-                    val newScale = (scale * zoom).coerceIn(1f, 5f)
-                    if (newScale > 1f || scale > 1f) {
-                        scale = newScale
-                        offset += pan
-                        event.changes.forEach { if (it.positionChanged()) it.consume() }
-                    } else {
-                        scale = 1f
-                        offset = androidx.compose.ui.geometry.Offset.Zero
-                    }
-                } while (event.changes.any { it.pressed })
-            }
-        },
+        modifier = Modifier
+            .fillMaxSize()
+            .pointerInput(photo.id) {
+                awaitEachGesture {
+                    awaitFirstDown()
+                    do {
+                        val event = awaitPointerEvent()
+                        val zoom = event.calculateZoom()
+                        val pan = event.calculatePan()
+                        val newScale = (scale * zoom).coerceIn(1f, 5f)
+                        if (newScale > 1f || scale > 1f) {
+                            scale = newScale
+                            offset += pan
+                            event.changes.forEach { if (it.positionChanged()) it.consume() }
+                        } else {
+                            scale = 1f
+                            offset = androidx.compose.ui.geometry.Offset.Zero
+                        }
+                    } while (event.changes.any { it.pressed })
+                }
+            },
         contentAlignment = Alignment.Center
     ) {
         val context = LocalContext.current
         val request = remember(photo.filePath) {
-            ImageRequest.Builder(context).data(photo.filePath).size(2400).memoryCachePolicy(CachePolicy.ENABLED).diskCachePolicy(CachePolicy.ENABLED).crossfade(200).build()
+            ImageRequest.Builder(context)
+                .data(photo.filePath)
+                .size(2400)
+                .memoryCachePolicy(CachePolicy.ENABLED)
+                .diskCachePolicy(CachePolicy.ENABLED)
+                .crossfade(FotoRaporMotion.DurationMedium)
+                .build()
         }
         AsyncImage(
-            model = request, contentDescription = null, contentScale = ContentScale.Fit,
-            modifier = Modifier.fillMaxWidth().graphicsLayer(scaleX = scale, scaleY = scale, translationX = offset.x, translationY = offset.y, rotationZ = photo.rotation),
-            placeholder = androidx.compose.ui.graphics.painter.ColorPainter(MaterialTheme.colorScheme.surfaceContainerHigh),
-            error = androidx.compose.ui.graphics.painter.ColorPainter(MaterialTheme.colorScheme.surfaceContainerHigh)
+            model = request,
+            contentDescription = null,
+            contentScale = ContentScale.Fit,
+            modifier = Modifier
+                .fillMaxWidth()
+                .graphicsLayer(
+                    scaleX = scale,
+                    scaleY = scale,
+                    translationX = offset.x,
+                    translationY = offset.y,
+                    rotationZ = photo.rotation
+                ),
+            placeholder = androidx.compose.ui.graphics.painter.ColorPainter(
+                MaterialTheme.colorScheme.surfaceContainerHigh
+            ),
+            error = androidx.compose.ui.graphics.painter.ColorPainter(
+                MaterialTheme.colorScheme.surfaceContainerHigh
+            )
         )
     }
 }
 
+@Suppress("FunctionName")
 @Composable
 private fun PhotoDeleteConfirmDialog(onDismiss: () -> Unit, onConfirm: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         shape = RoundedCornerShape(FotoRaporTokens.RadiusL),
-        title = { Text(stringResource(R.string.delete_photo_title), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold) },
-        text = { Text(stringResource(R.string.delete_photo_desc), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) },
+        title = {
+            Text(
+                stringResource(R.string.delete_photo_title),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.SemiBold
+            )
+        },
+        text = {
+            Text(
+                stringResource(R.string.delete_photo_desc),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        },
         confirmButton = {
             Button(
                 onClick = onConfirm,
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error, contentColor = MaterialTheme.colorScheme.onError),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error,
+                    contentColor = MaterialTheme.colorScheme.onError
+                ),
                 shape = RoundedCornerShape(FotoRaporTokens.RadiusS),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = FotoRaporTokens.ElevationNone)
             ) {
-                Text(stringResource(R.string.delete_confirm_btn), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+                Text(
+                    stringResource(R.string.delete_confirm_btn),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold
+                )
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.cancel_btn), style = MaterialTheme.typography.labelLarge)
+                Text(
+                    stringResource(R.string.cancel_btn),
+                    style = MaterialTheme.typography.labelLarge
+                )
             }
         }
     )
 }
+

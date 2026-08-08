@@ -1,4 +1,4 @@
-@file:Suppress("LocalContextGetResourceValueCall")
+@file:Suppress("LocalContextGetResourceValueCall", "MaxLineLength", "FunctionName")
 package com.fatihenes.photoreport.feature.export.ui
 
 import androidx.compose.animation.*
@@ -38,6 +38,9 @@ import kotlinx.coroutines.launch
 enum class ExportFormat { PDF, ZIP }
 
 private const val MB_FORMAT = "%.1f MB"
+private const val QUALITY_ORIGINAL = 100
+private const val QUALITY_HIGH = 85
+private const val QUALITY_STANDARD = 75
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -143,10 +146,30 @@ private fun ExportOptionsAndSummary(
 
 @Composable
 private fun QualitySelectionRow(selectedQuality: Int, onQualitySelect: (Int) -> Unit) {
-    Row(modifier = Modifier.fillMaxWidth().padding(bottom = FotoRaporTokens.SpacingL), horizontalArrangement = Arrangement.spacedBy(FotoRaporTokens.SpacingS)) {
-        QualityOption(Modifier.weight(1f), stringResource(R.string.export_quality_original), stringResource(R.string.export_quality_original_sub), selectedQuality == 100) { onQualitySelect(100) }
-        QualityOption(Modifier.weight(1f), stringResource(R.string.export_quality_high), stringResource(R.string.export_quality_high_sub), selectedQuality == 85) { onQualitySelect(85) }
-        QualityOption(Modifier.weight(1f), stringResource(R.string.export_quality_standard), stringResource(R.string.export_quality_standard_sub), selectedQuality == 75) { onQualitySelect(75) }
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = FotoRaporTokens.SpacingL),
+        horizontalArrangement = Arrangement.spacedBy(FotoRaporTokens.SpacingS)
+    ) {
+        QualityOption(
+            Modifier.weight(1f),
+            stringResource(R.string.export_quality_original),
+            stringResource(R.string.export_quality_original_sub),
+            selectedQuality == QUALITY_ORIGINAL
+        ) { onQualitySelect(QUALITY_ORIGINAL) }
+        QualityOption(
+            Modifier.weight(1f),
+            stringResource(R.string.export_quality_high),
+            stringResource(R.string.export_quality_high_sub),
+            selectedQuality == QUALITY_HIGH
+        ) { onQualitySelect(QUALITY_HIGH) }
+        QualityOption(
+            Modifier.weight(1f),
+            stringResource(R.string.export_quality_standard),
+            stringResource(R.string.export_quality_standard_sub),
+            selectedQuality == QUALITY_STANDARD
+        ) { onQualitySelect(QUALITY_STANDARD) }
     }
 }
 

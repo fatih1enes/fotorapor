@@ -352,20 +352,20 @@ object FotoRaporMotion {
 
     // ── Duration Tiers ──────────────────────────────────────────
     /** Kısa, anlık feedback */
-    val DurationShort = 150
+    const val DurationShort = 150
     /** Standart UI animasyonları */
-    val DurationMedium = 250
+    const val DurationMedium = 250
     /** Büyük geçişler */
-    val DurationLong = 350
+    const val DurationLong = 350
 
     // ── Navigation Duration Tiers ───────────────────────────────
     // Simetrik: ileri = geri aynı hız. Ekran tipine göre kademelendirilmiş.
     /** Yardımcı/hafif ekranlar: Settings, Trash — hızlı giriş/çıkış */
-    val NavDurationFast = 250
+    const val NavDurationFast = 250
     /** İçerik ekranları: Project Detail — biraz daha dramatik */
-    val NavDurationStandard = 300
+    const val NavDurationStandard = 300
     /** Overlay / dialog geçişleri */
-    val NavDurationOverlay = 200
+    const val NavDurationOverlay = 200
 
     // ── Parallax Oranı ──────────────────────────────────────────
     /** Arka planda kalan ekranın kayma yüzdesi (iOS-tarzı parallax) */

@@ -8,13 +8,18 @@ import android.provider.Settings
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -83,7 +88,6 @@ fun AppNavGraph(
                 navController = navController,
                 viewModel = viewModel,
                 snackbarHostState = snackbarHostState,
-                scope = scope,
                 language = uiState.language,
                 permissionLauncher = permissionLauncher,
                 onSetPending = { logId, projectId ->
@@ -104,11 +108,11 @@ fun AppNavGraph(
 }
 
 @Composable
+@Suppress("LongParameterList", "FunctionName")
 private fun AppNavHost(
     navController: NavHostController,
     viewModel: MainViewModel,
     snackbarHostState: SnackbarHostState,
-    scope: CoroutineScope,
     language: String,
     permissionLauncher: ManagedActivityResultLauncher<String, Boolean>,
     onSetPending: (Long?, Long?) -> Unit
@@ -123,7 +127,7 @@ private fun AppNavHost(
         popEnterTransition = { FotoRaporMotion.navPopEnter() },
         popExitTransition = { FotoRaporMotion.navPopExit() }
     ) {
-        dashboardRoute(navController, snackbarHostState, scope, language)
+        dashboardRoute(navController, snackbarHostState, language)
         settingsRoute(navController)
         detailRoute(navController, language, permissionLauncher, onSetPending)
         cameraRoute(navController, viewModel)
@@ -132,6 +136,7 @@ private fun AppNavHost(
 }
 
 @Composable
+@Suppress("FunctionName")
 private fun HandleInitialNavigation(
     navController: NavHostController,
     initialCameraProjectId: Long,
@@ -152,6 +157,7 @@ private fun HandleInitialNavigation(
 }
 
 @Composable
+@Suppress("LongParameterList")
 private fun rememberCameraPermissionLauncher(
     navController: NavController,
     snackbarHostState: SnackbarHostState,

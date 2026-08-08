@@ -41,6 +41,7 @@ class MediaProcessor @Inject constructor(
         }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private fun extractOriginalExif(uri: Uri): ExifInterface? {
         return try {
             appContext.contentResolver.openInputStream(uri)?.use { ExifInterface(it) }
@@ -50,6 +51,7 @@ class MediaProcessor @Inject constructor(
         }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private fun saveOptimizedImage(bitmap: Bitmap, oldExif: ExifInterface?, projectName: String): Uri? {
         val values = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, "IMG_${System.currentTimeMillis()}.avif")
@@ -70,12 +72,14 @@ class MediaProcessor @Inject constructor(
             appContext.contentResolver.update(uri, pendingValues, null, null)
             uri
         } catch (e: Exception) {
+            @Suppress("TooGenericExceptionCaught")
             appContext.contentResolver.delete(uri, null, null)
             android.util.Log.e("MediaProcessor", "AVIF encoding failed", e)
             null
         }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private fun updateExif(uri: Uri, oldExif: ExifInterface?, projectName: String) {
         try {
             appContext.contentResolver.openFileDescriptor(uri, "rw")?.use { pfd ->

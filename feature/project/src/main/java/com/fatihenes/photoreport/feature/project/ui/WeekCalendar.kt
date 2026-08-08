@@ -1,5 +1,7 @@
 package com.fatihenes.photoreport.feature.project.ui
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -17,6 +19,7 @@ import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion
 import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporTokens
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -41,7 +44,9 @@ fun WeekCalendar(
         border = androidx.compose.foundation.BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
     ) {
         Row(
-            modifier = Modifier.fillMaxWidth().padding(FotoRaporTokens.SpacingM),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(FotoRaporTokens.SpacingM),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -67,6 +72,7 @@ private fun calculateCurrentWeekDays(): List<LocalDate> {
     return (0..6).map { monday.plusDays(it.toLong()) }
 }
 
+@Suppress("FunctionName")
 @Composable
 private fun CalendarDayItem(
     date: LocalDate,
@@ -77,15 +83,15 @@ private fun CalendarDayItem(
 ) {
     val haptic = LocalHapticFeedback.current
     val isToday = remember(date) { date == LocalDate.now() }
-    val locale = androidx.compose.ui.text.intl.Locale.current.platformLocale
+    val currentLocale = androidx.compose.ui.text.intl.Locale.current.platformLocale
 
-    val dayName = remember(date, locale) {
-        date.dayOfWeek.getDisplayName(TextStyle.SHORT, locale).uppercase()
+    val dayName = remember(date, currentLocale) {
+        date.dayOfWeek.getDisplayName(TextStyle.SHORT, currentLocale).uppercase()
     }
 
-    val animatedBgColor by androidx.compose.animation.animateColorAsState(
+    val animatedBgColor by animateColorAsState(
         targetValue = if (isSelected) projectColor.copy(alpha = 0.15f) else Color.Transparent,
-        animationSpec = androidx.compose.animation.core.tween(200),
+        animationSpec = tween(FotoRaporMotion.DurationShort),
         label = "week_day_bg"
     )
 
@@ -98,7 +104,7 @@ private fun CalendarDayItem(
                 haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 onClick()
             }
-            .padding(vertical = 8.dp)
+            .padding(vertical = FotoRaporTokens.SpacingS)
     ) {
         Text(
             text = dayName,
@@ -107,7 +113,7 @@ private fun CalendarDayItem(
             fontSize = 10.sp,
             color = if (isSelected) projectColor else MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXS))
         DayNumberBadge(
             dayOfMonth = date.dayOfMonth,
             isSelected = isSelected,
@@ -117,6 +123,7 @@ private fun CalendarDayItem(
     }
 }
 
+@Suppress("FunctionName")
 @Composable
 private fun DayNumberBadge(
     dayOfMonth: Int,
@@ -135,15 +142,15 @@ private fun DayNumberBadge(
         else -> MaterialTheme.colorScheme.onSurface
     }
 
-    val backgroundColor by androidx.compose.animation.animateColorAsState(
+    val backgroundColor by animateColorAsState(
         targetValue = targetBackgroundColor,
-        animationSpec = androidx.compose.animation.core.tween(200),
+        animationSpec = tween(FotoRaporMotion.DurationShort),
         label = "day_badge_bg"
     )
 
-    val textColor by androidx.compose.animation.animateColorAsState(
+    val textColor by animateColorAsState(
         targetValue = targetTextColor,
-        animationSpec = androidx.compose.animation.core.tween(200),
+        animationSpec = tween(FotoRaporMotion.DurationShort),
         label = "day_badge_text"
     )
 
@@ -163,3 +170,4 @@ private fun DayNumberBadge(
         )
     }
 }
+

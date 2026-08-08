@@ -1,4 +1,4 @@
-@file:Suppress("LocalContextGetResourceValueCall")
+@file:Suppress("LocalContextGetResourceValueCall", "MaxLineLength", "FunctionName")
 package com.fatihenes.photoreport.feature.settings.ui
 
 import android.net.Uri

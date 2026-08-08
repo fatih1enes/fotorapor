@@ -12,6 +12,7 @@ enum class DashboardViewMode { PROJECTS, CALENDAR }
 
 // Refactored to reduce complexity
 @OptIn(ExperimentalMaterial3Api::class)
+@Suppress("LongParameterList", "FunctionName")
 @Composable
 fun DashboardScreen(
     projects: List<Project>?,
@@ -38,18 +39,17 @@ fun DashboardScreen(
         }
     }
 
-    // Keep the screen completely blank while loading, then smoothly fade/slide in
     androidx.compose.animation.AnimatedVisibility(
         visible = isInitialLoadComplete,
         enter = androidx.compose.animation.fadeIn(
             animationSpec = androidx.compose.animation.core.tween(
-                durationMillis = 600, 
+                durationMillis = 600,
                 easing = com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion.EasingEmphasized
             )
         ) + androidx.compose.animation.slideInVertically(
             initialOffsetY = { 40 },
             animationSpec = androidx.compose.animation.core.tween(
-                durationMillis = 600, 
+                durationMillis = 600,
                 easing = com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion.EasingEmphasized
             )
         ),

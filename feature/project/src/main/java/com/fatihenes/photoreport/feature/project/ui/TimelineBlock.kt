@@ -1,4 +1,4 @@
-@file:Suppress("LocalContextGetResourceValueCall", "SameParameterValue")
+@file:Suppress("LocalContextGetResourceValueCall", "SameParameterValue", "TooManyFunctions")
 package com.fatihenes.photoreport.feature.project.ui
 
 import android.net.Uri
@@ -37,18 +37,28 @@ import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import coil3.video.VideoFrameDecoder
+import com.fatihenes.photoreport.core.common.util.DateUtils
 import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion
 import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporTokens
-import com.fatihenes.photoreport.core.ui.R
+import com.fatihenes.photoreport.core.media.PhotoManager
 import com.fatihenes.photoreport.core.model.DailyLog
 import com.fatihenes.photoreport.core.model.Photo
-import com.fatihenes.photoreport.core.common.util.DateUtils
-import com.fatihenes.photoreport.core.media.PhotoManager
+import com.fatihenes.photoreport.core.ui.R
 import com.fatihenes.photoreport.core.ui.navigation.LocalSnackbarHostState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+private const val MAX_DISPLAY_PHOTOS = 4
+private const val LAST_PHOTO_INDEX = 3
+private const val GRID_COLUMNS = 2
+private const val PHOTO_ASPECT_RATIO = 1.33f
+private const val PRESSED_SCALE = 0.96f
+private const val RAIL_WIDTH = 28
+private const val RAIL_DOT_SIZE = 10
+private const val RAIL_LINE_WIDTH = 1.5f
+
+@Suppress("LongParameterList", "FunctionName")
 @Composable
 fun TimelineBlock(
     log: DailyLog,
@@ -81,6 +91,7 @@ fun TimelineBlock(
     }
 }
 
+@Suppress("LongParameterList", "FunctionName")
 @Composable
 private fun RowScope.TimelineContent(
     log: DailyLog,
@@ -95,7 +106,11 @@ private fun RowScope.TimelineContent(
     onImportPhotoClick: (Uri) -> Unit,
     language: String
 ) {
-    Column(modifier = Modifier.weight(1f).padding(start = FotoRaporTokens.SpacingM, bottom = FotoRaporTokens.Spacing4XL)) {
+    Column(
+        modifier = Modifier
+            .weight(1f)
+            .padding(start = FotoRaporTokens.SpacingM, bottom = FotoRaporTokens.Spacing4XL)
+    ) {
         Text(
             text = DateUtils.formatDate(log.date, language),
             style = MaterialTheme.typography.titleMedium,
@@ -116,17 +131,34 @@ private fun RowScope.TimelineContent(
     }
 }
 
+@Suppress("FunctionName")
 @Composable
 private fun TimelineRail(color: Color) {
-    Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.width(28.dp)) {
-        Box(modifier = Modifier.size(10.dp).border(2.dp, color, CircleShape).background(MaterialTheme.colorScheme.surface, CircleShape))
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.width(RAIL_WIDTH.dp)
+    ) {
         Box(
-            modifier = Modifier.width(1.5.dp).fillMaxHeight().weight(1f)
-                .background(Brush.verticalGradient(listOf(color.copy(alpha = 0.25f), Color.Transparent)))
+            modifier = Modifier
+                .size(RAIL_DOT_SIZE.dp)
+                .border(2.dp, color, CircleShape)
+                .background(MaterialTheme.colorScheme.surface, CircleShape)
+        )
+        Box(
+            modifier = Modifier
+                .width(RAIL_LINE_WIDTH.dp)
+                .fillMaxHeight()
+                .weight(1f)
+                .background(
+                    Brush.verticalGradient(
+                        listOf(color.copy(alpha = 0.25f), Color.Transparent)
+                    )
+                )
         )
     }
 }
 
+@Suppress("FunctionName")
 @Composable
 private fun TimelinePhotoGrid(
     photos: List<Photo>,
@@ -135,17 +167,29 @@ private fun TimelinePhotoGrid(
     onPhotoClick: (Photo) -> Unit,
     onMorePhotosClick: () -> Unit
 ) {
-    val displayPhotos = remember(photos) { photos.take(4) }
-    val remaining = remember(photos) { photos.size - 4 }
-    val rows = remember(displayPhotos) { displayPhotos.chunked(2) }
+    val displayPhotos = remember(photos) { photos.take(MAX_DISPLAY_PHOTOS) }
+    val remaining = remember(photos) { photos.size - MAX_DISPLAY_PHOTOS }
+    val rows = remember(displayPhotos) { displayPhotos.chunked(GRID_COLUMNS) }
 
-    Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(FotoRaporTokens.SpacingS)) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(FotoRaporTokens.SpacingS)
+    ) {
         rows.forEach { rowPhotos ->
-            TimelinePhotoRow(rowPhotos, displayPhotos, remaining, isSelectionMode, selectedPhotoIds, onPhotoClick, onMorePhotosClick)
+            TimelinePhotoRow(
+                rowPhotos,
+                displayPhotos,
+                remaining,
+                isSelectionMode,
+                selectedPhotoIds,
+                onPhotoClick,
+                onMorePhotosClick
+            )
         }
     }
 }
 
+@Suppress("LongParameterList", "FunctionName")
 @Composable
 private fun TimelinePhotoRow(
     rowPhotos: List<Photo>,
@@ -156,14 +200,17 @@ private fun TimelinePhotoRow(
     onPhotoClick: (Photo) -> Unit,
     onMorePhotosClick: () -> Unit
 ) {
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(FotoRaporTokens.SpacingS)) {
-        repeat(2) { i ->
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(FotoRaporTokens.SpacingS)
+    ) {
+        repeat(GRID_COLUMNS) { i ->
             if (i < rowPhotos.size) {
                 val photo = rowPhotos[i]
                 val index = displayPhotos.indexOf(photo)
                 TimelinePhotoCard(
                     photo = photo,
-                    isLast = index == 3 && remaining > 0,
+                    isLast = index == LAST_PHOTO_INDEX && remaining > 0,
                     remainingCount = remaining,
                     isSelected = selectedPhotoIds.contains(photo.id),
                     isSelectionMode = isSelectionMode,
@@ -172,12 +219,17 @@ private fun TimelinePhotoRow(
                     modifier = Modifier.weight(1f)
                 )
             } else {
-                Spacer(modifier = Modifier.weight(1f).aspectRatio(1.33f))
+                Spacer(
+                    modifier = Modifier
+                        .weight(1f)
+                        .aspectRatio(PHOTO_ASPECT_RATIO)
+                )
             }
         }
     }
 }
 
+@Suppress("LongParameterList", "FunctionName", "LongMethod")
 @Composable
 private fun TimelinePhotoCard(
     photo: Photo,
@@ -194,14 +246,14 @@ private fun TimelinePhotoCard(
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val scale by animateFloatAsState(
-        targetValue = if (isPressed) 0.96f else 1.0f,
+        targetValue = if (isPressed) PRESSED_SCALE else 1.0f,
         animationSpec = FotoRaporMotion.pressSpring(),
         label = "timeline_photo_scale"
     )
 
     Card(
         modifier = modifier
-            .aspectRatio(1.33f)
+            .aspectRatio(PHOTO_ASPECT_RATIO)
             .graphicsLayer {
                 scaleX = scale
                 scaleY = scale
@@ -213,20 +265,42 @@ private fun TimelinePhotoCard(
                 haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                 if (isLast) onMorePhotosClick() else onPhotoClick(photo)
             }
-            .then(if (isSelectionMode && isSelected) Modifier.border(2.5.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(FotoRaporTokens.RadiusM)) else Modifier),
+            .then(
+                if (isSelectionMode && isSelected) {
+                    Modifier.border(
+                        2.5.dp,
+                        MaterialTheme.colorScheme.primary,
+                        RoundedCornerShape(FotoRaporTokens.RadiusM)
+                    )
+                } else {
+                    Modifier
+                }
+            ),
         shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
         elevation = CardDefaults.cardElevation(defaultElevation = FotoRaporTokens.ElevationNone)
     ) {
         Box(modifier = Modifier.fillMaxSize()) {
             val context = LocalContext.current
             val request = remember(photo.filePath) {
-                ImageRequest.Builder(context).data(photo.filePath).apply { if (isVideo) decoderFactory(VideoFrameDecoder.Factory()) }
-                    .size(256).memoryCachePolicy(CachePolicy.ENABLED).crossfade(150).build()
+                ImageRequest.Builder(context)
+                    .data(photo.filePath)
+                    .apply { if (isVideo) decoderFactory(VideoFrameDecoder.Factory()) }
+                    .size(256)
+                    .memoryCachePolicy(CachePolicy.ENABLED)
+                    .crossfade(FotoRaporMotion.DurationShort)
+                    .build()
             }
             AsyncImage(
-                model = request, contentDescription = null, contentScale = ContentScale.Crop, modifier = Modifier.fillMaxSize(),
-                placeholder = androidx.compose.ui.graphics.painter.ColorPainter(MaterialTheme.colorScheme.surfaceContainerHigh),
-                error = androidx.compose.ui.graphics.painter.ColorPainter(MaterialTheme.colorScheme.surfaceContainerHigh)
+                model = request,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize(),
+                placeholder = androidx.compose.ui.graphics.painter.ColorPainter(
+                    MaterialTheme.colorScheme.surfaceContainerHigh
+                ),
+                error = androidx.compose.ui.graphics.painter.ColorPainter(
+                    MaterialTheme.colorScheme.surfaceContainerHigh
+                )
             )
             if (isVideo && !isLast) VideoOverlay()
             if (isLast) MorePhotosOverlay(remainingCount, onMorePhotosClick)
@@ -235,63 +309,136 @@ private fun TimelinePhotoCard(
     }
 }
 
+@Suppress("FunctionName")
 @Composable
 private fun VideoOverlay() {
-    Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.15f)), contentAlignment = Alignment.Center) {
-        Icon(imageVector = Icons.Default.PlayCircleFilled, contentDescription = null, tint = Color.White.copy(alpha = 0.9f), modifier = Modifier.size(FotoRaporTokens.IconSizeL))
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.15f)),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            imageVector = Icons.Default.PlayCircleFilled,
+            contentDescription = null,
+            tint = Color.White.copy(alpha = 0.9f),
+            modifier = Modifier.size(FotoRaporTokens.IconSizeL)
+        )
     }
 }
 
+@Suppress("FunctionName")
 @Composable
 private fun MorePhotosOverlay(count: Int, onClick: () -> Unit) {
-    Box(modifier = Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.55f)).clickable(onClick = onClick), contentAlignment = Alignment.Center) {
-        Text("+$count", color = Color.White, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.SemiBold)
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.Black.copy(alpha = 0.55f))
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            "+$count",
+            color = Color.White,
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.SemiBold
+        )
     }
 }
 
+@Suppress("FunctionName")
 @Composable
 private fun BoxScope.SelectionOverlay(isSelected: Boolean) {
-    Box(modifier = Modifier.fillMaxSize().background(if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f) else Color.Transparent))
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f) else Color.Transparent)
+    )
     Checkbox(checked = isSelected, onCheckedChange = null, modifier = Modifier.align(Alignment.TopEnd))
 }
 
+@Suppress("FunctionName")
 @Composable
 private fun TimelineNoteInput(log: DailyLog, onNoteChange: (String) -> Unit) {
     var noteText by remember(log.id) { mutableStateOf(log.note) }
     LaunchedEffect(log.note) { if (noteText != log.note) noteText = log.note }
 
     Surface(
-        modifier = Modifier.fillMaxWidth(), shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
-        color = MaterialTheme.colorScheme.surface, border = BorderStroke(FotoRaporTokens.CardBorderWidth, MaterialTheme.colorScheme.outlineVariant)
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(FotoRaporTokens.CardBorderWidth, MaterialTheme.colorScheme.outlineVariant)
     ) {
         TextField(
-            value = noteText, onValueChange = { noteText = it; onNoteChange(it) },
-            placeholder = { Text(stringResource(R.string.note_placeholder), color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f), style = MaterialTheme.typography.bodyMedium) },
-            modifier = Modifier.fillMaxWidth().heightIn(min = FotoRaporTokens.ButtonHeightL),
-            colors = TextFieldDefaults.colors(focusedContainerColor = Color.Transparent, unfocusedContainerColor = Color.Transparent, disabledContainerColor = Color.Transparent, focusedIndicatorColor = Color.Transparent, unfocusedIndicatorColor = Color.Transparent),
-            textStyle = MaterialTheme.typography.bodyMedium.copy(color = MaterialTheme.colorScheme.onSurface, lineHeight = 20.sp)
+            value = noteText,
+            onValueChange = {
+                noteText = it
+                onNoteChange(it)
+            },
+            placeholder = {
+                Text(
+                    stringResource(R.string.note_placeholder),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            },
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = FotoRaporTokens.ButtonHeightL),
+            colors = TextFieldDefaults.colors(
+                focusedContainerColor = Color.Transparent,
+                unfocusedContainerColor = Color.Transparent,
+                disabledContainerColor = Color.Transparent,
+                focusedIndicatorColor = Color.Transparent,
+                unfocusedIndicatorColor = Color.Transparent
+            ),
+            textStyle = MaterialTheme.typography.bodyMedium.copy(
+                color = MaterialTheme.colorScheme.onSurface,
+                lineHeight = 20.sp
+            )
         )
     }
 }
 
+@Suppress("FunctionName")
 @Composable
-private fun TimelineActionButtons(color: Color, onAddPhotoClick: () -> Unit, onImportPhotoClick: (Uri) -> Unit) {
+private fun TimelineActionButtons(
+    color: Color,
+    onAddPhotoClick: () -> Unit,
+    onImportPhotoClick: (Uri) -> Unit
+) {
     val haptic = LocalHapticFeedback.current
-    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(FotoRaporTokens.SpacingS)) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(FotoRaporTokens.SpacingS)
+    ) {
         Button(
             onClick = { haptic.performHapticFeedback(HapticFeedbackType.LongPress); onAddPhotoClick() },
             colors = ButtonDefaults.buttonColors(containerColor = color, contentColor = Color.White),
-            shape = RoundedCornerShape(FotoRaporTokens.RadiusM), modifier = Modifier.weight(1f).height(FotoRaporTokens.ButtonHeightM),
+            shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
+            modifier = Modifier
+                .weight(1f)
+                .height(FotoRaporTokens.ButtonHeightM),
             elevation = ButtonDefaults.buttonElevation(defaultElevation = FotoRaporTokens.ElevationNone)
         ) {
-            Icon(Icons.Default.CameraAlt, null, modifier = Modifier.size(FotoRaporTokens.IconSizeXS + 2.dp), tint = Color.White)
+            Icon(
+                Icons.Default.CameraAlt,
+                null,
+                modifier = Modifier.size(FotoRaporTokens.IconSizeXS + 2.dp),
+                tint = Color.White
+            )
             Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingXS + 2.dp))
-            Text(stringResource(R.string.camera_btn), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+            Text(
+                stringResource(R.string.camera_btn),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold
+            )
         }
         GalleryImportButton(color, onImportPhotoClick)
     }
 }
 
+@Suppress("FunctionName", "LongMethod")
 @Composable
 private fun RowScope.GalleryImportButton(color: Color, onImportPhotoClick: (Uri) -> Unit) {
     val context = LocalContext.current
@@ -300,36 +447,72 @@ private fun RowScope.GalleryImportButton(color: Color, onImportPhotoClick: (Uri)
     val scope = rememberCoroutineScope()
     val snackbarHost = LocalSnackbarHostState.current
 
-    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.PickMultipleVisualMedia()) { uris ->
+    val launcher = rememberLauncherForActivityResult(
+        ActivityResultContracts.PickMultipleVisualMedia()
+    ) { uris ->
         if (uris.isNotEmpty()) {
             isImporting = true
             scope.launch(Dispatchers.IO) {
                 var hasError = false
                 uris.forEach { uri ->
                     val local = PhotoManager.copyUriToInternalStorage(context, uri)
-                    if (local != null) withContext(Dispatchers.Main) { onImportPhotoClick(local) } else hasError = true
+                    if (local != null) {
+                        withContext(Dispatchers.Main) { onImportPhotoClick(local) }
+                    } else {
+                        hasError = true
+                    }
                 }
                 withContext(Dispatchers.Main) {
                     isImporting = false
-                    if (hasError) scope.launch { snackbarHost.showSnackbar(context.getString(R.string.import_error)) }
+                    if (hasError) {
+                        scope.launch {
+                            snackbarHost.showSnackbar(context.getString(R.string.import_error))
+                        }
+                    }
                 }
             }
         }
     }
 
     OutlinedButton(
-        onClick = { haptic.performHapticFeedback(HapticFeedbackType.LongPress); launcher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo)) },
-        border = BorderStroke(1.dp, color.copy(alpha = 0.5f)), colors = ButtonDefaults.outlinedButtonColors(contentColor = color),
-        shape = RoundedCornerShape(FotoRaporTokens.RadiusM), modifier = Modifier.weight(1f).height(FotoRaporTokens.ButtonHeightM), enabled = !isImporting
+        onClick = {
+            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+            launcher.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageAndVideo))
+        },
+        border = BorderStroke(1.dp, color.copy(alpha = 0.5f)),
+        colors = ButtonDefaults.outlinedButtonColors(contentColor = color),
+        shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
+        modifier = Modifier
+            .weight(1f)
+            .height(FotoRaporTokens.ButtonHeightM),
+        enabled = !isImporting
     ) {
         if (isImporting) {
-            CircularProgressIndicator(modifier = Modifier.size(FotoRaporTokens.IconSizeXS + 2.dp), color = color, strokeWidth = 2.dp)
+            CircularProgressIndicator(
+                modifier = Modifier.size(FotoRaporTokens.IconSizeXS + 2.dp),
+                color = color,
+                strokeWidth = 2.dp
+            )
             Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingXS + 2.dp))
-            Text(stringResource(R.string.loading), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+            Text(
+                stringResource(R.string.loading),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold
+            )
         } else {
-            Icon(Icons.Default.PhotoLibrary, null, modifier = Modifier.size(FotoRaporTokens.IconSizeXS + 2.dp), tint = color)
+            Icon(
+                Icons.Default.PhotoLibrary,
+                null,
+                modifier = Modifier.size(FotoRaporTokens.IconSizeXS + 2.dp),
+                tint = color
+            )
             Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingXS + 2.dp))
-            Text(stringResource(R.string.gallery_btn), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+            Text(
+                stringResource(R.string.gallery_btn),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold
+            )
         }
     }
 }
+

@@ -1,18 +1,62 @@
 @file:Suppress("LocalContextGetResourceValueCall")
 package com.fatihenes.photoreport.feature.project.ui
 
-import androidx.compose.animation.*
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.PictureAsPdf
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.DatePicker
+import androidx.compose.material3.DatePickerDialog
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDatePickerState
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -34,6 +78,7 @@ import com.fatihenes.photoreport.core.ui.util.MediaShareUtils
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
+@Suppress("LongParameterList", "LongMethod", "FunctionName")
 @Composable
 fun ProjectDetailTopBar(
     project: Project,
@@ -50,8 +95,12 @@ fun ProjectDetailTopBar(
     TopAppBar(
         title = {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(modifier = Modifier.size(12.dp).background(projectColor, CircleShape))
-                Spacer(modifier = Modifier.width(10.dp))
+                Box(
+                    modifier = Modifier
+                        .size(FotoRaporTokens.SpacingM)
+                        .background(projectColor, CircleShape)
+                )
+                Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingS + 2.dp))
                 Column {
                     Text(
                         project.name,
@@ -125,6 +174,7 @@ fun ProjectDetailTopBar(
     )
 }
 
+@Suppress("FunctionName")
 @Composable
 fun ProjectHeroBanner(
     projectName: String,
@@ -162,20 +212,33 @@ fun ProjectHeroBanner(
             }
             Button(
                 onClick = onExportClick,
-                colors = ButtonDefaults.buttonColors(containerColor = projectColor, contentColor = Color.White),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = projectColor,
+                    contentColor = Color.White
+                ),
                 shape = RoundedCornerShape(FotoRaporTokens.RadiusS),
                 modifier = Modifier.height(36.dp),
                 contentPadding = PaddingValues(horizontal = 12.dp)
             ) {
-                Icon(Icons.Default.PictureAsPdf, null, modifier = Modifier.size(16.dp), tint = Color.White)
+                Icon(
+                    Icons.Default.PictureAsPdf,
+                    null,
+                    modifier = Modifier.size(FotoRaporTokens.IconSizeS),
+                    tint = Color.White
+                )
                 Spacer(modifier = Modifier.width(6.dp))
-                Text("Rapor Al", style = MaterialTheme.typography.labelMedium, fontWeight = FontWeight.Bold)
+                Text(
+                    "Rapor Al",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.Bold
+                )
             }
         }
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
+@Suppress("FunctionName")
 @Composable
 fun AddDateCard(
     projectColor: Color,
@@ -218,10 +281,15 @@ fun AddDateCard(
     ) {
         Icon(Icons.Default.CalendarToday, null, modifier = Modifier.size(FotoRaporTokens.IconSizeS))
         Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingS))
-        Text(stringResource(R.string.add_date_card), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+        Text(
+            stringResource(R.string.add_date_card),
+            style = MaterialTheme.typography.labelLarge,
+            fontWeight = FontWeight.SemiBold
+        )
     }
 }
 
+@Suppress("LongParameterList", "FunctionName", "LongMethod")
 @Composable
 fun ProjectDetailDialogs(
     project: Project,
@@ -275,12 +343,20 @@ fun ProjectDetailDialogs(
             onExportPdf = { quality ->
                 onExportDismiss()
                 onExportProject("PDF", quality, language)
-                coroutineScope.launch { snackbarHost.showSnackbar(context.getString(R.string.pdf_preparing) + " (Arka plan)") }
+                coroutineScope.launch {
+                    snackbarHost.showSnackbar(
+                        context.getString(R.string.pdf_preparing) + " (Arka plan)"
+                    )
+                }
             },
             onExportZip = { quality ->
                 onExportDismiss()
                 onExportProject("ZIP", quality, language)
-                coroutineScope.launch { snackbarHost.showSnackbar("ZIP dışa aktarımı arka planda başlatıldı. Bildirimleri kontrol edin.") }
+                coroutineScope.launch {
+                    snackbarHost.showSnackbar(
+                        "ZIP dışa aktarımı arka planda başlatıldı. Bildirimleri kontrol edin."
+                    )
+                }
             }
         )
     }
@@ -288,10 +364,19 @@ fun ProjectDetailDialogs(
     selectedPhotoForFullView?.let { photoId ->
         val index = allProjectPhotos.indexOfFirst { it.id == photoId }
         if (index != -1 && allProjectPhotos.isNotEmpty()) {
+            val motion = com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion
             AnimatedVisibility(
                 visible = true,
-                enter = fadeIn(tween(250)) + scaleIn(initialScale = 0.92f, animationSpec = tween(250)),
-                exit = fadeOut(tween(200)) + scaleOut(targetScale = 0.92f, animationSpec = tween(200)),
+                enter = fadeIn(tween(motion.DurationMedium)) +
+                        scaleIn(
+                            initialScale = 0.92f,
+                            animationSpec = tween(motion.DurationMedium)
+                        ),
+                exit = fadeOut(tween(motion.DurationShort)) +
+                        scaleOut(
+                            targetScale = 0.92f,
+                            animationSpec = tween(motion.DurationShort)
+                        ),
                 modifier = Modifier.fillMaxSize()
             ) {
                 FullScreenPhotoDialog(
@@ -306,6 +391,7 @@ fun ProjectDetailDialogs(
     }
 }
 
+@Suppress("FunctionName")
 @Composable
 private fun ProjectDeleteConfirmDialog(
     projectName: String,
@@ -315,22 +401,45 @@ private fun ProjectDeleteConfirmDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         shape = RoundedCornerShape(FotoRaporTokens.RadiusL),
-        title = { Text(stringResource(R.string.delete_project_title), style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.SemiBold) },
-        text = { Text(stringResource(R.string.delete_project_desc, projectName), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant) },
+        title = {
+            Text(
+                stringResource(R.string.delete_project_title),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.SemiBold
+            )
+        },
+        text = {
+            Text(
+                stringResource(R.string.delete_project_desc, projectName),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        },
         confirmButton = {
             Button(
                 onClick = onConfirm,
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error, contentColor = MaterialTheme.colorScheme.onError),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error,
+                    contentColor = MaterialTheme.colorScheme.onError
+                ),
                 shape = RoundedCornerShape(FotoRaporTokens.RadiusS),
                 elevation = ButtonDefaults.buttonElevation(defaultElevation = FotoRaporTokens.ElevationNone)
             ) {
-                Text(stringResource(R.string.delete_confirm_btn), style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.SemiBold)
+                Text(
+                    stringResource(R.string.delete_confirm_btn),
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold
+                )
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text(stringResource(R.string.cancel_btn), style = MaterialTheme.typography.labelLarge)
+                Text(
+                    stringResource(R.string.cancel_btn),
+                    style = MaterialTheme.typography.labelLarge
+                )
             }
         }
     )
 }
+
