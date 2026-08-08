@@ -44,7 +44,7 @@ class PhotoDaoTest {
         val projectId = projectDao.insertProject(ProjectEntity(name = "P1", colorHex = "#000"))
         val logId = logDao.insertLog(DailyLogEntity(projectId = projectId, date = 1000L, note = "L1"))
         val photo = PhotoEntity(logId = logId, filePath = "path/to/photo.jpg", rotation = 90f)
-        val photoId = photoDao.insertPhoto(photo)
+        photoDao.insertPhoto(photo)
 
         val photos = photoDao.getPhotosForLogSuspend(logId)
         assertEquals(1, photos.size)

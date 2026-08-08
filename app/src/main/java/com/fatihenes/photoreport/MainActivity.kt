@@ -33,6 +33,11 @@ class MainActivity : AppCompatActivity() {
             viewModel.uiState.value.isLoading
         }
 
+        // System splash → custom launch geçişinde siyah frame olmaması için
+        splashScreen.setOnExitAnimationListener { splashScreenViewProvider ->
+            splashScreenViewProvider.remove()
+        }
+
         setContent {
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 

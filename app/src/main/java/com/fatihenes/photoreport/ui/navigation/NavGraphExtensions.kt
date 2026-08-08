@@ -18,7 +18,6 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.fatihenes.photoreport.R
 import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion
 import com.fatihenes.photoreport.core.ui.state.UiState
 import com.fatihenes.photoreport.feature.camera.ui.CameraScreen
@@ -30,8 +29,6 @@ import com.fatihenes.photoreport.feature.settings.ui.SettingsScreen
 import com.fatihenes.photoreport.feature.settings.viewmodel.SettingsViewModel
 import com.fatihenes.photoreport.feature.trash.ui.TrashScreen
 import com.fatihenes.photoreport.ui.viewmodel.MainViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 
 // ─── Dashboard ─────────────────────────────────────────────────────
 // Dashboard is the start destination; it inherits NavHost defaults.

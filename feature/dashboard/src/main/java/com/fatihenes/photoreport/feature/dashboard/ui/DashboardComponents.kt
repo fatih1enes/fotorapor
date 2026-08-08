@@ -24,7 +24,6 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -115,7 +114,7 @@ fun DashboardFab(onClick: () -> Unit) {
         Icon(
             Icons.Default.Add,
             stringResource(R.string.acc_add_project),
-            modifier = Modifier.size(FotoRaporTokens.IconSizeM)
+            modifier = Modifier.size(FotoRaporTokens.IconSizeM),
         )
     }
 }
@@ -477,7 +476,7 @@ fun AddProjectDialog(onDismiss: () -> Unit, onConfirm: (String, Color) -> Unit) 
     var selectedColor by remember { mutableStateOf(FotoRaporTokens.ProjectColors.first()) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val scope = rememberCoroutineScope()
-    var isSubmitting by remember { mutableStateOf(false) }
+    var isSubmitting by remember { mutableStateOf(value = false) }
 
     val handleDismiss = {
         scope.launch { sheetState.hide() }.invokeOnCompletion {

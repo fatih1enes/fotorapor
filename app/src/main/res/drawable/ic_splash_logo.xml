@@ -1,62 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  FotoRapor Splash Logomark.
-  Ink Indigo rozet + beyaz viewfinder braketleri + Brass odak noktası.
-  ic_launcher_foreground ile aynı görsel dil, splash ekranı için
-  kendi kapalı arka planıyla (dairesel rozet) birlikte.
+  FotoRapor Splash Logomark — Minimal System Splash variant.
+  Sistem splash ekranında sadece küçük bir brass odak noktası gösterir.
+  Karanlık splash arka planıyla uyum sağlar, sinematik launch
+  animasyonuna kesintisiz geçiş yapar.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="200dp"
     android:height="200dp"
     android:viewportWidth="288"
     android:viewportHeight="288">
 
-    <!-- Background Circle — Ink Indigo -->
-    <path
-        android:pathData="M 144 144 m -96 0 a 96 96 0 1 0 192 0 a 96 96 0 1 0 -192 0">
-        <aapt:attr name="android:fillColor">
-            <gradient
-                android:type="linear"
-                android:startX="48"
-                android:startY="48"
-                android:endX="240"
-                android:endY="240">
-                <item android:color="#2F386F" android:offset="0.0" />
-                <item android:color="#15182F" android:offset="1.0" />
-            </gradient>
-        </aapt:attr>
-    </path>
-
-    <!-- Viewfinder brackets -->
-    <path
-        android:strokeColor="#FFF5F3EE"
-        android:strokeWidth="9"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round"
-        android:pathData="M90,116 L90,90 L116,90" />
-    <path
-        android:strokeColor="#FFF5F3EE"
-        android:strokeWidth="9"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round"
-        android:pathData="M172,90 L198,90 L198,116" />
-    <path
-        android:strokeColor="#FFF5F3EE"
-        android:strokeWidth="9"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round"
-        android:pathData="M90,172 L90,198 L116,198" />
-    <path
-        android:strokeColor="#FFF5F3EE"
-        android:strokeWidth="9"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round"
-        android:pathData="M198,172 L198,198 L172,198" />
-
-    <!-- Brass focus point -->
+    <!-- Brass focus point — subtle warm marker -->
     <path
         android:fillColor="#D2A25C"
-        android:pathData="M 144 144 m -15 0 a 15,15 0 1 0 30 0 a 15,15 0 1 0 -30 0" />
+        android:fillAlpha="0.5"
+        android:pathData="M 144 144 m -7 0 a 7,7 0 1 0 14 0 a 7,7 0 1 0 -14 0" />
 
 </vector>

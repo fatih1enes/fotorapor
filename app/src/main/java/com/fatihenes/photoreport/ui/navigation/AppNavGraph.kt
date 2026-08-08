@@ -53,63 +53,66 @@ fun AppNavGraph(
         val scope = rememberCoroutineScope()
         val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-        // Wait until settings are loaded before rendering anything
-        if (uiState.isLoading) return@CompositionLocalProvider
+        var launchCompleted by rememberSaveable { mutableStateOf(false) }
+        val isAppReady = !uiState.isLoading
 
-        var splashCompleted by rememberSaveable { mutableStateOf(false) }
+        Box(modifier = Modifier.fillMaxSize()) {
+            // ── Content layer — only when app data is ready ────────────
+            if (isAppReady) {
+                var pendingLogId by remember { mutableStateOf<Long?>(null) }
+                var pendingProjectId by remember { mutableStateOf<Long?>(null) }
 
-        // --- Permission & Initial Nav Handling ---
-        var pendingLogId by remember { mutableStateOf<Long?>(null) }
-        var pendingProjectId by remember { mutableStateOf<Long?>(null) }
+                HandleInitialNavigation(navController, initialCameraProjectId, initialProjectDetailId)
 
-        HandleInitialNavigation(navController, initialCameraProjectId, initialProjectDetailId)
+                val permissionLauncher = rememberCameraPermissionLauncher(
+                    navController = navController,
+                    snackbarHostState = snackbarHostState,
+                    scope = scope,
+                    onResetPending = {
+                        pendingLogId = null
+                        pendingProjectId = null
+                    },
+                    getPendingLogId = { pendingLogId },
+                    getPendingProjectId = { pendingProjectId }
+                )
 
-        val permissionLauncher = rememberCameraPermissionLauncher(
-            navController = navController,
-            snackbarHostState = snackbarHostState,
-            scope = scope,
-            onResetPending = {
-                pendingLogId = null
-                pendingProjectId = null
-            },
-            getPendingLogId = { pendingLogId },
-            getPendingProjectId = { pendingProjectId }
-        )
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background)
+                ) {
+                    AppNavHost(
+                        navController = navController,
+                        viewModel = viewModel,
+                        snackbarHostState = snackbarHostState,
+                        language = uiState.language,
+                        permissionLauncher = permissionLauncher,
+                        onSetPending = { logId, projectId ->
+                            pendingLogId = logId
+                            pendingProjectId = projectId
+                        }
+                    )
 
-        // --- Navigation Host ---
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background)
-        ) {
-            AppNavHost(
-                navController = navController,
-                viewModel = viewModel,
-                snackbarHostState = snackbarHostState,
-                language = uiState.language,
-                permissionLauncher = permissionLauncher,
-                onSetPending = { logId, projectId ->
-                    pendingLogId = logId
-                    pendingProjectId = projectId
+                    SnackbarHost(
+                        hostState = snackbarHostState,
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .imePadding()
+                            .navigationBarsPadding()
+                    )
                 }
-            )
+            }
 
-            SnackbarHost(
-                hostState = snackbarHostState,
-                modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .imePadding()
-                    .navigationBarsPadding()
-            )
-
-            if (!splashCompleted) {
-                com.fatihenes.photoreport.ui.components.LaunchAnimationOverlay(
-                    onComplete = { splashCompleted = true }
+            // ── Launch overlay — always on top, seamless with system splash ──
+            if (!launchCompleted) {
+                com.fatihenes.photoreport.ui.launch.PhotoReportLaunchExperience(
+                    isReady = isAppReady,
+                    onComplete = { launchCompleted = true }
                 )
             }
         }
 
-        if (splashCompleted && !uiState.disclosureShown) {
+        if (launchCompleted && isAppReady && !uiState.disclosureShown) {
             DisclosureDialog { viewModel.setDisclosureShown(shown = true) }
         }
     }

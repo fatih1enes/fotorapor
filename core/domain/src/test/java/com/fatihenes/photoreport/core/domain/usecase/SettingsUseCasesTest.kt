@@ -29,7 +29,14 @@ class SettingsUseCasesTest {
 
     @Test
     fun `GetAppSettingsUseCase should return flow`() = runTest {
-        val settings = AppSettings("system", "tr", true, false, true, true)
+        val settings = AppSettings(
+            themeMode = "system",
+            language = "tr",
+            cameraOptimization = true,
+            avifEnabled = false,
+            gpsWatermarkEnabled = true,
+            disclosureShown = true
+        )
         `when`(repository.settings).thenReturn(flowOf(settings))
 
         getAppSettingsUseCase().collect { result ->

@@ -27,14 +27,14 @@ fun DashboardScreen(
     isTrashNotEmpty: Boolean = false,
 ) {
     var selectedDate by remember { mutableStateOf(LocalDate.now()) }
-    var showAddDialog by remember { mutableStateOf(false) }
+    var showAddDialog by remember { mutableStateOf(value = false) }
     var viewMode by remember { mutableStateOf(DashboardViewMode.PROJECTS) }
 
-    var isInitialLoadComplete by remember { mutableStateOf(false) }
+    var isInitialLoadComplete by remember { mutableStateOf(value = false) }
 
     // When projects data arrives for the first time, trigger the entry animation
     LaunchedEffect(projects) {
-        if (projects != null && !isInitialLoadComplete) {
+        if (projects != null && (!isInitialLoadComplete)) {
             isInitialLoadComplete = true
         }
     }
@@ -44,16 +44,16 @@ fun DashboardScreen(
         enter = androidx.compose.animation.fadeIn(
             animationSpec = androidx.compose.animation.core.tween(
                 durationMillis = 600,
-                easing = com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion.EasingEmphasized
-            )
+                easing = com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion.EasingEmphasized,
+            ),
         ) + androidx.compose.animation.slideInVertically(
             initialOffsetY = { 40 },
             animationSpec = androidx.compose.animation.core.tween(
                 durationMillis = 600,
-                easing = com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion.EasingEmphasized
-            )
+                easing = com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion.EasingEmphasized,
+            ),
         ),
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     ) {
         DashboardScaffold(
             projects = projects,
@@ -69,8 +69,7 @@ fun DashboardScreen(
             selectedDate = selectedDate,
             onDateSelected = { selectedDate = it },
             viewMode = viewMode,
-            onViewModeChange = { viewMode = it }
-        )
+        ) { viewMode = it }
     }
 
     if (showAddDialog) {
@@ -79,7 +78,7 @@ fun DashboardScreen(
             onConfirm = { name, color ->
                 showAddDialog = false
                 onAddProject(name, color)
-            }
+            },
         )
     }
 }

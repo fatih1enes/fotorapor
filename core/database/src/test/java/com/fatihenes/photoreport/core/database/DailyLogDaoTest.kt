@@ -40,7 +40,7 @@ class DailyLogDaoTest {
     fun insertAndGetLog() = runTest {
         val projectId = projectDao.insertProject(ProjectEntity(name = "P1", colorHex = "#000"))
         val log = DailyLogEntity(projectId = projectId, date = 1000L, note = "First log")
-        val logId = logDao.insertLog(log)
+        logDao.insertLog(log)
 
         val result = logDao.getLogForDate(projectId, 1000L)
         assertEquals("First log", result?.note)
