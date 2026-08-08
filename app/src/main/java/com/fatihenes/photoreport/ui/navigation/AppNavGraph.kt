@@ -56,9 +56,7 @@ fun AppNavGraph(
         // Wait until settings are loaded before rendering anything
         if (uiState.isLoading) return@CompositionLocalProvider
 
-        if (!uiState.disclosureShown) {
-            DisclosureDialog { viewModel.setDisclosureShown(shown = true) }
-        }
+        var splashCompleted by rememberSaveable { mutableStateOf(false) }
 
         // --- Permission & Initial Nav Handling ---
         var pendingLogId by remember { mutableStateOf<Long?>(null) }
@@ -103,6 +101,16 @@ fun AppNavGraph(
                     .imePadding()
                     .navigationBarsPadding()
             )
+
+            if (!splashCompleted) {
+                com.fatihenes.photoreport.ui.components.LaunchAnimationOverlay(
+                    onComplete = { splashCompleted = true }
+                )
+            }
+        }
+
+        if (splashCompleted && !uiState.disclosureShown) {
+            DisclosureDialog { viewModel.setDisclosureShown(shown = true) }
         }
     }
 }

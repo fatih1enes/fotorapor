@@ -12,7 +12,7 @@ out/
 app/build/
 core/common/build/
 core/database/build/
-baselineProfile/build/
+baselineprofile/build/
 captures/
 *.apk
 *.aar
@@ -56,3 +56,7 @@ implementation_plan.md
 # External Native Build
 .externalNativeBuild
 .cxx
+
+# Ensure baselineprofile is NOT ignored
+!baselineprofile/
+!baselineprofile/**
