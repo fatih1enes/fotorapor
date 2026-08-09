@@ -140,11 +140,19 @@ class ProjectDetailViewModel @Inject constructor(
     private val _exportResultUri = MutableSharedFlow<android.net.Uri>(extraBufferCapacity = 1)
     val exportResultUri: SharedFlow<android.net.Uri> = _exportResultUri.asSharedFlow()
 
+    private val _exportError = MutableSharedFlow<String>(extraBufferCapacity = 1)
+    val exportError: SharedFlow<String> = _exportError.asSharedFlow()
+
+    private val _isExporting = MutableStateFlow(false)
+    val isExporting: StateFlow<Boolean> = _isExporting.asStateFlow()
+
     fun exportProject(projectId: Long, projectName: String, format: String, quality: Int, language: String) {
+        _isExporting.value = true
         val workId = reportRepository.enqueueExportWork(projectId, projectName, format, quality, language)
         viewModelScope.launch {
             reportRepository.observeExportWork(workId).collect { uri ->
                 if (uri != null) {
+                    _isExporting.value = false
                     _exportResultUri.emit(uri)
                 }
             }

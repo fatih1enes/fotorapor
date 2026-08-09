@@ -1,6 +1,8 @@
 package com.fatihenes.photoreport.core.export.pdf
 
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Test
 
@@ -8,8 +10,8 @@ class AdaptivePdfLayoutHelperTest {
 
     private lateinit var helper: AdaptivePdfLayoutHelper
     private val pageHeight = 842
-    private val margin = 40f
-    private val footerHeight = 45f
+    private val margin = 36f
+    private val footerHeight = 40f
 
     @Before
     fun setup() {
@@ -24,8 +26,8 @@ class AdaptivePdfLayoutHelperTest {
     fun `calculateSlot for portrait photo returns 2-column position`() {
         helper.reset(margin)
 
-        // Portrait (W=100, H=150) -> AspectRatio ~0.66
-        val result = helper.calculateSlot(100, 150)
+        // Portrait (W=1000, H=1500) -> AspectRatio ~0.66
+        val result = helper.calculateSlot(1000, 1500)
 
         assertFalse("Should not require new page", result.isNewPageRequired)
         assertEquals("X should be at left margin", margin, result.rect.left, 0.1f)
@@ -36,8 +38,8 @@ class AdaptivePdfLayoutHelperTest {
     fun `calculateSlot for landscape photo returns 1-column full width position`() {
         helper.reset(margin)
 
-        // Landscape (W=200, H=100) -> AspectRatio 2.0
-        val result = helper.calculateSlot(200, 100)
+        // Landscape (W=2000, H=1000) -> AspectRatio 2.0
+        val result = helper.calculateSlot(2000, 1000)
 
         assertFalse("Should not require new page", result.isNewPageRequired)
         assertEquals("X should be at left margin", margin, result.rect.left, 0.1f)
@@ -50,8 +52,6 @@ class AdaptivePdfLayoutHelperTest {
         helper.reset(margin)
 
         val first = helper.calculateSlot(1000, 1500)
-        helper.updateY(first.nextY)
-
         val second = helper.calculateSlot(1000, 1500)
 
         assertEquals("First photo should be in col 0", margin, first.rect.left, 0.1f)
@@ -83,4 +83,15 @@ class AdaptivePdfLayoutHelperTest {
 
         assertTrue("Should trigger new page", result.isNewPageRequired)
     }
+
+    @Test
+    fun `hasSpaceFor returns true when height fits and false when exceeded`() {
+        helper.reset(margin)
+        assertTrue("Should have space for 100pt block at top of page", helper.hasSpaceFor(100f))
+
+        val overflowY = pageHeight - footerHeight - margin - 20f
+        helper.reset(overflowY)
+        assertFalse("Should not have space for 100pt block near bottom", helper.hasSpaceFor(100f))
+    }
 }
+

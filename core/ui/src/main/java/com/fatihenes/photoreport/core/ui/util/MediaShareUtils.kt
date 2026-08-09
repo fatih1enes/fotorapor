@@ -112,6 +112,7 @@ object MediaShareUtils {
         if (Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED) {
             context.externalCacheDir?.let { allowedRoots.add(it.canonicalPath) }
             context.getExternalFilesDir(null)?.let { allowedRoots.add(it.canonicalPath) }
+            allowedRoots.add(Environment.getExternalStorageDirectory().canonicalPath)
         }
 
         val isAllowed = allowedRoots.any { canonicalPath.startsWith(it) }

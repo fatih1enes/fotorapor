@@ -1,4 +1,4 @@
-@file:Suppress("LocalContextGetResourceValueCall", "MaxLineLength")
+@file:Suppress("LocalContextGetResourceValueCall", "MaxLineLength", "MagicNumber")
 package com.fatihenes.photoreport.core.export
 
 import android.content.Context
@@ -11,7 +11,6 @@ import android.os.Environment
 import android.text.Layout
 import android.text.StaticLayout
 import androidx.core.content.FileProvider
-import androidx.core.graphics.withTranslation
 import com.fatihenes.photoreport.core.common.di.Dispatcher
 import com.fatihenes.photoreport.core.common.di.FotoRaporDispatchers
 import com.fatihenes.photoreport.core.common.util.DateUtils
@@ -25,11 +24,12 @@ import com.fatihenes.photoreport.core.media.CompanyLogoManager
 import com.fatihenes.photoreport.core.media.ImageProcessor
 import com.fatihenes.photoreport.core.export.pdf.AdaptivePdfLayoutHelper
 import com.fatihenes.photoreport.core.export.pdf.HeaderParams
+import com.fatihenes.photoreport.core.export.pdf.PdfMetadataWriter
 import com.fatihenes.photoreport.core.export.pdf.PdfRect
 import com.fatihenes.photoreport.core.export.pdf.PdfStyle
 import com.fatihenes.photoreport.core.export.pdf.PdfTheme
 import com.fatihenes.photoreport.core.export.pdf.PdfTypography
-import com.fatihenes.photoreport.core.export.pdf.PdfMetadataWriter
+import com.fatihenes.photoreport.core.export.pdf.PhotoFrameParams
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
@@ -85,12 +85,17 @@ class NativePdfExportManager @Inject constructor(
         val dateStr = params.metadata.dateStr
         val timeStr = params.metadata.timeStr
 
+        val pages = mutableListOf<PdfDocument.Page>()
         var pageNumber = 1
         var pageInfo: PdfDocument.PageInfo = PdfDocument.PageInfo.Builder(PdfTheme.PAGE_WIDTH, PdfTheme.PAGE_HEIGHT, pageNumber).create()
         var currentPage: PdfDocument.Page = doc.startPage(pageInfo)
         var canvas: Canvas = currentPage.canvas
         var currentY = 0f
         val layout = AdaptivePdfLayoutHelper()
+
+        init {
+            pages.add(currentPage)
+        }
 
         fun startPage() {
             currentY = PdfStyle.drawHeader(
@@ -100,18 +105,22 @@ class NativePdfExportManager @Inject constructor(
         }
 
         fun advancePage() {
-            PdfStyle.drawFooter(canvas, pageNumber, language, typography)
-            doc.finishPage(currentPage)
+            layout.flushRow()
             pageNumber++
             pageInfo = PdfDocument.PageInfo.Builder(PdfTheme.PAGE_WIDTH, PdfTheme.PAGE_HEIGHT, pageNumber).create()
             currentPage = doc.startPage(pageInfo)
+            pages.add(currentPage)
             canvas = currentPage.canvas
             startPage()
         }
 
-        fun finalizePage() {
-            PdfStyle.drawFooter(canvas, pageNumber, language, typography)
-            doc.finishPage(currentPage)
+        fun finalizeDocument() {
+            layout.flushRow()
+            val totalPages = pages.size
+            pages.forEachIndexed { idx, page ->
+                PdfStyle.drawFooter(page.canvas, idx + 1, totalPages, language, typography)
+                doc.finishPage(page)
+            }
         }
     }
 
@@ -130,25 +139,25 @@ class NativePdfExportManager @Inject constructor(
             val session = createExportSession(doc, project, language, logoBmp)
             session.startPage()
 
-            val total = logs.sumOf { it.photos.size }
+            val nonVideoPhotosTotal = logs.sumOf { it.photos.count { p -> !p.isDeleted && !p.filePath.endsWith(".mp4", ignoreCase = true) } }
             var curCount = 0
-            var pIdx = 1
+            var globalPhotoIndex = 1
 
-            logs.sortedBy { it.log.date }.forEachIndexed { i, lwp ->
-                if (i > 0) session.advancePage()
+            logs.sortedBy { it.log.date }.forEach { lwp ->
                 renderLogEntry(session, lwp.log, language)
                 val renderParams = RenderPhotosParams(
                     session = session,
                     logWithPhotos = lwp,
                     lang = language,
-                    startIndex = pIdx,
+                    startIndex = globalPhotoIndex,
                     quality = quality,
                     currentCount = curCount,
-                    total = total,
+                    total = nonVideoPhotosTotal,
                     onProgress = onProgress,
                 )
-                curCount = renderLogPhotos(renderParams)
-                pIdx += lwp.photos.filter { !it.filePath.endsWith(".mp4", ignoreCase = true) }.size
+                val (newCount, nextIndex) = renderLogPhotos(renderParams)
+                curCount = newCount
+                globalPhotoIndex = nextIndex
             }
 
             finalizeExport(session, language)
@@ -156,10 +165,9 @@ class NativePdfExportManager @Inject constructor(
             OperationResult.Success(
                 FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file),
             )
-        } catch (e: java.io.IOException) {
+        } catch (e: Exception) {
+            android.util.Log.e("PdfExportManager", "PDF export failed", e)
             OperationResult.Error(e, if (language == "en") "Error generating PDF." else "PDF oluşturma hatası.")
-        } catch (e: SecurityException) {
-            OperationResult.Error(e, if (language == "en") "Security error." else "Güvenlik hatası.")
         } finally {
             logoBmp?.recycle()
             doc.close()
@@ -183,12 +191,12 @@ class NativePdfExportManager @Inject constructor(
     }
 
     private fun finalizeExport(session: ExportSession, language: String) {
-        val remainingSpace = PdfTheme.PAGE_HEIGHT - PdfTheme.MARGIN - PdfTheme.FOOTER_HEIGHT
-        if ((session.currentY + PdfTheme.SIGN_OFF_HEIGHT) > remainingSpace) {
+        session.layout.flushRow()
+        if (!session.layout.hasSpaceFor(PdfTheme.SIGN_OFF_HEIGHT)) {
             session.advancePage()
         }
-        PdfStyle.drawSignOffBlock(session.canvas, session.currentY, language, session.typography)
-        session.finalizePage()
+        session.currentY = PdfStyle.drawSignOffBlock(session.canvas, session.layout.currentY, language, session.typography)
+        session.finalizeDocument()
     }
 
     @Suppress("kotlin:S5324")
@@ -223,26 +231,28 @@ class NativePdfExportManager @Inject constructor(
     }
 
     private fun renderLogEntry(session: ExportSession, log: DailyLogEntity, lang: String) {
-        val dateLabel = if (lang == "en") "INSPECTION DATE:" else "DENETİM TARİHİ:"
-        val dateStr = "$dateLabel ${DateUtils.formatDate(log.date, lang)}"
-        session.canvas.drawText(dateStr, PdfTheme.MARGIN, session.currentY + 12f, session.typography.dateSectionPaint)
-        session.currentY += 28f
+        session.layout.flushRow()
+        if (!session.layout.hasSpaceFor(30f)) {
+            session.advancePage()
+        }
+        val dateLabel = if (lang == "en") "INSPECTION DATE: " else "DENETİM TARİHİ: "
+        val dateStr = "$dateLabel${DateUtils.formatDate(log.date, lang)}"
+        session.currentY = PdfStyle.drawDateSectionHeader(session.canvas, session.layout.currentY, dateStr, session.typography)
         session.layout.updateY(session.currentY)
+
         if (log.note.isNotBlank()) {
-            val width = (PdfTheme.PAGE_WIDTH - (PdfTheme.MARGIN * 2) - 10).toInt()
+            val width = PdfTheme.FULL_WIDTH_IMAGE_WIDTH.toInt() - 20
             val sl = StaticLayout.Builder.obtain(log.note, 0, log.note.length, session.typography.bodyPaint, width)
                 .setAlignment(Layout.Alignment.ALIGN_NORMAL)
-                .setLineSpacing(0f, 1.25f)
+                .setLineSpacing(0f, 1.2f)
                 .build()
-            val footerLimit = PdfTheme.PAGE_HEIGHT - PdfTheme.MARGIN - PdfTheme.FOOTER_HEIGHT
-            if (session.currentY + sl.height > footerLimit) {
+
+            if (!session.layout.hasSpaceFor(sl.height + 20f)) {
                 session.advancePage()
-                session.canvas.drawText(dateStr, PdfTheme.MARGIN, session.currentY + 12f, session.typography.dateSectionPaint)
-                session.currentY += 28f
+                session.currentY = PdfStyle.drawDateSectionHeader(session.canvas, session.layout.currentY, dateStr, session.typography)
                 session.layout.updateY(session.currentY)
             }
-            session.canvas.withTranslation(PdfTheme.MARGIN + 4f, session.currentY) { sl.draw(this) }
-            session.currentY += sl.height + 22f
+            session.currentY = PdfStyle.drawNoteCard(session.canvas, session.layout.currentY, sl, session.typography)
             session.layout.updateY(session.currentY)
         }
     }
@@ -258,10 +268,10 @@ class NativePdfExportManager @Inject constructor(
         val onProgress: ((Int, Int) -> Unit)?,
     )
 
-    private fun renderLogPhotos(params: RenderPhotosParams): Int {
+    private fun renderLogPhotos(params: RenderPhotosParams): Pair<Int, Int> {
         var count = params.currentCount
         var idx = params.startIndex
-        val photos = params.logWithPhotos.photos.filter { !it.filePath.endsWith(".mp4", ignoreCase = true) }
+        val photos = params.logWithPhotos.photos.filter { !it.isDeleted && !it.filePath.endsWith(".mp4", ignoreCase = true) }
         for (photo in photos) {
             params.onProgress?.invoke(++count, params.total)
             val opt = BitmapFactory.Options().apply { inJustDecodeBounds = true }
@@ -293,11 +303,7 @@ class NativePdfExportManager @Inject constructor(
             params.session.layout.updateY(res.nextY)
             params.session.currentY = params.session.layout.currentY
         }
-        if (params.session.layout.currentColumn > 0) {
-            params.session.currentY += (PdfTheme.IMAGE_HEIGHT + PdfTheme.GRID_SPACING)
-            params.session.layout.updateY(params.session.currentY)
-        }
-        return count
+        return Pair(count, idx)
     }
 
     private data class DrawPhotoParams(
@@ -340,7 +346,7 @@ class NativePdfExportManager @Inject constructor(
         val foot = "$prefix #${p.photoIndex} • ${DateUtils.formatDate(p.date, p.language)}"
 
         PdfStyle.drawPhotoFrame(
-            PdfStyle.PhotoFrameParams(
+            PhotoFrameParams(
                 p.canvas,
                 finalBmp,
                 p.rect.left,
@@ -354,3 +360,4 @@ class NativePdfExportManager @Inject constructor(
         if (finalBmp !== original) finalBmp.recycle()
     }
 }
+

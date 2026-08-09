@@ -123,6 +123,12 @@ fun ProjectDetailScreen(params: ProjectDetailScreenParams) {
         }
     }
 
+    LaunchedEffect(Unit) {
+        params.viewModel.exportError.collect { errorMsg ->
+            snackbarHost.showSnackbar(errorMsg)
+        }
+    }
+
     val notificationLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission(),
     ) { isGranted ->

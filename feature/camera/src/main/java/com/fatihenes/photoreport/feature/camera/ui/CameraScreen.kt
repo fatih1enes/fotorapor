@@ -234,7 +234,11 @@ private fun startVideoRecording(vc: androidx.camera.video.VideoCapture<androidx.
     val recording = pending.start(ContextCompat.getMainExecutor(params.context)) { ev ->
         if (ev is VideoRecordEvent.Finalize) {
             params.state.cameraViewModel.setIsRecording(false)
-            if (!ev.hasError()) { params.state.cameraViewModel.onPhotoCaptured(ev.outputResults.outputUri); params.state.actions.onPhotoCaptured(ev.outputResults.outputUri) }
+            if (!ev.hasError()) {
+                PhotoManager.commitPendingMediaStoreUri(params.context, ev.outputResults.outputUri)
+                params.state.cameraViewModel.onPhotoCaptured(ev.outputResults.outputUri)
+                params.state.actions.onPhotoCaptured(ev.outputResults.outputUri)
+            }
         }
     }
     params.state.actions.setActiveRecording(recording)
@@ -248,6 +252,13 @@ private fun takePhoto(context: Context, imageCapture: ImageCapture?, executor: j
     val mainExec = ContextCompat.getMainExecutor(context)
     imageCapture.takePicture(opts, executor, object : ImageCapture.OnImageSavedCallback {
         override fun onError(exc: ImageCaptureException) { mainExec.execute { onShowError(context.getString(R.string.camera_save_failed, exc.message ?: "")) } }
-        override fun onImageSaved(output: ImageCapture.OutputFileResults) { mainExec.execute { output.savedUri?.let { onPhotoCaptured(it) } } }
+        override fun onImageSaved(output: ImageCapture.OutputFileResults) {
+            mainExec.execute {
+                output.savedUri?.let { uri ->
+                    PhotoManager.commitPendingMediaStoreUri(context, uri)
+                    onPhotoCaptured(uri)
+                }
+            }
+        }
     })
 }

@@ -190,7 +190,14 @@ class ExportWorker @AssistedInject constructor(
         val res = pdfExportManager.exportToPdf(project, logs, quality, language) { cur, tot ->
             showProgressNotification(projectName, cur, tot)
         }
-        return if (res is OperationResult.Success) res.data else null
+        return if (res is OperationResult.Success) {
+            res.data
+        } else {
+            if (res is OperationResult.Error) {
+                Log.e("ExportWorker", "PDF Export failed: ${res.message}", res.error)
+            }
+            null
+        }
     }
 
     private suspend fun exportZip(
@@ -200,7 +207,7 @@ class ExportWorker @AssistedInject constructor(
         language: String
     ): Uri? {
         val dailyLogs: List<DailyLogEntity> = logs.map { it.log }
-        val photoEntities: List<PhotoEntity> = logs.flatMap { it.photos }
+        val photoEntities: List<PhotoEntity> = logs.flatMap { it.photos.filter { p -> !p.isDeleted } }
         val params = HtmlExporter.ExportParams(
             context = context,
             project = project,

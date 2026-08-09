@@ -347,20 +347,36 @@ private fun PhotoViewerActions(params: PhotoViewerActionParams) {
     }
 }
 
-@Suppress("FunctionName")
+@Suppress("FunctionName", "LongMethod", "CyclomaticComplexMethod", "TooGenericExceptionCaught", "SwallowedException")
 @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 @Composable
 private fun VideoPlayerItem(photo: Photo, isPageActive: Boolean) {
     val context = LocalContext.current
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     var exoPlayer by remember { mutableStateOf<androidx.media3.exoplayer.ExoPlayer?>(null) }
+    var hasPlaybackError by remember { mutableStateOf(false) }
 
     DisposableEffect(photo.filePath) {
+        val mediaUri = try {
+            MediaShareUtils.resolveMediaUri(context, photo.filePath).first
+        } catch (e: Exception) {
+            if (photo.filePath.startsWith("content://") || photo.filePath.startsWith("file://")) {
+                photo.filePath.toUri()
+            } else {
+                java.io.File(photo.filePath).toUri()
+            }
+        }
         val player = androidx.media3.exoplayer.ExoPlayer.Builder(context).build().apply {
-            setMediaItem(androidx.media3.common.MediaItem.fromUri(photo.filePath.toUri()))
+            setMediaItem(androidx.media3.common.MediaItem.fromUri(mediaUri))
             repeatMode = androidx.media3.common.Player.REPEAT_MODE_ALL
+            addListener(object : androidx.media3.common.Player.Listener {
+                override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
+                    android.util.Log.e("VideoPlayerItem", "ExoPlayer error on $mediaUri", error)
+                    hasPlaybackError = true
+                }
+            })
             prepare()
-            playWhenReady = false
+            playWhenReady = isPageActive
         }
         exoPlayer = player
         onDispose { player.release(); exoPlayer = null }
@@ -370,7 +386,7 @@ private fun VideoPlayerItem(photo: Photo, isPageActive: Boolean) {
         val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
             when (event) {
                 androidx.lifecycle.Lifecycle.Event.ON_PAUSE -> exoPlayer?.pause()
-                androidx.lifecycle.Lifecycle.Event.ON_RESUME -> if (isPageActive) exoPlayer?.play()
+                androidx.lifecycle.Lifecycle.Event.ON_RESUME -> if (isPageActive && !hasPlaybackError) exoPlayer?.play()
                 else -> {}
             }
         }
@@ -378,11 +394,11 @@ private fun VideoPlayerItem(photo: Photo, isPageActive: Boolean) {
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
-    LaunchedEffect(isPageActive, exoPlayer) {
-        if (isPageActive) exoPlayer?.play() else exoPlayer?.pause()
+    LaunchedEffect(isPageActive, exoPlayer, hasPlaybackError) {
+        if (isPageActive && !hasPlaybackError) exoPlayer?.play() else exoPlayer?.pause()
     }
 
-    if (isPageActive && (exoPlayer != null)) {
+    if (isPageActive && exoPlayer != null && !hasPlaybackError) {
         AndroidView(
             factory = { ctx ->
                 androidx.media3.ui.PlayerView(ctx).apply {
@@ -390,6 +406,11 @@ private fun VideoPlayerItem(photo: Photo, isPageActive: Boolean) {
                     useController = true
                     setShowNextButton(false)
                     setShowPreviousButton(false)
+                }
+            },
+            update = { view ->
+                if (view.player != exoPlayer) {
+                    view.player = exoPlayer
                 }
             },
             modifier = Modifier.fillMaxSize()

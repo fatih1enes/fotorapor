@@ -88,6 +88,7 @@ class MediaProcessor @Inject constructor(
             appContext.contentResolver.openFileDescriptor(uri, "rw")?.use { pfd ->
                 val newExif = ExifInterface(pfd.fileDescriptor)
                 oldExif?.let { copyTags(it, newExif) }
+                newExif.setAttribute(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL.toString())
                 if (projectName.isNotBlank()) {
                     newExif.setAttribute(ExifInterface.TAG_USER_COMMENT, projectName)
                 }
@@ -100,7 +101,6 @@ class MediaProcessor @Inject constructor(
 
     private fun copyTags(old: ExifInterface, new: ExifInterface) {
         val tags = listOf(
-            ExifInterface.TAG_ORIENTATION,
             ExifInterface.TAG_DATETIME_ORIGINAL,
             ExifInterface.TAG_DATETIME,
             ExifInterface.TAG_DATETIME_DIGITIZED,

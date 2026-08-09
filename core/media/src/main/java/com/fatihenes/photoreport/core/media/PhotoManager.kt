@@ -45,6 +45,18 @@ object PhotoManager {
         ).setContentValues(contentValues).build()
     }
 
+    fun commitPendingMediaStoreUri(context: Context, uri: Uri) {
+        if (!uri.toString().startsWith("content://")) return
+        try {
+            val contentValues = ContentValues().apply {
+                put(MediaStore.MediaColumns.IS_PENDING, 0)
+            }
+            context.contentResolver.update(uri, contentValues, null, null)
+        } catch (e: Exception) {
+            android.util.Log.w("PhotoManager", "Could not commit pending MediaStore uri: $uri", e)
+        }
+    }
+
     fun copyUriToInternalStorage(context: Context, uri: Uri): Uri? {
         return try {
             val inputStream = context.contentResolver.openInputStream(uri) ?: return null
