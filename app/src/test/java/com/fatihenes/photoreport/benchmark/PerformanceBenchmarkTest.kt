@@ -4,7 +4,6 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 import java.io.ByteArrayInputStream
-import java.io.ByteArrayOutputStream
 import java.lang.management.ManagementFactory
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -65,7 +64,13 @@ class PerformanceBenchmarkTest {
         val startTime = System.currentTimeMillis()
 
         // Bellekte streaming ZipOutputStream akış testi (Sıfır geçici disk dosyası)
-        val outputBuffer = ByteArrayOutputStream()
+        val outputBuffer = object : java.io.OutputStream() {
+            @Suppress("EmptyFunctionBlock")
+            override fun write(b: Int) {}
+
+            @Suppress("EmptyFunctionBlock")
+            override fun write(b: ByteArray, off: Int, len: Int) {}
+        }
         ZipOutputStream(outputBuffer).use { zos ->
             for (i in 1..photoCount) {
                 // ARGB_8888 (32-bit, 4 bayt/piksel) 1000x1000 yüksek çözünürlük görsel bellek tahsisi ve streaming simülasyonu
