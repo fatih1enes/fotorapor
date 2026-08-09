@@ -103,7 +103,7 @@
     <!-- ExportWorker Notifications -->
     <string name="export_notif_title">Exporting</string>
     <string name="export_notif_text">Please wait while %s is being prepared…</string>
-    <string name="export_progress_text">Processing photo %1$d of %2$d…</string>
+    <string name="export_progress_text">Progress: %1$d / %2$d…</string>
     <string name="export_share_chooser">Share Report</string>
     <string name="export_complete_channel">Export Completed</string>
     <string name="export_ready_title">Ready to Share!</string>

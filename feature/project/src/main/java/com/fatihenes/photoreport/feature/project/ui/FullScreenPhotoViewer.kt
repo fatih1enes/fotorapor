@@ -1,3 +1,4 @@
+@file:Suppress("TooManyFunctions")
 package com.fatihenes.photoreport.feature.project.ui
 
 import androidx.compose.animation.AnimatedVisibility
@@ -6,24 +7,53 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.background
-import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.calculatePan
 import androidx.compose.foundation.gestures.calculateZoom
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.RotateRight
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.layout.ContentScale
@@ -49,105 +79,172 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
+private const val DISMISS_DELAY_MS = 200
+private const val TRANSITION_SCALE = 0.96f
+private const val PHOTO_VIEWER_OVERLAY_ALPHA = 0.8f
+private const val ZOOM_MIN = 1f
+private const val ZOOM_MAX = 5f
+private const val VIDEO_PLACEHOLDER_ICON_SIZE = 72
+private const val VIDEO_PLACEHOLDER_ICON_ALPHA = 0.6f
+private const val VIDEO_PLACEHOLDER_BG_ALPHA = 0.1f
+private const val IMAGE_FULL_RES_SIZE = 2400
+
 @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 @OptIn(ExperimentalMaterial3Api::class)
-@Suppress("FunctionName", "LongMethod")
+@Suppress("FunctionName")
 @Composable
 fun FullScreenPhotoDialog(
     photoList: List<Photo>,
     initialIndex: Int,
     onDismiss: () -> Unit,
     onDelete: (Photo) -> Unit,
-    onUpdateRotation: (Long, Float) -> Unit
+    onUpdateRotation: (Long, Float) -> Unit,
 ) {
     val currentPhotoList by rememberUpdatedState(photoList)
-    val pagerState = rememberPagerState(initialPage = initialIndex, pageCount = { currentPhotoList.size })
-    var showDeleteConfirm by remember { mutableStateOf(false) }
-    var isVisible by remember { mutableStateOf(false) }
+    val pagerState = rememberPagerState(
+        initialPage = initialIndex,
+        pageCount = { currentPhotoList.size },
+    )
+    var showDeleteConfirm by remember { mutableStateOf(value = false) }
+    var isVisible by remember { mutableStateOf(value = false) }
 
     LaunchedEffect(Unit) { isVisible = true }
-
     val scope = rememberCoroutineScope()
     val triggerDismiss = {
         isVisible = false
-        scope.launch { delay(200.milliseconds); onDismiss() }
-        Unit
+        scope.launch {
+            delay(DISMISS_DELAY_MS.milliseconds)
+            onDismiss()
+        }
     }
 
     Dialog(
         onDismissRequest = { triggerDismiss() },
-        properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false,
+        ),
     ) {
-        Box(modifier = Modifier.fillMaxSize().background(Color.Black)) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.Black),
+        ) {
             androidx.activity.compose.BackHandler(enabled = true) { triggerDismiss() }
-
-            AnimatedVisibility(
-                visible = isVisible,
-                enter = fadeIn(
-                    animationSpec = androidx.compose.animation.core.tween(FotoRaporMotion.DurationMedium)
-                ) + scaleIn(initialScale = 0.96f),
-                exit = fadeOut(
-                    animationSpec = androidx.compose.animation.core.tween(FotoRaporMotion.DurationShort)
-                ) + scaleOut(targetScale = 0.96f)
-            ) {
-                Scaffold(
-                    containerColor = Color.Black,
-                    topBar = {
-                        PhotoViewerTopAppBar(
-                            currentPage = pagerState.currentPage,
-                            totalCount = photoList.size,
-                            onDismiss = { triggerDismiss() },
-                            onRotate = {
-                                if (pagerState.currentPage < photoList.size) {
-                                    val photo = photoList[pagerState.currentPage]
-                                    onUpdateRotation(photo.id, (photo.rotation + 90f) % 360f)
-                                }
-                            },
-                            onShowDelete = { showDeleteConfirm = true },
-                            photoList = photoList
-                        )
-                    }
-                ) { padding ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(padding)
-                            .background(Color.Black),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        HorizontalPager(
-                            state = pagerState,
-                            modifier = Modifier.fillMaxSize(),
-                            pageSpacing = FotoRaporTokens.SpacingL,
-                            beyondViewportPageCount = 1,
-                            key = { page -> if (page < photoList.size) photoList[page].id else page }
-                        ) { page ->
-                            if (page >= photoList.size) return@HorizontalPager
-                            val photo = photoList[page]
-                            if (photo.filePath.endsWith(".mp4", ignoreCase = true)) {
-                                VideoPlayerItem(photo = photo, isPageActive = pagerState.currentPage == page)
-                            } else {
-                                ImageZoomItem(photo = photo)
-                            }
-                        }
-                    }
-                }
-            }
+            ViewerContent(
+                isVisible = isVisible,
+                photoList = photoList,
+                pagerState = pagerState,
+                onDismiss = { triggerDismiss() },
+                onRotate = { rotatePhoto(photoList, pagerState, onUpdateRotation) },
+                onShowDelete = { showDeleteConfirm = true },
+            )
         }
     }
 
     if (showDeleteConfirm) {
-        PhotoDeleteConfirmDialog(
-            onDismiss = { showDeleteConfirm = false },
-            onConfirm = {
-                showDeleteConfirm = false
-                if (pagerState.currentPage < photoList.size) {
-                    onDelete(photoList[pagerState.currentPage])
-                    if (photoList.size <= 1) triggerDismiss()
-                }
-            }
+        DeleteConfirmWrapper(
+            photoList = photoList,
+            pagerState = pagerState,
+            onDelete = onDelete,
+            onDismissConfirm = { showDeleteConfirm = false },
+            onTriggerDismissViewer = { triggerDismiss() },
         )
     }
+}
+
+@Suppress("FunctionName")
+@Composable
+private fun ViewerContent(
+    isVisible: Boolean,
+    photoList: List<Photo>,
+    pagerState: PagerState,
+    onDismiss: () -> Unit,
+    onRotate: () -> Unit,
+    onShowDelete: () -> Unit,
+) {
+    AnimatedVisibility(
+        visible = isVisible,
+        enter = fadeIn(animationSpec = androidx.compose.animation.core.tween(FotoRaporMotion.DURATION_MEDIUM)) +
+                scaleIn(initialScale = TRANSITION_SCALE),
+        exit = fadeOut(animationSpec = androidx.compose.animation.core.tween(FotoRaporMotion.DURATION_SHORT)) +
+                scaleOut(targetScale = TRANSITION_SCALE),
+    ) {
+        Scaffold(
+            containerColor = Color.Black,
+            topBar = {
+                PhotoViewerTopAppBar(
+                    currentPage = pagerState.currentPage,
+                    totalCount = photoList.size,
+                    onDismiss = onDismiss,
+                    onRotate = onRotate,
+                    onShowDelete = onShowDelete,
+                    photoList = photoList
+                )
+            }
+        ) { padding ->
+            PhotoPager(photoList, pagerState, padding)
+        }
+    }
+}
+
+@Composable
+private fun PhotoPager(photoList: List<Photo>, pagerState: PagerState, padding: PaddingValues) {
+    Box(
+        modifier = Modifier.fillMaxSize().padding(padding).background(Color.Black),
+        contentAlignment = Alignment.Center
+    ) {
+        HorizontalPager(
+            state = pagerState,
+            modifier = Modifier.fillMaxSize(),
+            pageSpacing = FotoRaporTokens.SpacingL,
+            beyondViewportPageCount = 1,
+            key = { page -> if (page < photoList.size) photoList[page].id else page }
+        ) { page ->
+            if (page < photoList.size) {
+                val photo = photoList[page]
+                if (photo.filePath.endsWith(".mp4", ignoreCase = true)) {
+                    VideoPlayerItem(photo = photo, isPageActive = pagerState.currentPage == page)
+                } else {
+                    ImageZoomItem(photo = photo)
+                }
+            }
+        }
+    }
+}
+
+private const val ROTATION_STEP = 90f
+private const val FULL_ROTATION = 360f
+
+private fun rotatePhoto(
+    photoList: List<Photo>,
+    pagerState: PagerState,
+    onUpdateRotation: (Long, Float) -> Unit,
+) {
+    if (pagerState.currentPage < photoList.size) {
+        val photo = photoList[pagerState.currentPage]
+        onUpdateRotation(photo.id, (photo.rotation + ROTATION_STEP) % FULL_ROTATION)
+    }
+}
+
+@Composable
+private fun DeleteConfirmWrapper(
+    photoList: List<Photo>,
+    pagerState: PagerState,
+    onDelete: (Photo) -> Unit,
+    onDismissConfirm: () -> Unit,
+    onTriggerDismissViewer: () -> Unit
+) {
+    PhotoDeleteConfirmDialog(
+        onDismiss = onDismissConfirm,
+        onConfirm = {
+            onDismissConfirm()
+            if (pagerState.currentPage < photoList.size) {
+                onDelete(photoList[pagerState.currentPage])
+                if (photoList.size <= 1) onTriggerDismissViewer()
+            }
+        }
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -159,7 +256,7 @@ private fun PhotoViewerTopAppBar(
     onDismiss: () -> Unit,
     onRotate: () -> Unit,
     onShowDelete: () -> Unit,
-    photoList: List<Photo>
+    photoList: List<Photo>,
 ) {
     val context = LocalContext.current
     val snackbarHost = LocalSnackbarHostState.current
@@ -169,9 +266,9 @@ private fun PhotoViewerTopAppBar(
         title = {
             Text(
                 "${currentPage + 1} / $totalCount",
-                color = Color.White.copy(alpha = 0.8f),
+                color = Color.White.copy(alpha = PHOTO_VIEWER_OVERLAY_ALPHA),
                 style = MaterialTheme.typography.labelLarge,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             )
         },
         navigationIcon = {
@@ -180,44 +277,74 @@ private fun PhotoViewerTopAppBar(
                     Icons.Default.Close,
                     stringResource(R.string.acc_close),
                     tint = Color.White,
-                    modifier = Modifier.size(FotoRaporTokens.IconSizeS)
+                    modifier = Modifier.size(FotoRaporTokens.IconSizeS),
                 )
             }
         },
         actions = {
-            IconButton(onClick = onRotate) {
-                Icon(
-                    Icons.AutoMirrored.Filled.RotateRight,
-                    stringResource(R.string.acc_rotate),
-                    tint = Color.White,
-                    modifier = Modifier.size(FotoRaporTokens.IconSizeS)
-                )
-            }
-            IconButton(onClick = {
-                if (currentPage < photoList.size) {
-                    MediaShareUtils.shareSingleMedia(context, photoList[currentPage].filePath) { msg ->
-                        scope.launch { snackbarHost.showSnackbar(msg) }
-                    }
+            PhotoViewerActions(
+                params = PhotoViewerActionParams(
+                    photoList = photoList,
+                    currentPage = currentPage,
+                    onRotate = onRotate,
+                    onShowDelete = onShowDelete,
+                    context = context,
+                    snackbarHost = snackbarHost,
+                    scope = scope,
+                ),
+            )
+        },
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
+    )
+}
+
+private data class PhotoViewerActionParams(
+    val photoList: List<Photo>,
+    val currentPage: Int,
+    val onRotate: () -> Unit,
+    val onShowDelete: () -> Unit,
+    val context: android.content.Context,
+    val snackbarHost: androidx.compose.material3.SnackbarHostState,
+    val scope: kotlinx.coroutines.CoroutineScope,
+)
+
+@Composable
+private fun PhotoViewerActions(params: PhotoViewerActionParams) {
+    IconButton(onClick = params.onRotate) {
+        Icon(
+            Icons.AutoMirrored.Filled.RotateRight,
+            stringResource(R.string.acc_rotate),
+            tint = Color.White,
+            modifier = Modifier.size(FotoRaporTokens.IconSizeS),
+        )
+    }
+    IconButton(
+        onClick = {
+            if (params.currentPage < params.photoList.size) {
+                MediaShareUtils.shareSingleMedia(
+                    params.context,
+                    params.photoList[params.currentPage].filePath,
+                ) { msg ->
+                    params.scope.launch { params.snackbarHost.showSnackbar(msg) }
                 }
-            }) {
-                Icon(
-                    Icons.Default.Share,
-                    stringResource(R.string.acc_share),
-                    tint = Color.White,
-                    modifier = Modifier.size(FotoRaporTokens.IconSizeS)
-                )
-            }
-            IconButton(onClick = onShowDelete) {
-                Icon(
-                    Icons.Default.Delete,
-                    stringResource(R.string.acc_delete),
-                    tint = Color.White,
-                    modifier = Modifier.size(FotoRaporTokens.IconSizeS)
-                )
             }
         },
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
-    )
+    ) {
+        Icon(
+            Icons.Default.Share,
+            stringResource(R.string.acc_share),
+            tint = Color.White,
+            modifier = Modifier.size(FotoRaporTokens.IconSizeS),
+        )
+    }
+    IconButton(onClick = params.onShowDelete) {
+        Icon(
+            Icons.Default.Delete,
+            stringResource(R.string.acc_delete),
+            tint = Color.White,
+            modifier = Modifier.size(FotoRaporTokens.IconSizeS),
+        )
+    }
 }
 
 @Suppress("FunctionName")
@@ -236,11 +363,7 @@ private fun VideoPlayerItem(photo: Photo, isPageActive: Boolean) {
             playWhenReady = false
         }
         exoPlayer = player
-
-        onDispose {
-            player.release()
-            exoPlayer = null
-        }
+        onDispose { player.release(); exoPlayer = null }
     }
 
     DisposableEffect(exoPlayer, lifecycleOwner) {
@@ -259,7 +382,7 @@ private fun VideoPlayerItem(photo: Photo, isPageActive: Boolean) {
         if (isPageActive) exoPlayer?.play() else exoPlayer?.pause()
     }
 
-    if (isPageActive && exoPlayer != null) {
+    if (isPageActive && (exoPlayer != null)) {
         AndroidView(
             factory = { ctx ->
                 androidx.media3.ui.PlayerView(ctx).apply {
@@ -283,16 +406,16 @@ private fun VideoPlaceholder() {
         modifier = Modifier
             .fillMaxSize()
             .background(Color.Black),
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         Icon(
-            imageVector = Icons.Default.PlayArrow,
-            contentDescription = null,
-            tint = Color.White.copy(alpha = 0.6f),
+            Icons.Default.PlayArrow,
+            null,
+            tint = Color.White.copy(alpha = VIDEO_PLACEHOLDER_ICON_ALPHA),
             modifier = Modifier
-                .size(72.dp)
-                .background(Color.White.copy(alpha = 0.1f), CircleShape)
-                .padding(FotoRaporTokens.SpacingL)
+                .size(VIDEO_PLACEHOLDER_ICON_SIZE.dp)
+                .background(Color.White.copy(alpha = VIDEO_PLACEHOLDER_BG_ALPHA), CircleShape)
+                .padding(FotoRaporTokens.SpacingL),
         )
     }
 }
@@ -307,34 +430,27 @@ private fun ImageZoomItem(photo: Photo) {
         modifier = Modifier
             .fillMaxSize()
             .pointerInput(photo.id) {
-                awaitEachGesture {
-                    awaitFirstDown()
-                    do {
-                        val event = awaitPointerEvent()
-                        val zoom = event.calculateZoom()
-                        val pan = event.calculatePan()
-                        val newScale = (scale * zoom).coerceIn(1f, 5f)
-                        if (newScale > 1f || scale > 1f) {
-                            scale = newScale
-                            offset += pan
-                            event.changes.forEach { if (it.positionChanged()) it.consume() }
-                        } else {
-                            scale = 1f
-                            offset = androidx.compose.ui.geometry.Offset.Zero
-                        }
-                    } while (event.changes.any { it.pressed })
-                }
+                handleZoomGestures(onGesture = { zoom, pan ->
+                    val newScale = (scale * zoom).coerceIn(ZOOM_MIN, ZOOM_MAX)
+                    if (newScale > ZOOM_MIN || scale > ZOOM_MIN) {
+                        scale = newScale
+                        offset += pan
+                    } else {
+                        scale = ZOOM_MIN
+                        offset = androidx.compose.ui.geometry.Offset.Zero
+                    }
+                })
             },
-        contentAlignment = Alignment.Center
+        contentAlignment = Alignment.Center,
     ) {
         val context = LocalContext.current
         val request = remember(photo.filePath) {
             ImageRequest.Builder(context)
                 .data(photo.filePath)
-                .size(2400)
+                .size(IMAGE_FULL_RES_SIZE)
                 .memoryCachePolicy(CachePolicy.ENABLED)
                 .diskCachePolicy(CachePolicy.ENABLED)
-                .crossfade(FotoRaporMotion.DurationMedium)
+                .crossfade(FotoRaporMotion.DURATION_MEDIUM)
                 .build()
         }
         AsyncImage(
@@ -348,15 +464,34 @@ private fun ImageZoomItem(photo: Photo) {
                     scaleY = scale,
                     translationX = offset.x,
                     translationY = offset.y,
-                    rotationZ = photo.rotation
+                    rotationZ = photo.rotation,
                 ),
             placeholder = androidx.compose.ui.graphics.painter.ColorPainter(
-                MaterialTheme.colorScheme.surfaceContainerHigh
+                MaterialTheme.colorScheme.surfaceContainerHigh,
             ),
             error = androidx.compose.ui.graphics.painter.ColorPainter(
-                MaterialTheme.colorScheme.surfaceContainerHigh
-            )
+                MaterialTheme.colorScheme.surfaceContainerHigh,
+            ),
         )
+    }
+}
+
+private suspend fun PointerInputScope.handleZoomGestures(
+    onGesture: (Float, androidx.compose.ui.geometry.Offset) -> Unit,
+) {
+    awaitPointerEventScope {
+        while (true) {
+            awaitFirstDown()
+            do {
+                val event = awaitPointerEvent()
+                val zoom = event.calculateZoom()
+                val pan = event.calculatePan()
+                onGesture(zoom, pan)
+                if (zoom != 1f || pan != androidx.compose.ui.geometry.Offset.Zero) {
+                    event.changes.forEach { if (it.positionChanged()) it.consume() }
+                }
+            } while (event.changes.any { it.pressed })
+        }
     }
 }
 
@@ -370,14 +505,14 @@ private fun PhotoDeleteConfirmDialog(onDismiss: () -> Unit, onConfirm: () -> Uni
             Text(
                 stringResource(R.string.delete_photo_title),
                 style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.SemiBold,
             )
         },
         text = {
             Text(
                 stringResource(R.string.delete_photo_desc),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         },
         confirmButton = {
@@ -385,15 +520,15 @@ private fun PhotoDeleteConfirmDialog(onDismiss: () -> Unit, onConfirm: () -> Uni
                 onClick = onConfirm,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.error,
-                    contentColor = MaterialTheme.colorScheme.onError
+                    contentColor = MaterialTheme.colorScheme.onError,
                 ),
                 shape = RoundedCornerShape(FotoRaporTokens.RadiusS),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = FotoRaporTokens.ElevationNone)
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = FotoRaporTokens.ElevationNone),
             ) {
                 Text(
                     stringResource(R.string.delete_confirm_btn),
                     style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
                 )
             }
         },
@@ -401,10 +536,9 @@ private fun PhotoDeleteConfirmDialog(onDismiss: () -> Unit, onConfirm: () -> Uni
             TextButton(onClick = onDismiss) {
                 Text(
                     stringResource(R.string.cancel_btn),
-                    style = MaterialTheme.typography.labelLarge
+                    style = MaterialTheme.typography.labelLarge,
                 )
             }
-        }
+        },
     )
 }
-

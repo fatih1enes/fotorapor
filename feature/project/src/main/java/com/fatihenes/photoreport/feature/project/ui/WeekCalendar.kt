@@ -91,7 +91,7 @@ private fun CalendarDayItem(
 
     val animatedBgColor by animateColorAsState(
         targetValue = if (isSelected) projectColor.copy(alpha = 0.15f) else Color.Transparent,
-        animationSpec = tween(FotoRaporMotion.DurationShort),
+        animationSpec = tween(FotoRaporMotion.DURATION_SHORT),
         label = "week_day_bg"
     )
 
@@ -144,13 +144,13 @@ private fun DayNumberBadge(
 
     val backgroundColor by animateColorAsState(
         targetValue = targetBackgroundColor,
-        animationSpec = tween(FotoRaporMotion.DurationShort),
+        animationSpec = tween(FotoRaporMotion.DURATION_SHORT),
         label = "day_badge_bg"
     )
 
     val textColor by animateColorAsState(
         targetValue = targetTextColor,
-        animationSpec = tween(FotoRaporMotion.DurationShort),
+        animationSpec = tween(FotoRaporMotion.DURATION_SHORT),
         label = "day_badge_text"
     )
 

@@ -13,11 +13,13 @@ import com.fatihenes.photoreport.repository.AppRepository
 import com.fatihenes.photoreport.core.export.HtmlExporter
 import com.fatihenes.photoreport.core.export.PdfExportManager
 import com.fatihenes.photoreport.core.common.util.result.OperationResult
+import com.fatihenes.photoreport.core.common.di.Dispatcher
+import com.fatihenes.photoreport.core.common.di.FotoRaporDispatchers
 import com.fatihenes.photoreport.core.database.ProjectEntity
 import com.fatihenes.photoreport.core.database.LogWithPhotos
 import com.fatihenes.photoreport.core.database.DailyLogEntity
 import com.fatihenes.photoreport.core.database.PhotoEntity
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import androidx.core.graphics.createBitmap
 import dagger.assisted.Assisted
@@ -30,7 +32,8 @@ class ExportWorker @AssistedInject constructor(
     @Assisted private val context: Context,
     @Assisted params: WorkerParameters,
     private val repository: AppRepository,
-    private val pdfExportManager: PdfExportManager
+    private val pdfExportManager: PdfExportManager,
+    @Dispatcher(FotoRaporDispatchers.IO) private val ioDispatcher: CoroutineDispatcher
 ) : CoroutineWorker(context, params) {
 
     companion object {
@@ -94,10 +97,12 @@ class ExportWorker @AssistedInject constructor(
             val nm = context.getSystemService(Context.NOTIFICATION_SERVICE)
                 as android.app.NotificationManager
             nm.cancel(PROGRESS_NOTIFICATION_ID)
-        } catch (_: Exception) { }
+        } catch (e: Exception) {
+            Log.w("ExportWorker", "Cancel notification failed", e)
+        }
     }
 
-    override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
+    override suspend fun doWork(): Result = withContext(ioDispatcher) {
         val projectName = inputData.getString("project_name") ?: "Proje"
         runExportSafely(projectName)
     }
@@ -184,7 +189,16 @@ class ExportWorker @AssistedInject constructor(
     ): Uri? {
         val dailyLogs: List<DailyLogEntity> = logs.map { it.log }
         val photoEntities: List<PhotoEntity> = logs.flatMap { it.photos }
-        return HtmlExporter.exportToHtmlZip(context, project, dailyLogs, photoEntities, quality, language)
+        val params = HtmlExporter.ExportParams(
+            context = context,
+            project = project,
+            logs = dailyLogs,
+            photos = photoEntities,
+            quality = quality,
+            language = language,
+            dispatcher = ioDispatcher,
+        )
+        return HtmlExporter.exportToHtmlZip(params)
     }
 
     private fun handleExportError(e: Throwable, projectName: String): Result {

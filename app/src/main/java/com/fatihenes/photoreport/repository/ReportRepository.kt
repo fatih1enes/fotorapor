@@ -1,26 +1,30 @@
 package com.fatihenes.photoreport.repository
 
 import android.content.Context
+import android.util.Log
 import androidx.core.net.toUri
+import com.fatihenes.photoreport.core.common.di.Dispatcher
+import com.fatihenes.photoreport.core.common.di.FotoRaporDispatchers
 import com.fatihenes.photoreport.core.common.model.FileSizeInfo
 import com.fatihenes.photoreport.core.database.PhotoEntity
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
-interface ReportRepository {
+fun interface ReportRepository {
     suspend fun calculateFileSizes(photos: List<PhotoEntity>): FileSizeInfo
 }
 
 @Singleton
 class ReportRepositoryImpl @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    @Dispatcher(FotoRaporDispatchers.IO) private val ioDispatcher: CoroutineDispatcher
 ) : ReportRepository {
 
-    override suspend fun calculateFileSizes(photos: List<PhotoEntity>): FileSizeInfo = withContext(Dispatchers.IO) {
+    override suspend fun calculateFileSizes(photos: List<PhotoEntity>): FileSizeInfo = withContext(ioDispatcher) {
         var totalPhotoBytes = 0L
         var totalVideoBytes = 0L
         var photoCount = 0
@@ -35,39 +39,51 @@ class ReportRepositoryImpl @Inject constructor(
         val maxBytesQ75 = (0.15 * 1024 * 1024).toLong()
 
         photos.forEach { photo ->
-            try {
-                val uri = photo.filePath.toUri()
-                val size = if (photo.filePath.startsWith("content://")) {
-                    context.contentResolver.openFileDescriptor(uri, "r")?.use {
-                        it.statSize
-                    } ?: 0L
-                } else {
-                    val path = if (photo.filePath.startsWith("file://")) uri.path else photo.filePath
-                    path?.let { File(it).length() } ?: 0L
-                }
+            val size = getPhotoFileSize(context, photo.filePath)
+            if (photo.filePath.endsWith(".mp4", ignoreCase = true)) {
+                totalVideoBytes += size
+                videoCount++
+            } else {
+                totalPhotoBytes += size
+                photoCount++
 
-                if (photo.filePath.endsWith(".mp4", ignoreCase = true)) {
-                    totalVideoBytes += size
-                    videoCount++
-                } else {
-                    totalPhotoBytes += size
-                    photoCount++
-
-                    estimatedQ100 += minOf(size, maxBytesQ100)
-                    estimatedQ85 += minOf(size, maxBytesQ85)
-                    estimatedQ75 += minOf(size, maxBytesQ75)
-                }
-            } catch (_: Exception) {}
+                estimatedQ100 += minOf(size, maxBytesQ100)
+                estimatedQ85 += minOf(size, maxBytesQ85)
+                estimatedQ75 += minOf(size, maxBytesQ75)
+            }
         }
 
         FileSizeInfo(
-            totalPhotoBytes,
-            totalVideoBytes,
-            photoCount,
-            videoCount,
-            estimatedQ100,
-            estimatedQ85,
-            estimatedQ75
+            totalPhotoBytes = totalPhotoBytes,
+            totalVideoBytes = totalVideoBytes,
+            photoCount = photoCount,
+            videoCount = videoCount,
+            estimatedQ100Bytes = estimatedQ100,
+            estimatedQ85Bytes = estimatedQ85,
+            estimatedQ75Bytes = estimatedQ75,
         )
+    }
+
+    private fun getPhotoFileSize(context: Context, filePath: String): Long {
+        return try {
+            val uri = filePath.toUri()
+            if (filePath.startsWith("content://")) {
+                context.contentResolver.openFileDescriptor(uri, "r")?.use {
+                    it.statSize
+                } ?: 0L
+            } else {
+                val path = if (filePath.startsWith("file://")) uri.path else filePath
+                path?.let { File(it).length() } ?: 0L
+            }
+        } catch (e: java.io.IOException) {
+            Log.w("ReportRepo", "Failed to get size for $filePath", e)
+            0L
+        } catch (e: SecurityException) {
+            Log.w("ReportRepo", "Storage access denied for $filePath", e)
+            0L
+        } catch (e: android.os.RemoteException) {
+            Log.w("ReportRepo", "Remote process error for $filePath", e)
+            0L
+        }
     }
 }

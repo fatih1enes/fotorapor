@@ -7,6 +7,8 @@ import com.fatihenes.photoreport.core.common.util.result.OperationResult
 import com.fatihenes.photoreport.core.domain.repository.BackupRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -15,13 +17,16 @@ class BackupViewModel @Inject constructor(
     private val backupRepository: BackupRepository
 ) : ViewModel() {
 
-    val backupState = MutableStateFlow<OperationResult<Unit>?>(null)
-    val restoreState = MutableStateFlow<OperationResult<Unit>?>(null)
+    private val _backupState = MutableStateFlow<OperationResult<Unit>?>(null)
+    val backupState: StateFlow<OperationResult<Unit>?> = _backupState.asStateFlow()
+
+    private val _restoreState = MutableStateFlow<OperationResult<Unit>?>(null)
+    val restoreState: StateFlow<OperationResult<Unit>?> = _restoreState.asStateFlow()
 
     fun createBackup(uri: Uri) {
         viewModelScope.launch {
             backupRepository.createBackup(uri).collect { result ->
-                backupState.value = result
+                _backupState.value = result
             }
         }
     }
@@ -29,16 +34,16 @@ class BackupViewModel @Inject constructor(
     fun restoreBackup(uri: Uri) {
         viewModelScope.launch {
             backupRepository.restoreBackup(uri).collect { result ->
-                restoreState.value = result
+                _restoreState.value = result
             }
         }
     }
 
     fun resetBackupState() {
-        backupState.value = null
+        _backupState.value = null
     }
 
     fun resetRestoreState() {
-        restoreState.value = null
+        _restoreState.value = null
     }
 }

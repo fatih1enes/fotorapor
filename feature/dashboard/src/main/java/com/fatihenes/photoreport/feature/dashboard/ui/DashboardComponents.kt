@@ -95,6 +95,28 @@ import com.fatihenes.photoreport.core.ui.components.PillSegmentedControl
 import com.fatihenes.photoreport.feature.dashboard.components.MonthlyCalendar
 import java.time.LocalDate
 
+enum class DashboardViewMode { PROJECTS, CALENDAR }
+
+data class DashboardViewState(
+    val projects: List<Project>?,
+    val isRefreshing: Boolean,
+    val viewMode: DashboardViewMode,
+    val selectedDate: LocalDate,
+    val activityDots: Map<LocalDate, List<Color>>,
+    val isTrashNotEmpty: Boolean,
+    val language: String
+)
+
+data class DashboardActions(
+    val onProjectClick: (Project) -> Unit,
+    val onAddProject: (String, Color) -> Unit,
+    val onSettingsClick: () -> Unit,
+    val onTrashClick: () -> Unit,
+    val onRefresh: () -> Unit,
+    val onDateSelected: (LocalDate) -> Unit,
+    val onViewModeChange: (DashboardViewMode) -> Unit
+)
+
 @Composable
 @Suppress("FunctionName")
 fun DashboardFab(onClick: () -> Unit) {
@@ -121,44 +143,22 @@ fun DashboardFab(onClick: () -> Unit) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Suppress("LongParameterList", "FunctionName")
+@Suppress("FunctionName")
 fun DashboardScaffold(
-    projects: List<Project>?,
-    onProjectClick: (Project) -> Unit,
-    onAddProject: () -> Unit,
-    onSettingsClick: () -> Unit,
-    onTrashClick: () -> Unit,
-    onRefresh: () -> Unit,
-    language: String,
-    isRefreshing: Boolean,
-    activityDots: Map<LocalDate, List<Color>>,
-    isTrashNotEmpty: Boolean,
-    selectedDate: LocalDate,
-    onDateSelected: (LocalDate) -> Unit,
-    viewMode: DashboardViewMode,
-    onViewModeChange: (DashboardViewMode) -> Unit,
+    state: DashboardViewState,
+    actions: DashboardActions,
+    onAddClick: () -> Unit
 ) {
     val haptic = LocalHapticFeedback.current
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
-        floatingActionButton = { DashboardFab(onAddProject) }
+        floatingActionButton = { DashboardFab(onAddClick) }
     ) { padding ->
         DashboardContent(
             padding = padding,
-            projects = projects,
-            isRefreshing = isRefreshing,
-            onRefresh = onRefresh,
-            viewMode = viewMode,
-            onViewModeChange = onViewModeChange,
-            onProjectClick = onProjectClick,
-            onAddClick = onAddProject,
-            onTrashClick = onTrashClick,
-            onSettingsClick = onSettingsClick,
-            isTrashNotEmpty = isTrashNotEmpty,
-            selectedDate = selectedDate,
-            onDateSelected = onDateSelected,
-            activityDots = activityDots,
-            language = language,
+            state = state,
+            actions = actions,
+            onAddClick = onAddClick,
             haptic = haptic
         )
     }
@@ -166,33 +166,22 @@ fun DashboardScaffold(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Suppress("LongParameterList", "FunctionName", "LongMethod")
+@Suppress("FunctionName", "LongMethod")
 fun DashboardContent(
     padding: PaddingValues,
-    projects: List<Project>?,
-    isRefreshing: Boolean,
-    onRefresh: () -> Unit,
-    viewMode: DashboardViewMode,
-    onViewModeChange: (DashboardViewMode) -> Unit,
-    onProjectClick: (Project) -> Unit,
+    state: DashboardViewState,
+    actions: DashboardActions,
     onAddClick: () -> Unit,
-    onTrashClick: () -> Unit,
-    onSettingsClick: () -> Unit,
-    isTrashNotEmpty: Boolean,
-    selectedDate: LocalDate,
-    onDateSelected: (LocalDate) -> Unit,
-    activityDots: Map<LocalDate, List<Color>>,
-    language: String,
     haptic: HapticFeedback
 ) {
     val pullState = rememberPullToRefreshState()
     PullToRefreshBox(
-        isRefreshing = isRefreshing,
-        onRefresh = onRefresh,
+        isRefreshing = state.isRefreshing,
+        onRefresh = actions.onRefresh,
         state = pullState,
         modifier = Modifier.fillMaxSize(),
         indicator = {
-            if (isRefreshing) {
+            if (state.isRefreshing) {
                 PullToRefreshDefaults.Indicator(
                     state = pullState,
                     isRefreshing = true,
@@ -207,21 +196,16 @@ fun DashboardContent(
         ) {
             item(key = "dashboard_hero_header") {
                 DashboardHeroHeader(
-                    projectsCount = projects?.size ?: 0,
-                    activityCount = activityDots.size,
-                    viewMode = viewMode,
-                    onViewModeChange = onViewModeChange,
-                    onTrashClick = onTrashClick,
-                    onSettingsClick = onSettingsClick,
-                    isTrashNotEmpty = isTrashNotEmpty,
+                    state = state,
+                    actions = actions,
                     haptic = haptic
                 )
             }
 
-            if (viewMode == DashboardViewMode.PROJECTS) {
-                projectsView(projects, onProjectClick, onAddClick)
+            if (state.viewMode == DashboardViewMode.PROJECTS) {
+                projectsView(state.projects, actions.onProjectClick, onAddClick)
             } else {
-                calendarView(selectedDate, onDateSelected, activityDots, language)
+                calendarView(state.selectedDate, actions.onDateSelected, state.activityDots, state.language)
             }
 
             item { Spacer(modifier = Modifier.height(96.dp)) }
@@ -230,15 +214,10 @@ fun DashboardContent(
 }
 
 @Composable
-@Suppress("LongParameterList", "FunctionName")
+@Suppress("FunctionName")
 fun DashboardHeroHeader(
-    projectsCount: Int,
-    activityCount: Int,
-    viewMode: DashboardViewMode,
-    onViewModeChange: (DashboardViewMode) -> Unit,
-    onTrashClick: () -> Unit,
-    onSettingsClick: () -> Unit,
-    isTrashNotEmpty: Boolean,
+    state: DashboardViewState,
+    actions: DashboardActions,
     haptic: HapticFeedback
 ) {
     Column(
@@ -247,14 +226,14 @@ fun DashboardHeroHeader(
             .padding(horizontal = FotoRaporTokens.ScreenPaddingHorizontal)
             .padding(top = FotoRaporTokens.SpacingL, bottom = FotoRaporTokens.SpacingM)
     ) {
-        DashboardTopRow(onTrashClick, onSettingsClick, isTrashNotEmpty, haptic)
+        DashboardTopRow(actions.onTrashClick, actions.onSettingsClick, state.isTrashNotEmpty, haptic)
         Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingL))
-        DashboardStatsRow(projectsCount, activityCount)
+        DashboardStatsRow(state.projects?.size ?: 0, state.activityDots.size)
         Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingL))
         PillSegmentedControl(
             items = DashboardViewMode.entries,
-            selectedItem = viewMode,
-            onItemSelected = onViewModeChange,
+            selectedItem = state.viewMode,
+            onItemSelected = actions.onViewModeChange,
             itemTitle = { mode ->
                 when (mode) {
                     DashboardViewMode.PROJECTS -> stringResource(R.string.my_projects_title)

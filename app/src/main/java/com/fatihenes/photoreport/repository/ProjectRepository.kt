@@ -1,11 +1,13 @@
 package com.fatihenes.photoreport.repository
 
 import android.content.Context
+import com.fatihenes.photoreport.core.common.di.Dispatcher
+import com.fatihenes.photoreport.core.common.di.FotoRaporDispatchers
 import com.fatihenes.photoreport.core.database.*
 import com.fatihenes.photoreport.widget.WidgetDataHelper
 import com.fatihenes.photoreport.R
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -24,7 +26,8 @@ interface ProjectRepository {
 @Singleton
 class ProjectRepositoryImpl @Inject constructor(
     @param:ApplicationContext private val appContext: Context,
-    private val projectDao: ProjectDao
+    private val projectDao: ProjectDao,
+    @Dispatcher(FotoRaporDispatchers.IO) private val ioDispatcher: CoroutineDispatcher
 ) : ProjectRepository {
 
     override fun getAllProjects(): Flow<List<ProjectEntity>> = projectDao.getAllProjects()
@@ -46,7 +49,7 @@ class ProjectRepositoryImpl @Inject constructor(
 
     override suspend fun getLatestProjectSuspend(): ProjectEntity? = projectDao.getLatestProjectSuspend()
 
-    override suspend fun refreshWidgetData() = withContext(Dispatchers.IO) {
+    override suspend fun refreshWidgetData() = withContext(ioDispatcher) {
         val latest = projectDao.getLatestProjectSuspend()
         if (latest != null) {
             WidgetDataHelper.saveLatestProject(appContext, latest.id, latest.name)

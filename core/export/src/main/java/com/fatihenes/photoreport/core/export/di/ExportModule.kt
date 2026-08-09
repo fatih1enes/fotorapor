@@ -10,11 +10,10 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class ExportModule {
+fun interface ExportModule {
 
     @Binds
-    @Singleton
-    abstract fun bindPdfExportManager(
+    fun bindPdfExportManager(
         nativePdfExportManager: NativePdfExportManager
     ): PdfExportManager
 }

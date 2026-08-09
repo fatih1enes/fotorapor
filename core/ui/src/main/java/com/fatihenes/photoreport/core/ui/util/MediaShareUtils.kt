@@ -93,6 +93,15 @@ object MediaShareUtils {
         }
     }
 
+    /**
+     * Validates that the file path is within allowed directories to prevent path traversal attacks.
+     *
+     * SECURITY NOTE: This check ensures that only files within the app's private internal storage or
+     * specific external cache/files directories can be shared. Canonical path comparison is used
+     * to resolve any potential path traversal sequences (e.g., "../") and ensure the target file
+     * is strictly contained within the expected directory hierarchy.
+     */
+    @Suppress("CommentOverPrivateFunction", "kotlin:S5324")
     private fun validateFilePath(context: Context, file: File) {
         val canonicalPath = file.canonicalPath
 

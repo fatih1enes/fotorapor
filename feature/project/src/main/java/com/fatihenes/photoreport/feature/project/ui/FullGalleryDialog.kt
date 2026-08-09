@@ -1,18 +1,50 @@
+@file:Suppress("TooManyFunctions")
 package com.fatihenes.photoreport.feature.project.ui
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.PlayCircleFilled
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -43,7 +75,30 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
+private const val GALLERY_COLUMNS = 3
+private const val TRANSITION_SCALE = 0.96f
+private const val THUMB_SIZE = 256
+private const val OVERLAY_ALPHA = 0.15f
+private const val VIDEO_ICON_ALPHA = 0.9f
+private const val DISMISS_DELAY_MS = 200
+
+data class GalleryState(
+    val log: DailyLog,
+    val photos: List<Photo>,
+    val isSelectionMode: Boolean,
+    val selectedIds: List<Long>,
+)
+
+data class GalleryActions(
+    val onToggleSelectionMode: () -> Unit,
+    val onClearSelection: () -> Unit,
+    val onShowDeleteConfirm: () -> Unit,
+    val onDismiss: () -> Unit,
+    val onTogglePhotoSelection: (Photo) -> Unit,
+)
+
 @OptIn(ExperimentalMaterial3Api::class)
+@Suppress("FunctionName")
 @Composable
 fun FullGalleryDialog(
     log: DailyLog,
@@ -52,165 +107,213 @@ fun FullGalleryDialog(
     onPhotoClick: (Photo) -> Unit,
     onDeletePhotos: (List<Long>) -> Unit,
 ) {
-    var isSelectionMode by remember { mutableStateOf(false) }
+    var isSelectionMode by remember { mutableStateOf(value = false) }
     val selectedIds = remember { mutableStateListOf<Long>() }
-    var showBulkDeleteConfirm by remember { mutableStateOf(false) }
-    var isVisible by remember { mutableStateOf(false) }
+    var showBulkDeleteConfirm by remember { mutableStateOf(value = false) }
+    var isVisible by remember { mutableStateOf(value = false) }
 
     LaunchedEffect(Unit) { isVisible = true }
 
     val scope = rememberCoroutineScope()
     val triggerDismiss = {
         isVisible = false
-        scope.launch { delay(200.milliseconds); onDismiss() }
+        scope.launch {
+            delay(DISMISS_DELAY_MS.milliseconds)
+            onDismiss()
+        }
     }
 
     Dialog(
         onDismissRequest = { triggerDismiss() },
-        properties = DialogProperties(usePlatformDefaultWidth = false, decorFitsSystemWindows = false)
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = false,
+        ),
     ) {
-        androidx.activity.compose.BackHandler(enabled = isVisible) { triggerDismiss() }
-
-        AnimatedVisibility(
-            visible = isVisible,
-            enter = androidx.compose.animation.fadeIn(
-                animationSpec = androidx.compose.animation.core.tween(FotoRaporMotion.DurationMedium)
-            ) + androidx.compose.animation.scaleIn(
-                initialScale = 0.96f,
-                animationSpec = androidx.compose.animation.core.tween(FotoRaporMotion.DurationMedium)
-            ),
-            exit = androidx.compose.animation.fadeOut(
-                animationSpec = androidx.compose.animation.core.tween(FotoRaporMotion.DurationShort)
-            ) + androidx.compose.animation.scaleOut(
-                targetScale = 0.96f,
-                animationSpec = androidx.compose.animation.core.tween(FotoRaporMotion.DurationShort)
-            )
-        ) {
-            Scaffold(
-                topBar = {
-                    GalleryTopAppBar(
-                        log = log,
-                        photos = photos,
-                        isSelectionMode = isSelectionMode,
-                        selectedIds = selectedIds,
-                        onToggleSelectionMode = { isSelectionMode = !isSelectionMode },
-                        onClearSelection = { isSelectionMode = false; selectedIds.clear() },
-                        onShowDeleteConfirm = { showBulkDeleteConfirm = true },
-                        onDismiss = { triggerDismiss() }
-                    )
+        FullGalleryContent(
+            isVisible = isVisible,
+            state = GalleryState(log, photos, isSelectionMode, selectedIds.toList()),
+            actions = GalleryActions(
+                onToggleSelectionMode = { isSelectionMode = !isSelectionMode },
+                onClearSelection = {
+                    isSelectionMode = false
+                    selectedIds.clear()
                 },
-                containerColor = MaterialTheme.colorScheme.background
-            ) { padding ->
-                GalleryGrid(
-                    photos = photos,
-                    selectedIds = selectedIds,
-                    isSelectionMode = isSelectionMode,
-                    padding = padding,
-                    onItemClick = { photo ->
-                        if (isSelectionMode) {
-                            if (selectedIds.contains(photo.id)) {
-                                selectedIds.remove(photo.id)
-                            } else {
-                                selectedIds.add(photo.id)
-                            }
-                        } else {
-                            onPhotoClick(photo)
-                        }
-                    }
-                )
-            }
-        }
+                onShowDeleteConfirm = { showBulkDeleteConfirm = true },
+                onDismiss = { triggerDismiss() },
+            ) { photo ->
+                if (selectedIds.contains(photo.id)) {
+                    selectedIds.remove(photo.id)
+                } else {
+                    selectedIds.add(photo.id)
+                }
+            },
+            onPhotoClick = onPhotoClick,
+        )
     }
 
     if (showBulkDeleteConfirm) {
         BulkDeleteConfirmDialog(
             count = selectedIds.size,
             onDismiss = { showBulkDeleteConfirm = false },
-            onConfirm = {
-                onDeletePhotos(selectedIds.toList())
-                selectedIds.clear()
-                isSelectionMode = false
-                showBulkDeleteConfirm = false
-            }
-        )
+        ) {
+            onDeletePhotos(selectedIds.toList())
+            selectedIds.clear()
+            isSelectionMode = false
+            showBulkDeleteConfirm = false
+        }
+    }
+}
+
+@Suppress("FunctionName")
+@Composable
+private fun FullGalleryContent(
+    isVisible: Boolean,
+    state: GalleryState,
+    actions: GalleryActions,
+    onPhotoClick: (Photo) -> Unit,
+) {
+    androidx.activity.compose.BackHandler(enabled = isVisible) { actions.onDismiss() }
+
+    GalleryTransition(isVisible) {
+        Scaffold(
+            topBar = { GalleryTopAppBar(state = state, actions = actions) },
+            containerColor = MaterialTheme.colorScheme.background,
+        ) { padding ->
+            GalleryGrid(
+                photos = state.photos,
+                selectedIds = state.selectedIds,
+                isSelectionMode = state.isSelectionMode,
+                padding = padding,
+                onItemClick = { photo ->
+                    if (state.isSelectionMode) actions.onTogglePhotoSelection(photo)
+                    else onPhotoClick(photo)
+                }
+            )
+        }
+    }
+}
+
+@Suppress("FunctionName")
+@Composable
+private fun GalleryTransition(visible: Boolean, content: @Composable () -> Unit) {
+    AnimatedVisibility(
+        visible = visible,
+        enter = androidx.compose.animation.fadeIn(
+            animationSpec = androidx.compose.animation.core.tween(FotoRaporMotion.DURATION_MEDIUM),
+        ) + androidx.compose.animation.scaleIn(
+            initialScale = TRANSITION_SCALE,
+            animationSpec = androidx.compose.animation.core.tween(FotoRaporMotion.DURATION_MEDIUM),
+        ),
+        exit = androidx.compose.animation.fadeOut(
+            animationSpec = androidx.compose.animation.core.tween(FotoRaporMotion.DURATION_SHORT),
+        ) + androidx.compose.animation.scaleOut(
+            targetScale = TRANSITION_SCALE,
+            animationSpec = androidx.compose.animation.core.tween(FotoRaporMotion.DURATION_SHORT),
+        ),
+    ) {
+        content()
     }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
-@Suppress("LongParameterList", "FunctionName", "LongMethod")
+@Suppress("FunctionName")
 @Composable
 private fun GalleryTopAppBar(
-    log: DailyLog,
-    photos: List<Photo>,
-    isSelectionMode: Boolean,
-    selectedIds: List<Long>,
-    onToggleSelectionMode: () -> Unit,
-    onClearSelection: () -> Unit,
-    onShowDeleteConfirm: () -> Unit,
-    onDismiss: () -> Unit
+    state: GalleryState,
+    actions: GalleryActions,
+) {
+    TopAppBar(
+        title = { GalleryTitle(state) },
+        navigationIcon = {
+            IconButton(
+                onClick = if (state.isSelectionMode) actions.onClearSelection else actions.onDismiss,
+            ) {
+                Icon(
+                    Icons.Default.Close,
+                    stringResource(R.string.acc_close),
+                    modifier = Modifier.size(FotoRaporTokens.IconSizeS),
+                )
+            }
+        },
+        actions = { GalleryTopAppBarActions(state = state, actions = actions) },
+        colors = TopAppBarDefaults.topAppBarColors(
+            containerColor = MaterialTheme.colorScheme.background,
+        ),
+    )
+}
+
+@Suppress("FunctionName")
+@Composable
+private fun GalleryTitle(state: GalleryState) {
+    val title = if (state.isSelectionMode) {
+        pluralStringResource(R.plurals.selected_count, state.selectedIds.size, state.selectedIds.size)
+    } else {
+        DateUtils.formatDate(state.log.date)
+    }
+    Text(
+        text = title,
+        style = MaterialTheme.typography.titleMedium,
+        fontWeight = FontWeight.SemiBold
+    )
+}
+
+@Composable
+private fun GalleryTopAppBarActions(
+    state: GalleryState,
+    actions: GalleryActions,
+) {
+    if (state.isSelectionMode) {
+        SelectionModeActions(state = state, actions = actions)
+    } else {
+        TextButton(onClick = actions.onToggleSelectionMode) {
+            Text(
+                stringResource(R.string.bulk_select_delete),
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold,
+            )
+        }
+    }
+}
+
+@Composable
+private fun SelectionModeActions(
+    state: GalleryState,
+    actions: GalleryActions
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackbarHost = LocalSnackbarHostState.current
 
-    TopAppBar(
-        title = {
-            Text(
-                if (isSelectionMode) {
-                    pluralStringResource(R.plurals.selected_count, selectedIds.size, selectedIds.size)
-                } else {
-                    DateUtils.formatDate(log.date)
-                },
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.SemiBold
-            )
-        },
-        navigationIcon = {
-            IconButton(onClick = if (isSelectionMode) onClearSelection else onDismiss) {
-                Icon(
-                    Icons.Default.Close,
-                    stringResource(R.string.acc_close),
-                    modifier = Modifier.size(FotoRaporTokens.IconSizeS)
-                )
-            }
-        },
-        actions = {
-            if (isSelectionMode) {
-                IconButton(onClick = {
-                    if (selectedIds.isNotEmpty()) {
-                        val paths = photos.filter { selectedIds.contains(it.id) }.map { it.filePath }
-                        MediaShareUtils.shareMultipleMedia(context, paths) {
-                            scope.launch { snackbarHost.showSnackbar(it) }
-                        }
-                    }
-                }) {
-                    Icon(
-                        Icons.Default.Share,
-                        stringResource(R.string.acc_share),
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(FotoRaporTokens.IconSizeS)
-                    )
-                }
-                IconButton(onClick = { if (selectedIds.isNotEmpty()) onShowDeleteConfirm() }) {
-                    Icon(
-                        Icons.Default.Delete,
-                        stringResource(R.string.acc_delete),
-                        tint = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(FotoRaporTokens.IconSizeS)
-                    )
-                }
-            } else {
-                TextButton(onClick = onToggleSelectionMode) {
-                    Text(
-                        stringResource(R.string.bulk_select_delete),
-                        style = MaterialTheme.typography.labelLarge,
-                        fontWeight = FontWeight.SemiBold
-                    )
+    IconButton(
+        onClick = {
+            if (state.selectedIds.isNotEmpty()) {
+                val paths = state.photos
+                    .asSequence()
+                    .filter { state.selectedIds.contains(it.id) }
+                    .map { it.filePath }
+                    .toList()
+                MediaShareUtils.shareMultipleMedia(context, paths) { message ->
+                    scope.launch { snackbarHost.showSnackbar(message) }
                 }
             }
         },
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
-    )
+    ) {
+        Icon(
+            Icons.Default.Share,
+            stringResource(R.string.acc_share),
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(FotoRaporTokens.IconSizeS),
+        )
+    }
+    IconButton(onClick = { if (state.selectedIds.isNotEmpty()) actions.onShowDeleteConfirm() }) {
+        Icon(
+            Icons.Default.Delete,
+            stringResource(R.string.acc_delete),
+            tint = MaterialTheme.colorScheme.error,
+            modifier = Modifier.size(FotoRaporTokens.IconSizeS),
+        )
+    }
 }
 
 @Suppress("FunctionName")
@@ -220,17 +323,17 @@ private fun GalleryGrid(
     selectedIds: List<Long>,
     isSelectionMode: Boolean,
     padding: PaddingValues,
-    onItemClick: (Photo) -> Unit
+    onItemClick: (Photo) -> Unit,
 ) {
     val haptic = LocalHapticFeedback.current
     LazyVerticalGrid(
-        columns = GridCells.Fixed(3),
+        columns = GridCells.Fixed(GALLERY_COLUMNS),
         modifier = Modifier
             .fillMaxSize()
             .padding(padding),
         contentPadding = PaddingValues(FotoRaporTokens.SpacingM),
         horizontalArrangement = Arrangement.spacedBy(FotoRaporTokens.SpacingXS + 2.dp),
-        verticalArrangement = Arrangement.spacedBy(FotoRaporTokens.SpacingXS + 2.dp)
+        verticalArrangement = Arrangement.spacedBy(FotoRaporTokens.SpacingXS + 2.dp),
     ) {
         items(photos, key = { it.id }, contentType = { "photo_grid_item" }) { photo ->
             GalleryGridItem(
@@ -240,7 +343,7 @@ private fun GalleryGrid(
                 onClick = {
                     haptic.performHapticFeedback(HapticFeedbackType.TextHandleMove)
                     onItemClick(photo)
-                }
+                },
             )
         }
     }
@@ -252,7 +355,7 @@ private fun GalleryGridItem(
     photo: Photo,
     isSelected: Boolean,
     isSelectionMode: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
 ) {
     val context = LocalContext.current
     val isVideo = photo.filePath.endsWith(".mp4", ignoreCase = true)
@@ -265,24 +368,22 @@ private fun GalleryGridItem(
                     Modifier.border(
                         2.5.dp,
                         MaterialTheme.colorScheme.primary,
-                        RoundedCornerShape(FotoRaporTokens.RadiusS)
+                        RoundedCornerShape(FotoRaporTokens.RadiusS),
                     )
-                } else {
-                    Modifier
-                }
+                } else Modifier,
             ),
         shape = RoundedCornerShape(FotoRaporTokens.RadiusS),
-        elevation = CardDefaults.cardElevation(defaultElevation = FotoRaporTokens.ElevationNone)
+        elevation = CardDefaults.cardElevation(defaultElevation = FotoRaporTokens.ElevationNone),
     ) {
         Box {
             val request = remember(photo.filePath) {
                 ImageRequest.Builder(context)
                     .data(photo.filePath)
                     .apply { if (isVideo) decoderFactory(VideoFrameDecoder.Factory()) }
-                    .size(256)
+                    .size(THUMB_SIZE)
                     .memoryCachePolicy(CachePolicy.ENABLED)
                     .diskCachePolicy(CachePolicy.ENABLED)
-                    .crossfade(FotoRaporMotion.DurationShort)
+                    .crossfade(FotoRaporMotion.DURATION_SHORT)
                     .build()
             }
             AsyncImage(
@@ -291,11 +392,11 @@ private fun GalleryGridItem(
                 modifier = Modifier.fillMaxSize(),
                 contentScale = ContentScale.Crop,
                 placeholder = androidx.compose.ui.graphics.painter.ColorPainter(
-                    MaterialTheme.colorScheme.surfaceContainerHigh
+                    MaterialTheme.colorScheme.surfaceContainerHigh,
                 ),
                 error = androidx.compose.ui.graphics.painter.ColorPainter(
-                    MaterialTheme.colorScheme.surfaceContainerHigh
-                )
+                    MaterialTheme.colorScheme.surfaceContainerHigh,
+                ),
             )
             if (isVideo) VideoPlayOverlay()
             if (isSelectionMode) SelectionOverlay(isSelected)
@@ -309,14 +410,14 @@ private fun VideoPlayOverlay() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.15f)),
-        contentAlignment = Alignment.Center
+            .background(Color.Black.copy(alpha = OVERLAY_ALPHA)),
+        contentAlignment = Alignment.Center,
     ) {
         Icon(
-            imageVector = Icons.Default.PlayCircleFilled,
-            contentDescription = null,
-            tint = Color.White.copy(alpha = 0.9f),
-            modifier = Modifier.size(FotoRaporTokens.IconSizeL)
+            Icons.Default.PlayCircleFilled,
+            null,
+            tint = Color.White.copy(alpha = VIDEO_ICON_ALPHA),
+            modifier = Modifier.size(FotoRaporTokens.IconSizeL),
         )
     }
 }
@@ -327,9 +428,19 @@ private fun BoxScope.SelectionOverlay(isSelected: Boolean) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(if (isSelected) MaterialTheme.colorScheme.primary.copy(alpha = 0.15f) else Color.Transparent)
+            .background(
+                if (isSelected) {
+                    MaterialTheme.colorScheme.primary.copy(alpha = OVERLAY_ALPHA)
+                } else {
+                    Color.Transparent
+                },
+            ),
     )
-    Checkbox(checked = isSelected, onCheckedChange = null, modifier = Modifier.align(Alignment.TopEnd))
+    Checkbox(
+        checked = isSelected,
+        onCheckedChange = null,
+        modifier = Modifier.align(Alignment.TopEnd),
+    )
 }
 
 @Suppress("FunctionName")
@@ -337,7 +448,7 @@ private fun BoxScope.SelectionOverlay(isSelected: Boolean) {
 private fun BulkDeleteConfirmDialog(
     count: Int,
     onDismiss: () -> Unit,
-    onConfirm: () -> Unit
+    onConfirm: () -> Unit,
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -346,14 +457,14 @@ private fun BulkDeleteConfirmDialog(
             Text(
                 stringResource(R.string.delete_photo_title),
                 style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.SemiBold,
             )
         },
         text = {
             Text(
                 pluralStringResource(R.plurals.delete_bulk_desc, count, count),
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         },
         confirmButton = {
@@ -361,15 +472,15 @@ private fun BulkDeleteConfirmDialog(
                 onClick = onConfirm,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.error,
-                    contentColor = MaterialTheme.colorScheme.onError
+                    contentColor = MaterialTheme.colorScheme.onError,
                 ),
                 shape = RoundedCornerShape(FotoRaporTokens.RadiusS),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = FotoRaporTokens.ElevationNone)
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = FotoRaporTokens.ElevationNone),
             ) {
                 Text(
                     stringResource(R.string.delete_confirm_btn),
                     style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
                 )
             }
         },
@@ -377,10 +488,9 @@ private fun BulkDeleteConfirmDialog(
             TextButton(onClick = onDismiss) {
                 Text(
                     stringResource(R.string.cancel_btn),
-                    style = MaterialTheme.typography.labelLarge
+                    style = MaterialTheme.typography.labelLarge,
                 )
             }
-        }
+        },
     )
 }
-

@@ -11,8 +11,10 @@ class AdaptivePdfLayoutHelper(
     private val pageFooterHeight: Float = PdfTheme.FOOTER_HEIGHT,
 ) {
 
-    private var currentY: Float = 0f
-    private var currentColumn: Int = 0
+    var currentY: Float = 0f
+        private set
+    var currentColumn: Int = 0
+        private set
 
     fun reset(startY: Float) {
         currentY = startY
@@ -59,7 +61,7 @@ class AdaptivePdfLayoutHelper(
         }
 
         val finalRect = PdfRect(x, currentY, x + targetWidth, currentY + targetHeight)
-        
+
         var nextY = currentY
         if (isLandscape) {
             nextY += (targetHeight + PdfTheme.GRID_SPACING)
@@ -71,14 +73,12 @@ class AdaptivePdfLayoutHelper(
                 nextY += (targetHeight + PdfTheme.GRID_SPACING)
             }
         }
-        
+
         return LayoutResult(finalRect, isNewPage, nextY)
     }
 
     fun updateY(newY: Float) {
         currentY = newY
     }
-    
-    fun getCurrentY(): Float = currentY
-    fun getCurrentColumn(): Int = currentColumn
+
 }

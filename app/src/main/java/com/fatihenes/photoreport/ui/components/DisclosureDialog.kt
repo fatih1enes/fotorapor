@@ -17,6 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import com.fatihenes.photoreport.R
 import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporTokens
 
@@ -25,9 +26,9 @@ import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporTokens
 fun DisclosureDialog(
     onDismiss: () -> Unit
 ) {
-    AlertDialog(
+    BasicAlertDialog(
         onDismissRequest = { /* Prevent dismissal by clicking outside */ },
-        properties = androidx.compose.ui.window.DialogProperties(
+        properties = DialogProperties(
             dismissOnBackPress = false,
             dismissOnClickOutside = false
         )

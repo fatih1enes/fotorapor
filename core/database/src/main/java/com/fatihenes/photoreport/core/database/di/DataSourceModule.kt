@@ -14,16 +14,16 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class DataSourceModule {
+interface DataSourceModule {
     @Binds
     @Singleton
-    abstract fun bindLocalProjectDataSource(impl: LocalProjectDataSourceImpl): LocalProjectDataSource
+    fun bindLocalProjectDataSource(impl: LocalProjectDataSourceImpl): LocalProjectDataSource
 
     @Binds
     @Singleton
-    abstract fun bindLocalLogDataSource(impl: LocalLogDataSourceImpl): LocalLogDataSource
+    fun bindLocalLogDataSource(impl: LocalLogDataSourceImpl): LocalLogDataSource
 
     @Binds
     @Singleton
-    abstract fun bindLocalPhotoDataSource(impl: LocalPhotoDataSourceImpl): LocalPhotoDataSource
+    fun bindLocalPhotoDataSource(impl: LocalPhotoDataSourceImpl): LocalPhotoDataSource
 }

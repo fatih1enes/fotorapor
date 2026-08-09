@@ -70,7 +70,7 @@ class LocalFileManager @Inject constructor(
             } else {
                 val path = uri.path ?: filePath
                 val file = File(path)
-                if (file.exists()) file.delete() else true
+                !file.exists() || file.delete()
             }
             OperationResult.Success(deleted)
         } catch (e: Exception) {

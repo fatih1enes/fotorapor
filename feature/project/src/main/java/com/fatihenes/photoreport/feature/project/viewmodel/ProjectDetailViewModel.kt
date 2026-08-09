@@ -5,13 +5,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.fatihenes.photoreport.core.common.model.FileSizeInfo
 import com.fatihenes.photoreport.core.common.util.groupBy
+import com.fatihenes.photoreport.core.common.di.Dispatcher
+import com.fatihenes.photoreport.core.common.di.FotoRaporDispatchers
 import com.fatihenes.photoreport.core.domain.repository.LogRepository
 import com.fatihenes.photoreport.core.domain.repository.PhotoRepository
 import com.fatihenes.photoreport.core.domain.repository.ProjectRepository
 import com.fatihenes.photoreport.core.domain.repository.ReportRepository
 import com.fatihenes.photoreport.core.model.Photo
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -27,6 +29,7 @@ class ProjectDetailViewModel @Inject constructor(
     private val photoRepository: PhotoRepository,
     private val reportRepository: ReportRepository,
     private val savedStateHandle: SavedStateHandle,
+    @Dispatcher(FotoRaporDispatchers.IO) private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     private val projectIdFlow = savedStateHandle.getStateFlow<Long?>("projectId", null)
@@ -92,7 +95,7 @@ class ProjectDetailViewModel @Inject constructor(
 
     fun addPhotoToLog(logId: Long, filePath: String) {
         viewModelScope.launch {
-            withContext(Dispatchers.IO) {
+            withContext(ioDispatcher) {
                 photoRepository.insertPhoto(logId = logId, filePath = filePath)
             }
             contentRefreshVersion.update { it + 1 }
@@ -100,7 +103,7 @@ class ProjectDetailViewModel @Inject constructor(
     }
 
     fun addLogForDate(projectId: Long, date: Long) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             val existing = logRepository.getLogForDate(projectId, date)
             if (existing == null) {
                 logRepository.insertLog(
@@ -113,13 +116,13 @@ class ProjectDetailViewModel @Inject constructor(
     }
 
     fun deletePhoto(photo: Photo) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             photoRepository.softDeletePhoto(photo)
         }
     }
 
     fun deletePhotos(photoIds: List<Long>) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             val photosToDelete = currentProjectLogs.value
                 .flatMap { it.photos }
                 .filter { it.id in photoIds }

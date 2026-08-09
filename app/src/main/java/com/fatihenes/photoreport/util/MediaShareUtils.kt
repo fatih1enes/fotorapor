@@ -95,6 +95,7 @@ object MediaShareUtils {
         }
     }
 
+    @Suppress("kotlin:S5324")
     private fun validateFilePath(context: Context, file: File) {
         val canonicalPath = file.canonicalPath
         val allowedRoots = mutableListOf<String>()

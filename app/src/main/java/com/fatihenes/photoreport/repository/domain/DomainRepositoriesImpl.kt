@@ -2,6 +2,7 @@ package com.fatihenes.photoreport.repository.domain
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.core.net.toUri
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -10,8 +11,19 @@ import com.fatihenes.photoreport.manager.FileManager
 import com.fatihenes.photoreport.core.domain.datasource.LocalLogDataSource
 import com.fatihenes.photoreport.core.domain.datasource.LocalPhotoDataSource
 import com.fatihenes.photoreport.core.domain.datasource.LocalProjectDataSource
-import com.fatihenes.photoreport.core.domain.repository.*
-import com.fatihenes.photoreport.core.model.*
+import com.fatihenes.photoreport.core.domain.repository.ProjectRepository
+import com.fatihenes.photoreport.core.domain.repository.TrashRepository
+import com.fatihenes.photoreport.core.domain.repository.LogRepository
+import com.fatihenes.photoreport.core.domain.repository.PhotoRepository
+import com.fatihenes.photoreport.core.domain.repository.BackupRepository
+import com.fatihenes.photoreport.core.domain.repository.ReportRepository
+import com.fatihenes.photoreport.core.domain.repository.SettingsRepository
+import com.fatihenes.photoreport.core.model.Project
+import com.fatihenes.photoreport.core.model.Photo
+import com.fatihenes.photoreport.core.model.DailyLog
+import com.fatihenes.photoreport.core.model.DailyLogWithPhotos
+import com.fatihenes.photoreport.core.model.WatermarkData
+import com.fatihenes.photoreport.core.model.FileSizeInfo
 import com.fatihenes.photoreport.repository.SettingsRepositoryImpl
 import dagger.Binds
 import dagger.Module
@@ -29,14 +41,16 @@ class DomainProjectRepositoryImpl @Inject constructor(
     override fun getAllProjects(): Flow<List<Project>> = localProjectDataSource.getAllProjects()
     override suspend fun insertProject(name: String, colorHex: String): Long {
         return localProjectDataSource.insertProject(
-            Project(name = name, colorHex = colorHex)
+            Project(name = name, colorHex = colorHex),
         )
     }
     override suspend fun deleteProjectById(projectId: Long) {
         localProjectDataSource.softDeleteProjectById(projectId, System.currentTimeMillis())
     }
     override fun getProjectById(projectId: Long): Flow<Project?> = localProjectDataSource.getProjectById(projectId)
-    override suspend fun getProjectByIdSuspend(projectId: Long): Project? = localProjectDataSource.getProjectByIdSuspend(projectId)
+    override suspend fun getProjectByIdSuspend(projectId: Long): Project? {
+        return localProjectDataSource.getProjectByIdSuspend(projectId)
+    }
     override suspend fun getLatestProjectSuspend(): Project? = localProjectDataSource.getLatestProjectSuspend()
 }
 
@@ -82,7 +96,13 @@ class DomainLogRepositoryImpl @Inject constructor(
     override fun getLogsForProject(projectId: Long): Flow<List<DailyLog>> = localLogDataSource.getLogsForProject(projectId)
     override suspend fun getLogForDate(projectId: Long, date: Long): DailyLog? = localLogDataSource.getLogForDate(projectId, date)
     override suspend fun insertLog(projectId: Long, date: Long, note: String): Long {
-        return localLogDataSource.insertLog(DailyLog(projectId = projectId, date = date, note = note))
+        return localLogDataSource.insertLog(
+            DailyLog(
+                projectId = projectId,
+                date = date,
+                note = note,
+            ),
+        )
     }
     override suspend fun updateNote(id: Long, note: String) = localLogDataSource.updateNote(id, note)
     override fun getLogsWithPhotosForProjectFlow(projectId: Long): Flow<List<DailyLogWithPhotos>> = localLogDataSource.getLogsWithPhotosForProject(projectId)
@@ -110,8 +130,22 @@ class DomainPhotoRepositoryImpl @Inject constructor(
         val now = System.currentTimeMillis()
         photos.forEach { localPhotoDataSource.softDeletePhoto(it.id, now) }
     }
-    override fun processAndSavePhotoInBackground(uriString: String, projectId: Long, logId: Long, enableWebp: Boolean, projectName: String, watermarkData: WatermarkData?) {
-        legacyPhotoRepository.processAndSavePhotoInBackground(uriString.toUri(), projectId, logId, enableWebp, projectName, watermarkData)
+    override fun processAndSavePhotoInBackground(
+        uriString: String,
+        projectId: Long,
+        logId: Long,
+        enableWebp: Boolean,
+        projectName: String,
+        watermarkData: WatermarkData?,
+    ) {
+        legacyPhotoRepository.processAndSavePhotoInBackground(
+            uriString.toUri(),
+            projectId,
+            logId,
+            enableWebp,
+            projectName,
+            watermarkData,
+        )
     }
 }
 
@@ -142,39 +176,51 @@ class DomainReportRepositoryImpl @Inject constructor(
         val maxBytesQ75 = (0.15 * 1024 * 1024).toLong()
 
         photos.forEach { photo ->
-            try {
-                val uri = photo.filePath.toUri()
-                val size = if (photo.filePath.startsWith("content://")) {
-                    context.contentResolver.openFileDescriptor(uri, "r")?.use {
-                        it.statSize
-                    } ?: 0L
-                } else {
-                    val path = if (photo.filePath.startsWith("file://")) uri.path else photo.filePath
-                    path?.let { java.io.File(it).length() } ?: 0L
-                }
-
-                if (photo.filePath.endsWith(".mp4", ignoreCase = true)) {
-                    totalVideoBytes += size
-                    videoCount++
-                } else {
-                    totalPhotoBytes += size
-                    photoCount++
-                    estimatedQ100 += minOf(size, maxBytesQ100)
-                    estimatedQ85 += minOf(size, maxBytesQ85)
-                    estimatedQ75 += minOf(size, maxBytesQ75)
-                }
-            } catch (_: Exception) {}
+            val size = getPhotoFileSize(context, photo.filePath)
+            if (photo.filePath.endsWith(".mp4", ignoreCase = true)) {
+                totalVideoBytes += size
+                videoCount++
+            } else {
+                totalPhotoBytes += size
+                photoCount++
+                estimatedQ100 += minOf(size, maxBytesQ100)
+                estimatedQ85 += minOf(size, maxBytesQ85)
+                estimatedQ75 += minOf(size, maxBytesQ75)
+            }
         }
 
         FileSizeInfo(
-            totalPhotoBytes,
-            totalVideoBytes,
-            photoCount,
-            videoCount,
-            estimatedQ100,
-            estimatedQ85,
-            estimatedQ75
+            totalPhotoBytes = totalPhotoBytes,
+            totalVideoBytes = totalVideoBytes,
+            photoCount = photoCount,
+            videoCount = videoCount,
+            estimatedQ100Bytes = estimatedQ100,
+            estimatedQ85Bytes = estimatedQ85,
+            estimatedQ75Bytes = estimatedQ75,
         )
+    }
+
+    private fun getPhotoFileSize(context: Context, filePath: String): Long {
+        return try {
+            val uri = filePath.toUri()
+            if (filePath.startsWith("content://")) {
+                context.contentResolver.openFileDescriptor(uri, "r")?.use {
+                    it.statSize
+                } ?: 0L
+            } else {
+                val path = if (filePath.startsWith("file://")) uri.path else filePath
+                path?.let { java.io.File(it).length() } ?: 0L
+            }
+        } catch (e: java.io.IOException) {
+            Log.w("ReportRepo", "Failed to calculate size for $filePath", e)
+            0L
+        } catch (e: SecurityException) {
+            Log.w("ReportRepo", "Storage access denied for $filePath", e)
+            0L
+        } catch (e: android.os.RemoteException) {
+            Log.w("ReportRepo", "Remote process error for $filePath", e)
+            0L
+        }
     }
 
     override fun enqueueExportWork(projectId: Long, projectName: String, format: String, quality: Int, language: String) {
@@ -190,7 +236,7 @@ class DomainReportRepositoryImpl @Inject constructor(
                     "project_name" to projectName,
                     "format" to format,
                     "quality" to quality,
-                    "language" to language
+                    "language" to language,
                 )
             )
             .build()
@@ -202,25 +248,25 @@ class DomainReportRepositoryImpl @Inject constructor(
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class DomainRepositoryModule {
+interface DomainRepositoryModule {
     @Binds
-    abstract fun bindDomainProjectRepository(impl: DomainProjectRepositoryImpl): ProjectRepository
+    fun bindDomainProjectRepository(impl: DomainProjectRepositoryImpl): ProjectRepository
 
     @Binds
-    abstract fun bindDomainTrashRepository(impl: DomainTrashRepositoryImpl): TrashRepository
+    fun bindDomainTrashRepository(impl: DomainTrashRepositoryImpl): TrashRepository
 
     @Binds
-    abstract fun bindDomainLogRepository(impl: DomainLogRepositoryImpl): LogRepository
+    fun bindDomainLogRepository(impl: DomainLogRepositoryImpl): LogRepository
 
     @Binds
-    abstract fun bindDomainPhotoRepository(impl: DomainPhotoRepositoryImpl): PhotoRepository
+    fun bindDomainPhotoRepository(impl: DomainPhotoRepositoryImpl): PhotoRepository
 
     @Binds
-    abstract fun bindDomainSettingsRepository(impl: SettingsRepositoryImpl): SettingsRepository
+    fun bindDomainSettingsRepository(impl: SettingsRepositoryImpl): SettingsRepository
 
     @Binds
-    abstract fun bindDomainBackupRepository(impl: DomainBackupRepositoryImpl): BackupRepository
+    fun bindDomainBackupRepository(impl: DomainBackupRepositoryImpl): BackupRepository
 
     @Binds
-    abstract fun bindDomainReportRepository(impl: DomainReportRepositoryImpl): ReportRepository
+    fun bindDomainReportRepository(impl: DomainReportRepositoryImpl): ReportRepository
 }

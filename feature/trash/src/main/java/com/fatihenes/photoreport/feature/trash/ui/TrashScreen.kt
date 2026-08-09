@@ -30,6 +30,7 @@ import coil3.compose.AsyncImage
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion
 import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporTokens
 import com.fatihenes.photoreport.core.ui.R
 import com.fatihenes.photoreport.core.model.Photo
@@ -372,7 +373,7 @@ fun TrashPhotoItem(
                 model = ImageRequest.Builder(context)
                     .data(photo.filePath)
                     .size(THUMB_SIZE)
-                    .crossfade(com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion.DurationShort)
+                    .crossfade(FotoRaporMotion.DURATION_SHORT)
                     .memoryCachePolicy(CachePolicy.ENABLED)
                     .build(),
                 contentDescription = stringResource(R.string.photo_label),

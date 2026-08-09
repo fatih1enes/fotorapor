@@ -2,10 +2,8 @@ package com.fatihenes.photoreport.repository
 
 import com.fatihenes.photoreport.core.database.*
 import com.fatihenes.photoreport.manager.FileManager
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -40,16 +38,16 @@ class TrashRepositoryImpl @Inject constructor(
 
     override suspend fun restorePhoto(id: Long) = photoDao.restorePhoto(id)
 
-    override suspend fun hardDeleteProject(projectId: Long) = withContext(Dispatchers.IO) {
+    override suspend fun hardDeleteProject(projectId: Long) {
         deleteProjectPermanently(projectId)
         projectRepository.refreshWidgetData()
     }
 
-    override suspend fun hardDeletePhoto(photo: PhotoEntity) = withContext(Dispatchers.IO) {
+    override suspend fun hardDeletePhoto(photo: PhotoEntity) {
         deletePhotosPermanently(listOf(photo))
     }
 
-    override suspend fun emptyTrash() = withContext(Dispatchers.IO) {
+    override suspend fun emptyTrash() {
         val projects = projectDao.getDeletedProjects().first()
         projects.forEach { deleteProjectPermanently(it.id) }
 
@@ -59,7 +57,7 @@ class TrashRepositoryImpl @Inject constructor(
         projectRepository.refreshWidgetData()
     }
 
-    override suspend fun cleanOldTrash(threshold: Long) = withContext(Dispatchers.IO) {
+    override suspend fun cleanOldTrash(threshold: Long) {
         val projects = projectDao.getDeletedProjects().first()
         projects.filter { (it.deletedAt ?: 0L) < threshold }.forEach { deleteProjectPermanently(it.id) }
 

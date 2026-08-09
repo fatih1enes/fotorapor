@@ -32,14 +32,17 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.fatihenes.photoreport.core.ui.R
 import com.fatihenes.photoreport.core.media.ImageProcessor
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlin.math.max
 
+@Suppress("LongMethod")
 @Composable
 fun ImageCropperDialog(
     imageUri: Uri,
     onDismiss: () -> Unit,
+    ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
     onCropSuccess: (Bitmap) -> Unit
 ) {
     val context = LocalContext.current
@@ -54,7 +57,7 @@ fun ImageCropperDialog(
     var aspectRatio by remember { mutableFloatStateOf(1f) }
 
     LaunchedEffect(imageUri) {
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             try {
                 // OOM Önlemi: Resmi tam çözünürlükte değil, ekran boyutuna uygun şekilde (max 1024x1024) yükle
                 val bmp = ImageProcessor.loadScaledBitmap(context, imageUri.toString(), 1024, 1024)

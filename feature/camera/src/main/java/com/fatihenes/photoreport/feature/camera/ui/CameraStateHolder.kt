@@ -1,3 +1,4 @@
+@file:Suppress("WildcardImport", "MaxLineLength")
 package com.fatihenes.photoreport.feature.camera.ui
 
 import android.content.Context
@@ -18,9 +19,9 @@ import androidx.compose.runtime.*
 import androidx.lifecycle.LifecycleOwner
 import com.fatihenes.photoreport.feature.camera.model.CameraCapabilities
 import com.fatihenes.photoreport.feature.camera.model.queryCameraCapabilities
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.ensureActive
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -28,11 +29,22 @@ import java.util.concurrent.TimeUnit
 
 private const val TAG = "CameraStateHolder"
 
+data class CameraConfig(
+    val lensFacing: Int,
+    val aspectRatio: Int,
+    val cameraMode: String,
+    val videoQuality: Quality,
+    val currentRotation: Int,
+    val flashMode: Int,
+    val enableOptimization: Boolean
+)
+
 @Stable
 class CameraStateHolder(
     private val context: Context,
     private val lifecycleOwner: LifecycleOwner,
-    val executor: ExecutorService
+    val executor: ExecutorService,
+    private val ioDispatcher: CoroutineDispatcher
 ) {
     private var cameraProvider: ProcessCameraProvider? = null
 
@@ -50,7 +62,7 @@ class CameraStateHolder(
 
     var isCapturing by mutableStateOf(false)
 
-    var supportedQualities by mutableStateOf(listOf(Quality.FHD, Quality.HD, Quality.SD))
+    var supportedQualities by mutableStateOf<List<Quality>>(emptyList())
         private set
 
     var minZoom by mutableFloatStateOf(1f)
@@ -69,42 +81,24 @@ class CameraStateHolder(
         private set
 
     @androidx.annotation.OptIn(ExperimentalCamera2Interop::class)
-    suspend fun bindCamera(
-        previewView: PreviewView,
-        lensFacing: Int,
-        aspectRatio: Int,
-        cameraMode: String,
-        videoQuality: Quality,
-        currentRotation: Int,
-        flashMode: Int,
-        enableOptimization: Boolean = true
-    ) {
+    suspend fun bindCamera(previewView: PreviewView, config: CameraConfig) {
         isBound = false
-        val caps = queryCameraCapabilities(context, lensFacing)
+        val caps = queryCameraCapabilities(context, config.lensFacing)
 
         previewView.implementationMode = if (caps.isLegacy)
-            PreviewView.ImplementationMode.COMPATIBLE
-        else
-            PreviewView.ImplementationMode.PERFORMANCE
+            PreviewView.ImplementationMode.COMPATIBLE else PreviewView.ImplementationMode.PERFORMANCE
 
-        val cameraProvider = awaitCameraProvider()
-        val extensionsManager = awaitExtensionsManager(cameraProvider)
+        val provider = awaitCameraProvider()
+        val extensions = awaitExtensionsManager(provider)
         currentCoroutineContext().ensureActive()
 
-        val safeFlashMode = if (lensFacing == CameraSelector.LENS_FACING_FRONT) ImageCapture.FLASH_MODE_OFF else flashMode
+        val safeFlash = if (config.lensFacing == CameraSelector.LENS_FACING_FRONT)
+            ImageCapture.FLASH_MODE_OFF else config.flashMode
+        val finalConfig = config.copy(flashMode = safeFlash)
 
-        val success = tryBindLevel1(
-            cameraProvider, extensionsManager, previewView,
-            lensFacing, aspectRatio, cameraMode, videoQuality,
-            currentRotation, safeFlashMode, enableOptimization, caps
-        ) || tryBindLevel2(
-            cameraProvider, previewView,
-            lensFacing, aspectRatio, cameraMode, videoQuality,
-            currentRotation, flashMode
-        ) || tryBindLevel3(
-            cameraProvider, previewView,
-            lensFacing, cameraMode, currentRotation, flashMode
-        )
+        val success = tryBindLevel1(provider, extensions, previewView, finalConfig, caps) ||
+                      tryBindLevel2(provider, previewView, finalConfig) ||
+                      tryBindLevel3(provider, previewView, finalConfig)
 
         if (success) {
             readCameraMetadata()
@@ -118,181 +112,101 @@ class CameraStateHolder(
         provider: ProcessCameraProvider,
         extensions: ExtensionsManager,
         previewView: PreviewView,
-        lensFacing: Int,
-        aspectRatio: Int,
-        cameraMode: String,
-        videoQuality: Quality,
-        currentRotation: Int,
-        flashMode: Int,
-        enableOptimization: Boolean,
+        config: CameraConfig,
         caps: CameraCapabilities
     ): Boolean {
         return try {
             provider.unbindAll()
-
             val previewRes = ResolutionSelector.Builder()
-                .setAspectRatioStrategy(AspectRatioStrategy(aspectRatio, AspectRatioStrategy.FALLBACK_RULE_AUTO))
+                .setAspectRatioStrategy(AspectRatioStrategy(config.aspectRatio, AspectRatioStrategy.FALLBACK_RULE_AUTO))
                 .build()
-
             val captureRes = ResolutionSelector.Builder()
-                .setAspectRatioStrategy(AspectRatioStrategy(aspectRatio, AspectRatioStrategy.FALLBACK_RULE_AUTO))
-                .apply {
-                    if (!caps.isLegacy) setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY)
-                }
+                .setAspectRatioStrategy(AspectRatioStrategy(config.aspectRatio, AspectRatioStrategy.FALLBACK_RULE_AUTO))
+                .apply { if (!caps.isLegacy) setResolutionStrategy(ResolutionStrategy.HIGHEST_AVAILABLE_STRATEGY) }
                 .build()
 
             val previewBuilder = Preview.Builder().setResolutionSelector(previewRes)
-            if (enableOptimization && caps.supportsPreviewStabilization) {
-                previewBuilder.setPreviewStabilizationEnabled(true)
-                Log.d(TAG, "L1: Preview stabilization ON")
-            }
+            if (config.enableOptimization && caps.supportsPreviewStabilization) previewBuilder.setPreviewStabilizationEnabled(true)
 
             val captureBuilder = ImageCapture.Builder()
-                .setResolutionSelector(captureRes)
-                .setFlashMode(flashMode)
-                .setTargetRotation(currentRotation)
-                .setJpegQuality(100)
-                .setCaptureMode(
-                    if (caps.isFullOrBetter) ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY
-                    else ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
-                )
+                .setResolutionSelector(captureRes).setFlashMode(config.flashMode).setTargetRotation(config.currentRotation)
+                .setJpegQuality(100).setCaptureMode(if (caps.isFullOrBetter) ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY else ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
 
-            var selector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
-            selector = resolveSelector(provider, selector, lensFacing)
+            var selector = CameraSelector.Builder().requireLensFacing(config.lensFacing).build()
+            selector = resolveSelector(provider, selector, config.lensFacing)
 
-            if (enableOptimization && extensions.isExtensionAvailable(selector, ExtensionMode.HDR)) {
+            if (config.enableOptimization && extensions.isExtensionAvailable(selector, ExtensionMode.HDR)) {
                 selector = extensions.getExtensionEnabledCameraSelector(selector, ExtensionMode.HDR)
-                Log.d(TAG, "L1: HDR extension ON")
-            } else if (enableOptimization) {
-                applyCamera2Optimizations(captureBuilder, caps)
-            }
+            } else if (config.enableOptimization) applyCamera2Optimizations(captureBuilder, caps)
 
             val preview = previewBuilder.build().also { it.surfaceProvider = previewView.surfaceProvider }
 
-            if (cameraMode == "PHOTO") {
+            if (config.cameraMode == "PHOTO") {
                 val capture = captureBuilder.build()
                 imageCapture = capture
                 videoCapture = null
                 camera = provider.bindToLifecycle(lifecycleOwner, selector, preview, capture)
             } else {
-                val recorder = Recorder.Builder()
-                    .setQualitySelector(QualitySelector.from(videoQuality, FallbackStrategy.lowerQualityOrHigherThan(Quality.SD)))
-                    .build()
+                val recorder = Recorder.Builder().setQualitySelector(QualitySelector.from(config.videoQuality, FallbackStrategy.lowerQualityOrHigherThan(Quality.SD))).build()
                 val vc = VideoCapture.withOutput(recorder)
-                vc.targetRotation = currentRotation
+                vc.targetRotation = config.currentRotation
                 videoCapture = vc
                 imageCapture = null
                 camera = provider.bindToLifecycle(lifecycleOwner, selector, preview, vc)
             }
-
-            Log.d(TAG, "L1: Bind succeeded (mode=$cameraMode)")
             true
         } catch (e: Exception) {
-            Log.w(TAG, "L1: Bind failed, falling back to L2", e)
+            Log.w(TAG, "Level 1 bind failed", e)
             false
         }
     }
 
-    private fun tryBindLevel2(
-        provider: ProcessCameraProvider,
-        previewView: PreviewView,
-        lensFacing: Int,
-        aspectRatio: Int,
-        cameraMode: String,
-        videoQuality: Quality,
-        currentRotation: Int,
-        flashMode: Int
-    ): Boolean {
+    private fun tryBindLevel2(provider: ProcessCameraProvider, previewView: PreviewView, config: CameraConfig): Boolean {
         return try {
             provider.unbindAll()
+            val resSelector = ResolutionSelector.Builder().setAspectRatioStrategy(AspectRatioStrategy(config.aspectRatio, AspectRatioStrategy.FALLBACK_RULE_AUTO)).build()
+            val preview = Preview.Builder().setResolutionSelector(resSelector).build().also { it.surfaceProvider = previewView.surfaceProvider }
+            val selector = resolveSelector(provider, CameraSelector.Builder().requireLensFacing(config.lensFacing).build(), config.lensFacing)
 
-            val resSelector = ResolutionSelector.Builder()
-                .setAspectRatioStrategy(AspectRatioStrategy(aspectRatio, AspectRatioStrategy.FALLBACK_RULE_AUTO))
-                .build()
-
-            val preview = Preview.Builder()
-                .setResolutionSelector(resSelector)
-                .build()
-                .also { it.surfaceProvider = previewView.surfaceProvider }
-
-            var selector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
-            selector = resolveSelector(provider, selector, lensFacing)
-
-            if (cameraMode == "PHOTO") {
-                val capture = ImageCapture.Builder()
-                    .setResolutionSelector(resSelector)
-                    .setFlashMode(flashMode)
-                    .setTargetRotation(currentRotation)
-                    .setJpegQuality(100)
-                    .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-                    .build()
+            if (config.cameraMode == "PHOTO") {
+                val capture = ImageCapture.Builder().setResolutionSelector(resSelector).setFlashMode(config.flashMode).setTargetRotation(config.currentRotation).setJpegQuality(100).setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY).build()
                 imageCapture = capture
                 videoCapture = null
                 camera = provider.bindToLifecycle(lifecycleOwner, selector, preview, capture)
             } else {
-                val recorder = Recorder.Builder()
-                    .setQualitySelector(QualitySelector.from(videoQuality, FallbackStrategy.lowerQualityOrHigherThan(Quality.SD)))
-                    .build()
-                val vc = VideoCapture.withOutput(recorder)
-                vc.targetRotation = currentRotation
+                val recorder = Recorder.Builder().setQualitySelector(QualitySelector.from(config.videoQuality, FallbackStrategy.lowerQualityOrHigherThan(Quality.SD))).build()
+                val vc = VideoCapture.withOutput(recorder).apply { targetRotation = config.currentRotation }
                 videoCapture = vc
                 imageCapture = null
                 camera = provider.bindToLifecycle(lifecycleOwner, selector, preview, vc)
             }
-
-            Log.d(TAG, "L2: Safe bind succeeded")
             true
         } catch (e: Exception) {
-            Log.w(TAG, "L2: Safe bind failed, falling back to L3", e)
+            Log.w(TAG, "Level 2 bind failed", e)
             false
         }
     }
 
-    private fun tryBindLevel3(
-        provider: ProcessCameraProvider,
-        previewView: PreviewView,
-        lensFacing: Int,
-        cameraMode: String,
-        currentRotation: Int,
-        flashMode: Int
-    ): Boolean {
+    private fun tryBindLevel3(provider: ProcessCameraProvider, previewView: PreviewView, config: CameraConfig): Boolean {
         return try {
             provider.unbindAll()
-
-            val preview = Preview.Builder().build()
-                .also { it.surfaceProvider = previewView.surfaceProvider }
-
-            var selector = CameraSelector.Builder().requireLensFacing(lensFacing).build()
-            selector = resolveSelector(provider, selector, lensFacing)
-
-            if (cameraMode == "PHOTO") {
-                val capture = ImageCapture.Builder()
-                    .setFlashMode(flashMode)
-                    .setTargetRotation(currentRotation)
-                    .setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY)
-                    .build()
+            val preview = Preview.Builder().build().also { it.surfaceProvider = previewView.surfaceProvider }
+            val selector = resolveSelector(provider, CameraSelector.Builder().requireLensFacing(config.lensFacing).build(), config.lensFacing)
+            if (config.cameraMode == "PHOTO") {
+                val capture = ImageCapture.Builder().setFlashMode(config.flashMode).setTargetRotation(config.currentRotation).setCaptureMode(ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY).build()
                 imageCapture = capture
                 videoCapture = null
                 camera = provider.bindToLifecycle(lifecycleOwner, selector, preview, capture)
             } else {
-                val recorder = Recorder.Builder()
-                    .setQualitySelector(QualitySelector.from(Quality.SD, FallbackStrategy.higherQualityOrLowerThan(Quality.SD)))
-                    .build()
-                val vc = VideoCapture.withOutput(recorder)
-                vc.targetRotation = currentRotation
+                val recorder = Recorder.Builder().setQualitySelector(QualitySelector.from(Quality.SD, FallbackStrategy.higherQualityOrLowerThan(Quality.SD))).build()
+                val vc = VideoCapture.withOutput(recorder).apply { targetRotation = config.currentRotation }
                 videoCapture = vc
                 imageCapture = null
                 camera = provider.bindToLifecycle(lifecycleOwner, selector, preview, vc)
             }
-
-            Log.d(TAG, "L3: Minimum bind succeeded")
             true
         } catch (e: Exception) {
-            Log.e(TAG, "L3: All bind levels exhausted", e)
-            initializationError = e.message ?: "Kamera başlatılamadı"
-            camera = null
-            imageCapture = null
-            videoCapture = null
+            initializationError = e.message ?: "Kamera hatası"
             false
         }
     }
@@ -301,46 +215,33 @@ class CameraStateHolder(
     private fun applyCamera2Optimizations(builder: ImageCapture.Builder, caps: CameraCapabilities) {
         try {
             val extender = Camera2Interop.Extender(builder)
-            if (caps.supportsEdgeHighQuality) {
-                extender.setCaptureRequestOption(CaptureRequest.EDGE_MODE, CaptureRequest.EDGE_MODE_HIGH_QUALITY)
-                Log.d(TAG, "L1: Edge HQ ON")
-            }
-            if (caps.supportsNoiseReductionHighQuality) {
-                extender.setCaptureRequestOption(CaptureRequest.NOISE_REDUCTION_MODE, CaptureRequest.NOISE_REDUCTION_MODE_HIGH_QUALITY)
-                Log.d(TAG, "L1: Noise Reduction HQ ON")
-            }
+            if (caps.supportsEdgeHighQuality) extender.setCaptureRequestOption(CaptureRequest.EDGE_MODE, CaptureRequest.EDGE_MODE_HIGH_QUALITY)
+            if (caps.supportsNoiseReductionHighQuality) extender.setCaptureRequestOption(CaptureRequest.NOISE_REDUCTION_MODE, CaptureRequest.NOISE_REDUCTION_MODE_HIGH_QUALITY)
         } catch (e: Exception) {
-            Log.w(TAG, "Camera2Interop apply failed (non-fatal)", e)
+            Log.w(TAG, "Camera2Interop fail", e)
         }
     }
 
-    private fun resolveSelector(
-        provider: ProcessCameraProvider,
-        preferred: CameraSelector,
-        lensFacing: Int
-    ): CameraSelector {
+    private fun resolveSelector(provider: ProcessCameraProvider, preferred: CameraSelector, lensFacing: Int): CameraSelector {
         if (provider.hasCamera(preferred)) return preferred
-        val fallbackLens = if (lensFacing == CameraSelector.LENS_FACING_BACK)
-            CameraSelector.LENS_FACING_FRONT else CameraSelector.LENS_FACING_BACK
+        val fallbackLens = if (lensFacing == CameraSelector.LENS_FACING_BACK) CameraSelector.LENS_FACING_FRONT else CameraSelector.LENS_FACING_BACK
         val fallback = CameraSelector.Builder().requireLensFacing(fallbackLens).build()
         return if (provider.hasCamera(fallback)) fallback else CameraSelector.DEFAULT_BACK_CAMERA
     }
 
+    @Suppress("kotlin:S6524")
     private fun readCameraMetadata() {
         camera?.cameraInfo?.let { info ->
-            val qualities = try {
+            val caps = try {
                 Recorder.getVideoCapabilities(info).getSupportedQualities(DynamicRange.SDR)
             } catch (_: Exception) {
                 @Suppress("DEPRECATION")
                 QualitySelector.getSupportedQualities(info)
             }
-            if (qualities.isNotEmpty()) supportedQualities = qualities
-
-            info.zoomState.value?.let { z ->
-                minZoom = z.minZoomRatio
-                maxZoom = z.maxZoomRatio
+            if (caps.isNotEmpty()) {
+                supportedQualities = caps.toList()
             }
-
+            info.zoomState.value?.let { z -> minZoom = z.minZoomRatio; maxZoom = z.maxZoomRatio }
             info.exposureState.let { s ->
                 exposureRange = s.exposureCompensationRange.run { lower.toFloat()..upper.toFloat() }
                 exposureIndex = s.exposureCompensationIndex
@@ -348,70 +249,40 @@ class CameraStateHolder(
         }
     }
 
-    private suspend fun awaitCameraProvider(): ProcessCameraProvider = withContext(Dispatchers.IO) {
-        cameraProvider?.let { return@withContext it }
-        val provider = ProcessCameraProvider.getInstance(context).get()
-        cameraProvider = provider
-        provider
+    private suspend fun awaitCameraProvider(): ProcessCameraProvider = withContext(ioDispatcher) {
+        cameraProvider ?: ProcessCameraProvider.getInstance(context).get().also { cameraProvider = it }
     }
 
-    private suspend fun awaitExtensionsManager(provider: ProcessCameraProvider): ExtensionsManager = withContext(Dispatchers.IO) {
+    private suspend fun awaitExtensionsManager(provider: ProcessCameraProvider): ExtensionsManager = withContext(ioDispatcher) {
         ExtensionsManager.getInstanceAsync(context, provider).get()
     }
 
-    fun setZoom(ratio: Float) {
-        camera?.cameraControl?.setZoomRatio(ratio.coerceIn(minZoom, maxZoom))
-    }
-
-    fun setExposure(index: Int) {
-        exposureIndex = index
-        camera?.cameraControl?.setExposureCompensationIndex(index)
-    }
+    fun setZoom(ratio: Float) { camera?.cameraControl?.setZoomRatio(ratio.coerceIn(minZoom, maxZoom)) }
+    fun setExposure(index: Int) { exposureIndex = index; camera?.cameraControl?.setExposureCompensationIndex(index) }
 
     fun focusAndMeter(offset: androidx.compose.ui.geometry.Offset, previewView: PreviewView) {
         camera?.let { cam ->
             val point = previewView.meteringPointFactory.createPoint(offset.x, offset.y, 0.20f)
             setExposure(0)
-            val action = FocusMeteringAction.Builder(
-                point,
-                FocusMeteringAction.FLAG_AF or FocusMeteringAction.FLAG_AE or FocusMeteringAction.FLAG_AWB
-            ).setAutoCancelDuration(4, TimeUnit.SECONDS).build()
+            val action = FocusMeteringAction.Builder(point, FocusMeteringAction.FLAG_AF or FocusMeteringAction.FLAG_AE or FocusMeteringAction.FLAG_AWB).setAutoCancelDuration(4, TimeUnit.SECONDS).build()
             cam.cameraControl.startFocusAndMetering(action)
         }
     }
 
-    fun setFlashMode(flashMode: Int) {
-        imageCapture?.flashMode = flashMode
-    }
+    fun setFlashMode(mode: Int) { imageCapture?.flashMode = mode }
+    fun updateTargetRotation(rot: Int) { imageCapture?.targetRotation = rot; videoCapture?.targetRotation = rot }
 
-    fun updateTargetRotation(rotation: Int) {
-        imageCapture?.targetRotation = rotation
-        videoCapture?.targetRotation = rotation
-    }
-
-    fun unbindAll() {
-        isBound = false
-        cameraProvider?.unbindAll()
-        camera = null
-        imageCapture = null
-        videoCapture = null
-    }
+    fun unbindAll() { isBound = false; cameraProvider?.unbindAll(); camera = null; imageCapture = null; videoCapture = null }
 }
 
 @Composable
 fun rememberCameraStateHolder(
     context: Context = androidx.compose.ui.platform.LocalContext.current,
-    lifecycleOwner: LifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    lifecycleOwner: LifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current,
+    ioDispatcher: CoroutineDispatcher = kotlinx.coroutines.Dispatchers.IO
 ): CameraStateHolder {
     val executor = remember { Executors.newSingleThreadExecutor() }
-    val holder = remember(context, lifecycleOwner, executor) {
-        CameraStateHolder(context, lifecycleOwner, executor)
-    }
-    DisposableEffect(holder) {
-        onDispose {
-            holder.unbindAll()
-            holder.executor.shutdown()
-        }
-    }
+    val holder = remember(context, lifecycleOwner, executor, ioDispatcher) { CameraStateHolder(context, lifecycleOwner, executor, ioDispatcher) }
+    DisposableEffect(holder) { onDispose { holder.unbindAll(); holder.executor.shutdown() } }
     return holder
 }

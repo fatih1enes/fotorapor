@@ -64,6 +64,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.fatihenes.photoreport.core.common.util.DateUtils
 import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporTokens
 import com.fatihenes.photoreport.core.model.DailyLogWithPhotos
 import com.fatihenes.photoreport.core.model.Photo
@@ -73,101 +74,145 @@ import com.fatihenes.photoreport.feature.export.ui.ExportDialog
 import com.fatihenes.photoreport.core.ui.navigation.LocalSnackbarHostState
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Suppress("LongParameterList", "LongMethod", "FunctionName")
-@Composable
-fun ProjectDetailTopBar(
-    project: Project,
-    photoCount: Int,
-    logCount: Int,
-    projectColor: Color,
-    onBack: () -> Unit,
-    onShareClick: () -> Unit,
-    onDeleteClick: () -> Unit,
-    haptic: HapticFeedback,
-) {
-    var showMenu by remember { mutableStateOf(value = false) }
+data class ProjectDetailViewState(
+    val project: Project,
+    val logs: List<DailyLogWithPhotos>,
+    val allProjectPhotos: List<Photo>,
+    val showFullGalleryByLogId: Long?,
+    val showDeleteConfirm: Boolean,
+    val showExportDialog: Boolean,
+    val selectedPhotoForFullView: Long?,
+    val language: String,
+)
 
+data class ProjectDetailActions(
+    val onGalleryDismiss: () -> Unit,
+    val onPhotoClick: (Photo) -> Unit,
+    val onDeletePhotos: (List<Long>) -> Unit,
+    val onDeleteConfirmDismiss: () -> Unit,
+    val onDeleteProject: () -> Unit,
+    val onExportDismiss: () -> Unit,
+    val onExportProject: (String, Int, String) -> Unit,
+    val onPhotoViewDismiss: () -> Unit,
+    val onDeletePhoto: (Photo) -> Unit,
+    val onUpdateRotation: (Long, Float) -> Unit,
+)
+
+data class TopBarParams(
+    val state: ProjectDetailViewState,
+    val projectColor: Color,
+    val onBack: () -> Unit,
+    val onShareClick: () -> Unit,
+    val haptic: HapticFeedback,
+    val actions: ProjectDetailActions,
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Suppress("FunctionName")
+@Composable
+fun ProjectDetailTopBar(params: TopBarParams) {
     TopAppBar(
-        title = {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Box(
-                    modifier = Modifier
-                        .size(FotoRaporTokens.SpacingM)
-                        .background(projectColor, CircleShape)
-                )
-                Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingS + 2.dp))
-                Column {
-                    Text(
-                        project.name,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        "$logCount Saha Günlüğü · $photoCount Fotoğraf",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-            }
-        },
+        title = { ProjectDetailTopBarTitle(params.state, params.projectColor) },
         navigationIcon = {
-            IconButton(onClick = onBack) {
+            IconButton(onClick = params.onBack) {
                 Icon(
                     Icons.AutoMirrored.Filled.ArrowBack,
                     contentDescription = stringResource(R.string.back_label),
-                    modifier = Modifier.size(FotoRaporTokens.IconSizeS)
+                    modifier = Modifier.size(FotoRaporTokens.IconSizeS),
                 )
             }
         },
         actions = {
-            IconButton(onClick = onShareClick) {
-                Icon(
-                    Icons.Default.Share,
-                    contentDescription = stringResource(R.string.share_as_file),
-                    tint = projectColor,
-                    modifier = Modifier.size(FotoRaporTokens.IconSizeS)
-                )
-            }
-            IconButton(onClick = { showMenu = true }) {
-                Icon(
-                    Icons.Default.MoreVert,
-                    contentDescription = stringResource(R.string.acc_more_options),
-                    modifier = Modifier.size(FotoRaporTokens.IconSizeS)
-                )
-            }
-            DropdownMenu(
-                expanded = showMenu,
-                onDismissRequest = { showMenu = false },
-                shape = RoundedCornerShape(FotoRaporTokens.RadiusM)
-            ) {
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            stringResource(R.string.delete_project_menu),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.error
-                        )
-                    },
-                    onClick = {
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        showMenu = false
-                        onDeleteClick()
-                    },
-                    leadingIcon = {
-                        Icon(
-                            Icons.Default.Delete,
-                            contentDescription = stringResource(R.string.acc_delete),
-                            tint = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.size(FotoRaporTokens.IconSizeS)
-                        )
-                    }
-                )
-            }
+            ProjectDetailTopBarActions(
+                projectColor = params.projectColor,
+                onShareClick = params.onShareClick,
+                haptic = params.haptic,
+                actions = params.actions,
+            )
         },
-        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background),
     )
+}
+
+@Suppress("FunctionName")
+@Composable
+private fun ProjectDetailTopBarTitle(state: ProjectDetailViewState, projectColor: Color) {
+    Row(verticalAlignment = Alignment.CenterVertically) {
+        Box(
+            modifier = Modifier
+                .size(FotoRaporTokens.SpacingM)
+                .background(projectColor, CircleShape),
+        )
+        Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingS + 2.dp))
+        Column {
+            Text(
+                state.project.name,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Text(
+                "${state.logs.size} Saha Günlüğü · ${state.allProjectPhotos.size} Fotoğraf",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Suppress("FunctionName")
+@Composable
+private fun ProjectDetailTopBarActions(
+    projectColor: Color,
+    onShareClick: () -> Unit,
+    haptic: HapticFeedback,
+    actions: ProjectDetailActions,
+) {
+    var showMenu by remember { mutableStateOf(value = false) }
+
+    IconButton(onClick = onShareClick) {
+        Icon(
+            Icons.Default.Share,
+            contentDescription = stringResource(R.string.share_as_file),
+            tint = projectColor,
+            modifier = Modifier.size(FotoRaporTokens.IconSizeS),
+        )
+    }
+    IconButton(onClick = { showMenu = true }) {
+        Icon(
+            Icons.Default.MoreVert,
+            contentDescription = stringResource(R.string.acc_more_options),
+            modifier = Modifier.size(FotoRaporTokens.IconSizeS),
+        )
+    }
+    DropdownMenu(
+        expanded = showMenu,
+        onDismissRequest = { showMenu = false },
+        shape = RoundedCornerShape(FotoRaporTokens.RadiusM),
+    ) {
+        DropdownMenuItem(
+            text = {
+                Text(
+                    stringResource(R.string.delete_project_menu),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.error,
+                )
+            },
+            onClick = {
+                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                showMenu = false
+                actions.onDeleteProject()
+            },
+            leadingIcon = {
+                Icon(
+                    Icons.Default.Delete,
+                    contentDescription = stringResource(R.string.acc_delete),
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(FotoRaporTokens.IconSizeS),
+                )
+            },
+        )
+    }
 }
 
 @Suppress("FunctionName")
@@ -214,7 +259,7 @@ fun ProjectHeroBanner(
                 ),
                 shape = RoundedCornerShape(FotoRaporTokens.RadiusS),
                 modifier = Modifier.height(36.dp),
-                contentPadding = PaddingValues(horizontal = 12.dp)
+                contentPadding = PaddingValues(horizontal = FotoRaporTokens.SpacingM),
             ) {
                 Icon(
                     Icons.Default.PictureAsPdf,
@@ -222,7 +267,7 @@ fun ProjectHeroBanner(
                     modifier = Modifier.size(FotoRaporTokens.IconSizeS),
                     tint = Color.White
                 )
-                Spacer(modifier = Modifier.width(6.dp))
+                Spacer(modifier = Modifier.width(FotoRaporTokens.SpacingXS))
                 Text(
                     "Rapor Al",
                     style = MaterialTheme.typography.labelMedium,
@@ -238,31 +283,34 @@ fun ProjectHeroBanner(
 @Composable
 fun AddDateCard(
     projectColor: Color,
-    onAddLogForDate: (Long) -> Unit
+    onAddLogForDate: (Long) -> Unit,
 ) {
-    var showDatePicker by remember { mutableStateOf(false) }
+    var showDatePicker by remember { mutableStateOf(value = false) }
     if (showDatePicker) {
         val datePickerState = rememberDatePickerState()
         DatePickerDialog(
             onDismissRequest = { showDatePicker = false },
             confirmButton = {
-                TextButton(onClick = {
-                    datePickerState.selectedDateMillis?.let { selectedDate ->
-                        val cal = java.util.Calendar.getInstance()
-                        cal.timeInMillis = selectedDate
-                        val startOfSelectedDay = com.fatihenes.photoreport.core.common.util.DateUtils.getStartOfDay(cal)
-                        onAddLogForDate(startOfSelectedDay)
-                    }
-                    showDatePicker = false
-                }) {
+                TextButton(
+                    onClick = {
+                        datePickerState.selectedDateMillis?.let { millis ->
+                            val date = java.time.Instant.ofEpochMilli(millis)
+                                .atZone(java.time.ZoneId.of("UTC")).toLocalDate()
+                            onAddLogForDate(DateUtils.getStartOfDayEpochMillis(date))
+                        }
+                        showDatePicker = false
+                    },
+                ) {
                     Text(stringResource(R.string.add_btn))
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDatePicker = false }) {
+                TextButton(
+                    onClick = { showDatePicker = false },
+                ) {
                     Text(stringResource(R.string.cancel_btn))
                 }
-            }
+            },
         ) {
             DatePicker(state = datePickerState)
         }
@@ -285,102 +333,104 @@ fun AddDateCard(
     }
 }
 
-@Suppress("LongParameterList", "FunctionName", "LongMethod")
+@Suppress("FunctionName")
 @Composable
 fun ProjectDetailDialogs(
-    project: Project,
-    logs: List<DailyLogWithPhotos>,
-    allProjectPhotos: List<Photo>,
-    showFullGalleryByLogId: Long?,
-    onGalleryDismiss: () -> Unit,
-    onPhotoClick: (Photo) -> Unit,
-    onDeletePhotos: (List<Long>) -> Unit,
-    showDeleteConfirm: Boolean,
-    onDeleteConfirmDismiss: () -> Unit,
-    onDeleteProject: () -> Unit,
-    showExportDialog: Boolean,
-    onExportDismiss: () -> Unit,
-    onExportProject: (String, Int, String) -> Unit,
-    selectedPhotoForFullView: Long?,
-    onPhotoViewDismiss: () -> Unit,
-    onDeletePhoto: (Photo) -> Unit,
-    onUpdateRotation: (Long, Float) -> Unit,
-    language: String
+    state: ProjectDetailViewState,
+    actions: ProjectDetailActions,
 ) {
+    GalleryDialog(state, actions)
+
+    if (state.showDeleteConfirm) {
+        ProjectDeleteConfirmDialog(
+            projectName = state.project.name,
+            onDismiss = actions.onDeleteConfirmDismiss,
+            onConfirm = actions.onDeleteProject,
+        )
+    }
+
+    ExportDialogWrapper(state, actions)
+
+    FullScreenPhotoWrapper(state, actions)
+}
+
+@Suppress("FunctionName")
+@Composable
+private fun GalleryDialog(state: ProjectDetailViewState, actions: ProjectDetailActions) {
+    state.showFullGalleryByLogId?.let { logId ->
+        state.logs.find { it.log.id == logId }?.let { logWithPhotos ->
+            FullGalleryDialog(
+                log = logWithPhotos.log,
+                photos = logWithPhotos.photos,
+                onDismiss = actions.onGalleryDismiss,
+                onPhotoClick = actions.onPhotoClick,
+                onDeletePhotos = actions.onDeletePhotos,
+            )
+        }
+    }
+}
+
+@Suppress("FunctionName")
+@Composable
+private fun ExportDialogWrapper(state: ProjectDetailViewState, actions: ProjectDetailActions) {
     val context = LocalContext.current
     val snackbarHost = LocalSnackbarHostState.current
     val coroutineScope = rememberCoroutineScope()
 
-    showFullGalleryByLogId?.let { logId ->
-        logs.find { it.log.id == logId }?.let { logWithPhotos ->
-            FullGalleryDialog(
-                log = logWithPhotos.log,
-                photos = logWithPhotos.photos,
-                onDismiss = onGalleryDismiss,
-                onPhotoClick = onPhotoClick,
-                onDeletePhotos = onDeletePhotos
-            )
-        }
-    }
-
-    if (showDeleteConfirm) {
-        ProjectDeleteConfirmDialog(
-            projectName = project.name,
-            onDismiss = onDeleteConfirmDismiss,
-            onConfirm = onDeleteProject
-        )
-    }
-
-    if (showExportDialog) {
+    if (state.showExportDialog) {
         ExportDialog(
-            project = project,
-            logs = logs,
-            onDismiss = onExportDismiss,
+            project = state.project,
+            logs = state.logs,
+            onDismiss = actions.onExportDismiss,
             onExportPdf = { quality ->
-                onExportDismiss()
-                onExportProject("PDF", quality, language)
+                actions.onExportDismiss()
+                actions.onExportProject("PDF", quality, state.language)
                 coroutineScope.launch {
                     snackbarHost.showSnackbar(
-                        context.getString(R.string.pdf_preparing) + " (Arka plan)"
+                        context.getString(R.string.pdf_preparing) + " (Arka plan)",
                     )
                 }
             },
             onExportZip = { quality ->
-                onExportDismiss()
-                onExportProject("ZIP", quality, language)
+                actions.onExportDismiss()
+                actions.onExportProject("ZIP", quality, state.language)
                 coroutineScope.launch {
                     snackbarHost.showSnackbar(
-                        "ZIP dışa aktarımı arka planda başlatıldı. Bildirimleri kontrol edin."
+                        "ZIP dışa aktarımı arka planda başlatıldı. Bildirimleri kontrol edin.",
                     )
                 }
-            }
+            },
         )
     }
+}
 
-    selectedPhotoForFullView?.let { photoId ->
-        val index = allProjectPhotos.indexOfFirst { it.id == photoId }
-        if (index != -1 && allProjectPhotos.isNotEmpty()) {
+@Suppress("FunctionName")
+@Composable
+private fun FullScreenPhotoWrapper(state: ProjectDetailViewState, actions: ProjectDetailActions) {
+    state.selectedPhotoForFullView?.let { photoId ->
+        val index = state.allProjectPhotos.indexOfFirst { it.id == photoId }
+        if ((index != -1) && state.allProjectPhotos.isNotEmpty()) {
             val motion = com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion
             AnimatedVisibility(
                 visible = true,
-                enter = fadeIn(tween(motion.DurationMedium)) +
+                enter = fadeIn(tween(motion.DURATION_MEDIUM)) +
                         scaleIn(
                             initialScale = 0.92f,
-                            animationSpec = tween(motion.DurationMedium)
+                            animationSpec = tween(motion.DURATION_MEDIUM),
                         ),
-                exit = fadeOut(tween(motion.DurationShort)) +
+                exit = fadeOut(tween(motion.DURATION_SHORT)) +
                         scaleOut(
                             targetScale = 0.92f,
-                            animationSpec = tween(motion.DurationShort)
+                            animationSpec = tween(motion.DURATION_SHORT),
                         ),
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             ) {
                 FullScreenPhotoDialog(
-                    photoList = allProjectPhotos,
+                    photoList = state.allProjectPhotos,
                     initialIndex = index,
-                    onDismiss = onPhotoViewDismiss,
-                    onDelete = onDeletePhoto,
-                    onUpdateRotation = onUpdateRotation
+                    onDismiss = actions.onPhotoViewDismiss,
+                    onDelete = actions.onDeletePhoto,
+                    onUpdateRotation = actions.onUpdateRotation,
                 )
             }
         }

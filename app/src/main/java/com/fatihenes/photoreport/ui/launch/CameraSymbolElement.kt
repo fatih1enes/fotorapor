@@ -17,297 +17,269 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.unit.dp
 import kotlin.math.cos
 import kotlin.math.sin
+import kotlin.math.PI
+
+private const val PI_F = PI.toFloat()
 
 /**
- * PhotoReport Bespoke Camera Symbol — Mechanical Pop-up Flash DSLR Variant
- *
- * Modern, minimalist, endüstriyel standartlarda özgün DSLR kamera sembolü.
- * Geometrik kamera gövdesi, yaylı pop-up mekanik flaş ünitesi, çok katmanlı
- * optik lens ve mekanik diafram (aperture) bıçakları.
- *
- * @param revealProgress      0→1: Sembolün belirme ilerlemesi
- * @param captureProgress     0→1: Deklanşör/fotoğraf çekim anı (bıçak kapanması + tepme)
- * @param flashPopupProgress  0→1: Pop-up flaş kafasının yukarı açılma hareketi
- * @param flashBurstProgress  0→1: Flaş kafasından yayılan optik parlama
- * @param focusDotScale       0→1: Merkez odak noktasının ölçeği
- * @param primaryColor        Ana gövde ve lens kontur rengi
- * @param accentColor         Pirinç (Brass) odak noktası rengi
+ * Visual and animation state for the Camera Symbol.
  */
+data class CameraSymbolAnimationState(
+    val revealProgress: Float,
+    val captureProgress: Float,
+    val flashPopupProgress: Float,
+    val flashBurstProgress: Float,
+    val focusDotScale: Float,
+)
+
+/**
+ * Colors for the Camera Symbol.
+ */
+data class CameraSymbolColors(
+    val primary: Color,
+    val accent: Color,
+)
+
+private data class SymbolGeometry(
+    val cx: Float,
+    val cy: Float,
+    val bodyLeft: Float,
+    val bodyTop: Float,
+    val bodyWidth: Float,
+    val bodyHeight: Float,
+    val bodyCenterY: Float,
+)
+
+private data class SymbolStyle(
+    val strokeWidth: Float,
+    val thinStroke: Float,
+    val mainColor: Color,
+    val mutedColor: Color,
+    val subtleColor: Color,
+    val colors: CameraSymbolColors,
+    val alpha: Float,
+)
+
+private data class FlashDrawParams(
+    val geo: SymbolGeometry,
+    val hL: Float,
+    val hT: Float,
+    val hW: Float,
+    val hH: Float,
+    val style: SymbolStyle,
+    val fp: Float,
+)
+
+@Suppress("FunctionNaming")
 @Composable
 fun CameraSymbolElement(
-    revealProgress: Float,
-    captureProgress: Float,
-    flashPopupProgress: Float,
-    flashBurstProgress: Float,
-    focusDotScale: Float,
-    primaryColor: Color,
-    accentColor: Color,
-    modifier: Modifier = Modifier
+    animationState: CameraSymbolAnimationState,
+    colors: CameraSymbolColors,
+    modifier: Modifier = Modifier,
 ) {
     Canvas(modifier = modifier) {
-        val alpha = revealProgress.coerceIn(0f, 1f)
+        val alpha = animationState.revealProgress.coerceIn(0f, 1f)
         if (alpha <= 0f) return@Canvas
-
-        drawCameraSymbol(
-            alpha = alpha,
-            revealProgress = revealProgress.coerceIn(0f, 1f),
-            captureProgress = captureProgress.coerceIn(0f, 1f),
-            flashPopupProgress = flashPopupProgress.coerceIn(0f, 1f),
-            flashBurstProgress = flashBurstProgress.coerceIn(0f, 1f),
-            focusDotScale = focusDotScale.coerceIn(0f, 2f),
-            primaryColor = primaryColor,
-            accentColor = accentColor
-        )
+        drawCameraSymbol(alpha, animationState, colors)
     }
 }
 
 private fun DrawScope.drawCameraSymbol(
     alpha: Float,
-    revealProgress: Float,
-    captureProgress: Float,
-    flashPopupProgress: Float,
-    flashBurstProgress: Float,
-    focusDotScale: Float,
-    primaryColor: Color,
-    accentColor: Color
+    anim: CameraSymbolAnimationState,
+    colors: CameraSymbolColors,
 ) {
-    val cx = size.width / 2f
-    val cy = size.height / 2f
+    val recoil = calculateRecoil(anim.captureProgress.coerceIn(0f, 1f))
+    val bWidth = minOf(size.width, size.height) * 0.76f * recoil
+    val bHeight = bWidth * 0.62f
+    val bCenterY = (size.height / 2f) + (bHeight * 0.08f)
+    val bTop = bCenterY - (bHeight / 2f)
 
-    // ── Shutter Recoil Effect (Çekim anında gövdede mekanik tepme) ──────
-    val recoilScale = if (captureProgress > 0f) {
-        when {
-            captureProgress <= 0.4f -> 1.0f - (0.05f * (captureProgress / 0.4f))
-            captureProgress <= 0.7f -> 0.95f + (0.07f * ((captureProgress - 0.4f) / 0.3f))
-            else -> 1.02f - (0.02f * ((captureProgress - 0.7f) / 0.3f))
+    val geo = SymbolGeometry(
+        cx = size.width / 2f,
+        cy = size.height / 2f,
+        bodyLeft = (size.width / 2f) - (bWidth / 2f),
+        bodyTop = bTop,
+        bodyWidth = bWidth,
+        bodyHeight = bHeight,
+        bodyCenterY = bCenterY,
+    )
+    val style = SymbolStyle(
+        strokeWidth = 1.8.dp.toPx(),
+        thinStroke = 1.1.dp.toPx(),
+        mainColor = colors.primary.copy(alpha * 0.9f),
+        mutedColor = colors.primary.copy(alpha * 0.45f),
+        subtleColor = colors.primary.copy(alpha * 0.22f),
+        colors = colors,
+        alpha = alpha,
+    )
+
+    drawFlashAndBloom(geo, anim, style)
+    drawHousing(geo, style)
+    drawOptics(geo, anim, style)
+}
+
+private fun calculateRecoil(cp: Float): Float = if (cp <= 0f) 1f else when {
+    cp <= 0.4f -> 1f - (0.05f * (cp / 0.4f))
+    cp <= 0.7f -> 0.95f + (0.07f * ((cp - 0.4f) / 0.3f))
+    else -> 1.02f - (0.02f * ((cp - 0.7f) / 0.3f))
+}
+
+private fun DrawScope.drawFlashAndBloom(
+    geo: SymbolGeometry,
+    anim: CameraSymbolAnimationState,
+    style: SymbolStyle,
+) {
+    val fp = anim.flashPopupProgress.coerceIn(0f, 1f)
+    if (fp > 0f) {
+        val tW = geo.bodyWidth * 0.32f
+        val tH = geo.bodyHeight * 0.18f
+        val lift = 14.dp.toPx() * fp
+        val hW = tW * 0.75f
+        val hH = 9.dp.toPx()
+        val hL = geo.cx - (hW / 2f)
+        val hT = geo.bodyTop - tH - lift - hH
+
+        if (fp > 0.05f) {
+            drawFlashArms(FlashDrawParams(geo, hL, hT, hW, hH, style, fp))
         }
-    } else 1.0f
-
-    val baseWidth = minOf(size.width, size.height) * 0.76f * recoilScale
-    val bodyWidth = baseWidth
-    val bodyHeight = baseWidth * 0.62f
-
-    val bodyCenterY = cy + (bodyHeight * 0.08f)
-    val bodyLeft = cx - (bodyWidth / 2f)
-    val bodyTop = bodyCenterY - (bodyHeight / 2f)
-
-    val strokeWidth = 1.8.dp.toPx()
-    val thinStroke = 1.1.dp.toPx()
-
-    val mainColor = primaryColor.copy(alpha = alpha * 0.90f)
-    val mutedColor = primaryColor.copy(alpha = alpha * 0.45f)
-    val subtleColor = primaryColor.copy(alpha = alpha * 0.22f)
-
-    // ── 1. Pop-up Flash Housing & Mechanism (Mekanik Pop-up Flaş) ─────
-    val topWidth = bodyWidth * 0.32f
-    val topHeight = bodyHeight * 0.18f
-    val popupLiftMax = 14.dp.toPx()
-    val currentLift = popupLiftMax * flashPopupProgress
-
-    val flashHeadWidth = topWidth * 0.75f
-    val flashHeadHeight = 9.dp.toPx()
-    val flashHeadLeft = cx - (flashHeadWidth / 2f)
-    val flashHeadBaseY = bodyTop - topHeight
-    val flashHeadTopY = flashHeadBaseY - currentLift - flashHeadHeight
-
-    // Pop-up Flaş Destek Kolları
-    if (flashPopupProgress > 0.05f) {
-        val armColor = primaryColor.copy(alpha = alpha * 0.65f * flashPopupProgress)
-        drawLine(
-            color = armColor,
-            start = Offset(cx - (topWidth * 0.30f), bodyTop - (topHeight * 0.5f)),
-            end = Offset(flashHeadLeft + 2.dp.toPx(), flashHeadTopY + flashHeadHeight),
-            strokeWidth = thinStroke,
-            cap = StrokeCap.Round
-        )
-        drawLine(
-            color = armColor,
-            start = Offset(cx + (topWidth * 0.30f), bodyTop - (topHeight * 0.5f)),
-            end = Offset(flashHeadLeft + flashHeadWidth - 2.dp.toPx(), flashHeadTopY + flashHeadHeight),
-            strokeWidth = thinStroke,
-            cap = StrokeCap.Round
-        )
-    }
-
-    // Pop-up Flaş Kafası (Head & Strobe Lens)
-    if (flashPopupProgress > 0f) {
-        val headAlpha = alpha * flashPopupProgress
-        val headColor = primaryColor.copy(alpha = headAlpha * 0.95f)
-
         drawRoundRect(
-            color = headColor,
-            topLeft = Offset(flashHeadLeft, flashHeadTopY),
-            size = Size(flashHeadWidth, flashHeadHeight),
-            cornerRadius = CornerRadius(3.dp.toPx(), 3.dp.toPx()),
-            style = Stroke(width = strokeWidth)
+            color = style.colors.primary.copy(style.alpha * fp * 0.95f),
+            topLeft = Offset(hL, hT),
+            size = Size(hW, hH),
+            cornerRadius = CornerRadius(3.dp.toPx()),
+            style = Stroke(style.strokeWidth),
         )
-
-        val glassWidth = flashHeadWidth * 0.60f
-        val glassHeight = flashHeadHeight * 0.50f
-        val glassLeft = cx - (glassWidth / 2f)
-        val glassTop = flashHeadTopY + ((flashHeadHeight - glassHeight) / 2f)
-
-        val glassColor = if (flashBurstProgress > 0f) {
-            Color.White
-        } else {
-            accentColor.copy(alpha = headAlpha * 0.70f)
-        }
-
+        val gC = if (anim.flashBurstProgress > 0f) Color.White else style.colors.accent.copy(style.alpha * fp * 0.7f)
         drawRoundRect(
-            color = glassColor,
-            topLeft = Offset(glassLeft, glassTop),
-            size = Size(glassWidth, glassHeight),
-            cornerRadius = CornerRadius(1.5.dp.toPx(), 1.5.dp.toPx())
+            color = gC,
+            topLeft = Offset(geo.cx - ((hW * 0.6f) / 2f), hT + ((hH - (hH * 0.5f)) / 2f)),
+            size = Size(hW * 0.6f, hH * 0.5f),
+            cornerRadius = CornerRadius(1.5.dp.toPx()),
         )
     }
-
-    // ── 2. Top Viewfinder / Prism Hump (Sabit Üst Vizör Tabanı) ───────
-    val topPath = Path().apply {
-        moveTo(cx - (topWidth / 2f), bodyTop)
-        lineTo(cx - (topWidth * 0.36f), bodyTop - topHeight)
-        lineTo(cx + (topWidth * 0.36f), bodyTop - topHeight)
-        lineTo(cx + (topWidth / 2f), bodyTop)
+    if (anim.flashBurstProgress > 0f) {
+        drawFlashBurst(geo, anim, style)
     }
+}
 
-    drawPath(
-        path = topPath,
-        color = mainColor,
-        style = Stroke(width = strokeWidth, cap = StrokeCap.Round)
+private fun DrawScope.drawFlashArms(p: FlashDrawParams) {
+    val tW = p.geo.bodyWidth * 0.32f
+    val tH = p.geo.bodyHeight * 0.18f
+    val aC = p.style.colors.primary.copy(p.style.alpha * 0.65f * p.fp)
+    drawLine(
+        color = aC,
+        start = Offset(p.geo.cx - (tW * 0.3f), p.geo.bodyTop - (tH * 0.5f)),
+        end = Offset(p.hL + 2.dp.toPx(), p.hT + p.hH),
+        strokeWidth = p.style.thinStroke,
+        cap = StrokeCap.Round,
     )
-
-    // ── 3. Shutter Button Accent (Deklanşör Düğmesi) ──────────────────
-    val btnWidth = bodyWidth * 0.14f
-    val btnHeight = 3.5.dp.toPx()
-    val btnLeft = cx + (bodyWidth * 0.24f)
-    val btnTop = bodyTop - btnHeight - 1.dp.toPx()
-
-    drawRoundRect(
-        color = mainColor,
-        topLeft = Offset(btnLeft, btnTop),
-        size = Size(btnWidth, btnHeight),
-        cornerRadius = CornerRadius(2.dp.toPx(), 2.dp.toPx())
+    drawLine(
+        color = aC,
+        start = Offset(p.geo.cx + (tW * 0.3f), p.geo.bodyTop - (tH * 0.5f)),
+        end = Offset(p.hL + (p.hW - 2.dp.toPx()), p.hT + p.hH),
+        strokeWidth = p.style.thinStroke,
+        cap = StrokeCap.Round,
     )
+}
 
-    // ── 4. Main Camera Body (Kamera Gövdesi Konturu) ──────────────────
-    val cornerRadius = CornerRadius(12.dp.toPx(), 12.dp.toPx())
-    drawRoundRect(
-        color = mainColor,
-        topLeft = Offset(bodyLeft, bodyTop),
-        size = Size(bodyWidth, bodyHeight),
-        cornerRadius = cornerRadius,
-        style = Stroke(width = strokeWidth)
-    )
-
-    drawRoundRect(
-        color = subtleColor,
-        topLeft = Offset(bodyLeft, bodyTop),
-        size = Size(bodyWidth, bodyHeight),
-        cornerRadius = cornerRadius
-    )
-
-    // ── 5. Rangefinder / Sensor Window (Sensör Penceresi) ────────────
-    val sensorWidth = bodyWidth * 0.10f
-    val sensorHeight = bodyHeight * 0.12f
-    val sensorLeft = bodyLeft + (bodyWidth * 0.12f)
-    val sensorTop = bodyTop + (bodyHeight * 0.18f)
-
-    drawRoundRect(
-        color = mutedColor,
-        topLeft = Offset(sensorLeft, sensorTop),
-        size = Size(sensorWidth, sensorHeight),
-        cornerRadius = CornerRadius(3.dp.toPx(), 3.dp.toPx()),
-        style = Stroke(width = thinStroke)
-    )
-
-    // ── 6. Central Lens Assembly (Merkezi Optik Lens Grubu) ───────────
-    val lensCenterX = cx
-    val lensCenterY = bodyCenterY + (bodyHeight * 0.02f)
-    val outerLensRadius = bodyHeight * 0.40f
-    val innerLensRadius = outerLensRadius * 0.72f
-    val apertureRadius = innerLensRadius * 0.55f
-
+private fun DrawScope.drawFlashBurst(
+    geo: SymbolGeometry,
+    anim: CameraSymbolAnimationState,
+    style: SymbolStyle,
+) {
+    val hT = geo.bodyTop - (geo.bodyHeight * 0.18f) - 14.dp.toPx() - 9.dp.toPx()
+    val fO = Offset(geo.cx, hT + 4.5.dp.toPx())
+    val r = 36.dp.toPx() * anim.flashBurstProgress.coerceIn(0f, 1f)
     drawCircle(
-        color = mainColor,
-        radius = outerLensRadius,
-        center = Offset(lensCenterX, lensCenterY),
-        style = Stroke(width = strokeWidth)
-    )
-
-    drawCircle(
-        color = mutedColor,
-        radius = innerLensRadius,
-        center = Offset(lensCenterX, lensCenterY),
-        style = Stroke(width = thinStroke)
-    )
-
-    // ── 7. Mechanical Aperture Blades (Diafram Bıçakları) ─────────────
-    val bladeClosure = if (captureProgress > 0f) {
-        when {
-            captureProgress <= 0.4f -> (captureProgress / 0.4f)
-            captureProgress <= 0.7f -> 1.0f
-            else -> 1.0f - ((captureProgress - 0.7f) / 0.3f)
-        }
-    } else 0f
-
-    val bladeCount = 6
-    val currentApertureR = innerLensRadius * (0.85f - (0.35f * bladeClosure))
-    val rotationOffset = Math.toRadians((30f * bladeClosure).toDouble())
-
-    for (i in 0 until bladeCount) {
-        val angle = (2 * Math.PI / bladeCount * i) + rotationOffset
-        val startX = lensCenterX + (innerLensRadius * cos(angle).toFloat())
-        val startY = lensCenterY + (innerLensRadius * sin(angle).toFloat())
-        val endX = lensCenterX + (currentApertureR * cos(angle + 0.65).toFloat())
-        val endY = lensCenterY + (currentApertureR * sin(angle + 0.65).toFloat())
-
-        drawLine(
-            color = mutedColor.copy(alpha = alpha * (0.40f + 0.45f * bladeClosure)),
-            start = Offset(startX, startY),
-            end = Offset(endX, endY),
-            strokeWidth = thinStroke,
-            cap = StrokeCap.Round
-        )
-    }
-
-    // ── 8. Signature Brass Focus Core (Pirinç Odak Noktası) ───────────
-    if (focusDotScale > 0f) {
-        val baseDotRadius = apertureRadius * 0.38f
-        val currentDotRadius = baseDotRadius * focusDotScale
-
-        drawCircle(
-            color = accentColor.copy(alpha = alpha * 0.28f),
-            radius = currentDotRadius * 1.8f,
-            center = Offset(lensCenterX, lensCenterY)
-        )
-
-        drawCircle(
-            color = accentColor.copy(alpha = alpha),
-            radius = currentDotRadius,
-            center = Offset(lensCenterX, lensCenterY)
-        )
-    }
-
-    // ── 9. Soft Optical Strobe Lens Bloom (Flaş Kafasında Yumuşak Parlama) ──
-    if (flashBurstProgress > 0f) {
-        val flashOriginX = cx
-        val flashOriginY = flashHeadTopY + (flashHeadHeight / 2f)
-        val burstAlpha = flashBurstProgress.coerceIn(0f, 1f)
-
-        // Yumuşak dairesel atmosferik lens halo / bloom
-        val bloomRadius = 36.dp.toPx() * burstAlpha
-        drawCircle(
-            brush = Brush.radialGradient(
-                colors = listOf(
-                    Color.White,
-                    Color.White.copy(alpha = 0.70f * burstAlpha),
-                    accentColor.copy(alpha = 0.30f * burstAlpha),
-                    Color.Transparent
-                ),
-                center = Offset(flashOriginX, flashOriginY),
-                radius = bloomRadius * 1.6f
+        brush = Brush.radialGradient(
+            listOf(
+                Color.White,
+                Color.White.copy(0.7f * anim.flashBurstProgress),
+                style.colors.accent.copy(0.3f * anim.flashBurstProgress),
+                Color.Transparent,
             ),
-            radius = bloomRadius * 1.6f,
-            center = Offset(flashOriginX, flashOriginY)
+            center = fO,
+            radius = r * 1.6f,
+        ),
+        radius = r * 1.6f,
+        center = fO,
+    )
+}
+
+private fun DrawScope.drawHousing(geo: SymbolGeometry, s: SymbolStyle) {
+    val tW = geo.bodyWidth * 0.32f
+    val tH = geo.bodyHeight * 0.18f
+    drawPath(Path().apply {
+        moveTo(geo.cx - (tW / 2f), geo.bodyTop)
+        lineTo(geo.cx - (tW * 0.36f), geo.bodyTop - tH)
+        lineTo(geo.cx + (tW * 0.36f), geo.bodyTop - tH)
+        lineTo(geo.cx + (tW / 2f), geo.bodyTop)
+    }, s.mainColor, style = Stroke(s.strokeWidth, cap = StrokeCap.Round))
+    drawRoundRect(
+        color = s.mainColor,
+        topLeft = Offset(
+            geo.cx + (geo.bodyWidth * 0.24f),
+            geo.bodyTop - (3.5.dp.toPx() + 1.dp.toPx())
+        ),
+        size = Size(geo.bodyWidth * 0.14f, 3.5.dp.toPx()),
+        cornerRadius = CornerRadius(2.dp.toPx())
+    )
+    val r = CornerRadius(12.dp.toPx())
+    drawRoundRect(
+        color = s.mainColor,
+        topLeft = Offset(geo.bodyLeft, geo.bodyTop),
+        size = Size(geo.bodyWidth, geo.bodyHeight),
+        cornerRadius = r,
+        style = Stroke(s.strokeWidth)
+    )
+    drawRoundRect(s.subtleColor, Offset(geo.bodyLeft, geo.bodyTop), Size(geo.bodyWidth, geo.bodyHeight), r)
+    drawRoundRect(s.mutedColor, Offset(geo.bodyLeft + (geo.bodyWidth * 0.12f),
+        geo.bodyTop + (geo.bodyHeight * 0.18f)), Size(geo.bodyWidth * 0.1f, geo.bodyHeight * 0.12f),
+        CornerRadius(3.dp.toPx()), Stroke(s.thinStroke))
+}
+
+private fun DrawScope.drawOptics(
+    geo: SymbolGeometry,
+    anim: CameraSymbolAnimationState,
+    s: SymbolStyle,
+) {
+    val lCX = geo.cx
+    val lCY = geo.bodyCenterY + (geo.bodyHeight * 0.02f)
+    val oLR = geo.bodyHeight * 0.4f
+    val iLR = oLR * 0.72f
+    drawCircle(s.mainColor, oLR, Offset(lCX, lCY), style = Stroke(s.strokeWidth))
+    drawCircle(s.mutedColor, iLR, Offset(lCX, lCY), style = Stroke(s.thinStroke))
+    val cp = anim.captureProgress.coerceIn(0f, 1f)
+    val closure = if (cp <= 0f) 0f else when {
+        cp <= 0.4f -> cp / 0.4f
+        cp <= 0.7f -> 1f
+        else -> 1f - ((cp - 0.7f) / 0.3f)
+    }
+    val apR = iLR * (0.85f - (0.35f * closure))
+    val rot = (30f * closure) * (PI_F / 180f)
+    for (i in 0 until 6) {
+        val angle = (2 * PI_F / 6 * i) + rot
+        val start = Offset(
+            x = lCX + (iLR * cos(angle.toDouble()).toFloat()),
+            y = lCY + (iLR * sin(angle.toDouble()).toFloat()),
         )
+        val end = Offset(
+            x = lCX + (apR * cos((angle + 0.65f).toDouble()).toFloat()),
+            y = lCY + (apR * sin((angle + 0.65f).toDouble()).toFloat()),
+        )
+        drawLine(
+            color = s.mutedColor.copy(s.alpha * (0.4f + 0.45f * closure)),
+            start = start,
+            end = end,
+            strokeWidth = s.thinStroke,
+            cap = StrokeCap.Round,
+        )
+    }
+    val fds = anim.focusDotScale.coerceIn(0f, 2f)
+    if (fds > 0f) {
+        val dotR = (iLR * 0.55f) * 0.38f * fds
+        drawCircle(s.colors.accent.copy(s.alpha * 0.28f), dotR * 1.8f, Offset(lCX, lCY))
+        drawCircle(s.colors.accent.copy(s.alpha), dotR, Offset(lCX, lCY))
     }
 }

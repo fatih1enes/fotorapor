@@ -44,7 +44,6 @@ class LaunchTimeline(
         const val TOTAL_DURATION_MS = 1400
 
         // Phase boundary constants
-        private const val DARK_INTRO_START = 0.00f
         private const val DARK_INTRO_END = 0.07f
 
         private const val BRAND_REVEAL_START = 0.07f

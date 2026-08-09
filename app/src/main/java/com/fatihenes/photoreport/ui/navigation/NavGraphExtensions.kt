@@ -22,8 +22,12 @@ import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion
 import com.fatihenes.photoreport.core.ui.state.UiState
 import com.fatihenes.photoreport.feature.camera.ui.CameraScreen
 import com.fatihenes.photoreport.feature.dashboard.ui.DashboardScreen
+import com.fatihenes.photoreport.feature.dashboard.ui.DashboardScreenParams
 import com.fatihenes.photoreport.feature.dashboard.viewmodel.DashboardViewModel
 import com.fatihenes.photoreport.feature.project.ui.ProjectDetailScreen
+import com.fatihenes.photoreport.feature.project.ui.ProjectDetailScreenParams
+import com.fatihenes.photoreport.feature.project.ui.ProjectDetailViewState
+import com.fatihenes.photoreport.feature.project.ui.ProjectDetailActions
 import com.fatihenes.photoreport.feature.project.viewmodel.ProjectDetailViewModel
 import com.fatihenes.photoreport.feature.settings.ui.SettingsScreen
 import com.fatihenes.photoreport.feature.settings.viewmodel.SettingsViewModel
@@ -58,15 +62,17 @@ fun NavGraphBuilder.dashboardRoute(
         }
 
         DashboardScreen(
-            projects = projects,
-            language = language,
-            isTrashNotEmpty = isTrashNotEmpty,
-            isRefreshing = isRefreshing,
-            onProjectClick = { project -> navController.navigate(Routes.detail(project.id)) },
-            onAddProject = { name, color -> dashboardViewModel.addProject(name, color) },
-            onSettingsClick = { navController.navigate(Routes.SETTINGS) },
-            onTrashClick = { navController.navigate(Routes.TRASH) },
-            onRefresh = { dashboardViewModel.refresh() }
+            params = DashboardScreenParams(
+                projects = projects,
+                language = language,
+                isTrashNotEmpty = isTrashNotEmpty,
+                isRefreshing = isRefreshing,
+                onProjectClick = { project -> navController.navigate(Routes.detail(project.id)) },
+                onAddProject = { name, color -> dashboardViewModel.addProject(name, color) },
+                onSettingsClick = { navController.navigate(Routes.SETTINGS) },
+                onTrashClick = { navController.navigate(Routes.TRASH) },
+                onRefresh = { dashboardViewModel.refresh() }
+            )
         )
     }
 }
@@ -77,10 +83,10 @@ fun NavGraphBuilder.dashboardRoute(
 fun NavGraphBuilder.settingsRoute(navController: NavController) {
     composable(
         route = Routes.SETTINGS,
-        enterTransition = { FotoRaporMotion.navEnter(FotoRaporMotion.NavDurationFast) },
-        exitTransition = { FotoRaporMotion.navExit(FotoRaporMotion.NavDurationFast) },
-        popEnterTransition = { FotoRaporMotion.navPopEnter(FotoRaporMotion.NavDurationFast) },
-        popExitTransition = { FotoRaporMotion.navPopExit(FotoRaporMotion.NavDurationFast) }
+        enterTransition = { FotoRaporMotion.navEnter(FotoRaporMotion.NAV_DURATION_FAST) },
+        exitTransition = { FotoRaporMotion.navExit(FotoRaporMotion.NAV_DURATION_FAST) },
+        popEnterTransition = { FotoRaporMotion.navPopEnter(FotoRaporMotion.NAV_DURATION_FAST) },
+        popExitTransition = { FotoRaporMotion.navPopExit(FotoRaporMotion.NAV_DURATION_FAST) }
     ) {
         val settingsViewModel: SettingsViewModel = hiltViewModel()
         SettingsScreen(
@@ -102,10 +108,10 @@ fun NavGraphBuilder.detailRoute(
     composable(
         route = Routes.DETAIL,
         arguments = listOf(navArgument("projectId") { type = NavType.LongType }),
-        enterTransition = { FotoRaporMotion.navEnter(FotoRaporMotion.NavDurationStandard) },
-        exitTransition = { FotoRaporMotion.navExit(FotoRaporMotion.NavDurationStandard) },
-        popEnterTransition = { FotoRaporMotion.navPopEnter(FotoRaporMotion.NavDurationStandard) },
-        popExitTransition = { FotoRaporMotion.navPopExit(FotoRaporMotion.NavDurationStandard) }
+        enterTransition = { FotoRaporMotion.navEnter(FotoRaporMotion.NAV_DURATION_STANDARD) },
+        exitTransition = { FotoRaporMotion.navExit(FotoRaporMotion.NAV_DURATION_STANDARD) },
+        popEnterTransition = { FotoRaporMotion.navPopEnter(FotoRaporMotion.NAV_DURATION_STANDARD) },
+        popExitTransition = { FotoRaporMotion.navPopExit(FotoRaporMotion.NAV_DURATION_STANDARD) }
     ) { backStackEntry ->
         val context = LocalContext.current
         val projectId = backStackEntry.arguments?.getLong("projectId") ?: -1L
@@ -119,37 +125,39 @@ fun NavGraphBuilder.detailRoute(
         val currentLogs by detailViewModel.currentProjectLogs.collectAsStateWithLifecycle()
 
         ProjectDetailScreen(
-            project = project,
-            logs = currentLogs,
-            viewModel = detailViewModel,
-            onBack = { navController.popBackStack() },
-            onDeleteProject = {
-                project?.let { detailViewModel.deleteProject(it.id) }
-                navController.popBackStack()
-            },
-            onAddPhoto = { logId ->
-                val hasPermission = ContextCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.CAMERA
-                ) == PackageManager.PERMISSION_GRANTED
+            params = ProjectDetailScreenParams(
+                project = project,
+                logs = currentLogs,
+                viewModel = detailViewModel,
+                onBack = { navController.popBackStack() },
+                onDeleteProject = {
+                    project?.let { detailViewModel.deleteProject(it.id) }
+                    navController.popBackStack()
+                },
+                onAddPhoto = { logId ->
+                    val hasPermission = ContextCompat.checkSelfPermission(
+                        context,
+                        Manifest.permission.CAMERA
+                    ) == PackageManager.PERMISSION_GRANTED
 
-                if (hasPermission) {
-                    navController.navigate(Routes.camera(logId, projectId))
-                } else {
-                    onSetPending(logId, projectId)
-                    permissionLauncher.launch(Manifest.permission.CAMERA)
-                }
-            },
-            onDeletePhoto = { photo -> detailViewModel.deletePhoto(photo) },
-            onDeletePhotos = { ids -> detailViewModel.deletePhotos(ids) },
-            onNoteChange = { logId, note -> detailViewModel.updateNote(logId, note) },
-            onUpdateRotation = { photoId, rotation -> detailViewModel.updatePhotoRotation(photoId, rotation) },
-            onAddLogForDate = { date -> project?.let { detailViewModel.addLogForDate(it.id, date) } },
-            onImportPhotoToLog = { logId, filePath -> detailViewModel.addPhotoToLog(logId, filePath) },
-            onExportProject = { format, quality, lang ->
-                project?.let { detailViewModel.exportProject(it.id, it.name, format, quality, lang) }
-            },
-            language = language
+                    if (hasPermission) {
+                        navController.navigate(Routes.camera(logId, projectId))
+                    } else {
+                        onSetPending(logId, projectId)
+                        permissionLauncher.launch(Manifest.permission.CAMERA)
+                    }
+                },
+                onDeletePhoto = { photo -> detailViewModel.deletePhoto(photo) },
+                onDeletePhotos = { ids -> detailViewModel.deletePhotos(ids) },
+                onNoteChange = { logId, note -> detailViewModel.updateNote(logId, note) },
+                onUpdateRotation = { photoId, rotation -> detailViewModel.updatePhotoRotation(photoId, rotation) },
+                onAddLogForDate = { date -> project?.let { detailViewModel.addLogForDate(it.id, date) } },
+                onImportPhotoToLog = { logId, filePath -> detailViewModel.addPhotoToLog(logId, filePath) },
+                onExportProject = { format, quality, lang ->
+                    project?.let { detailViewModel.exportProject(it.id, it.name, format, quality, lang) }
+                },
+                language = language
+            )
         )
     }
 }
@@ -215,10 +223,10 @@ fun NavGraphBuilder.cameraRoute(
 fun NavGraphBuilder.trashRoute(navController: NavController, language: String) {
     composable(
         route = Routes.TRASH,
-        enterTransition = { FotoRaporMotion.navEnter(FotoRaporMotion.NavDurationFast) },
-        exitTransition = { FotoRaporMotion.navExit(FotoRaporMotion.NavDurationFast) },
-        popEnterTransition = { FotoRaporMotion.navPopEnter(FotoRaporMotion.NavDurationFast) },
-        popExitTransition = { FotoRaporMotion.navPopExit(FotoRaporMotion.NavDurationFast) }
+        enterTransition = { FotoRaporMotion.navEnter(FotoRaporMotion.NAV_DURATION_FAST) },
+        exitTransition = { FotoRaporMotion.navExit(FotoRaporMotion.NAV_DURATION_FAST) },
+        popEnterTransition = { FotoRaporMotion.navPopEnter(FotoRaporMotion.NAV_DURATION_FAST) },
+        popExitTransition = { FotoRaporMotion.navPopExit(FotoRaporMotion.NAV_DURATION_FAST) }
     ) {
         TrashScreen(
             onBack = { navController.popBackStack() },

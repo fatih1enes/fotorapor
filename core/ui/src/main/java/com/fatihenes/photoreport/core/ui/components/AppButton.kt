@@ -5,11 +5,11 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -18,7 +18,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -42,9 +41,10 @@ fun AppButton(
     modifier: Modifier = Modifier,
     icon: ImageVector? = null,
     enabled: Boolean = true,
-    fullWidth: Boolean = false,
-    containerColor: Color = MaterialTheme.colorScheme.primary,
-    contentColor: Color = MaterialTheme.colorScheme.onPrimary
+    colors: ButtonColors = ButtonDefaults.buttonColors(
+        containerColor = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.onPrimary
+    )
 ) {
     val haptic = LocalHapticFeedback.current
     val interactionSource = remember { MutableInteractionSource() }
@@ -55,8 +55,6 @@ fun AppButton(
         label = "button_press_scale"
     )
 
-    val buttonModifier = if (fullWidth) modifier.fillMaxWidth() else modifier
-
     Button(
         onClick = {
             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -64,7 +62,7 @@ fun AppButton(
         },
         enabled = enabled,
         interactionSource = interactionSource,
-        modifier = buttonModifier
+        modifier = modifier
             .defaultMinSize(
                 minWidth = FotoRaporTokens.TouchTarget,
                 minHeight = FotoRaporTokens.TouchTarget
@@ -75,10 +73,7 @@ fun AppButton(
                 scaleY = scale
             },
         shape = MaterialTheme.shapes.medium,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = containerColor,
-            contentColor = contentColor
-        ),
+        colors = colors,
         elevation = ButtonDefaults.buttonElevation(
             defaultElevation = FotoRaporTokens.ElevationNone,
             pressedElevation = FotoRaporTokens.ElevationNone

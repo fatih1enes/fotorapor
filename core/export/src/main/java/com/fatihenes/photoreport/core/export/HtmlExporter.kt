@@ -1,60 +1,81 @@
+@file:Suppress("MaxLineLength")
 package com.fatihenes.photoreport.core.export
 
 import android.content.Context
+import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
 import androidx.core.content.FileProvider
 import androidx.core.text.htmlEncode
 import com.fatihenes.photoreport.core.common.util.FileNameUtils
-import com.fatihenes.photoreport.core.database.*
+import com.fatihenes.photoreport.core.database.DailyLogEntity
+import com.fatihenes.photoreport.core.database.PhotoEntity
+import com.fatihenes.photoreport.core.database.ProjectEntity
 import com.fatihenes.photoreport.core.media.CompanyLogoManager
 import com.fatihenes.photoreport.core.media.ImageProcessor
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
-import java.text.SimpleDateFormat
-import java.util.Date
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 
 object HtmlExporter {
 
+    private const val TAG = "HtmlExporter"
     private const val DIV_CLOSE = "</div>"
     private const val LOGO_ASSET_PATH = "assets/company_logo.png"
     private const val COPY_BUFFER_SIZE = 8192
+    private const val QUALITY_LOSSLESS = 100
+    private const val LOGO_MAX_DIMENSION = 500
 
-    suspend fun exportToHtmlZip(
-        context: Context,
-        project: ProjectEntity,
-        logs: List<DailyLogEntity>,
-        photos: List<PhotoEntity>,
-        quality: Int = 100,
-        language: String = "tr",
-    ): Uri? = withContext(Dispatchers.IO) {
+    data class ExportParams(
+        val context: Context,
+        val project: ProjectEntity,
+        val logs: List<DailyLogEntity>,
+        val photos: List<PhotoEntity>,
+        val quality: Int = 100,
+        val language: String = "tr",
+        val dispatcher: CoroutineDispatcher = Dispatchers.IO,
+    )
+
+    suspend fun exportToHtmlZip(params: ExportParams): Uri? = withContext(params.dispatcher) {
         try {
-            val sanitizedName = FileNameUtils.sanitize(project.name, "proje")
-            val zipNamePrefix = if (language == "en") "Report" else "Rapor"
-            val zipFile = File(context.cacheDir, "${zipNamePrefix}_$sanitizedName.zip")
-            if (zipFile.exists()) zipFile.delete()
+            val sanitizedName = FileNameUtils.sanitize(params.project.name, "proje")
+            val zipPrefix = if (params.language == "en") "Report" else "Rapor"
+            val zipFile = File(params.context.cacheDir, "${zipPrefix}_$sanitizedName.zip")
+            if (zipFile.exists() && !zipFile.delete()) {
+                Log.w("HtmlExporter", "Failed to delete existing zip file: ${zipFile.name}")
+            }
 
             val photoMap = mutableMapOf<Long, String>()
-            ZipOutputStream(FileOutputStream(zipFile)).use { zos ->
-                val logoPath = streamLogoToZip(context, zos)
-                streamMediaToZip(context, zos, photos, quality, photoMap)
+            val fos = FileOutputStream(zipFile)
+            ZipOutputStream(fos).use { zos ->
+                val logoPath = streamLogoToZip(params.context, zos)
+                streamMediaToZip(
+                    StreamMediaParams(params.context, zos, params.photos, params.quality, photoMap),
+                )
 
-                val htmlContent = generateHtmlContent(project, logs, photos, photoMap, logoPath, language)
+                val html = generateHtmlContent(
+                    HtmlContentParams(params.project, params.logs, params.photos, photoMap, logoPath, params.language),
+                )
                 zos.putNextEntry(ZipEntry("index.html"))
-                zos.write(htmlContent.toByteArray(Charsets.UTF_8))
+                zos.write(html.toByteArray(Charsets.UTF_8))
                 zos.closeEntry()
             }
 
-            return@withContext FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", zipFile)
-        } catch (e: Exception) {
-            @Suppress("InstanceOfCheckForException")
-            if (e is kotlinx.coroutines.CancellationException) throw e
-            Log.e("HtmlExporter", "Export failed", e)
+            val authority = "${params.context.packageName}.fileprovider"
+            return@withContext FileProvider.getUriForFile(params.context, authority, zipFile)
+        } catch (e: java.io.IOException) {
+            Log.e(TAG, "Export failed (IO)", e)
+            null
+        } catch (e: SecurityException) {
+            Log.e(TAG, "Export failed (Security)", e)
             null
         }
     }
@@ -65,82 +86,95 @@ object HtmlExporter {
         val logoUri = CompanyLogoManager.getLogoUri(context) ?: return null
         return try {
             zos.putNextEntry(ZipEntry(LOGO_ASSET_PATH))
-            ImageProcessor.openInputStreamSafe(context, logoUri.toString())
-                ?.use { it.copyTo(zos, COPY_BUFFER_SIZE) }
+            val scaledBmp = ImageProcessor.loadScaledBitmap(
+                context,
+                logoUri.toString(),
+                LOGO_MAX_DIMENSION,
+                LOGO_MAX_DIMENSION,
+            )
+            if (scaledBmp != null) {
+                scaledBmp.compress(Bitmap.CompressFormat.PNG, QUALITY_LOSSLESS, zos)
+                scaledBmp.recycle()
+            } else {
+                ImageProcessor.openInputStreamSafe(context, logoUri.toString())?.use {
+                    it.copyTo(zos, COPY_BUFFER_SIZE)
+                }
+            }
             zos.closeEntry()
             LOGO_ASSET_PATH
-        } catch (e: Exception) {
-            Log.e("HtmlExporter", "Logo stream failed", e)
+        } catch (e: java.io.IOException) {
+            Log.e(TAG, "Logo stream failed", e)
             null
         }
     }
 
-    private fun streamMediaToZip(
-        context: Context,
-        zos: ZipOutputStream,
-        photos: List<PhotoEntity>,
-        quality: Int,
-        photoMap: MutableMap<Long, String>
-    ) {
-        photos.forEach { photo ->
+    private data class StreamMediaParams(
+        val context: Context,
+        val zos: ZipOutputStream,
+        val photos: List<PhotoEntity>,
+        val quality: Int,
+        val photoMap: MutableMap<Long, String>,
+    )
+
+    private fun streamMediaToZip(params: StreamMediaParams) {
+        params.photos.forEach { photo ->
             val isVideo = photo.filePath.endsWith(".mp4", ignoreCase = true)
             val fileName = if (isVideo) "video_${photo.id}.mp4" else "photo_${photo.id}.jpg"
             val entryPath = "assets/$fileName"
             try {
-                zos.putNextEntry(ZipEntry(entryPath))
-                val success = writeMediaContent(context, zos, photo.filePath, isVideo, quality)
-                zos.closeEntry()
-                if (success) photoMap[photo.id] = entryPath
-            } catch (e: Exception) {
-                @Suppress("InstanceOfCheckForException")
-                if (e is kotlinx.coroutines.CancellationException) throw e
-                Log.e("HtmlExporter", "Media stream failed: ${photo.id}", e)
+                params.zos.putNextEntry(ZipEntry(entryPath))
+                val success = writeMediaContent(
+                    WriteMediaParams(params.context, params.zos, photo.filePath, isVideo, params.quality),
+                )
+                params.zos.closeEntry()
+                if (success) params.photoMap[photo.id] = entryPath
+            } catch (e: java.io.IOException) {
+                Log.e(TAG, "Media stream failed: ${photo.id}", e)
             }
         }
     }
 
-    private fun writeMediaContent(
-        context: Context,
-        zos: ZipOutputStream,
-        path: String,
-        isVideo: Boolean,
-        quality: Int
-    ): Boolean {
-        return if (isVideo || quality == 100) {
-            ImageProcessor.openInputStreamSafe(context, path)
-                ?.use { it.copyTo(zos, COPY_BUFFER_SIZE); true } ?: false
+    private data class WriteMediaParams(
+        val context: Context,
+        val zos: ZipOutputStream,
+        val path: String,
+        val isVideo: Boolean,
+        val quality: Int,
+    )
+
+    private fun writeMediaContent(params: WriteMediaParams): Boolean {
+        val isLossless = params.quality == QUALITY_LOSSLESS
+        return if (params.isVideo || isLossless) {
+            ImageProcessor.openInputStreamSafe(params.context, params.path)?.use {
+                it.copyTo(params.zos, COPY_BUFFER_SIZE)
+                true
+            } ?: false
         } else {
-            ImageProcessor.compressToStream(context, path, zos, quality) ||
-                    ImageProcessor.openInputStreamSafe(context, path)
-                        ?.use { it.copyTo(zos, COPY_BUFFER_SIZE); true } ?: false
+            val res = ImageProcessor.compressToStream(params.context, params.path, params.zos, params.quality)
+            res || (
+                ImageProcessor.openInputStreamSafe(params.context, params.path)?.use {
+                    it.copyTo(params.zos, COPY_BUFFER_SIZE)
+                    true
+                } ?: false
+            )
         }
     }
 
-    private fun generateHtmlContent(
-        project: ProjectEntity,
-        logs: List<DailyLogEntity>,
-        photos: List<PhotoEntity>,
-        photoMap: Map<Long, String>,
-        logoPath: String?,
-        language: String,
-    ): String {
-        val locale = if (language == "en") Locale.US else Locale.forLanguageTag("tr-TR")
-        val dateFormat = SimpleDateFormat("dd MMMM yyyy", locale)
-        val dateStr = dateFormat.format(Date())
+    private data class HtmlContentParams(val project: ProjectEntity, val logs: List<DailyLogEntity>, val photos: List<PhotoEntity>, val photoMap: Map<Long, String>, val logoPath: String?, val language: String)
 
+    private fun generateHtmlContent(p: HtmlContentParams): String {
+        val locale = if (p.language == "en") Locale.US else Locale.forLanguageTag("tr-TR")
+        val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy", locale).withZone(ZoneId.systemDefault())
+        val dateStr = formatter.format(Instant.now())
         return buildString {
-            append(generateHtmlHead(project.name, language))
+            append(generateHtmlHead(p.project.name, p.language))
             append("<body><div class=\"container\">")
-            append(generateHtmlHeader(project.name, dateStr, logoPath, language))
+            append(generateHtmlHeader(p.project.name, dateStr, p.logoPath, p.language))
             append("<div class=\"timeline\">")
-
-            logs.sortedByDescending { it.date }.forEach { log ->
-                val dayPhotos = photos.filter { it.logId == log.id }
-                if (log.note.isNotBlank() || dayPhotos.isNotEmpty()) {
-                    append(generateDayCard(log, dayPhotos, photoMap, dateFormat, language))
-                }
+            p.logs.sortedByDescending { it.date }.forEach { log ->
+                val dayPhotos = p.photos.filter { it.logId == log.id }
+                if (log.note.isNotBlank() || dayPhotos.isNotEmpty()) append(generateDayCard(log, dayPhotos, p.photoMap, formatter, p.language))
             }
-
             append("</div></div></body></html>")
         }
     }
@@ -191,28 +225,16 @@ object HtmlExporter {
         """.trimIndent()
     }
 
-    private fun generateDayCard(
-        log: DailyLogEntity,
-        photos: List<PhotoEntity>,
-        map: Map<Long, String>,
-        df: SimpleDateFormat,
-        lang: String
-    ): String {
+    private fun generateDayCard(log: DailyLogEntity, photos: List<PhotoEntity>, map: Map<Long, String>, formatter: DateTimeFormatter, lang: String): String {
         return buildString {
             append("<div class=\"day-card\">")
             append("<div class=\"day-header\">")
-            append("<h2 class=\"day-title\">${df.format(Date(log.date))}</h2>")
+            append("<h2 class=\"day-title\">${formatter.format(Instant.ofEpochMilli(log.date))}</h2>")
             append("</div>")
-
-            if (log.note.isNotBlank()) {
-                append("<div class=\"note-content\">${log.note.htmlEncode()}</div>")
-            }
-
+            if (log.note.isNotBlank()) append("<div class=\"note-content\">${log.note.htmlEncode()}</div>")
             if (photos.isNotEmpty()) {
                 append("<div class=\"media-grid\">")
-                photos.forEach { photo ->
-                    map[photo.id]?.let { append(generateMediaItem(it, photo.rotation, lang)) }
-                }
+                photos.forEach { photo -> map[photo.id]?.let { append(generateMediaItem(it, photo.rotation, lang)) } }
                 append(DIV_CLOSE)
             }
             append(DIV_CLOSE)
@@ -230,9 +252,7 @@ object HtmlExporter {
                 append("<source src=\"$path\" type=\"video/mp4\">")
                 append("$videoMsg</video>")
             } else {
-                val style = if (rotation != 0f) {
-                    "style=\"transform: rotate(${rotation}deg);\""
-                } else ""
+                val style = if (rotation != 0f) "style=\"transform: rotate(${rotation}deg);\"" else ""
                 append("<a href=\"$path\" target=\"_blank\">")
                 append("<img src=\"$path\" alt=\"$photoAlt\" loading=\"lazy\" $style>")
                 append("</a>")

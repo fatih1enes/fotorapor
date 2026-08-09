@@ -39,14 +39,15 @@ object WidgetDataHelper {
     }
 
     /** Force-refresh every PhotoReport widget on the home screen. */
+    @Suppress("kotlin:S5320")
     fun notifyWidgets(context: Context) {
         val manager = AppWidgetManager.getInstance(context)
-        val ids = manager.getAppWidgetIds(
-            ComponentName(context, PhotoReportWidgetProvider::class.java)
-        )
+        val componentName = ComponentName(context, PhotoReportWidgetProvider::class.java)
+        val ids = manager.getAppWidgetIds(componentName)
         if (ids.isNotEmpty()) {
-            val intent = Intent(context, PhotoReportWidgetProvider::class.java).apply {
-                action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+            val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE).apply {
+                component = componentName
+                setPackage(context.packageName)
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, ids)
             }
             context.sendBroadcast(intent)

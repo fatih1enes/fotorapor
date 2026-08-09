@@ -11,14 +11,17 @@ import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
+import com.fatihenes.photoreport.core.common.di.Dispatcher
+import com.fatihenes.photoreport.core.common.di.FotoRaporDispatchers
+import com.fatihenes.photoreport.core.model.WatermarkData
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
-import com.fatihenes.photoreport.core.model.WatermarkData
 import kotlin.coroutines.resume
 
 /**
@@ -26,7 +29,8 @@ import kotlin.coroutines.resume
  */
 @Singleton
 class LocationManager @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    @Dispatcher(FotoRaporDispatchers.IO) private val ioDispatcher: CoroutineDispatcher
 ) {
     companion object {
         private const val TAG = "LocationManager"
@@ -46,11 +50,11 @@ class LocationManager @Inject constructor(
     }
 
     @android.annotation.SuppressLint("MissingPermission")
-    suspend fun getCurrentLocation(): Location? = withContext(Dispatchers.IO) {
+    suspend fun getCurrentLocation(): Location? = withContext(ioDispatcher) {
         if (!hasLocationPermission()) return@withContext null
 
         try {
-            val freshLocation = kotlinx.coroutines.withTimeoutOrNull(kotlin.time.Duration.parse("10s")) {
+            val freshLocation = withTimeoutOrNull(kotlin.time.Duration.parse("10s")) {
                 getFreshLocation()
             }
             freshLocation ?: getLastKnownLocation()
@@ -85,7 +89,7 @@ class LocationManager @Inject constructor(
     /**
      * Reverse-geocodes coordinates to a human-readable address.
      */
-    suspend fun getAddressFromLocation(latitude: Double, longitude: Double): String? = withContext(Dispatchers.IO) {
+    suspend fun getAddressFromLocation(latitude: Double, longitude: Double): String? = withContext(ioDispatcher) {
         try {
             val address = fetchAddress(latitude, longitude)
             address?.let { formatAddress(it) }

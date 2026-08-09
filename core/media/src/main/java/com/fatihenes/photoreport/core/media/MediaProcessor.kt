@@ -7,8 +7,10 @@ import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
 import androidx.exifinterface.media.ExifInterface
+import com.fatihenes.photoreport.core.common.di.Dispatcher
+import com.fatihenes.photoreport.core.common.di.FotoRaporDispatchers
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -17,12 +19,13 @@ import com.radzivon.bartoshyk.avif.coder.HeifCoder
 @Singleton
 class MediaProcessor @Inject constructor(
     @ApplicationContext private val appContext: Context,
+    @Dispatcher(FotoRaporDispatchers.IO) private val ioDispatcher: CoroutineDispatcher
 ) {
     suspend fun processAndOptimize(
         originalUri: Uri,
         enableAvif: Boolean,
         projectName: String
-    ): Uri = withContext(Dispatchers.IO) {
+    ): Uri = withContext(ioDispatcher) {
         if (enableAvif) {
             optimize(originalUri, projectName) ?: originalUri
         } else {

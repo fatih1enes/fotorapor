@@ -103,7 +103,7 @@
     <!-- ExportWorker Notifications -->
     <string name="export_notif_title">Dışa Aktarılıyor</string>
     <string name="export_notif_text">%s hazırlanırken lütfen bekleyin…</string>
-    <string name="export_progress_text">Görsel %1$d / %2$d işleniyor…</string>
+    <string name="export_progress_text">İşleniyor: %1$d / %2$d…</string>
     <string name="export_share_chooser">Raporu Paylaş</string>
     <string name="export_complete_channel">Dışa Aktarım Tamamlandı</string>
     <string name="export_ready_title">Paylaşıma Hazır!</string>

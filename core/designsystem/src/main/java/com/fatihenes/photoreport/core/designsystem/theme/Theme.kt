@@ -352,20 +352,20 @@ object FotoRaporMotion {
 
     // ── Duration Tiers ──────────────────────────────────────────
     /** Kısa, anlık feedback */
-    const val DurationShort = 150
+    const val DURATION_SHORT = 150
     /** Standart UI animasyonları */
-    const val DurationMedium = 250
+    const val DURATION_MEDIUM = 250
     /** Büyük geçişler */
-    const val DurationLong = 350
+    const val DURATION_LONG = 350
 
     // ── Navigation Duration Tiers ───────────────────────────────
     // Simetrik: ileri = geri aynı hız. Ekran tipine göre kademelendirilmiş.
     /** Yardımcı/hafif ekranlar: Settings, Trash — hızlı giriş/çıkış */
-    const val NavDurationFast = 250
+    const val NAV_DURATION_FAST = 250
     /** İçerik ekranları: Project Detail — biraz daha dramatik */
-    const val NavDurationStandard = 300
+    const val NAV_DURATION_STANDARD = 300
     /** Overlay / dialog geçişleri */
-    const val NavDurationOverlay = 200
+    const val NAV_DURATION_OVERLAY = 200
 
     // ── Parallax Oranı ──────────────────────────────────────────
     /** Arka planda kalan ekranın kayma yüzdesi (iOS-tarzı parallax) */
@@ -381,13 +381,13 @@ object FotoRaporMotion {
     // ── Tween Presets ───────────────────────────────────────────
     /** Yumuşak açılma animasyonu */
     fun <T> enterTween() = tween<T>(
-        durationMillis = DurationMedium,
+        durationMillis = DURATION_MEDIUM,
         easing = EasingEmphasized
     )
 
     /** Hızlı kapanma animasyonu */
     fun <T> exitTween() = tween<T>(
-        durationMillis = DurationShort,
+        durationMillis = DURATION_SHORT,
         easing = EasingStandard
     )
 
@@ -398,7 +398,7 @@ object FotoRaporMotion {
      * Forward navigasyon enter: sağdan slide-in + fade-in.
      * @param durationMs geçiş süresi
      */
-    fun navEnter(durationMs: Int = NavDurationStandard): EnterTransition =
+    fun navEnter(durationMs: Int = NAV_DURATION_STANDARD): EnterTransition =
         slideInHorizontally(
             initialOffsetX = { fullWidth -> fullWidth },
             animationSpec = tween(durationMillis = durationMs, easing = EasingEmphasized)
@@ -410,7 +410,7 @@ object FotoRaporMotion {
      * Forward navigasyon exit: sola parallax slide + fade-out.
      * @param durationMs geçiş süresi
      */
-    fun navExit(durationMs: Int = NavDurationStandard): ExitTransition =
+    fun navExit(durationMs: Int = NAV_DURATION_STANDARD): ExitTransition =
         slideOutHorizontally(
             targetOffsetX = { fullWidth -> -(fullWidth * PARALLAX_FRACTION).toInt() },
             animationSpec = tween(durationMillis = durationMs, easing = EasingEmphasized)
@@ -422,7 +422,7 @@ object FotoRaporMotion {
      * Pop (geri) navigasyon enter: soldan parallax slide-in + fade-in.
      * @param durationMs geçiş süresi
      */
-    fun navPopEnter(durationMs: Int = NavDurationStandard): EnterTransition =
+    fun navPopEnter(durationMs: Int = NAV_DURATION_STANDARD): EnterTransition =
         slideInHorizontally(
             initialOffsetX = { fullWidth -> -(fullWidth * PARALLAX_FRACTION).toInt() },
             animationSpec = tween(durationMillis = durationMs, easing = EasingEmphasized)
@@ -434,7 +434,7 @@ object FotoRaporMotion {
      * Pop (geri) navigasyon exit: sağa slide-out + fade-out.
      * @param durationMs geçiş süresi
      */
-    fun navPopExit(durationMs: Int = NavDurationStandard): ExitTransition =
+    fun navPopExit(durationMs: Int = NAV_DURATION_STANDARD): ExitTransition =
         slideOutHorizontally(
             targetOffsetX = { fullWidth -> fullWidth },
             animationSpec = tween(durationMillis = durationMs, easing = EasingEmphasized)
@@ -464,7 +464,9 @@ fun PhotoReportTheme(
     if (!view.isInEditMode) {
         SideEffect {
             val window = (view.context as Activity).window
+            @Suppress("DEPRECATION")
             window.statusBarColor = Color.Transparent.toArgb()
+            @Suppress("DEPRECATION")
             window.navigationBarColor = Color.Transparent.toArgb()
             val controller = WindowCompat.getInsetsController(window, view)
             controller.isAppearanceLightStatusBars = !darkTheme

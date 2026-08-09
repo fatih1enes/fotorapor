@@ -12,12 +12,14 @@ import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
 import android.util.Log
-import kotlinx.coroutines.Dispatchers
+import com.fatihenes.photoreport.core.common.di.Dispatcher
+import com.fatihenes.photoreport.core.common.di.FotoRaporDispatchers
+import com.fatihenes.photoreport.core.model.WatermarkData
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
-import com.fatihenes.photoreport.core.model.WatermarkData
 
 /**
  * Renders GPS watermark overlay onto captured photos in :core:media.
@@ -25,7 +27,9 @@ import com.fatihenes.photoreport.core.model.WatermarkData
  * at the bottom-left of the image.
  */
 @Singleton
-class WatermarkRenderer @Inject constructor() {
+class WatermarkRenderer @Inject constructor(
+    @Dispatcher(FotoRaporDispatchers.IO) private val ioDispatcher: CoroutineDispatcher
+) {
 
     companion object {
         private const val TAG = "WatermarkRenderer"
@@ -37,7 +41,7 @@ class WatermarkRenderer @Inject constructor() {
         context: Context,
         originalUri: Uri,
         watermarkData: WatermarkData
-    ): Uri = withContext(Dispatchers.IO) {
+    ): Uri = withContext(ioDispatcher) {
         var originalBitmap: Bitmap? = null
         var watermarkedBitmap: Bitmap? = null
         try {

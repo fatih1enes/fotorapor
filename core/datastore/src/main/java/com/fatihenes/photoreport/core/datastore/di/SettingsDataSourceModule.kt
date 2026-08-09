@@ -10,8 +10,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class SettingsDataSourceModule {
+fun interface SettingsDataSourceModule {
     @Binds
-    @Singleton
-    abstract fun bindLocalSettingsDataSource(impl: SettingsPreferencesDataSource): LocalSettingsDataSource
+    fun bindLocalSettingsDataSource(impl: SettingsPreferencesDataSource): LocalSettingsDataSource
 }
