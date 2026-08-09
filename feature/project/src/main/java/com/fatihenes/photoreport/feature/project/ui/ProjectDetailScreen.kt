@@ -106,6 +106,23 @@ fun ProjectDetailScreen(params: ProjectDetailScreenParams) {
         isTransitionFinished = true
     }
 
+    LaunchedEffect(Unit) {
+        params.viewModel.exportResultUri.collect { uri ->
+            val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
+                type = if (uri.toString().endsWith(".pdf", ignoreCase = true)) "application/pdf" else "application/zip"
+                putExtra(android.content.Intent.EXTRA_STREAM, uri)
+                addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            val chooser = android.content.Intent.createChooser(
+                intent,
+                context.getString(R.string.export_share_chooser)
+            ).apply {
+                addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+            }
+            context.startActivity(chooser)
+        }
+    }
+
     val notificationLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission(),
     ) { isGranted ->

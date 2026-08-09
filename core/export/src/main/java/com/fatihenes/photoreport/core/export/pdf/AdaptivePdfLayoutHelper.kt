@@ -27,8 +27,14 @@ class AdaptivePdfLayoutHelper(
         val nextY: Float
     )
 
+    companion object {
+        private const val FALLBACK_IMAGE_DIMENSION = 1000f
+    }
+
     fun calculateSlot(bitmapWidth: Int, bitmapHeight: Int): LayoutResult {
-        val aspectRatio = bitmapWidth.toFloat() / bitmapHeight.toFloat()
+        val safeW = if (bitmapWidth > 0) bitmapWidth.toFloat() else FALLBACK_IMAGE_DIMENSION
+        val safeH = if (bitmapHeight > 0) bitmapHeight.toFloat() else FALLBACK_IMAGE_DIMENSION
+        val aspectRatio = safeW / safeH
         val isLandscape = aspectRatio > PdfTheme.ASPECT_RATIO_LANDSCAPE_THRESHOLD
 
         val targetWidth: Float

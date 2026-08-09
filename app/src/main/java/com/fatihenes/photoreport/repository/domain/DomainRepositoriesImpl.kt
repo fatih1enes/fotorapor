@@ -31,6 +31,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -223,8 +224,9 @@ class DomainReportRepositoryImpl @Inject constructor(
         }
     }
 
-    override fun enqueueExportWork(projectId: Long, projectName: String, format: String, quality: Int, language: String) {
+    override fun enqueueExportWork(projectId: Long, projectName: String, format: String, quality: Int, language: String): java.util.UUID {
         val workRequest = androidx.work.OneTimeWorkRequestBuilder<com.fatihenes.photoreport.worker.ExportWorker>()
+            .addTag("export_work_$projectId")
             .setBackoffCriteria(
                 androidx.work.BackoffPolicy.EXPONENTIAL,
                 10,
@@ -243,6 +245,17 @@ class DomainReportRepositoryImpl @Inject constructor(
 
         val workManager = androidx.work.WorkManager.getInstance(context)
         workManager.enqueue(workRequest)
+        return workRequest.id
+    }
+
+    override fun observeExportWork(workId: java.util.UUID): Flow<Uri?> {
+        val workManager = androidx.work.WorkManager.getInstance(context)
+        return workManager.getWorkInfoByIdFlow(workId).map { workInfo ->
+            if (workInfo?.state == androidx.work.WorkInfo.State.SUCCEEDED) {
+                val uriString = workInfo.outputData.getString("uri")
+                if (!uriString.isNullOrBlank()) uriString.toUri() else null
+            } else null
+        }
     }
 }
 

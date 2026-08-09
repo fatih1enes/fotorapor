@@ -435,9 +435,11 @@ private fun ImageZoomItem(photo: Photo) {
                     if (newScale > ZOOM_MIN || scale > ZOOM_MIN) {
                         scale = newScale
                         offset += pan
+                        true
                     } else {
                         scale = ZOOM_MIN
                         offset = androidx.compose.ui.geometry.Offset.Zero
+                        false
                     }
                 })
             },
@@ -477,7 +479,7 @@ private fun ImageZoomItem(photo: Photo) {
 }
 
 private suspend fun PointerInputScope.handleZoomGestures(
-    onGesture: (Float, androidx.compose.ui.geometry.Offset) -> Unit,
+    onGesture: (Float, androidx.compose.ui.geometry.Offset) -> Boolean,
 ) {
     awaitPointerEventScope {
         while (true) {
@@ -486,8 +488,8 @@ private suspend fun PointerInputScope.handleZoomGestures(
                 val event = awaitPointerEvent()
                 val zoom = event.calculateZoom()
                 val pan = event.calculatePan()
-                onGesture(zoom, pan)
-                if (zoom != 1f || pan != androidx.compose.ui.geometry.Offset.Zero) {
+                val consumed = onGesture(zoom, pan)
+                if (consumed) {
                     event.changes.forEach { if (it.positionChanged()) it.consume() }
                 }
             } while (event.changes.any { it.pressed })

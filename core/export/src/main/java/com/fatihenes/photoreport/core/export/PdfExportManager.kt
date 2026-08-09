@@ -265,13 +265,19 @@ class NativePdfExportManager @Inject constructor(
         for (photo in photos) {
             params.onProgress?.invoke(++count, params.total)
             val opt = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-            ImageProcessor.openInputStreamSafe(context, photo.filePath)?.use {
-                BitmapFactory.decodeStream(it, null, opt)
+            try {
+                ImageProcessor.openInputStreamSafe(context, photo.filePath)?.use {
+                    BitmapFactory.decodeStream(it, null, opt)
+                }
+            } catch (e: Exception) {
+                android.util.Log.w("PdfExportManager", "Failed to decode bounds for ${photo.filePath}", e)
             }
-            var res = params.session.layout.calculateSlot(opt.outWidth, opt.outHeight)
+            val w = if (opt.outWidth > 0) opt.outWidth else 1000
+            val h = if (opt.outHeight > 0) opt.outHeight else 1000
+            var res = params.session.layout.calculateSlot(w, h)
             if (res.isNewPageRequired) {
                 params.session.advancePage()
-                res = params.session.layout.calculateSlot(opt.outWidth, opt.outHeight)
+                res = params.session.layout.calculateSlot(w, h)
             }
             val drawParams = DrawPhotoParams(
                 photo = photo,
@@ -305,12 +311,15 @@ class NativePdfExportManager @Inject constructor(
         val quality: Int,
     )
 
+    @Suppress("TooGenericExceptionCaught")
     private fun drawPhoto(p: DrawPhotoParams) {
         var bmp: Bitmap? = null
         try {
             val dim = if (p.quality == 100) 1500 else 1000
             bmp = ImageProcessor.loadScaledBitmap(context, p.photo.filePath, dim, dim, Bitmap.Config.ARGB_8888)
             bmp?.let { processAndDrawPhoto(p, it) }
+        } catch (e: Throwable) {
+            android.util.Log.e("PdfExportManager", "Error rendering photo ${p.photo.filePath}", e)
         } finally {
             bmp?.recycle()
         }

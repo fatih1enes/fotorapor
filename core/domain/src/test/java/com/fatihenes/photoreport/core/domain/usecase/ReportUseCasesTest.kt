@@ -37,7 +37,10 @@ class ReportUseCasesTest {
 
     @Test
     fun `ExportProjectUseCase should call repository enqueue`() {
-        exportProjectUseCase(1L, "P1", "PDF", 80, "tr")
+        val uuid = java.util.UUID.randomUUID()
+        org.mockito.Mockito.`when`(repository.enqueueExportWork(1L, "P1", "PDF", 80, "tr")).thenReturn(uuid)
+        val result = exportProjectUseCase(1L, "P1", "PDF", 80, "tr")
+        assertEquals(uuid, result)
         verify(repository).enqueueExportWork(1L, "P1", "PDF", 80, "tr")
     }
 }

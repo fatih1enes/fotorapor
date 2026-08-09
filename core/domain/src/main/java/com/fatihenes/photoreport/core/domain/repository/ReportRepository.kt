@@ -5,5 +5,13 @@ import com.fatihenes.photoreport.core.model.Photo
 
 interface ReportRepository {
     suspend fun calculateFileSizes(photos: List<Photo>): FileSizeInfo
-    fun enqueueExportWork(projectId: Long, projectName: String, format: String, quality: Int, language: String)
+    fun enqueueExportWork(
+        projectId: Long,
+        projectName: String,
+        format: String,
+        quality: Int,
+        language: String,
+    ): java.util.UUID
+
+    fun observeExportWork(workId: java.util.UUID): kotlinx.coroutines.flow.Flow<android.net.Uri?>
 }

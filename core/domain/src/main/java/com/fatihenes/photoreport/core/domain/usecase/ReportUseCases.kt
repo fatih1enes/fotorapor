@@ -14,7 +14,13 @@ class CalculateFileSizesUseCase @Inject constructor(
 class ExportProjectUseCase @Inject constructor(
     private val repository: ReportRepository
 ) {
-    operator fun invoke(projectId: Long, projectName: String, format: String, quality: Int, language: String) {
-        repository.enqueueExportWork(projectId, projectName, format, quality, language)
+    operator fun invoke(
+        projectId: Long,
+        projectName: String,
+        format: String,
+        quality: Int,
+        language: String,
+    ): java.util.UUID {
+        return repository.enqueueExportWork(projectId, projectName, format, quality, language)
     }
 }

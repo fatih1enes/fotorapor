@@ -42,10 +42,16 @@ class ExportWorker @AssistedInject constructor(
     }
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
-        return ForegroundInfo(
-            PROGRESS_NOTIFICATION_ID,
-            createNotification(context.getString(R.string.export_notif_title), "")
-        )
+        val notification = createNotification(context.getString(R.string.export_notif_title), "")
+        return if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            ForegroundInfo(
+                PROGRESS_NOTIFICATION_ID,
+                notification,
+                android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
+            )
+        } else {
+            ForegroundInfo(PROGRESS_NOTIFICATION_ID, notification)
+        }
     }
 
     private fun createNotification(
@@ -75,8 +81,10 @@ class ExportWorker @AssistedInject constructor(
 
     private fun showProgressNotification(projectName: String, current: Int = 0, total: Int = 0) {
         try {
-            val contentText = if (total > 0) context.getString(R.string.export_progress_text, current, total)
-            else context.getString(R.string.export_notif_text, projectName)
+            val contentText = if (total > 0) {
+                val percent = (current * 100) / total
+                "${context.getString(R.string.export_progress_text, current, total)} (%$percent)"
+            } else context.getString(R.string.export_notif_text, projectName)
 
             val notification = createNotification(
                 context.getString(R.string.export_notif_title),
@@ -118,7 +126,11 @@ class ExportWorker @AssistedInject constructor(
     }
 
     private suspend fun executeExportFlow(projectName: String): Result {
-        setForeground(getForegroundInfo())
+        try {
+            setForeground(getForegroundInfo())
+        } catch (e: Exception) {
+            Log.w("ExportWorker", "Could not set foreground info: ${e.message}")
+        }
         showProgressNotification(projectName)
 
         val data = fetchExportData()
@@ -135,7 +147,7 @@ class ExportWorker @AssistedInject constructor(
                 inputData.getString("format") ?: "PDF",
                 projectName
             )
-            Result.success()
+            Result.success(workDataOf("uri" to uri.toString()))
         } else {
             Result.failure(
                 workDataOf("error" to context.getString(R.string.error_unknown))

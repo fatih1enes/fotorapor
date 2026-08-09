@@ -59,5 +59,5 @@ fun Photo.toEntity(): PhotoEntity = PhotoEntity(
 
 fun LogWithPhotos.toDomain(): DailyLogWithPhotos = DailyLogWithPhotos(
     log = log.toDomain(),
-    photos = photos.map { it.toDomain() }
+    photos = photos.filter { !it.isDeleted }.map { it.toDomain() }
 )
