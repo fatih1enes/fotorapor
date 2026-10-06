@@ -2,14 +2,82 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
+    <ID>CommentOverPrivateFunction:PhotoBlurEngine.kt$PhotoBlurEngine$private fun applyFastGaussianBlur(bitmap: Bitmap, l: Int, t: Int, w: Int, h: Int, strength: Float)</ID>
+    <ID>ComplexCondition:PhotoCropRenderer.kt$PhotoCropRenderer$cropState.cropLeft &gt; 0f || cropState.cropTop &gt; 0f || cropState.cropRight &lt; 1f || cropState.cropBottom &lt; 1f</ID>
+    <ID>ComplexCondition:PhotoCropRenderer.kt$PhotoCropRenderer$cropState.rotationDegrees != 0 || cropState.isFlippedHorizontal || cropState.isFlippedVertical || cropState.straightenAngle != 0f</ID>
     <ID>CyclomaticComplexMethod:ImageCompressor.kt$ImageCompressor$fun compressToStream( context: Context, pathString: String, outputStream: OutputStream, quality: Int, maxDimension: Int = 2000 ): Boolean</ID>
-    <ID>LongMethod:MediaProcessor.kt$MediaProcessor$suspend fun processAndOptimize( originalUri: Uri, enableAvif: Boolean, projectName: String ): Uri</ID>
+    <ID>CyclomaticComplexMethod:MarkupGeometry.kt$MarkupGeometry$fun getItemBounds(item: MarkupItem): NormalizedRect</ID>
+    <ID>CyclomaticComplexMethod:MarkupGeometry.kt$MarkupGeometry$fun getItemCenter(item: MarkupItem): NormalizedPoint</ID>
+    <ID>CyclomaticComplexMethod:MarkupGeometry.kt$MarkupGeometry$fun hitTest(item: MarkupItem, px: Float, py: Float, canvasZoom: Float = 1f): Boolean</ID>
+    <ID>CyclomaticComplexMethod:MarkupSnapEngine.kt$MarkupSnapEngine$fun snapPosition( targetCenter: NormalizedPoint, targetBounds: NormalizedRect, otherItems: List&lt;MarkupItem&gt;, canvasZoom: Float = 1f, enabled: Boolean = true ): PositionSnapResult</ID>
+    <ID>CyclomaticComplexMethod:MarkupTransformEngine.kt$MarkupTransformEngine$fun resizeItem( item: MarkupItem, handle: TransformHandle, dx: Float, dy: Float, lockAspectRatio: Boolean = false ): MarkupItem</ID>
+    <ID>CyclomaticComplexMethod:PhotoCropRenderer.kt$PhotoCropRenderer$fun applyCropAndTransform(source: Bitmap, cropState: PhotoCropState): Bitmap</ID>
+    <ID>CyclomaticComplexMethod:PhotoExportEngine.kt$PhotoExportEngine$suspend fun exportPhoto( context: Context, photoId: Long, sourceFilePath: String, session: PhotoEditorSession, options: ExportOptions = ExportOptions() ): PhotoExportResult</ID>
+    <ID>CyclomaticComplexMethod:WatermarkRenderer.kt$WatermarkRenderer$suspend fun applyWatermark( context: Context, originalUri: Uri, watermarkData: WatermarkData ): Uri</ID>
+    <ID>LargeClass:PhotoMarkupRenderer.kt$PhotoMarkupRenderer</ID>
+    <ID>LongMethod:MarkupGeometry.kt$MarkupGeometry$fun getItemBounds(item: MarkupItem): NormalizedRect</ID>
+    <ID>LongMethod:MarkupGeometry.kt$MarkupGeometry$fun hitTest(item: MarkupItem, px: Float, py: Float, canvasZoom: Float = 1f): Boolean</ID>
+    <ID>LongMethod:MarkupSnapEngine.kt$MarkupSnapEngine$fun snapPosition( targetCenter: NormalizedPoint, targetBounds: NormalizedRect, otherItems: List&lt;MarkupItem&gt;, canvasZoom: Float = 1f, enabled: Boolean = true ): PositionSnapResult</ID>
+    <ID>LongMethod:MarkupTransformEngine.kt$MarkupTransformEngine$fun resizeItem( item: MarkupItem, handle: TransformHandle, dx: Float, dy: Float, lockAspectRatio: Boolean = false ): MarkupItem</ID>
+    <ID>LongMethod:PhotoBlurEngine.kt$PhotoBlurEngine$fun applyFreehandBlur( bitmap: Bitmap, item: MarkupItem.BlurPath, bitmapWidth: Float, bitmapHeight: Float )</ID>
+    <ID>LongMethod:WatermarkRenderer.kt$WatermarkRenderer$suspend fun applyWatermark( context: Context, originalUri: Uri, watermarkData: WatermarkData ): Uri</ID>
     <ID>MagicNumber:CompanyLogoManager.kt$CompanyLogoManager$100</ID>
     <ID>MagicNumber:ImageScaler.kt$ImageScaler$3_000_000</ID>
+    <ID>MagicNumber:MarkupGeometry.kt$MarkupGeometry$0.008f</ID>
+    <ID>MagicNumber:MarkupGeometry.kt$MarkupGeometry$0.015f</ID>
+    <ID>MagicNumber:MarkupGeometry.kt$MarkupGeometry$0.018f</ID>
+    <ID>MagicNumber:MarkupGeometry.kt$MarkupGeometry$0.025f</ID>
+    <ID>MagicNumber:MarkupGeometry.kt$MarkupGeometry$0.02f</ID>
+    <ID>MagicNumber:MarkupGeometry.kt$MarkupGeometry$0.035f</ID>
+    <ID>MagicNumber:MarkupGeometry.kt$MarkupGeometry$0.065f</ID>
+    <ID>MagicNumber:MarkupGeometry.kt$MarkupGeometry$0.06f</ID>
+    <ID>MagicNumber:MarkupGeometry.kt$MarkupGeometry$0.4f</ID>
+    <ID>MagicNumber:MarkupGeometry.kt$MarkupGeometry$0.5f</ID>
+    <ID>MagicNumber:MarkupGeometry.kt$MarkupGeometry$0.8f</ID>
+    <ID>MagicNumber:MarkupGeometry.kt$MarkupGeometry$1.5f</ID>
+    <ID>MagicNumber:MarkupSnapEngine.kt$MarkupSnapEngine$0.005f</ID>
+    <ID>MagicNumber:MarkupSnapEngine.kt$MarkupSnapEngine$0.5f</ID>
+    <ID>MagicNumber:MarkupSnapEngine.kt$MarkupSnapEngine$135f</ID>
+    <ID>MagicNumber:MarkupSnapEngine.kt$MarkupSnapEngine$180f</ID>
+    <ID>MagicNumber:MarkupSnapEngine.kt$MarkupSnapEngine$225f</ID>
+    <ID>MagicNumber:MarkupSnapEngine.kt$MarkupSnapEngine$270f</ID>
+    <ID>MagicNumber:MarkupSnapEngine.kt$MarkupSnapEngine$315f</ID>
+    <ID>MagicNumber:MarkupSnapEngine.kt$MarkupSnapEngine$360f</ID>
+    <ID>MagicNumber:MarkupSnapEngine.kt$MarkupSnapEngine$45f</ID>
+    <ID>MagicNumber:MarkupSnapEngine.kt$MarkupSnapEngine$90f</ID>
+    <ID>MagicNumber:MarkupTransformEngine.kt$MarkupTransformEngine$0.01f</ID>
+    <ID>MagicNumber:MarkupTransformEngine.kt$MarkupTransformEngine$0.08f</ID>
+    <ID>MagicNumber:MarkupTransformEngine.kt$MarkupTransformEngine$0.8f</ID>
+    <ID>MagicNumber:MarkupTransformEngine.kt$MarkupTransformEngine$90f</ID>
+    <ID>MagicNumber:MediaProcessor.kt$MediaProcessor$1024</ID>
     <ID>MagicNumber:MediaProcessor.kt$MediaProcessor$2560</ID>
     <ID>MagicNumber:MetadataReader.kt$MetadataReader$180f</ID>
     <ID>MagicNumber:MetadataReader.kt$MetadataReader$270f</ID>
     <ID>MagicNumber:MetadataReader.kt$MetadataReader$90f</ID>
+    <ID>MagicNumber:PhotoAdjustEngine.kt$PhotoAdjustEngine$0.4f</ID>
+    <ID>MagicNumber:PhotoAdjustEngine.kt$PhotoAdjustEngine$0.5f</ID>
+    <ID>MagicNumber:PhotoAdjustEngine.kt$PhotoAdjustEngine$0.75f</ID>
+    <ID>MagicNumber:PhotoAdjustEngine.kt$PhotoAdjustEngine$180</ID>
+    <ID>MagicNumber:PhotoAdjustEngine.kt$PhotoAdjustEngine$255</ID>
+    <ID>MagicNumber:PhotoAdjustEngine.kt$PhotoAdjustEngine$255f</ID>
+    <ID>MagicNumber:PhotoAdjustEngine.kt$PhotoAdjustEngine$25f</ID>
+    <ID>MagicNumber:PhotoAdjustEngine.kt$PhotoAdjustEngine$30f</ID>
+    <ID>MagicNumber:PhotoAdjustEngine.kt$PhotoAdjustEngine$50f</ID>
+    <ID>MagicNumber:PhotoBlurEngine.kt$PhotoBlurEngine$0xFF</ID>
+    <ID>MagicNumber:PhotoBlurEngine.kt$PhotoBlurEngine$10</ID>
+    <ID>MagicNumber:PhotoBlurEngine.kt$PhotoBlurEngine$10f</ID>
+    <ID>MagicNumber:PhotoBlurEngine.kt$PhotoBlurEngine$12</ID>
+    <ID>MagicNumber:PhotoBlurEngine.kt$PhotoBlurEngine$15</ID>
+    <ID>MagicNumber:PhotoBlurEngine.kt$PhotoBlurEngine$16</ID>
+    <ID>MagicNumber:PhotoBlurEngine.kt$PhotoBlurEngine$24</ID>
+    <ID>MagicNumber:PhotoBlurEngine.kt$PhotoBlurEngine$250</ID>
+    <ID>MagicNumber:PhotoBlurEngine.kt$PhotoBlurEngine$255</ID>
+    <ID>MagicNumber:PhotoBlurEngine.kt$PhotoBlurEngine$255f</ID>
+    <ID>MagicNumber:PhotoBlurEngine.kt$PhotoBlurEngine$4</ID>
+    <ID>MagicNumber:PhotoBlurEngine.kt$PhotoBlurEngine$50</ID>
+    <ID>MagicNumber:PhotoBlurEngine.kt$PhotoBlurEngine$64</ID>
+    <ID>MagicNumber:PhotoBlurEngine.kt$PhotoBlurEngine$8</ID>
+    <ID>MagicNumber:PhotoBlurEngine.kt$PhotoBlurEngine$96</ID>
     <ID>MagicNumber:WatermarkRenderer.kt$WatermarkRenderer$0.022f</ID>
     <ID>MagicNumber:WatermarkRenderer.kt$WatermarkRenderer$0.35f</ID>
     <ID>MagicNumber:WatermarkRenderer.kt$WatermarkRenderer$0.85f</ID>
@@ -20,17 +88,49 @@
     <ID>MagicNumber:WatermarkRenderer.kt$WatermarkRenderer$3f</ID>
     <ID>MagicNumber:WatermarkRenderer.kt$WatermarkRenderer$60f</ID>
     <ID>MagicNumber:WatermarkRenderer.kt$WatermarkRenderer$95</ID>
-    <ID>MaxLineLength:MediaProcessor.kt$MediaProcessor$val optimizedUri = appContext.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues)</ID>
+    <ID>MaxLineLength:MarkupGeometry.kt$MarkupGeometry$NormalizedPoint(item.points.map { it.first }.average().toFloat(), item.points.map { it.second }.average().toFloat())</ID>
+    <ID>MaxLineLength:MarkupGeometry.kt$MarkupGeometry$dist(localPoint.x, localPoint.y, item.points[0].first, item.points[0].second) &lt; tolerance + item.strokeWidthNormalized / 2f</ID>
+    <ID>MaxLineLength:MarkupGeometry.kt$MarkupGeometry$distToSegment(localPoint.x, localPoint.y, item.startX, item.startY, item.endX, item.endY) &lt; tolerance</ID>
+    <ID>MaxLineLength:MarkupGeometry.kt$MarkupGeometry$else</ID>
+    <ID>MaxLineLength:MarkupGeometry.kt$MarkupGeometry$is MarkupItem.Line -&gt; distToSegment(localPoint.x, localPoint.y, item.startX, item.startY, item.endX, item.endY) &lt; tolerance</ID>
+    <ID>MaxLineLength:MarkupGeometry.kt$MarkupGeometry$val nearLeader = distToSegment(localPoint.x, localPoint.y, item.boxX, item.boxY, item.anchorX, item.anchorY) &lt; tolerance</ID>
+    <ID>MaxLineLength:MarkupGeometryTest.kt$MarkupGeometryTest$val item2 = MarkupItem.Rectangle(left = 0.4f, top = 0.4f, right = 0.6f, bottom = 0.6f, colorArgb = -1, zIndex = 1)</ID>
+    <ID>MaxLineLength:MarkupTransformEngine.kt$MarkupTransformEngine$TransformHandle.BOTTOM_RIGHT, TransformHandle.RIGHT -&gt; item.copy(endX = item.endX + dx, endY = item.endY + dy)</ID>
+    <ID>MaxLineLength:MarkupTransformEngine.kt$MarkupTransformEngine$TransformHandle.BOTTOM_RIGHT, TransformHandle.RIGHT, TransformHandle.BOTTOM -&gt; if (dx + dy &gt; 0) 1f else -1f</ID>
+    <ID>MaxLineLength:MarkupTransformEngine.kt$MarkupTransformEngine$TransformHandle.TOP_LEFT, TransformHandle.LEFT -&gt; item.copy(startX = item.startX + dx, startY = item.startY + dy)</ID>
+    <ID>MaxLineLength:PhotoBlurEngine.kt$PhotoBlurEngine$RedactionMode.SOLID_COLOR -&gt; applySolidColor(bitmap, l, t, rectW, rectH, if (item.colorArgb != 0) item.colorArgb else Color.BLACK)</ID>
+    <ID>MaxLineLength:PhotoBlurEngine.kt$PhotoBlurEngine$val green = (((blur ushr 8) and 0xFF) * a + ((orig ushr 8) and 0xFF) * invA).toInt().coerceIn(0, 255)</ID>
+    <ID>MaxLineLength:PhotoBlurEngine.kt$PhotoBlurEngine$val red = (((blur ushr 16) and 0xFF) * a + ((orig ushr 16) and 0xFF) * invA).toInt().coerceIn(0, 255)</ID>
+    <ID>MaxLineLength:PhotoCropRenderer.kt$PhotoCropRenderer$if</ID>
+    <ID>MaxLineLength:PhotoExportEngine.kt$PhotoExportEngine$adjustedBitmap = if (croppedBitmap.isMutable) croppedBitmap else croppedBitmap.copy(Bitmap.Config.ARGB_8888, true)</ID>
     <ID>MaxLineLength:PhotoManager.kt$PhotoManager$fun</ID>
+    <ID>MaxLineLength:PhotoMarkupRenderer.kt$PhotoMarkupRenderer$android.graphics.PointF((item.startX + item.endX) / 2f * width, (item.startY + item.endY) / 2f * height)</ID>
+    <ID>MaxLineLength:PhotoMarkupRenderer.kt$PhotoMarkupRenderer$is MarkupItem.BlurRect -&gt; android.graphics.PointF((item.left + item.right) / 2f * width, (item.top + item.bottom) / 2f * height)</ID>
+    <ID>MaxLineLength:PhotoMarkupRenderer.kt$PhotoMarkupRenderer$is MarkupItem.Line -&gt; android.graphics.PointF((item.startX + item.endX) / 2f * width, (item.startY + item.endY) / 2f * height)</ID>
+    <ID>MaxLineLength:PhotoMarkupRenderer.kt$PhotoMarkupRenderer$is MarkupItem.Measurement -&gt; android.graphics.PointF((item.startX + item.endX) / 2f * width, (item.startY + item.endY) / 2f * height)</ID>
+    <ID>MaxLineLength:PhotoMarkupRenderer.kt$PhotoMarkupRenderer$is MarkupItem.Rectangle -&gt; android.graphics.PointF((item.left + item.right) / 2f * width, (item.top + item.bottom) / 2f * height)</ID>
+    <ID>MaxLineLength:PhotoMarkupRenderer.kt$PhotoMarkupRenderer$private</ID>
+    <ID>MaxLineLength:PhotoMarkupRenderer.kt$PhotoMarkupRenderer$setShadowLayer(arrowHeadLength * 0.3f + 4f, 0f, arrowHeadLength * 0.15f, Color.argb((alphaInt * 0.5f).toInt(), 0, 0, 0))</ID>
+    <ID>MaxLineLength:PhotoMarkupRenderer.kt$PhotoMarkupRenderer$setShadowLayer(fontSize * 0.15f + 4f, 0f, fontSize * 0.05f, Color.argb((alphaInt * 0.7f).toInt(), 0, 0, 0))</ID>
+    <ID>MaxLineLength:PhotoMarkupRenderer.kt$PhotoMarkupRenderer$setShadowLayer(strokePx * 0.8f + 4f, 0f, strokePx * 0.3f, Color.argb((alphaInt * 0.5f).toInt(), 0, 0, 0))</ID>
+    <ID>MaxLineLength:PhotoMarkupRenderer.kt$PhotoMarkupRenderer$val pill = RectF(midX - textWidth / 2f - padH, midY - fontSize / 2f - padV, midX + textWidth / 2f + padH, midY + fontSize / 2f + padV)</ID>
+    <ID>NestedBlockDepth:MarkupSnapEngine.kt$MarkupSnapEngine$fun snapPosition( targetCenter: NormalizedPoint, targetBounds: NormalizedRect, otherItems: List&lt;MarkupItem&gt;, canvasZoom: Float = 1f, enabled: Boolean = true ): PositionSnapResult</ID>
+    <ID>NestedBlockDepth:MediaProcessor.kt$MediaProcessor$private fun optimize(originalUri: Uri, projectName: String): Uri?</ID>
+    <ID>NestedBlockDepth:PhotoBlurEngine.kt$PhotoBlurEngine$private fun applyMosaic(bitmap: Bitmap, l: Int, t: Int, w: Int, h: Int, strength: Float)</ID>
+    <ID>NestedBlockDepth:PhotoExportEngine.kt$PhotoExportEngine$private fun copyExifMetadata( context: Context, srcPath: String, destPath: String, stripGps: Boolean )</ID>
     <ID>ReturnCount:ImageCompressor.kt$ImageCompressor$fun compressToStream( context: Context, pathString: String, outputStream: OutputStream, quality: Int, maxDimension: Int = 2000 ): Boolean</ID>
     <ID>ReturnCount:ImageScaler.kt$ImageScaler$private fun loadScaledBitmapViaContentResolver( context: Context, pathString: String, targetWidth: Int, targetHeight: Int, config: Bitmap.Config ): Bitmap?</ID>
+    <ID>ReturnCount:MarkupGeometry.kt$MarkupGeometry$fun getItemBounds(item: MarkupItem): NormalizedRect</ID>
+    <ID>ReturnCount:MarkupSnapEngine.kt$MarkupSnapEngine$fun snapRotation(angleDeg: Float, enabled: Boolean = true): SnapResult</ID>
+    <ID>ReturnCount:MediaProcessor.kt$MediaProcessor$private fun calculateMaxDimension(context: Context, pathString: String): Int</ID>
     <ID>ReturnCount:MetadataReader.kt$MetadataReader$fun getExifRotation(context: Context, pathString: String): Float</ID>
+    <ID>ReturnCount:PhotoMarkupRenderer.kt$PhotoMarkupRenderer$private fun buildSmoothPath(points: List&lt;Pair&lt;Float, Float&gt;&gt;, width: Float, height: Float): Path</ID>
+    <ID>ReturnCount:PhotoMarkupRenderer.kt$PhotoMarkupRenderer$private fun getItemCenter(item: MarkupItem, width: Float, height: Float): android.graphics.PointF</ID>
     <ID>SwallowedException:ImageCompressor.kt$ImageCompressor$e: Exception</ID>
     <ID>SwallowedException:ImageScaler.kt$ImageScaler$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:ImageCompressor.kt$ImageCompressor$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:ImageScaler.kt$ImageScaler$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:MediaProcessor.kt$MediaProcessor$e: Throwable</ID>
+    <ID>SwallowedException:MediaProcessor.kt$MediaProcessor$e: Exception</ID>
+    <ID>TooGenericExceptionCaught:MediaProcessor.kt$MediaProcessor$e: Exception</ID>
     <ID>TooGenericExceptionCaught:PhotoManager.kt$PhotoManager$e: Exception</ID>
-    <ID>TooGenericExceptionCaught:WatermarkRenderer.kt$WatermarkRenderer$e: Exception</ID>
+    <ID>UnusedParameter:MarkupTransformEngine.kt$MarkupTransformEngine$lockAspectRatio: Boolean = false</ID>
   </CurrentIssues>
 </SmellBaseline>

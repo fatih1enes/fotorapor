@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.BrightnessAuto
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.LightMode
+import androidx.compose.material.icons.filled.WbSunny
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -247,6 +248,12 @@ private fun ThemeSection(themeMode: String, onThemeSelected: (String) -> Unit) {
                 Icons.Default.DarkMode,
                 themeMode == "dark",
             ) { onThemeSelected("dark") }
+            SettingsDivider()
+            ThemeOption(
+                stringResource(R.string.settings_theme_high_contrast),
+                Icons.Default.WbSunny,
+                themeMode == "high_contrast",
+            ) { onThemeSelected("high_contrast") }
         }
     }
 }

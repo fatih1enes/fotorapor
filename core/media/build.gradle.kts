@@ -29,6 +29,8 @@ dependencies {
     implementation(libs.avif.coder)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
+    testImplementation(libs.junit)
+    testImplementation(libs.robolectric)
 }
 
 kotlin {

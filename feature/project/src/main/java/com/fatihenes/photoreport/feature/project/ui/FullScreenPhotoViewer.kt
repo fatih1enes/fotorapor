@@ -23,6 +23,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.RotateRight
+import androidx.compose.material.icons.filled.Brush
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.PlayArrow
@@ -91,7 +92,7 @@ private const val IMAGE_FULL_RES_SIZE = 2400
 
 @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 @OptIn(ExperimentalMaterial3Api::class)
-@Suppress("FunctionName")
+@Suppress("FunctionName", "LongMethod")
 @Composable
 fun FullScreenPhotoDialog(
     photoList: List<Photo>,
@@ -99,6 +100,9 @@ fun FullScreenPhotoDialog(
     onDismiss: () -> Unit,
     onDelete: (Photo) -> Unit,
     onUpdateRotation: (Long, Float) -> Unit,
+    onSaveSuccess: (String) -> Unit = { },
+    onSaveError: () -> Unit = { },
+    onContentRefresh: () -> Unit = { },
 ) {
     val currentPhotoList by rememberUpdatedState(photoList)
     val pagerState = rememberPagerState(
@@ -107,6 +111,7 @@ fun FullScreenPhotoDialog(
     )
     var showDeleteConfirm by remember { mutableStateOf(value = false) }
     var isVisible by remember { mutableStateOf(value = false) }
+    var activeMarkupPhoto by remember { mutableStateOf<Photo?>(null) }
 
     LaunchedEffect(Unit) { isVisible = true }
     val scope = rememberCoroutineScope()
@@ -138,6 +143,11 @@ fun FullScreenPhotoDialog(
                 onDismiss = { triggerDismiss() },
                 onRotate = { rotatePhoto(photoList, pagerState, onUpdateRotation) },
                 onShowDelete = { showDeleteConfirm = true },
+                onOpenMarkup = {
+                    if (pagerState.currentPage < photoList.size) {
+                        activeMarkupPhoto = photoList[pagerState.currentPage]
+                    }
+                },
             )
         }
     }
@@ -151,6 +161,22 @@ fun FullScreenPhotoDialog(
             onTriggerDismissViewer = { triggerDismiss() },
         )
     }
+
+    activeMarkupPhoto?.let { targetPhoto ->
+        com.fatihenes.photoreport.feature.project.ui.markup.PhotoMarkupScreen(
+            photo = targetPhoto,
+            onDismiss = { activeMarkupPhoto = null },
+            onSaveComplete = { filePath ->
+                activeMarkupPhoto = null
+                onSaveSuccess(filePath)
+            },
+            onSaveError = {
+                activeMarkupPhoto = null
+                onSaveError()
+            },
+            onContentRefresh = onContentRefresh,
+        )
+    }
 }
 
 @Suppress("FunctionName")
@@ -162,6 +188,7 @@ private fun ViewerContent(
     onDismiss: () -> Unit,
     onRotate: () -> Unit,
     onShowDelete: () -> Unit,
+    onOpenMarkup: () -> Unit,
 ) {
     AnimatedVisibility(
         visible = isVisible,
@@ -179,6 +206,7 @@ private fun ViewerContent(
                     onDismiss = onDismiss,
                     onRotate = onRotate,
                     onShowDelete = onShowDelete,
+                    onOpenMarkup = onOpenMarkup,
                     photoList = photoList
                 )
             }
@@ -256,6 +284,7 @@ private fun PhotoViewerTopAppBar(
     onDismiss: () -> Unit,
     onRotate: () -> Unit,
     onShowDelete: () -> Unit,
+    onOpenMarkup: () -> Unit,
     photoList: List<Photo>,
 ) {
     val context = LocalContext.current
@@ -288,6 +317,7 @@ private fun PhotoViewerTopAppBar(
                     currentPage = currentPage,
                     onRotate = onRotate,
                     onShowDelete = onShowDelete,
+                    onOpenMarkup = onOpenMarkup,
                     context = context,
                     snackbarHost = snackbarHost,
                     scope = scope,
@@ -303,6 +333,7 @@ private data class PhotoViewerActionParams(
     val currentPage: Int,
     val onRotate: () -> Unit,
     val onShowDelete: () -> Unit,
+    val onOpenMarkup: () -> Unit,
     val context: android.content.Context,
     val snackbarHost: androidx.compose.material3.SnackbarHostState,
     val scope: kotlinx.coroutines.CoroutineScope,
@@ -310,6 +341,20 @@ private data class PhotoViewerActionParams(
 
 @Composable
 private fun PhotoViewerActions(params: PhotoViewerActionParams) {
+    val isCurrentVideo = if (params.currentPage < params.photoList.size) {
+        params.photoList[params.currentPage].filePath.endsWith(".mp4", ignoreCase = true)
+    } else false
+
+    if (!isCurrentVideo) {
+        IconButton(onClick = params.onOpenMarkup) {
+            Icon(
+                Icons.Default.Brush,
+                stringResource(R.string.markup_btn),
+                tint = Color.White,
+                modifier = Modifier.size(FotoRaporTokens.IconSizeS),
+            )
+        }
+    }
     IconButton(onClick = params.onRotate) {
         Icon(
             Icons.AutoMirrored.Filled.RotateRight,

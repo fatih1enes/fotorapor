@@ -11,6 +11,7 @@ import androidx.room.ForeignKey
     indices = [
         androidx.room.Index(value = ["isDeleted"]),
         androidx.room.Index(value = ["deletedAt"]),
+        androidx.room.Index(value = ["isDeleted", "deletedAt"]),
     ],
 )
 data class ProjectEntity(
@@ -61,6 +62,7 @@ data class DailyLogEntity(
         androidx.room.Index(value = ["logId"]),
         androidx.room.Index(value = ["isDeleted"]),
         androidx.room.Index(value = ["deletedAt"]),
+        androidx.room.Index(value = ["isDeleted", "deletedAt"]),
     ],
 )
 data class PhotoEntity(

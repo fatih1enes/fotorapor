@@ -1,0 +1,21 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>LongMethod:PhotoMarkupModelTest.kt$PhotoMarkupModelTest$@Test fun testMarkupItemCreation()</ID>
+    <ID>MagicNumber:PhotoCropState.kt$CropAspectRatio.RATIO_16_9$16f</ID>
+    <ID>MagicNumber:PhotoCropState.kt$CropAspectRatio.RATIO_16_9$9f</ID>
+    <ID>MagicNumber:PhotoCropState.kt$CropAspectRatio.RATIO_3_4$3f</ID>
+    <ID>MagicNumber:PhotoCropState.kt$CropAspectRatio.RATIO_3_4$4f</ID>
+    <ID>MagicNumber:PhotoCropState.kt$CropAspectRatio.RATIO_4_3$3f</ID>
+    <ID>MagicNumber:PhotoCropState.kt$CropAspectRatio.RATIO_4_3$4f</ID>
+    <ID>MagicNumber:PhotoCropState.kt$CropAspectRatio.RATIO_9_16$16f</ID>
+    <ID>MagicNumber:PhotoCropState.kt$CropAspectRatio.RATIO_9_16$9f</ID>
+    <ID>MagicNumber:PhotoCropState.kt$PhotoCropState$0.01f</ID>
+    <ID>MagicNumber:PhotoMarkupModel.kt$MarkupItem.Measurement$10</ID>
+    <ID>MagicNumber:PhotoMarkupModel.kt$MeasurementUnit.CM$0.01f</ID>
+    <ID>MagicNumber:PhotoMarkupModel.kt$MeasurementUnit.FT$0.3048f</ID>
+    <ID>MagicNumber:PhotoMarkupModel.kt$MeasurementUnit.IN$0.0254f</ID>
+    <ID>MagicNumber:PhotoMarkupModel.kt$MeasurementUnit.MM$0.001f</ID>
+  </CurrentIssues>
+</SmellBaseline>

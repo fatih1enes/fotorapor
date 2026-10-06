@@ -36,6 +36,8 @@
 # We keep this for safe-args or reflection-based route handling
 # ===========================
 -keep class androidx.navigation.compose.** { *; }
+-keep class * implements androidx.navigation.NavArgs { *; }
+-keep class * implements androidx.navigation.NavDirections { *; }
 
 # ===========================
 # Okio (used by Coil)

@@ -1,3 +1,4 @@
+@file:Suppress("TooGenericExceptionCaught")
 package com.fatihenes.photoreport.core.media
 
 import android.content.Context
@@ -37,6 +38,9 @@ object ImageCompressor {
         quality: Int,
         maxDimension: Int = 2000
     ): Boolean {
+        var originalBitmap: Bitmap? = null
+        var rotatedBitmap: Bitmap? = null
+        var finalBitmap: Bitmap? = null
         return try {
             val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
             val stream1 = openInputStreamSafe(context, pathString) ?: return false
@@ -49,34 +53,40 @@ object ImageCompressor {
                 inMutable = true
             }
             val stream2 = openInputStreamSafe(context, pathString) ?: return false
-            val originalBitmap = stream2.use { stream ->
+            originalBitmap = stream2.use { stream ->
                 BitmapFactory.decodeStream(stream, null, decodeOptions)
             } ?: return false
 
             val exifRotation = MetadataReader.getExifRotation(context, pathString)
-            val bitmap = ImageRotation.rotateIfNeeded(originalBitmap, exifRotation)
+            rotatedBitmap = ImageRotation.rotateIfNeeded(originalBitmap, exifRotation)
 
-            val finalBitmap = if (bitmap.width > maxDimension || bitmap.height > maxDimension) {
-                val ratio = bitmap.width.toFloat() / bitmap.height.toFloat()
+            finalBitmap = if (rotatedBitmap.width > maxDimension || rotatedBitmap.height > maxDimension) {
+                val ratio = rotatedBitmap.width.toFloat() / rotatedBitmap.height.toFloat()
                 val (targetW, targetH) = if (ratio > 1) {
                     maxDimension to (maxDimension / ratio).toInt()
                 } else {
                     (maxDimension * ratio).toInt() to maxDimension
                 }
-                val scaled = bitmap.scale(targetW, targetH, filter = true)
-                if (scaled !== bitmap && !bitmap.isRecycled) bitmap.recycle()
-                scaled
+                rotatedBitmap.scale(targetW, targetH, filter = true)
             } else {
-                bitmap
+                rotatedBitmap
             }
 
             finalBitmap.compress(Bitmap.CompressFormat.JPEG, quality, outputStream)
-            if (finalBitmap !== bitmap && !bitmap.isRecycled) bitmap.recycle()
-            if (!finalBitmap.isRecycled) finalBitmap.recycle()
             true
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             Log.e(TAG, "compressToStream failed", e)
             false
+        } finally {
+            if (originalBitmap !== rotatedBitmap && originalBitmap?.isRecycled == false) {
+                originalBitmap?.recycle()
+            }
+            if (rotatedBitmap !== finalBitmap && rotatedBitmap?.isRecycled == false) {
+                rotatedBitmap?.recycle()
+            }
+            if (finalBitmap?.isRecycled == false) {
+                finalBitmap?.recycle()
+            }
         }
     }
 

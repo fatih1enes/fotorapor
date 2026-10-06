@@ -74,6 +74,29 @@ class MigrationTest {
 
     @Test
     @Throws(IOException::class)
+    fun migrate5To6() {
+        val db = helper.createDatabase(testDb, 5)
+        db.close()
+
+        val migratedDb = helper.runMigrationsAndValidate(testDb, 6, true, AppDatabase.MIGRATION_5_6)
+        // Assert composite indexes exist
+        var cursor = migratedDb.query(
+            "SELECT * FROM sqlite_master WHERE type='index' AND name='index_projects_isDeleted_deletedAt'",
+        )
+        assert(cursor.count == 1)
+        cursor.close()
+
+        cursor = migratedDb.query(
+            "SELECT * FROM sqlite_master WHERE type='index' AND name='index_photos_isDeleted_deletedAt'",
+        )
+        assert(cursor.count == 1)
+        cursor.close()
+
+        migratedDb.close()
+    }
+
+    @Test
+    @Throws(IOException::class)
     fun migrateAll() {
         // Create earliest version of the database.
         helper.createDatabase(testDb, 1).apply {
@@ -84,12 +107,13 @@ class MigrationTest {
         // once all migrations execute.
         val db = helper.runMigrationsAndValidate(
             testDb,
-            5,
+            6,
             true,
             AppDatabase.MIGRATION_1_2,
             AppDatabase.MIGRATION_2_3,
             AppDatabase.MIGRATION_3_4,
-            AppDatabase.MIGRATION_4_5
+            AppDatabase.MIGRATION_4_5,
+            AppDatabase.MIGRATION_5_6
         )
         db.close()
     }

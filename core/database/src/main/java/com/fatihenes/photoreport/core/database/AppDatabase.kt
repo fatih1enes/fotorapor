@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 
-@Database(entities = [ProjectEntity::class, DailyLogEntity::class, PhotoEntity::class], version = 5)
+@Database(entities = [ProjectEntity::class, DailyLogEntity::class, PhotoEntity::class], version = 6)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun projectDao(): ProjectDao
     abstract fun dailyLogDao(): DailyLogDao
@@ -45,6 +45,14 @@ abstract class AppDatabase : RoomDatabase() {
                 db.execSQL("CREATE INDEX IF NOT EXISTS `index_daily_logs_date` ON `daily_logs` (`date`)")
                 db.execSQL("CREATE INDEX IF NOT EXISTS `index_photos_isDeleted` ON `photos` (`isDeleted`)")
                 db.execSQL("CREATE INDEX IF NOT EXISTS `index_photos_deletedAt` ON `photos` (`deletedAt`)")
+            }
+        }
+
+        val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                // Versiyon 5'ten 6'ya geçiş (Composite indexler for soft delete queries)
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_projects_isDeleted_deletedAt` ON `projects` (`isDeleted`, `deletedAt`)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS `index_photos_isDeleted_deletedAt` ON `photos` (`isDeleted`, `deletedAt`)")
             }
         }
     }

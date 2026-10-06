@@ -49,21 +49,41 @@ class TrashRepositoryImpl @Inject constructor(
 
     override suspend fun emptyTrash() {
         val projects = projectDao.getDeletedProjects().first()
-        projects.forEach { deleteProjectPermanently(it.id) }
+        projects.forEach { project ->
+            try {
+                deleteProjectPermanently(project.id)
+            } catch (e: Exception) {
+                android.util.Log.e("TrashRepository", "Failed to permanently delete project ${project.id}", e)
+            }
+        }
 
         val photos = photoDao.getDeletedPhotos().first()
-        deletePhotosPermanently(photos)
+        try {
+            deletePhotosPermanently(photos)
+        } catch (e: Exception) {
+            android.util.Log.e("TrashRepository", "Failed to permanently delete photos", e)
+        }
 
         projectRepository.refreshWidgetData()
     }
 
     override suspend fun cleanOldTrash(threshold: Long) {
         val projects = projectDao.getDeletedProjects().first()
-        projects.filter { (it.deletedAt ?: 0L) < threshold }.forEach { deleteProjectPermanently(it.id) }
+        projects.filter { (it.deletedAt ?: 0L) < threshold }.forEach { project ->
+            try {
+                deleteProjectPermanently(project.id)
+            } catch (e: Exception) {
+                android.util.Log.e("TrashRepository", "Failed to clean old project ${project.id}", e)
+            }
+        }
 
         val photos = photoDao.getDeletedPhotos().first()
         val oldPhotos = photos.filter { (it.deletedAt ?: 0L) < threshold }
-        deletePhotosPermanently(oldPhotos)
+        try {
+            deletePhotosPermanently(oldPhotos)
+        } catch (e: Exception) {
+            android.util.Log.e("TrashRepository", "Failed to clean old photos", e)
+        }
     }
 
     private suspend fun deleteProjectPermanently(projectId: Long) {

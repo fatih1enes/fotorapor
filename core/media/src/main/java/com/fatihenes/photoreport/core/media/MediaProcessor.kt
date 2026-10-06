@@ -3,9 +3,11 @@ package com.fatihenes.photoreport.core.media
 import android.content.ContentValues
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Environment
 import android.provider.MediaStore
+import androidx.core.net.toUri
 import androidx.exifinterface.media.ExifInterface
 import com.fatihenes.photoreport.core.common.di.Dispatcher
 import com.fatihenes.photoreport.core.common.di.FotoRaporDispatchers
@@ -34,13 +36,59 @@ class MediaProcessor @Inject constructor(
     }
 
     private fun optimize(originalUri: Uri, projectName: String): Uri? {
-        val bitmap = ImageScaler.loadScaledBitmap(appContext, originalUri.toString(), 2560, 2560) ?: return null
+        val uriString = originalUri.toString()
+        val maxDimension = calculateMaxDimension(appContext, uriString)
+        val bitmap = ImageScaler.loadScaledBitmap(appContext, uriString, maxDimension, maxDimension) ?: return null
         return try {
             val oldExif = extractOriginalExif(originalUri)
             val optimizedUri = saveOptimizedImage(bitmap, oldExif, projectName)
-            optimizedUri?.also { appContext.contentResolver.delete(originalUri, null, null) }
-        } finally {
+            if (optimizedUri != null && verifyImageWritten(optimizedUri)) {
+                appContext.contentResolver.delete(originalUri, null, null)
+                optimizedUri
+            } else {
+                android.util.Log.w("MediaProcessor", "AVIF file verification failed, keeping original photo")
+                if (optimizedUri != null) {
+                    try {
+                        appContext.contentResolver.delete(optimizedUri, null, null)
+                    } catch (_: Exception) { }
+                }
+                originalUri
+            }
+        } catch (e: Exception) {
+            // Only recycle on failure; on success, the bitmap is consumed by the encoder
+            // and will be GC'd naturally. Recycling too early can cause native crashes.
             bitmap.recycle()
+            throw e
+        }
+    }
+
+    private fun verifyImageWritten(uri: Uri): Boolean {
+        return try {
+            appContext.contentResolver.openFileDescriptor(uri, "r")?.use { pfd ->
+                pfd.statSize > 0L
+            } ?: false
+        } catch (e: Exception) {
+            android.util.Log.w("MediaProcessor", "Failed to verify written image: $uri", e)
+            false
+        }
+    }
+
+    private fun calculateMaxDimension(context: Context, pathString: String): Int {
+        return try {
+            val boundsOptions = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            val stream = context.contentResolver.openInputStream(pathString.toUri()) ?: return 2560
+            stream.use { BitmapFactory.decodeStream(it, null, boundsOptions) }
+            val maxPixels = 2560 * 2560 // ~6.5MP max
+            val width = boundsOptions.outWidth
+            val height = boundsOptions.outHeight
+            if (width <= 0 || height <= 0) return 2560
+            val currentPixels = width * height
+            if (currentPixels <= maxPixels) return 2560
+            // Calculate scale factor to reduce to maxPixels
+            val scale = Math.sqrt(maxPixels.toDouble() / currentPixels)
+            (2560 * scale).toInt().coerceAtLeast(1024).coerceAtMost(2560)
+        } catch (e: Exception) {
+            2560
         }
     }
 

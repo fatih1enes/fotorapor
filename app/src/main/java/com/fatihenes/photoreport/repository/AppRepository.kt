@@ -1,7 +1,17 @@
 package com.fatihenes.photoreport.repository
 
-import com.fatihenes.photoreport.core.database.*
+import com.fatihenes.photoreport.core.database.DailyLogEntity
+import com.fatihenes.photoreport.core.database.LogWithPhotos
+import com.fatihenes.photoreport.core.database.PhotoEntity
+import com.fatihenes.photoreport.core.database.ProjectEntity
+import com.fatihenes.photoreport.core.database.mapper.toDomain
+import com.fatihenes.photoreport.core.database.mapper.toEntity
+import com.fatihenes.photoreport.core.model.DailyLog
+import com.fatihenes.photoreport.core.model.Photo
+import com.fatihenes.photoreport.core.model.Project
+import com.fatihenes.photoreport.core.domain.repository.PhotoRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -79,13 +89,13 @@ class AppRepositoryImpl @Inject constructor(
 
     override suspend fun updateNote(id: Long, note: String) = logRepository.updateNote(id, note)
 
-    override fun getPhotosForLog(logId: Long): Flow<List<PhotoEntity>> = photoRepository.getPhotosForLog(logId)
+    override fun getPhotosForLog(logId: Long): Flow<List<PhotoEntity>> = photoRepository.getPhotosForLog(logId).map { it.map { it.toEntity() } }
 
-    override fun getPhotosForProject(projectId: Long): Flow<List<PhotoEntity>> = photoRepository.getPhotosForProject(projectId)
+    override fun getPhotosForProject(projectId: Long): Flow<List<PhotoEntity>> = photoRepository.getPhotosForProject(projectId).map { it.map { it.toEntity() } }
 
-    override suspend fun insertPhoto(photo: PhotoEntity): Long = photoRepository.insertPhoto(photo)
+    override suspend fun insertPhoto(photo: PhotoEntity): Long = photoRepository.insertPhoto(photo.logId, photo.filePath)
 
-    override suspend fun deletePhoto(photo: PhotoEntity) = photoRepository.deletePhoto(photo)
+    override suspend fun deletePhoto(photo: PhotoEntity) = photoRepository.deletePhoto(photo.toDomain())
 
     override suspend fun deletePhotosByIds(photoIds: List<Long>) = photoRepository.deletePhotosByIds(photoIds)
 
@@ -101,11 +111,11 @@ class AppRepositoryImpl @Inject constructor(
 
     override suspend fun getLogsWithPhotosForProject(projectId: Long): List<LogWithPhotos> = logRepository.getLogsWithPhotosForProject(projectId)
 
-    override suspend fun softDeletePhoto(photo: PhotoEntity) = photoRepository.softDeletePhoto(photo)
+    override suspend fun softDeletePhoto(photo: PhotoEntity) = photoRepository.softDeletePhoto(photo.toDomain())
 
-    override suspend fun softDeletePhotos(photos: List<PhotoEntity>) = photoRepository.softDeletePhotos(photos)
+    override suspend fun softDeletePhotos(photos: List<PhotoEntity>) = photoRepository.softDeletePhotos(photos.map { it.toDomain() })
 
     override fun processAndSavePhotoInBackground(uri: android.net.Uri, projectId: Long, logId: Long, enableWebp: Boolean, projectName: String, watermarkData: com.fatihenes.photoreport.core.model.WatermarkData?) {
-        photoRepository.processAndSavePhotoInBackground(uri, projectId, logId, enableWebp, projectName, watermarkData)
+        photoRepository.processAndSavePhotoInBackground(uri.toString(), projectId, logId, enableWebp, projectName, watermarkData)
     }
 }

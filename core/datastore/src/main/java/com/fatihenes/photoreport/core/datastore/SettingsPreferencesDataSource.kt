@@ -5,7 +5,9 @@ import androidx.datastore.preferences.core.*
 import com.fatihenes.photoreport.core.domain.datasource.LocalSettingsDataSource
 import com.fatihenes.photoreport.core.model.AppSettings
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
+import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -22,7 +24,17 @@ class SettingsPreferencesDataSource @Inject constructor(
         val DISCLOSURE_SHOWN = booleanPreferencesKey("disclosure_shown")
     }
 
-    override val settings: Flow<AppSettings> = dataStore.data.map { prefs ->
+    override val settings: Flow<AppSettings> = dataStore.data
+        .catch { e ->
+            // Bozuk preferences_pb'de splash'ta takılmayı önle: varsayılanları yayınla.
+            // Davranış korunur: sadece IOException yutulur, diğerleri yukarı taşınır.
+            if (e is IOException) {
+                emit(emptyPreferences())
+            } else {
+                throw e
+            }
+        }
+        .map { prefs ->
         AppSettings(
             themeMode = prefs[Keys.THEME_MODE] ?: "system",
             language = prefs[Keys.LANGUAGE] ?: "tr",
@@ -61,12 +73,14 @@ class SettingsPreferencesDataSource @Inject constructor(
         dataStore.edit { prefs ->
             newSettings.forEach { (key, value) ->
                 when (key) {
-                    "theme_mode" -> prefs[Keys.THEME_MODE] = value as String
-                    "language" -> prefs[Keys.LANGUAGE] = value as String
-                    "camera_opt" -> prefs[Keys.CAMERA_OPT] = value as Boolean
-                    "avif_enabled" -> prefs[Keys.AVIF_ENABLED] = value as Boolean
-                    "gps_watermark_enabled" -> prefs[Keys.GPS_WATERMARK] = value as Boolean
-                    "disclosure_shown" -> prefs[Keys.DISCLOSURE_SHOWN] = value as Boolean
+                    // Güvenli cast: yanlış tip gelirse ClassCastException yerine yoksay.
+                    // Davranış korunur: geçerli değerler aynen yazılır.
+                    "theme_mode" -> (value as? String)?.let { prefs[Keys.THEME_MODE] = it }
+                    "language" -> (value as? String)?.let { prefs[Keys.LANGUAGE] = it }
+                    "camera_opt" -> (value as? Boolean)?.let { prefs[Keys.CAMERA_OPT] = it }
+                    "avif_enabled" -> (value as? Boolean)?.let { prefs[Keys.AVIF_ENABLED] = it }
+                    "gps_watermark_enabled" -> (value as? Boolean)?.let { prefs[Keys.GPS_WATERMARK] = it }
+                    "disclosure_shown" -> (value as? Boolean)?.let { prefs[Keys.DISCLOSURE_SHOWN] = it }
                 }
             }
         }

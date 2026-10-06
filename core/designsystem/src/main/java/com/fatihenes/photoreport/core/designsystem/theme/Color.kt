@@ -1,3 +1,4 @@
+@file:Suppress("MagicNumber")
 package com.fatihenes.photoreport.core.designsystem.theme
 
 import androidx.compose.ui.graphics.Color
@@ -181,3 +182,21 @@ val InversePrimaryLight   = Indigo300
 val InverseSurfaceDark    = Graphite100
 val InverseOnSurfaceDark  = Graphite800
 val InversePrimaryDark    = Indigo600
+
+// ════════════════════════════════════════════════════════════════════
+// GÜNEŞ ALTINDA YÜKSEK KONTRASTLI SAHA MODU (HIGH-CONTRAST FIELD THEME)
+// Doğrudan güneş ışığı altında maksimum kontrast (WCAG AAA 7:1+):
+// Saf Zift Siyahı (#000000), Şantiye Güvenlik Sarısı (#FFD600),
+// Keskin Beyaz (#FFFFFF), Canlı Camgöbeği (#00E5FF)
+// ════════════════════════════════════════════════════════════════════
+val FieldPitchBlack       = Color(0xFF000000)
+val FieldCardDark         = Color(0xFF121212)
+val FieldCardElevated     = Color(0xFF1E1E1E)
+val FieldHazardYellow     = Color(0xFFFFD600)
+val FieldHazardYellowDark = Color(0xFFFFC400)
+val FieldSharpWhite       = Color(0xFFFFFFFF)
+val FieldCyanAccent       = Color(0xFF00E5FF)
+val FieldHighRed          = Color(0xFFFF3D00)
+val FieldHighGreen        = Color(0xFF00E676)
+val FieldThickBorder      = Color(0xFFFFFFFF)
+val FieldBorderSubtle     = Color(0xFFB0BEC5)

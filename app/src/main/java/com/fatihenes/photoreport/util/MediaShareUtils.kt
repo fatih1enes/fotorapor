@@ -18,13 +18,15 @@ object MediaShareUtils {
             val mimeType = when (extension.lowercase()) {
                 "mp4", "mov" -> "video/mp4"
                 "png" -> "image/png"
-                "webp", "avif" -> "image/*"
+                "webp" -> "image/webp"
+                "avif" -> "image/avif"
                 else -> "image/jpeg"
             }
 
             val shareIntent = Intent(Intent.ACTION_SEND).apply {
                 type = mimeType
                 putExtra(Intent.EXTRA_STREAM, uri)
+                clipData = android.content.ClipData.newUri(context.contentResolver, "media", uri)
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
             val chooser = Intent.createChooser(shareIntent, context.getString(R.string.share_media))
@@ -54,8 +56,10 @@ object MediaShareUtils {
             }
 
             val shareIntent = Intent(Intent.ACTION_SEND_MULTIPLE).apply {
-                type = "*/*"
+                type = "image/*"
+                putExtra(Intent.EXTRA_MIME_TYPES, arrayOf("image/*", "video/*"))
                 putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris)
+                clipData = android.content.ClipData.newUri(context.contentResolver, "media", uris.first())
                 addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
             }
 
@@ -75,7 +79,14 @@ object MediaShareUtils {
         return when {
             filePath.startsWith("content://") -> {
                 val uri = filePath.toUri()
-                val extension = filePath.substringAfterLast(".", "jpg")
+                val extension = try {
+                    context.contentResolver.getType(uri)?.let {
+                        android.webkit.MimeTypeMap.getSingleton().getExtensionFromMimeType(it)
+                    }
+                } catch (e: Exception) {
+                    null
+                } ?: filePath.substringAfterLast("/", "").substringAfterLast(".", "jpg")
+                    .substringBefore("?").takeIf { it.length <= 5 && it.isNotEmpty() } ?: "jpg"
                 Pair(uri, extension)
             }
             filePath.startsWith("file://") -> {

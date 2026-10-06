@@ -63,9 +63,18 @@ class PhotoProcessingWorker @AssistedInject constructor(
                 val today = DateUtils.getStartOfDayEpochMillis()
                 logCreationMutex.withLock {
                     val log = dailyLogDao.getLogForDate(projectId, today)
-                    log?.id ?: dailyLogDao.insertLog(
-                        DailyLogEntity(projectId = projectId, date = today, note = "")
-                    )
+                    if (log != null) {
+                        log.id
+                    } else {
+                        val insertedId = dailyLogDao.insertLog(
+                            DailyLogEntity(projectId = projectId, date = today, note = "")
+                        )
+                        if (insertedId == -1L) {
+                            dailyLogDao.getLogForDate(projectId, today)?.id ?: error("Log could not be created or fetched")
+                        } else {
+                            insertedId
+                        }
+                    }
                 }
             }
 

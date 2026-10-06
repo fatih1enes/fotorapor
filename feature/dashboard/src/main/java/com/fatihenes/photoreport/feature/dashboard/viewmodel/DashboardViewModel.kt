@@ -37,6 +37,8 @@ class DashboardViewModel @Inject constructor(
     private val _isRefreshing = MutableStateFlow(value = false)
     val isRefreshing: StateFlow<Boolean> = _isRefreshing.asStateFlow()
 
+    private var refreshJob: kotlinx.coroutines.Job? = null
+
     val isTrashNotEmpty: StateFlow<Boolean> = combine(
         getTrashItemsUseCase.getProjects(),
         getTrashItemsUseCase.getPhotos(),
@@ -45,11 +47,19 @@ class DashboardViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), initialValue = false)
 
     fun refresh() {
-        viewModelScope.launch {
+        // Art arda refresh yarışını önle: önceki işi iptal et, spinner erken sönmesin.
+        refreshJob?.cancel()
+        refreshJob = viewModelScope.launch {
             _isRefreshing.value = true
-            _refreshTrigger.emit(Unit)
-            delay(500.milliseconds) // Minimum animation time
-            _isRefreshing.value = false
+            try {
+                _refreshTrigger.emit(Unit)
+                delay(500.milliseconds) // Minimum animation time
+            } finally {
+                // İptal edildiyse yeni iş zaten true yaptı; sadece aktif iş false yapsın.
+                if (coroutineContext[kotlinx.coroutines.Job]?.isCancelled != true) {
+                    _isRefreshing.value = false
+                }
+            }
         }
     }
 

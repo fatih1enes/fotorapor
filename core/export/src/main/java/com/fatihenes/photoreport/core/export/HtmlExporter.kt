@@ -41,6 +41,7 @@ object HtmlExporter {
         val photos: List<PhotoEntity>,
         val quality: Int = 100,
         val language: String = "tr",
+        val isFreeTier: Boolean = true,
         val dispatcher: CoroutineDispatcher = Dispatchers.IO,
     )
 
@@ -62,7 +63,7 @@ object HtmlExporter {
                 )
 
                 val html = generateHtmlContent(
-                    HtmlContentParams(params.project, params.logs, params.photos, photoMap, logoPath, params.language),
+                    HtmlContentParams(params.project, params.logs, params.photos, photoMap, logoPath, params.language, params.isFreeTier),
                 )
                 zos.putNextEntry(ZipEntry("index.html"))
                 zos.write(html.toByteArray(Charsets.UTF_8))
@@ -160,7 +161,15 @@ object HtmlExporter {
         }
     }
 
-    private data class HtmlContentParams(val project: ProjectEntity, val logs: List<DailyLogEntity>, val photos: List<PhotoEntity>, val photoMap: Map<Long, String>, val logoPath: String?, val language: String)
+    private data class HtmlContentParams(
+        val project: ProjectEntity,
+        val logs: List<DailyLogEntity>,
+        val photos: List<PhotoEntity>,
+        val photoMap: Map<Long, String>,
+        val logoPath: String?,
+        val language: String,
+        val isFreeTier: Boolean
+    )
 
     private fun generateHtmlContent(p: HtmlContentParams): String {
         val locale = if (p.language == "en") Locale.US else Locale.forLanguageTag("tr-TR")
@@ -175,8 +184,27 @@ object HtmlExporter {
                 val dayPhotos = p.photos.filter { it.logId == log.id }
                 if (log.note.isNotBlank() || dayPhotos.isNotEmpty()) append(generateDayCard(log, dayPhotos, p.photoMap, formatter, p.language))
             }
-            append("</div></div></body></html>")
+            append("</div>")
+            if (p.isFreeTier) {
+                append(generateHtmlFooterBadge(p.language))
+            }
+            append("</div></body></html>")
         }
+    }
+
+    private fun generateHtmlFooterBadge(lang: String): String {
+        val text = if (lang == "en") {
+            "⚡ This report was generated with <strong>PhotoReport</strong> in 2 minutes on site."
+        } else {
+            "⚡ Bu rapor <strong>PhotoReport</strong> ile 2 dakikada sahada hazırlandı."
+        }
+        val cta = if (lang == "en") "Try For Free →" else "Ücretsiz Deneyin →"
+        return """
+            <div class="report-footer-badge">
+                <div>$text</div>
+                <a href="https://github.com/fatih1enes/fotorapor" target="_blank">$cta</a>
+            </div>
+        """.trimIndent()
     }
 
     private fun generateHtmlHead(title: String, lang: String): String = """
@@ -185,7 +213,7 @@ object HtmlExporter {
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>$title - ${if (lang == "en") "Report" else "Rapor"}</title>
+            <title>${title.htmlEncode()} - ${if (lang == "en") "Report" else "Rapor"}</title>
             <link rel="preconnect" href="https://fonts.googleapis.com">
             <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
             <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@600;700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -205,6 +233,10 @@ object HtmlExporter {
                 .media-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; }
                 .media-item { border-radius: 8px; overflow: hidden; background: #000; aspect-ratio: 3/4; position: relative; }
                 .media-item img, .media-item video { width: 100%; height: 100%; object-fit: contain; }
+                .report-footer-badge { margin-top: 3rem; padding: 1.25rem 1.5rem; background: var(--card-bg); border: 1px solid var(--border); border-radius: 12px; display: flex; align-items: center; justify-content: space-between; gap: 1rem; box-shadow: var(--shadow); font-size: 0.9rem; color: var(--text-secondary); }
+                .report-footer-badge strong { color: var(--primary); font-weight: 700; }
+                .report-footer-badge a { color: var(--accent); text-decoration: none; font-weight: 700; white-space: nowrap; }
+                .report-footer-badge a:hover { text-decoration: underline; }
             </style>
         </head>
     """.trimIndent()
@@ -213,14 +245,16 @@ object HtmlExporter {
         val kicker = if (lang == "en") "Field Inspection Report" else "Saha Denetim Raporu"
         val label = if (lang == "en") "Report Date" else "Rapor Tarihi"
         val logoAlt = if (lang == "en") "Logo" else "Logosu"
+        val encodedName = name.htmlEncode()
+        val encodedDate = date.htmlEncode()
         return """
             <div class="header">
                 <div class="header-content">
                     <span class="header-kicker">$kicker</span>
-                    <h1>$name</h1>
-                    <p>$label: $date</p>
+                    <h1>$encodedName</h1>
+                    <p>$label: $encodedDate</p>
                 </div>
-                ${if (logo != null) "<img src=\"$logo\" class=\"company-logo\" alt=\"$logoAlt\">" else ""}
+                ${if (logo != null) "<img src=\"${logo.htmlEncode()}\" class=\"company-logo\" alt=\"$logoAlt\">" else ""}
             </div>
         """.trimIndent()
     }
@@ -229,7 +263,7 @@ object HtmlExporter {
         return buildString {
             append("<div class=\"day-card\">")
             append("<div class=\"day-header\">")
-            append("<h2 class=\"day-title\">${formatter.format(Instant.ofEpochMilli(log.date))}</h2>")
+            append("<h2 class=\"day-title\">${formatter.format(Instant.ofEpochMilli(log.date)).htmlEncode()}</h2>")
             append("</div>")
             if (log.note.isNotBlank()) append("<div class=\"note-content\">${log.note.htmlEncode()}</div>")
             if (photos.isNotEmpty()) {

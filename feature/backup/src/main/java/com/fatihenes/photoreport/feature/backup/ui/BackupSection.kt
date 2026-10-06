@@ -64,7 +64,7 @@ fun BackupSection(
         state = restoreState,
         onSuccess = {
             snackbarHost.showSnackbar(
-                message = context.getString(R.string.backup_success),
+                message = context.getString(R.string.restore_success),
                 duration = SnackbarDuration.Short
             )
             viewModel.resetRestoreState()

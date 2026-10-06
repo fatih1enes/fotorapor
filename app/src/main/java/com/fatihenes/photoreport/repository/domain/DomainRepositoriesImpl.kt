@@ -4,6 +4,9 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.core.net.toUri
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -23,8 +26,10 @@ import com.fatihenes.photoreport.core.model.Photo
 import com.fatihenes.photoreport.core.model.DailyLog
 import com.fatihenes.photoreport.core.model.DailyLogWithPhotos
 import com.fatihenes.photoreport.core.model.WatermarkData
+import com.fatihenes.photoreport.core.model.ExportState
 import com.fatihenes.photoreport.core.model.FileSizeInfo
 import com.fatihenes.photoreport.repository.SettingsRepositoryImpl
+import com.fatihenes.photoreport.worker.PhotoProcessingWorker
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -66,6 +71,20 @@ class DomainTrashRepositoryImpl @Inject constructor(
     override suspend fun restoreProjectById(projectId: Long) = localProjectDataSource.restoreProjectById(projectId)
     override suspend fun restorePhoto(id: Long) = localPhotoDataSource.restorePhoto(id)
     override suspend fun hardDeleteProject(projectId: Long) {
+        // Önce projenin dosyalarını sil (orphan bırakma), sonra DB'yi sil.
+        // Dosya silme başarısız olsa bile DB silinir: davranış korunur, crash yok.
+        try {
+            val photos = localPhotoDataSource.getPhotosForProject(projectId).first()
+            photos.forEach { photo ->
+                try {
+                    fileManager.deletePhysicalFile(photo.filePath)
+                } catch (e: Exception) {
+                    Log.w("DomainTrash", "Failed to delete file for photo ${photo.id}", e)
+                }
+            }
+        } catch (e: Exception) {
+            Log.w("DomainTrash", "Failed to collect files for project $projectId", e)
+        }
         localProjectDataSource.hardDeleteProjectById(projectId)
     }
     override suspend fun hardDeletePhoto(photo: Photo) {
@@ -73,19 +92,39 @@ class DomainTrashRepositoryImpl @Inject constructor(
         localPhotoDataSource.hardDeletePhotoById(photo.id)
     }
     override suspend fun emptyTrash() {
-        localProjectDataSource.getDeletedProjects().first().forEach { project ->
-            hardDeleteProject(project.id)
+        val deletedProjects = localProjectDataSource.getDeletedProjectsSuspend()
+        deletedProjects.forEach { project ->
+            try {
+                hardDeleteProject(project.id)
+            } catch (e: Exception) {
+                Log.e("DomainTrash", "Failed to delete project ${project.id}", e)
+            }
         }
-        localPhotoDataSource.getDeletedPhotos().first().forEach { photo ->
-            hardDeletePhoto(photo)
+        val deletedPhotos = localPhotoDataSource.getDeletedPhotosSuspend()
+        deletedPhotos.forEach { photo ->
+            try {
+                hardDeletePhoto(photo)
+            } catch (e: Exception) {
+                Log.e("DomainTrash", "Failed to delete photo ${photo.id}", e)
+            }
         }
     }
     override suspend fun cleanOldTrash(threshold: Long) {
-        localProjectDataSource.getDeletedProjects().first().filter { (it.deletedAt ?: 0L) < threshold }.forEach {
-            hardDeleteProject(it.id)
+        val deletedProjects = localProjectDataSource.getDeletedProjectsSuspend()
+        deletedProjects.filter { (it.deletedAt ?: 0L) < threshold }.forEach { project ->
+            try {
+                hardDeleteProject(project.id)
+            } catch (e: Exception) {
+                Log.e("DomainTrash", "Failed to clean old project ${project.id}", e)
+            }
         }
-        localPhotoDataSource.getDeletedPhotos().first().filter { (it.deletedAt ?: 0L) < threshold }.forEach {
-            hardDeletePhoto(it)
+        val deletedPhotos = localPhotoDataSource.getDeletedPhotosSuspend()
+        deletedPhotos.filter { (it.deletedAt ?: 0L) < threshold }.forEach { photo ->
+            try {
+                hardDeletePhoto(photo)
+            } catch (e: Exception) {
+                Log.e("DomainTrash", "Failed to clean old photo ${photo.id}", e)
+            }
         }
     }
 }
@@ -113,7 +152,7 @@ class DomainLogRepositoryImpl @Inject constructor(
 @Singleton
 class DomainPhotoRepositoryImpl @Inject constructor(
     private val localPhotoDataSource: LocalPhotoDataSource,
-    private val legacyPhotoRepository: com.fatihenes.photoreport.repository.PhotoRepository
+    @ApplicationContext private val appContext: Context,
 ) : PhotoRepository {
     override fun getPhotosForLog(logId: Long): Flow<List<Photo>> = localPhotoDataSource.getPhotosForLog(logId)
     override fun getPhotosForProject(projectId: Long): Flow<List<Photo>> = localPhotoDataSource.getPhotosForProject(projectId)
@@ -122,12 +161,15 @@ class DomainPhotoRepositoryImpl @Inject constructor(
     }
     override suspend fun deletePhoto(photo: Photo) = localPhotoDataSource.softDeletePhoto(photo.id, System.currentTimeMillis())
     override suspend fun deletePhotosByIds(photoIds: List<Long>) {
+        if (photoIds.isEmpty()) return
         val now = System.currentTimeMillis()
         photoIds.forEach { localPhotoDataSource.softDeletePhoto(it, now) }
     }
     override suspend fun updatePhotoRotation(id: Long, rotation: Float) = localPhotoDataSource.updateRotation(id, rotation)
+    override suspend fun updatePhotoFilePath(id: Long, filePath: String) = localPhotoDataSource.updateFilePath(id, filePath)
     override suspend fun softDeletePhoto(photo: Photo) = localPhotoDataSource.softDeletePhoto(photo.id, System.currentTimeMillis())
     override suspend fun softDeletePhotos(photos: List<Photo>) {
+        if (photos.isEmpty()) return
         val now = System.currentTimeMillis()
         photos.forEach { localPhotoDataSource.softDeletePhoto(it.id, now) }
     }
@@ -139,14 +181,26 @@ class DomainPhotoRepositoryImpl @Inject constructor(
         projectName: String,
         watermarkData: WatermarkData?,
     ) {
-        legacyPhotoRepository.processAndSavePhotoInBackground(
-            uriString.toUri(),
-            projectId,
-            logId,
-            enableWebp,
-            projectName,
-            watermarkData,
-        )
+        val dataBuilder = Data.Builder()
+            .putString("uri", uriString)
+            .putLong("projectId", projectId)
+            .putLong("logId", logId)
+            .putBoolean("enableAvif", enableWebp)
+            .putString("projectName", projectName)
+            .putBoolean("hasWatermark", watermarkData != null)
+
+        if (watermarkData != null) {
+            watermarkData.latitude?.let { dataBuilder.putDouble("latitude", it) }
+            watermarkData.longitude?.let { dataBuilder.putDouble("longitude", it) }
+            dataBuilder.putString("address", watermarkData.address)
+            dataBuilder.putString("dateTime", watermarkData.dateTime)
+        }
+
+        val workRequest = OneTimeWorkRequestBuilder<PhotoProcessingWorker>()
+            .setInputData(dataBuilder.build())
+            .build()
+
+        WorkManager.getInstance(appContext).enqueue(workRequest)
     }
 }
 
@@ -218,6 +272,9 @@ class DomainReportRepositoryImpl @Inject constructor(
         } catch (e: SecurityException) {
             Log.w("ReportRepo", "Storage access denied for $filePath", e)
             0L
+        } catch (e: IllegalArgumentException) {
+            Log.w("ReportRepo", "Invalid path for $filePath", e)
+            0L
         } catch (e: android.os.RemoteException) {
             Log.w("ReportRepo", "Remote process error for $filePath", e)
             0L
@@ -255,6 +312,30 @@ class DomainReportRepositoryImpl @Inject constructor(
                 val uriString = workInfo.outputData.getString("uri")
                 if (!uriString.isNullOrBlank()) uriString.toUri() else null
             } else null
+        }
+    }
+
+    override fun observeExportState(workId: java.util.UUID): Flow<ExportState> {
+        val workManager = androidx.work.WorkManager.getInstance(context)
+        return workManager.getWorkInfoByIdFlow(workId).map { workInfo ->
+            when (workInfo?.state) {
+                androidx.work.WorkInfo.State.SUCCEEDED -> {
+                    val uriString = workInfo.outputData.getString("uri")
+                    if (!uriString.isNullOrBlank()) {
+                        ExportState.Success(uriString.toUri())
+                    } else {
+                        ExportState.Error("URI not found")
+                    }
+                }
+                androidx.work.WorkInfo.State.FAILED -> {
+                    val error = workInfo.outputData.getString("error") ?: "Export failed"
+                    ExportState.Error(error)
+                }
+                androidx.work.WorkInfo.State.CANCELLED -> {
+                    ExportState.Error("Export cancelled")
+                }
+                else -> ExportState.Loading
+            }
         }
     }
 }

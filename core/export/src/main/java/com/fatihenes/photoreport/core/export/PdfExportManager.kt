@@ -13,6 +13,7 @@ import android.text.StaticLayout
 import androidx.core.content.FileProvider
 import com.fatihenes.photoreport.core.common.di.Dispatcher
 import com.fatihenes.photoreport.core.common.di.FotoRaporDispatchers
+import com.fatihenes.photoreport.core.common.manager.CommercialManager
 import com.fatihenes.photoreport.core.common.util.DateUtils
 import com.fatihenes.photoreport.core.common.util.FileNameUtils
 import com.fatihenes.photoreport.core.common.util.result.OperationResult
@@ -58,6 +59,7 @@ private const val LOGO_MAX_DIMENSION = 500
 class NativePdfExportManager @Inject constructor(
     @ApplicationContext private val context: Context,
     @Dispatcher(FotoRaporDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
+    private val commercialManager: CommercialManager,
 ) : PdfExportManager {
 
     private class ReportMetadata(
@@ -73,6 +75,9 @@ class NativePdfExportManager @Inject constructor(
         val typography: PdfTypography,
         val logo: Bitmap?,
         val metadata: ReportMetadata,
+        val isFreeTier: Boolean,
+        val estimatedTotalPages: Int,
+        val localizedContext: Context,
     )
 
     private class ExportSession(params: ExportSessionParams) {
@@ -84,18 +89,16 @@ class NativePdfExportManager @Inject constructor(
         val reportId = params.metadata.reportId
         val dateStr = params.metadata.dateStr
         val timeStr = params.metadata.timeStr
+        val isFreeTier = params.isFreeTier
+        val estimatedTotalPages = params.estimatedTotalPages
+        val localizedContext = params.localizedContext
 
-        val pages = mutableListOf<PdfDocument.Page>()
         var pageNumber = 1
         var pageInfo: PdfDocument.PageInfo = PdfDocument.PageInfo.Builder(PdfTheme.PAGE_WIDTH, PdfTheme.PAGE_HEIGHT, pageNumber).create()
         var currentPage: PdfDocument.Page = doc.startPage(pageInfo)
         var canvas: Canvas = currentPage.canvas
         var currentY = 0f
         val layout = AdaptivePdfLayoutHelper()
-
-        init {
-            pages.add(currentPage)
-        }
 
         fun startPage() {
             currentY = PdfStyle.drawHeader(
@@ -106,21 +109,22 @@ class NativePdfExportManager @Inject constructor(
 
         fun advancePage() {
             layout.flushRow()
+            val totalPages = maxOf(pageNumber, estimatedTotalPages)
+            PdfStyle.drawFooter(canvas, pageNumber, totalPages, language, typography, isFreeTier)
+            doc.finishPage(currentPage)
+
             pageNumber++
             pageInfo = PdfDocument.PageInfo.Builder(PdfTheme.PAGE_WIDTH, PdfTheme.PAGE_HEIGHT, pageNumber).create()
             currentPage = doc.startPage(pageInfo)
-            pages.add(currentPage)
             canvas = currentPage.canvas
             startPage()
         }
 
         fun finalizeDocument() {
             layout.flushRow()
-            val totalPages = pages.size
-            pages.forEachIndexed { idx, page ->
-                PdfStyle.drawFooter(page.canvas, idx + 1, totalPages, language, typography)
-                doc.finishPage(page)
-            }
+            val totalPages = maxOf(pageNumber, estimatedTotalPages)
+            PdfStyle.drawFooter(canvas, pageNumber, totalPages, language, typography, isFreeTier)
+            doc.finishPage(currentPage)
         }
     }
 
@@ -133,10 +137,11 @@ class NativePdfExportManager @Inject constructor(
     ): OperationResult<Uri> = withContext(ioDispatcher) {
         var logoBmp: Bitmap? = null
         val doc = PdfDocument()
+        val localizedContext = setupLocale(language)
         try {
-            setupLocale(language)
-            logoBmp = loadLogo()
-            val session = createExportSession(doc, project, language, logoBmp)
+            logoBmp = loadLogo(localizedContext)
+            val estimatedPages = estimateTotalPages(logs)
+            val session = createExportSession(doc, project, language, logoBmp, estimatedPages, localizedContext)
             session.startPage()
 
             val nonVideoPhotosTotal = logs.sumOf { it.photos.count { p -> !p.isDeleted && !p.filePath.endsWith(".mp4", ignoreCase = true) } }
@@ -161,9 +166,9 @@ class NativePdfExportManager @Inject constructor(
             }
 
             finalizeExport(session, language)
-            val file = generatePdfFile(doc, project.name, language)
+            val file = generatePdfFile(doc, project.name, language, localizedContext)
             OperationResult.Success(
-                FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file),
+                FileProvider.getUriForFile(localizedContext, "${localizedContext.packageName}.fileprovider", file),
             )
         } catch (e: Exception) {
             android.util.Log.e("PdfExportManager", "PDF export failed", e)
@@ -174,19 +179,57 @@ class NativePdfExportManager @Inject constructor(
         }
     }
 
+    private fun estimateTotalPages(logs: List<LogWithPhotos>): Int {
+        val helper = AdaptivePdfLayoutHelper()
+        val dummyHeaderHeight = 100f
+        var pageCount = 1
+        helper.reset(dummyHeaderHeight)
+
+        logs.sortedBy { it.log.date }.forEach { lwp ->
+            val logBlockHeight = 40f + (if (lwp.log.note.isNotBlank()) 32f else 0f)
+            if (!helper.hasSpaceFor(logBlockHeight)) {
+                pageCount++
+                helper.reset(dummyHeaderHeight)
+            }
+            helper.updateY(helper.currentY + logBlockHeight)
+
+            lwp.photos.filter { !it.isDeleted && !it.filePath.endsWith(".mp4", ignoreCase = true) }.forEach { _ ->
+                val slot = helper.calculateSlot(1000, 1500)
+                if (slot.isNewPageRequired) {
+                    helper.flushRow()
+                    pageCount++
+                    helper.reset(dummyHeaderHeight)
+                    val retry = helper.calculateSlot(1000, 1500)
+                    helper.updateY(retry.nextY)
+                } else {
+                    helper.updateY(slot.nextY)
+                }
+            }
+            helper.flushRow()
+        }
+
+        if (!helper.hasSpaceFor(PdfTheme.SIGN_OFF_HEIGHT)) {
+            pageCount++
+        }
+        return pageCount.coerceAtLeast(1)
+    }
+
     private fun createExportSession(
         doc: PdfDocument,
         project: ProjectEntity,
         language: String,
         logo: Bitmap?,
+        estimatedTotalPages: Int,
+        localizedContext: Context,
     ): ExportSession {
         val now = System.currentTimeMillis()
         val reportId = "${project.id.toString().padStart(REPORT_ID_PAD, '0')}-${now % REPORT_ID_RANDOM_LIMIT}"
         val dateStr = DateUtils.formatDate(now, language)
         val timeStr = android.text.format.DateFormat.format("HH:mm", now).toString()
         val metadata = ReportMetadata(reportId, dateStr, timeStr)
+        val isFreeTier = !commercialManager.isWhiteLabelEnabled()
         return ExportSession(
-            ExportSessionParams(doc, project, language, PdfTypography(context), logo, metadata),
+            ExportSessionParams(doc, project, language, PdfTypography(localizedContext), logo, metadata, isFreeTier, estimatedTotalPages, localizedContext),
         )
     }
 
@@ -200,11 +243,11 @@ class NativePdfExportManager @Inject constructor(
     }
 
     @Suppress("kotlin:S5324")
-    private fun generatePdfFile(doc: PdfDocument, projectName: String, lang: String): File {
+    private fun generatePdfFile(doc: PdfDocument, projectName: String, lang: String, localizedContext: Context): File {
         val dir = if (Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED) {
-            context.getExternalFilesDir("PDFs") ?: context.filesDir
+            localizedContext.getExternalFilesDir("PDFs") ?: localizedContext.filesDir
         } else {
-            context.filesDir
+            localizedContext.filesDir
         }
         if (!dir.exists()) dir.mkdirs()
         val sanitized = FileNameUtils.sanitize(projectName, "proje")
@@ -219,15 +262,15 @@ class NativePdfExportManager @Inject constructor(
         return file
     }
 
-    private fun setupLocale(language: String) {
+    private fun setupLocale(language: String): Context {
         val locale = if (language == "en") Locale.US else Locale.forLanguageTag("tr-TR")
         val config = android.content.res.Configuration(context.resources.configuration)
         config.setLocale(locale)
-        context.createConfigurationContext(config)
+        return context.createConfigurationContext(config)
     }
 
-    private fun loadLogo(): Bitmap? = CompanyLogoManager.getLogoUri(context)?.let {
-        ImageProcessor.loadScaledBitmap(context, it.toString(), LOGO_MAX_DIMENSION, LOGO_MAX_DIMENSION)
+    private fun loadLogo(localizedContext: Context): Bitmap? = CompanyLogoManager.getLogoUri(localizedContext)?.let {
+        ImageProcessor.loadScaledBitmap(localizedContext, it.toString(), LOGO_MAX_DIMENSION, LOGO_MAX_DIMENSION)
     }
 
     private fun renderLogEntry(session: ExportSession, log: DailyLogEntity, lang: String) {
@@ -276,7 +319,7 @@ class NativePdfExportManager @Inject constructor(
             params.onProgress?.invoke(++count, params.total)
             val opt = BitmapFactory.Options().apply { inJustDecodeBounds = true }
             try {
-                ImageProcessor.openInputStreamSafe(context, photo.filePath)?.use {
+                ImageProcessor.openInputStreamSafe(params.session.localizedContext, photo.filePath)?.use {
                     BitmapFactory.decodeStream(it, null, opt)
                 }
             } catch (e: Exception) {
@@ -298,6 +341,7 @@ class NativePdfExportManager @Inject constructor(
                 language = params.lang,
                 photoIndex = idx++,
                 quality = params.quality,
+                localizedContext = params.session.localizedContext,
             )
             drawPhoto(drawParams)
             params.session.layout.updateY(res.nextY)
@@ -315,6 +359,7 @@ class NativePdfExportManager @Inject constructor(
         val language: String,
         val photoIndex: Int,
         val quality: Int,
+        val localizedContext: Context,
     )
 
     @Suppress("TooGenericExceptionCaught")
@@ -322,7 +367,7 @@ class NativePdfExportManager @Inject constructor(
         var bmp: Bitmap? = null
         try {
             val dim = if (p.quality == 100) 1500 else 1000
-            bmp = ImageProcessor.loadScaledBitmap(context, p.photo.filePath, dim, dim, Bitmap.Config.ARGB_8888)
+            bmp = ImageProcessor.loadScaledBitmap(p.localizedContext, p.photo.filePath, dim, dim, Bitmap.Config.ARGB_8888)
             bmp?.let { processAndDrawPhoto(p, it) }
         } catch (e: Throwable) {
             android.util.Log.e("PdfExportManager", "Error rendering photo ${p.photo.filePath}", e)
@@ -332,7 +377,7 @@ class NativePdfExportManager @Inject constructor(
     }
 
     private fun processAndDrawPhoto(p: DrawPhotoParams, original: Bitmap) {
-        val exifRot = ImageProcessor.getExifRotation(context, p.photo.filePath)
+        val exifRot = ImageProcessor.getExifRotation(p.localizedContext, p.photo.filePath)
         val rot = (exifRot + p.photo.rotation) % 360f
         val finalBmp = if (rot != 0f) {
             val m = android.graphics.Matrix().apply { postRotate(rot) }

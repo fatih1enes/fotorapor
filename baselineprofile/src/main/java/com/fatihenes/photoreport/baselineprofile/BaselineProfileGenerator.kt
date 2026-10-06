@@ -72,20 +72,21 @@ class BaselineProfileGenerator {
             }
 
             // 2. Dashboard -> Settings -> Theme Change Simulation
-            val settingsBtn = device.findObject(By.descContains("Ayarlara git"))
+            // Use content-desc patterns that are locale-independent
+            val settingsBtn = device.findObject(By.descMatches("(?i)(settings|ayarlara git|go to settings)"))
             if (settingsBtn != null) {
                 settingsBtn.click()
                 device.waitForIdle()
 
                 // Wait for settings screen and click Dark Theme option
-                device.wait(Until.hasObject(By.textContains("Karanlık Tema")), TIMEOUT)
-                val darkThemeOption = device.findObject(By.textContains("Karanlık Tema"))
+                // Use text pattern that works for both TR/EN
+                device.wait(Until.hasObject(By.textMatches("(?i)(dark theme|karanlık tema)")), TIMEOUT)
+                val darkThemeOption = device.findObject(By.textMatches("(?i)(dark theme|karanlık tema)"))
                 darkThemeOption?.click()
                 device.waitForIdle()
 
-                // Go back to Dashboard
-                val backBtn = device.findObject(By.descContains("Geri"))
-                backBtn?.click()
+                // Go back to Dashboard - use back navigation
+                pressBack()
                 device.waitForIdle()
             }
 
@@ -97,28 +98,27 @@ class BaselineProfileGenerator {
 
                 // Wait for Project Detail and click Camera FAB
                 // acc_shutter is used for both project detail FAB and camera capture button
-                device.wait(Until.hasObject(By.descContains("Fotoğraf veya video çek")), TIMEOUT)
-                val cameraFab = device.findObject(By.descContains("Fotoğraf veya video çek"))
+                device.wait(Until.hasObject(By.descMatches("(?i)(take photo|capture|fotoğraf|video çek)")), TIMEOUT)
+                val cameraFab = device.findObject(By.descMatches("(?i)(take photo|capture|fotoğraf|video çek)"))
                 if (cameraFab != null) {
                     cameraFab.click()
                     device.waitForIdle()
 
                     // Now in Camera Screen, wait for capture button and click
-                    device.wait(Until.hasObject(By.descContains("Fotoğraf veya video çek")), 5_000)
-                    val captureBtn = device.findObject(By.descContains("Fotoğraf veya video çek"))
+                    device.wait(Until.hasObject(By.descMatches("(?i)(take photo|capture|fotoğraf|video çek)")), 5_000)
+                    val captureBtn = device.findObject(By.descMatches("(?i)(take photo|capture|fotoğraf|video çek)"))
                     captureBtn?.click()
                     device.waitForIdle()
 
                     // Wait a bit for processing and go back
-                    device.wait(Until.hasObject(By.descContains("Kapat")), 5_000)
-                    val closeCameraBtn = device.findObject(By.descContains("Kapat"))
+                    device.wait(Until.hasObject(By.descMatches("(?i)(close|kapat|done)")), 5_000)
+                    val closeCameraBtn = device.findObject(By.descMatches("(?i)(close|kapat|done)"))
                     closeCameraBtn?.click()
                     device.waitForIdle()
                 }
 
                 // Go back to Dashboard
-                val backToDashBtn = device.findObject(By.descContains("Geri"))
-                backToDashBtn?.click()
+                pressBack()
                 device.waitForIdle()
             }
         }

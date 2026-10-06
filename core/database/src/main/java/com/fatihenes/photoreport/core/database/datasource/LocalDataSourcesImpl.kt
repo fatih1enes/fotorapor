@@ -5,6 +5,7 @@ import com.fatihenes.photoreport.core.database.mapper.*
 import com.fatihenes.photoreport.core.domain.datasource.*
 import com.fatihenes.photoreport.core.model.*
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -30,6 +31,9 @@ class LocalProjectDataSourceImpl @Inject constructor(
 
     override fun getDeletedProjects(): Flow<List<Project>> =
         projectDao.getDeletedProjects().map { list -> list.map { it.toDomain() } }
+
+    override suspend fun getDeletedProjectsSuspend(): List<Project> =
+        projectDao.getDeletedProjects().first().map { it.toDomain() }
 
     override fun getProjectById(id: Long): Flow<Project?> =
         projectDao.getProjectById(id).map { it?.toDomain() }
@@ -86,12 +90,21 @@ class LocalPhotoDataSourceImpl @Inject constructor(
     override suspend fun hardDeletePhotoById(id: Long) =
         photoDao.hardDeletePhotoById(id)
 
-    override suspend fun hardDeletePhotosByIds(ids: List<Long>) =
+    override suspend fun hardDeletePhotosByIds(ids: List<Long>) {
+        // Boş liste SQLite "IN ()" crash'i üretir. Davranış korunur: boşsa no-op.
+        if (ids.isEmpty()) return
         photoDao.hardDeletePhotosByIds(ids)
+    }
 
     override suspend fun updateRotation(id: Long, rotation: Float) =
         photoDao.updateRotation(id, rotation)
 
+    override suspend fun updateFilePath(id: Long, filePath: String) =
+        photoDao.updateFilePath(id, filePath)
+
     override fun getDeletedPhotos(): Flow<List<Photo>> =
         photoDao.getDeletedPhotos().map { list -> list.map { it.toDomain() } }
+
+    override suspend fun getDeletedPhotosSuspend(): List<Photo> =
+        photoDao.getDeletedPhotos().first().map { it.toDomain() }
 }

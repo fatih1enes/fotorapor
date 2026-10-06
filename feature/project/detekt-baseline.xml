@@ -2,65 +2,90 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>CyclomaticComplexMethod:FullGalleryDialog.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun FullGalleryDialog( log: DailyLog, photos: List&lt;Photo&gt;, onDismiss: () -&gt; Unit, onPhotoClick: (Photo) -&gt; Unit, onDeletePhotos: (List&lt;Long&gt;) -&gt; Unit, )</ID>
-    <ID>CyclomaticComplexMethod:FullScreenPhotoViewer.kt$@androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class) @OptIn(ExperimentalMaterial3Api::class) @Composable fun FullScreenPhotoDialog( photoList: List&lt;Photo&gt;, initialIndex: Int, onDismiss: () -&gt; Unit, onDelete: (Photo) -&gt; Unit, onUpdateRotation: (Long, Float) -&gt; Unit )</ID>
-    <ID>CyclomaticComplexMethod:TimelineBlock.kt$@Composable fun TimelineBlock( log: DailyLog, photos: List&lt;Photo&gt;, projectColor: Color, isSelectionMode: Boolean, selectedPhotoIds: List&lt;Long&gt;, onPhotoClick: (Photo) -&gt; Unit, onMorePhotosClick: () -&gt; Unit, onNoteChange: (String) -&gt; Unit, onAddPhotoClick: () -&gt; Unit, onImportPhotoClick: (Uri) -&gt; Unit, language: String = "tr" )</ID>
-    <ID>FunctionNaming:FullGalleryDialog.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun FullGalleryDialog( log: DailyLog, photos: List&lt;Photo&gt;, onDismiss: () -&gt; Unit, onPhotoClick: (Photo) -&gt; Unit, onDeletePhotos: (List&lt;Long&gt;) -&gt; Unit, )</ID>
-    <ID>FunctionNaming:FullScreenPhotoViewer.kt$@androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class) @OptIn(ExperimentalMaterial3Api::class) @Composable fun FullScreenPhotoDialog( photoList: List&lt;Photo&gt;, initialIndex: Int, onDismiss: () -&gt; Unit, onDelete: (Photo) -&gt; Unit, onUpdateRotation: (Long, Float) -&gt; Unit )</ID>
-    <ID>FunctionNaming:ProjectDetailScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ProjectDetailScreen( project: Project?, logs: List&lt;DailyLogWithPhotos&gt;, onBack: () -&gt; Unit, onDeleteProject: () -&gt; Unit, onAddPhoto: (Long?) -&gt; Unit, onDeletePhoto: (Photo) -&gt; Unit, onDeletePhotos: (List&lt;Long&gt;) -&gt; Unit, onNoteChange: (Long, String) -&gt; Unit, onUpdateRotation: (Long, Float) -&gt; Unit, onAddLogForDate: (Long) -&gt; Unit, onImportPhotoToLog: (Long, String) -&gt; Unit, onExportProject: (String, Int, String) -&gt; Unit, viewModel: ProjectDetailViewModel, language: String = "tr", )</ID>
-    <ID>FunctionNaming:TimelineBlock.kt$@Composable fun TimelineBlock( log: DailyLog, photos: List&lt;Photo&gt;, projectColor: Color, isSelectionMode: Boolean, selectedPhotoIds: List&lt;Long&gt;, onPhotoClick: (Photo) -&gt; Unit, onMorePhotosClick: () -&gt; Unit, onNoteChange: (String) -&gt; Unit, onAddPhotoClick: () -&gt; Unit, onImportPhotoClick: (Uri) -&gt; Unit, language: String = "tr" )</ID>
-    <ID>FunctionNaming:WeekCalendar.kt$@Composable fun WeekCalendar( projectColor: Color, onDateSelected: (LocalDate) -&gt; Unit, modifier: Modifier = Modifier, )</ID>
-    <ID>LongMethod:FullGalleryDialog.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun FullGalleryDialog( log: DailyLog, photos: List&lt;Photo&gt;, onDismiss: () -&gt; Unit, onPhotoClick: (Photo) -&gt; Unit, onDeletePhotos: (List&lt;Long&gt;) -&gt; Unit, )</ID>
-    <ID>LongMethod:FullScreenPhotoViewer.kt$@androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class) @OptIn(ExperimentalMaterial3Api::class) @Composable fun FullScreenPhotoDialog( photoList: List&lt;Photo&gt;, initialIndex: Int, onDismiss: () -&gt; Unit, onDelete: (Photo) -&gt; Unit, onUpdateRotation: (Long, Float) -&gt; Unit )</ID>
-    <ID>LongMethod:ProjectDetailScreen.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ProjectDetailScreen( project: Project?, logs: List&lt;DailyLogWithPhotos&gt;, onBack: () -&gt; Unit, onDeleteProject: () -&gt; Unit, onAddPhoto: (Long?) -&gt; Unit, onDeletePhoto: (Photo) -&gt; Unit, onDeletePhotos: (List&lt;Long&gt;) -&gt; Unit, onNoteChange: (Long, String) -&gt; Unit, onUpdateRotation: (Long, Float) -&gt; Unit, onAddLogForDate: (Long) -&gt; Unit, onImportPhotoToLog: (Long, String) -&gt; Unit, onExportProject: (String, Int, String) -&gt; Unit, viewModel: ProjectDetailViewModel, language: String = "tr", )</ID>
-    <ID>LongMethod:TimelineBlock.kt$@Composable fun TimelineBlock( log: DailyLog, photos: List&lt;Photo&gt;, projectColor: Color, isSelectionMode: Boolean, selectedPhotoIds: List&lt;Long&gt;, onPhotoClick: (Photo) -&gt; Unit, onMorePhotosClick: () -&gt; Unit, onNoteChange: (String) -&gt; Unit, onAddPhotoClick: () -&gt; Unit, onImportPhotoClick: (Uri) -&gt; Unit, language: String = "tr" )</ID>
-    <ID>LongMethod:WeekCalendar.kt$@Composable fun WeekCalendar( projectColor: Color, onDateSelected: (LocalDate) -&gt; Unit, modifier: Modifier = Modifier, )</ID>
-    <ID>LongParameterList:ProjectDetailScreen.kt$( project: Project?, logs: List&lt;DailyLogWithPhotos&gt;, onBack: () -&gt; Unit, onDeleteProject: () -&gt; Unit, onAddPhoto: (Long?) -&gt; Unit, onDeletePhoto: (Photo) -&gt; Unit, onDeletePhotos: (List&lt;Long&gt;) -&gt; Unit, onNoteChange: (Long, String) -&gt; Unit, onUpdateRotation: (Long, Float) -&gt; Unit, onAddLogForDate: (Long) -&gt; Unit, onImportPhotoToLog: (Long, String) -&gt; Unit, onExportProject: (String, Int, String) -&gt; Unit, viewModel: ProjectDetailViewModel, language: String = "tr", )</ID>
-    <ID>LongParameterList:TimelineBlock.kt$( log: DailyLog, photos: List&lt;Photo&gt;, projectColor: Color, isSelectionMode: Boolean, selectedPhotoIds: List&lt;Long&gt;, onPhotoClick: (Photo) -&gt; Unit, onMorePhotosClick: () -&gt; Unit, onNoteChange: (String) -&gt; Unit, onAddPhotoClick: () -&gt; Unit, onImportPhotoClick: (Uri) -&gt; Unit, language: String = "tr" )</ID>
-    <ID>MagicNumber:FullGalleryDialog.kt$256</ID>
-    <ID>MagicNumber:FullGalleryDialog.kt$3</ID>
-    <ID>MagicNumber:FullScreenPhotoViewer.kt$2400</ID>
-    <ID>MagicNumber:FullScreenPhotoViewer.kt$360f</ID>
-    <ID>MagicNumber:FullScreenPhotoViewer.kt$5f</ID>
-    <ID>MagicNumber:FullScreenPhotoViewer.kt$90f</ID>
-    <ID>MagicNumber:ProjectDetailScreen.kt$200</ID>
-    <ID>MagicNumber:ProjectDetailScreen.kt$250</ID>
+    <ID>CommentOverPrivateFunction:AdvancedColorPicker.kt$@Composable private fun CircularColorWheelDialog( initialColor: Color, onDismiss: () -&gt; Unit, onConfirm: (Color) -&gt; Unit )</ID>
+    <ID>CyclomaticComplexMethod:AdvancedTextEditorModal.kt$@Composable fun AdvancedTextEditorModal( initialText: String, initialColor: Color, initialStyle: MarkupTextStyle, initialIsBold: Boolean = true, initialIsItalic: Boolean = false, onDismiss: () -&gt; Unit, onConfirm: (text: String, color: Color, style: MarkupTextStyle, isBold: Boolean, isItalic: Boolean) -&gt; Unit, )</ID>
+    <ID>CyclomaticComplexMethod:LayersBottomSheet.kt$private fun getItemTitle(item: MarkupItem): String</ID>
+    <ID>CyclomaticComplexMethod:MarkupSelectionController.kt$MarkupSelectionController$fun duplicate(item: MarkupItem): MarkupItem</ID>
+    <ID>CyclomaticComplexMethod:MarkupViewModel.kt$MarkupViewModel$private fun MarkupItem.updateStrokeWidth(newWidth: Float): MarkupItem</ID>
+    <ID>CyclomaticComplexMethod:PhotoMarkupScreen.kt$@Composable fun PhotoMarkupScreen( photo: Photo, onDismiss: () -&gt; Unit, onSaveComplete: (String) -&gt; Unit, onSaveError: () -&gt; Unit, onContentRefresh: () -&gt; Unit, viewModel: MarkupViewModel = hiltViewModel(), )</ID>
+    <ID>DestructuringDeclarationWithTooManyEntries:MarkupViewModel.kt$MarkupViewModel$val (l, t, r, b) = if (targetPhysicalRatio != null) { val normRatio = targetPhysicalRatio / imageAspect.coerceAtLeast(0.01f) val (normW, normH) = if (normRatio &lt;= 1.0f) { normRatio to 1.0f } else { 1.0f to (1.0f / normRatio) } val left = ((1.0f - normW) / 2f).coerceIn(0f, 0.49f) val top = ((1.0f - normH) / 2f).coerceIn(0f, 0.49f) listOf(left, top, (left + normW).coerceAtMost(1f), (top + normH).coerceAtMost(1f)) } else { listOf(0f, 0f, 1f, 1f) }</ID>
+    <ID>LongMethod:AdvancedTextEditorModal.kt$@Composable fun AdvancedTextEditorModal( initialText: String, initialColor: Color, initialStyle: MarkupTextStyle, initialIsBold: Boolean = true, initialIsItalic: Boolean = false, onDismiss: () -&gt; Unit, onConfirm: (text: String, color: Color, style: MarkupTextStyle, isBold: Boolean, isItalic: Boolean) -&gt; Unit, )</ID>
+    <ID>LongMethod:CalloutEditorModal.kt$@Composable fun CalloutEditorModal( initialText: String, initialColor: Color, initialStyle: MarkupTextStyle, onDismiss: () -&gt; Unit, onConfirm: (text: String, color: Color, style: MarkupTextStyle) -&gt; Unit )</ID>
+    <ID>LongMethod:ContextualToolbars.kt$@Composable fun ContextualToolbars( canvasState: MarkupCanvasState, onSelectColor: (Color) -&gt; Unit, onSelectThickness: (Float) -&gt; Unit, onSelectBlurMode: (BlurMode) -&gt; Unit, onSelectBlurStrokeWidth: (Float) -&gt; Unit, onRotateCrop90: () -&gt; Unit, onSetCropAspectRatio: (CropAspectRatio) -&gt; Unit, onResetPinCounter: () -&gt; Unit = {}, modifier: Modifier = Modifier )</ID>
+    <ID>LongMethod:LayersBottomSheet.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun LayersBottomSheet( items: List&lt;MarkupItem&gt;, selectedItemId: String?, onSelectItem: (String) -&gt; Unit, onToggleVisibility: (MarkupItem) -&gt; Unit, onToggleLock: (MarkupItem) -&gt; Unit, onMoveUp: (String) -&gt; Unit, onMoveDown: (String) -&gt; Unit, onDeleteItem: (MarkupItem) -&gt; Unit, onDismiss: () -&gt; Unit )</ID>
+    <ID>LongMethod:MeasureCalibrationModal.kt$@Composable fun MeasureCalibrationModal( currentUnit: MeasurementUnit, onDismiss: () -&gt; Unit, onConfirm: (realDistance: Float, unit: MeasurementUnit) -&gt; Unit )</ID>
+    <ID>LongMethod:PhotoMarkupScreen.kt$@Composable fun PhotoMarkupScreen( photo: Photo, onDismiss: () -&gt; Unit, onSaveComplete: (String) -&gt; Unit, onSaveError: () -&gt; Unit, onContentRefresh: () -&gt; Unit, viewModel: MarkupViewModel = hiltViewModel(), )</ID>
+    <ID>MagicNumber:GridOverlay.kt$0.05f</ID>
+    <ID>MagicNumber:GridOverlay.kt$3f</ID>
+    <ID>MagicNumber:GridOverlay.kt$5</ID>
+    <ID>MagicNumber:GridOverlay.kt$6f</ID>
+    <ID>MagicNumber:MarkupDiscardDialog.kt$0xFF1E232E</ID>
+    <ID>MagicNumber:MarkupDiscardDialog.kt$0xFFB0B7C3</ID>
+    <ID>MagicNumber:MarkupDiscardDialog.kt$0xFFFF334B</ID>
+    <ID>MagicNumber:MarkupSelectionController.kt$MarkupSelectionController$0.02f</ID>
+    <ID>MagicNumber:MarkupSelectionController.kt$MarkupSelectionController$0.03f</ID>
+    <ID>MagicNumber:MarkupSelectionController.kt$MarkupSelectionController$0.045f</ID>
+    <ID>MagicNumber:MarkupUiState.kt$0xFF00E676</ID>
+    <ID>MagicNumber:MarkupUiState.kt$0xFF0A1810</ID>
+    <ID>MagicNumber:MarkupUiState.kt$0xFF212121</ID>
+    <ID>MagicNumber:MarkupUiState.kt$0xFF2979FF</ID>
+    <ID>MagicNumber:MarkupUiState.kt$0xFFFF1744</ID>
+    <ID>MagicNumber:MarkupUiState.kt$0xFFFFD600</ID>
+    <ID>MagicNumber:MarkupUiState.kt$0xFFFFFFFF</ID>
+    <ID>MagicNumber:MarkupUiState.kt$MarkupCanvasState$0.5f</ID>
+    <ID>MagicNumber:MarkupViewModel.kt$MarkupViewModel$0.01f</ID>
+    <ID>MagicNumber:MarkupViewModel.kt$MarkupViewModel$0.2f</ID>
+    <ID>MagicNumber:MarkupViewModel.kt$MarkupViewModel$0.49f</ID>
+    <ID>MagicNumber:MarkupViewModel.kt$MarkupViewModel$0.5f</ID>
+    <ID>MagicNumber:MarkupViewModel.kt$MarkupViewModel$16f</ID>
+    <ID>MagicNumber:MarkupViewModel.kt$MarkupViewModel$360</ID>
+    <ID>MagicNumber:MarkupViewModel.kt$MarkupViewModel$3f</ID>
+    <ID>MagicNumber:MarkupViewModel.kt$MarkupViewModel$4f</ID>
+    <ID>MagicNumber:MarkupViewModel.kt$MarkupViewModel$90</ID>
+    <ID>MagicNumber:MarkupViewModel.kt$MarkupViewModel$9f</ID>
     <ID>MagicNumber:ProjectDetailScreen.kt$3</ID>
     <ID>MagicNumber:ProjectDetailViewModel.kt$ProjectDetailViewModel$5000</ID>
-    <ID>MagicNumber:TimelineBlock.kt$1.33f</ID>
-    <ID>MagicNumber:TimelineBlock.kt$256</ID>
-    <ID>MagicNumber:TimelineBlock.kt$3</ID>
-    <ID>MagicNumber:TimelineBlock.kt$4</ID>
     <ID>MagicNumber:WeekCalendar.kt$6</ID>
-    <ID>MaxLineLength:FullScreenPhotoViewer.kt$currentPhoto?.let { MediaShareUtils.shareSingleMedia(context, it.filePath) { msg -&gt; scope.launch { snackbarHost.showSnackbar(msg) } } }</ID>
-    <ID>MaxLineLength:FullScreenPhotoViewer.kt$val currentPhoto = if (pagerState.currentPage &lt; photoList.size) photoList[pagerState.currentPage] else null</ID>
-    <ID>MaxLineLength:FullScreenPhotoViewer.kt$var offset by remember(photo.id) { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }</ID>
-    <ID>MaxLineLength:ProjectDetailScreen.kt$coroutineScope.launch { snackbarHost.showSnackbar("Bildirim izni verilmediği için arkaplan işlemi durumu gösterilemeyecek.") }</ID>
-    <ID>MaxLineLength:ProjectDetailScreen.kt$coroutineScope.launch { snackbarHost.showSnackbar("ZIP dışa aktarımı arka planda başlatıldı. Bildirimleri kontrol edin.") }</ID>
-    <ID>MaxLineLength:ProjectDetailScreen.kt$coroutineScope.launch { snackbarHost.showSnackbar(context.getString(R.string.pdf_preparing) + " (Arka plan)") }</ID>
-    <ID>MaxLineLength:ProjectDetailScreen.kt$if (hasPermission) showExportDialog = true else notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)</ID>
-    <ID>MaxLineLength:ProjectDetailScreen.kt$val hasPermission = ContextCompat.checkSelfPermission(context, android.Manifest.permission.POST_NOTIFICATIONS) == android.content.pm.PackageManager.PERMISSION_GRANTED</ID>
-    <ID>MaxLineLength:TimelineBlock.kt$coroutineScope.launch { snackbarHost.showSnackbar(context.getString(R.string.import_error)) }</ID>
-    <ID>MaxLineLength:TimelineBlock.kt$if</ID>
-    <ID>MaxLineLength:WeekCalendar.kt$text = date.dayOfWeek.getDisplayName(TextStyle.SHORT, androidx.compose.ui.text.intl.Locale.current.platformLocale as java.util.Locale).uppercase()</ID>
-    <ID>TooManyFunctions:ProjectDetailViewModel.kt$ProjectDetailViewModel : ViewModel</ID>
-    <ID>WildcardImport:FullGalleryDialog.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:FullGalleryDialog.kt$import androidx.compose.material.icons.filled.*</ID>
-    <ID>WildcardImport:FullGalleryDialog.kt$import androidx.compose.material3.*</ID>
-    <ID>WildcardImport:FullGalleryDialog.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:FullScreenPhotoViewer.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:FullScreenPhotoViewer.kt$import androidx.compose.material.icons.filled.*</ID>
-    <ID>WildcardImport:FullScreenPhotoViewer.kt$import androidx.compose.material3.*</ID>
-    <ID>WildcardImport:FullScreenPhotoViewer.kt$import androidx.compose.runtime.*</ID>
-    <ID>WildcardImport:ProjectDetailScreen.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:ProjectDetailScreen.kt$import androidx.compose.material.icons.filled.*</ID>
-    <ID>WildcardImport:ProjectDetailScreen.kt$import androidx.compose.material3.*</ID>
-    <ID>WildcardImport:ProjectDetailScreen.kt$import androidx.compose.runtime.*</ID>
+    <ID>MatchingDeclarationName:GridOverlay.kt$GridType</ID>
+    <ID>MatchingDeclarationName:MarkupCanvas.kt$CropDragMode</ID>
+    <ID>MatchingDeclarationName:MarkupPrimaryToolbar.kt$PrimaryToolItem</ID>
+    <ID>MaxLineLength:AdvancedTextEditorModal.kt$Icon(Icons.Default.Check, contentDescription = stringResource(R.string.save_label), tint = MarkupAccentGreen)</ID>
+    <ID>MaxLineLength:AdvancedTextEditorModal.kt$Icon(Icons.Default.Close, contentDescription = stringResource(R.string.acc_close), tint = Color.White)</ID>
+    <ID>MaxLineLength:AdvancedTextEditorModal.kt$MarkupTextStyle.BADGE -&gt; Modifier.background(color.copy(alpha = 0.9f), RoundedCornerShape(12.dp)).padding(14.dp)</ID>
+    <ID>MaxLineLength:AdvancedTextEditorModal.kt$MarkupTextStyle.FROSTED -&gt; Modifier.background(Color.Black.copy(alpha = 0.8f), RoundedCornerShape(12.dp)).padding(14.dp)</ID>
+    <ID>MaxLineLength:CalloutEditorModal.kt$Icon(Icons.Default.Check, contentDescription = stringResource(R.string.save_label), tint = MarkupAccentGreen)</ID>
+    <ID>MaxLineLength:CalloutEditorModal.kt$Icon(Icons.Default.Close, contentDescription = stringResource(R.string.acc_close), tint = Color.White)</ID>
+    <ID>MaxLineLength:ContextualToolbars.kt$Icon(Icons.Default.CropRotate, contentDescription = stringResource(R.string.markup_crop_rotate), tint = Color.White, modifier = Modifier.size(16.dp))</ID>
+    <ID>MaxLineLength:ContextualToolbars.kt$Text(stringResource(R.string.markup_crop_rotate), color = Color.White, fontSize = 12.sp, fontWeight = FontWeight.Medium)</ID>
+    <ID>MaxLineLength:LayersBottomSheet.kt$Icon(Icons.Default.ArrowDownward, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))</ID>
+    <ID>MaxLineLength:LayersBottomSheet.kt$Icon(Icons.Default.ArrowUpward, contentDescription = null, tint = Color.White, modifier = Modifier.size(16.dp))</ID>
+    <ID>MaxLineLength:LayersBottomSheet.kt$Icon(Icons.Default.Close, contentDescription = stringResource(R.string.acc_close), tint = Color.White)</ID>
+    <ID>MaxLineLength:LayersBottomSheet.kt$Icon(Icons.Default.Delete, contentDescription = null, tint = Color(0xFFFF5252), modifier = Modifier.size(16.dp))</ID>
+    <ID>MaxLineLength:LayersBottomSheet.kt$Row</ID>
+    <ID>MaxLineLength:LayersBottomSheet.kt$border = if (isSelected) androidx.compose.foundation.BorderStroke(1.dp, MarkupAccentGreen) else null</ID>
+    <ID>MaxLineLength:MarkupSelectionControllerTest.kt$MarkupSelectionControllerTest$val item2 = MarkupItem.Rectangle(left = 0.2f, top = 0.2f, right = 0.4f, bottom = 0.4f, colorArgb = -1, zIndex = 1)</ID>
+    <ID>MaxLineLength:MarkupStudioHeader.kt$.</ID>
+    <ID>MaxLineLength:MarkupStudioHeader.kt$CircularProgressIndicator(modifier = Modifier.size(16.dp), color = MarkupAccentOnGreen, strokeWidth = 2.dp)</ID>
+    <ID>MaxLineLength:MarkupStudioHeader.kt$Icon(Icons.AutoMirrored.Filled.Redo, contentDescription = stringResource(R.string.markup_redo), tint = Color.White, modifier = Modifier.size(19.dp))</ID>
+    <ID>MaxLineLength:MarkupStudioHeader.kt$Icon(Icons.AutoMirrored.Filled.Undo, contentDescription = stringResource(R.string.markup_undo), tint = Color.White, modifier = Modifier.size(19.dp))</ID>
+    <ID>MaxLineLength:MarkupStudioHeader.kt$Icon(Icons.Default.Close, contentDescription = stringResource(R.string.acc_close), tint = Color.White, modifier = Modifier.size(20.dp))</ID>
+    <ID>MaxLineLength:MarkupStudioHeader.kt$Row</ID>
+    <ID>MaxLineLength:MarkupStudioHeader.kt$Text(stringResource(R.string.markup_save), fontSize = 13.sp, fontWeight = FontWeight.Bold, maxLines = 1)</ID>
+    <ID>MaxLineLength:MarkupStudioHeader.kt$colors = ButtonDefaults.buttonColors(containerColor = MarkupAccentGreen, contentColor = MarkupAccentOnGreen)</ID>
+    <ID>MaxLineLength:MarkupToolbar.kt$.</ID>
+    <ID>MaxLineLength:MarkupViewModel.kt$MarkupViewModel$selectedItemId = if (it.items.any { item -&gt; item.id == it.selectedItemId }) it.selectedItemId else null</ID>
+    <ID>MaxLineLength:MarkupViewModel.kt$MarkupViewModel$updateCropState(curr.copy(aspectRatioPreset = aspectRatio, cropLeft = l, cropTop = t, cropRight = r, cropBottom = b))</ID>
+    <ID>MaxLineLength:MeasureCalibrationModal.kt$Text(stringResource(R.string.markup_measure_dialog_msg), color = Color.White.copy(alpha = 0.8f), fontSize = 14.sp)</ID>
+    <ID>MaxLineLength:MeasureCalibrationModal.kt$Text(stringResource(R.string.markup_measure_dialog_title), color = Color.White, fontWeight = FontWeight.Bold)</ID>
+    <ID>MaxLineLength:MeasureCalibrationModal.kt$Text(stringResource(R.string.markup_measure_unit), color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)</ID>
+    <ID>MaxLineLength:MeasureCalibrationModal.kt$colors = ButtonDefaults.buttonColors(containerColor = MarkupAccentGreen, contentColor = MarkupAccentOnGreen)</ID>
+    <ID>MaxLineLength:SelectedItemToolbar.kt$Icon(Icons.Default.ContentCopy, contentDescription = stringResource(R.string.markup_action_duplicate), tint = Color.White, modifier = Modifier.size(17.dp))</ID>
+    <ID>MaxLineLength:SelectedItemToolbar.kt$Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.markup_action_delete), tint = Color(0xFFFF5252), modifier = Modifier.size(17.dp))</ID>
+    <ID>MaxLineLength:SelectedItemToolbar.kt$Icon(Icons.Default.Edit, contentDescription = stringResource(R.string.markup_action_edit), tint = Color.White, modifier = Modifier.size(17.dp))</ID>
+    <ID>ReturnCount:PhotoMarkupDialog.kt$private fun renderMarkupPreview( scope: DrawScope, item: MarkupItem, width: Float, height: Float, minDim: Float )</ID>
+    <ID>TooGenericExceptionCaught:ProjectDetailViewModel.kt$ProjectDetailViewModel$e: Exception</ID>
+    <ID>UnusedPrivateProperty:MarkupCanvas.kt$val guidePaint = androidx.compose.ui.graphics.Paint().apply { color = MarkupAccentGreen strokeWidth = 2f }</ID>
     <ID>WildcardImport:ProjectDetailViewModel.kt$import kotlinx.coroutines.flow.*</ID>
-    <ID>WildcardImport:TimelineBlock.kt$import androidx.compose.foundation.layout.*</ID>
-    <ID>WildcardImport:TimelineBlock.kt$import androidx.compose.material.icons.filled.*</ID>
-    <ID>WildcardImport:TimelineBlock.kt$import androidx.compose.material3.*</ID>
-    <ID>WildcardImport:TimelineBlock.kt$import androidx.compose.runtime.*</ID>
     <ID>WildcardImport:WeekCalendar.kt$import androidx.compose.foundation.layout.*</ID>
     <ID>WildcardImport:WeekCalendar.kt$import androidx.compose.runtime.*</ID>
   </CurrentIssues>

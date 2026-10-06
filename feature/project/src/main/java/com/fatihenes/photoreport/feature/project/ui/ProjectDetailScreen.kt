@@ -158,6 +158,17 @@ fun ProjectDetailScreen(params: ProjectDetailScreenParams) {
         onPhotoViewDismiss = { selectedPhotoForFullView = null },
         onDeletePhoto = params.onDeletePhoto,
         onUpdateRotation = params.onUpdateRotation,
+        onSaveSuccess = { _ ->
+            scope.launch {
+                snackbarHost.showSnackbar(context.getString(R.string.markup_saved_success))
+            }
+        },
+        onSaveError = {
+            scope.launch {
+                snackbarHost.showSnackbar(context.getString(R.string.markup_save_error))
+            }
+        },
+        onContentRefresh = { /* MarkupViewModel already refreshes via PhotoRepository */ },
     )
 
     Scaffold(

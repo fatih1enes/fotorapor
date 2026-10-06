@@ -12,6 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -34,6 +35,7 @@ import com.fatihenes.photoreport.core.ui.navigation.LocalSnackbarHostState
 import com.fatihenes.photoreport.feature.export.viewmodel.ExportViewModel
 import com.fatihenes.photoreport.core.common.model.FileSizeInfo
 import kotlinx.coroutines.launch
+import java.util.Locale
 
 enum class ExportFormat { PDF, ZIP }
 
@@ -56,7 +58,8 @@ fun ExportDialog(
     val context = LocalContext.current
     var selectedFormat by remember { mutableStateOf<ExportFormat?>(null) }
     var selectedQuality by remember { mutableIntStateOf(100) }
-    var isExporting by remember { mutableStateOf(false) }
+    // Rotasyonda çift export'u önle: Boolean Saveable'dır, güvenli.
+    var isExporting by rememberSaveable { mutableStateOf(false) }
     val snackbarHost = LocalSnackbarHostState.current
     val coroutineScope = rememberCoroutineScope()
 
@@ -98,7 +101,7 @@ fun ExportDialog(
                     if (selectedFormat == ExportFormat.PDF) onExportPdf(selectedQuality) else if (selectedFormat == ExportFormat.ZIP) onExportZip(selectedQuality)
                     onDismiss()
                 },
-                isEnabled = selectedFormat != null && !isCalculatingSizes && !isExporting,
+                isEnabled = selectedFormat != null && isCalculatingSizes.not() && isExporting.not(),
                 isExporting = isExporting
             )
         }
@@ -204,12 +207,13 @@ private fun SummaryContent(fileSizes: FileSizeInfo, selectedFormat: ExportFormat
     val totalPhotoSizeMB = fileSizes.totalPhotoBytes / (1024.0 * 1024.0)
     val totalVideoSizeMB = fileSizes.totalVideoBytes / (1024.0 * 1024.0)
 
-    InfoRow(stringResource(R.string.export_photo_label), "${fileSizes.photoCount} adet", MB_FORMAT.format(totalPhotoSizeMB))
+    // TR locale'de "1,5 MB" yerine tutarlı "1.5 MB": Locale.US sabitlendi.
+    InfoRow(stringResource(R.string.export_photo_label), "${fileSizes.photoCount} adet", String.format(Locale.US, MB_FORMAT, totalPhotoSizeMB))
     if (fileSizes.videoCount > 0) {
         if (selectedFormat == ExportFormat.PDF) {
             InfoRow(stringResource(R.string.export_video_label), "${fileSizes.videoCount} adet (Oynatılamaz)", "Dahil edilmez (0.0 MB)")
         } else {
-            InfoRow(stringResource(R.string.export_video_label), "${fileSizes.videoCount} adet (Oynatılabilir)", MB_FORMAT.format(totalVideoSizeMB))
+            InfoRow(stringResource(R.string.export_video_label), "${fileSizes.videoCount} adet (Oynatılabilir)", String.format(Locale.US, MB_FORMAT, totalVideoSizeMB))
         }
     }
     InfoRow(stringResource(R.string.export_day_label), "$logsCount gün", "")
@@ -230,7 +234,7 @@ private fun PdfEstimateRow(fileSizes: FileSizeInfo, selectedQuality: Int) {
         else -> fileSizes.estimatedQ75Bytes + (fileSizes.photoCount * 20 * 1024L)
     }
     val estimatedPdfMB = (estimatedPdfBytes / (1024.0 * 1024.0)).coerceAtLeast(0.1)
-    Text(stringResource(R.string.export_pdf_estimate, MB_FORMAT.format(estimatedPdfMB)), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary)
+    Text(stringResource(R.string.export_pdf_estimate, String.format(Locale.US, MB_FORMAT, estimatedPdfMB)), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary)
     if (fileSizes.videoCount > 0) {
         Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXS))
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -249,7 +253,7 @@ private fun ZipEstimateRow(fileSizes: FileSizeInfo, selectedQuality: Int, totalV
         else -> fileSizes.estimatedQ75Bytes
     }) / (1024.0 * 1024.0)
     val totalMB = (estimatedPhotoMB + totalVideoSizeMB).coerceAtLeast(0.1)
-    Text(stringResource(R.string.export_zip_estimate, MB_FORMAT.format(totalMB)), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary)
+    Text(stringResource(R.string.export_zip_estimate, String.format(Locale.US, MB_FORMAT, totalMB)), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.primary)
     Spacer(modifier = Modifier.height(FotoRaporTokens.SpacingXS))
     Text(if (selectedQuality == 100) stringResource(R.string.export_zip_original_desc) else stringResource(R.string.export_zip_compressed_desc), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
 }

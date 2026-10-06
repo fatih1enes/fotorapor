@@ -1,3 +1,4 @@
+@file:Suppress("TooGenericExceptionCaught")
 package com.fatihenes.photoreport.core.media
 
 import android.content.Context
@@ -36,10 +37,11 @@ object ImageScaler {
     @Suppress("ReturnCount")
     private fun rotateBitmapIfNeeded(context: Context, pathString: String, bitmap: Bitmap): Bitmap {
         return try {
-            val exif = if (pathString.startsWith("content://")) {
-                context.contentResolver.openInputStream(pathString.toUri())?.use { ExifInterface(it) }
-            } else {
-                ExifInterface(pathString)
+            val uri = pathString.toUri()
+            val exif = when (uri.scheme) {
+                "content" -> context.contentResolver.openInputStream(uri)?.use { ExifInterface(it) }
+                "file" -> uri.path?.let { ExifInterface(it) } ?: context.contentResolver.openInputStream(uri)?.use { ExifInterface(it) }
+                else -> ExifInterface(pathString)
             }
             val orientation = exif?.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
                 ?: ExifInterface.ORIENTATION_NORMAL
@@ -57,7 +59,7 @@ object ImageScaler {
                 bitmap.recycle()
             }
             rotated
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             Log.w(TAG, "Exif rotation failed", e)
             bitmap
         }

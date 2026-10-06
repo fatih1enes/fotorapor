@@ -55,7 +55,7 @@ interface DailyLogDao {
     @Query("SELECT * FROM daily_logs WHERE projectId = :projectId AND date = :date LIMIT 1")
     suspend fun getLogForDate(projectId: Long, date: Long): DailyLogEntity?
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertLog(log: DailyLogEntity): Long
 
     @Query("UPDATE daily_logs SET note = :note WHERE id = :id")
@@ -78,6 +78,9 @@ interface PhotoDao {
 
     @Insert
     suspend fun insertPhoto(photo: PhotoEntity): Long
+
+    @Query("UPDATE photos SET filePath = :filePath WHERE id = :id")
+    suspend fun updateFilePath(id: Long, filePath: String)
 
     @Query("UPDATE photos SET rotation = :rotation WHERE id = :id")
     suspend fun updateRotation(id: Long, rotation: Float)

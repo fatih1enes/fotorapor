@@ -43,6 +43,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun AppNavGraph(
     viewModel: MainViewModel,
+    widgetAction: String? = null,
     initialCameraProjectId: Long = -1L,
     initialProjectDetailId: Long = -1L,
 ) {
@@ -62,7 +63,7 @@ fun AppNavGraph(
                 var pendingLogId by remember { mutableStateOf<Long?>(null) }
                 var pendingProjectId by remember { mutableStateOf<Long?>(null) }
 
-                HandleInitialNavigation(navController, initialCameraProjectId, initialProjectDetailId)
+                HandleInitialNavigation(navController, widgetAction, initialCameraProjectId, initialProjectDetailId)
 
                 val permissionLauncher = rememberCameraPermissionLauncher(
                     navController = navController,
@@ -150,12 +151,16 @@ private fun AppNavHost(
 @Suppress("FunctionName")
 private fun HandleInitialNavigation(
     navController: NavHostController,
+    widgetAction: String?,
     initialCameraProjectId: Long,
     initialProjectDetailId: Long
 ) {
     var initialNavDone by rememberSaveable { mutableStateOf(false) }
-    LaunchedEffect(initialCameraProjectId, initialProjectDetailId) {
-        if (!initialNavDone) {
+    LaunchedEffect(widgetAction, initialCameraProjectId, initialProjectDetailId) {
+        if (widgetAction == "com.fatihenes.photoreport.ACTION_WIDGET_HOME") {
+            navController.popBackStack(Routes.DASHBOARD, inclusive = false)
+            initialNavDone = true
+        } else if (!initialNavDone) {
             if (initialCameraProjectId != -1L) {
                 navController.navigate(Routes.camera(null, initialCameraProjectId))
                 initialNavDone = true

@@ -17,24 +17,31 @@ enum class UserTier {
  * Feature flags for commercial tier capabilities.
  */
 enum class CommercialFeature {
-    // Future features: CUSTOM_WATERMARK_BRANDING, UNLIMITED_HIGH_RES_EXPORT, etc.
+    WHITE_LABEL_REPORTS,
+    CUSTOM_COMPANY_BRANDING,
+    HIGH_CONTRAST_FIELD_THEME,
+    PHOTO_MARKUP_ANNOTATION,
+    UNLIMITED_PROJECTS
 }
 
 interface CommercialManager {
     fun getCurrentTier(): UserTier
     fun isFeatureUnlocked(feature: CommercialFeature): Boolean
+    fun isWhiteLabelEnabled(): Boolean = isFeatureUnlocked(CommercialFeature.WHITE_LABEL_REPORTS)
 }
 
 @Singleton
 class LocalCommercialManager @Inject constructor() : CommercialManager {
 
     override fun getCurrentTier(): UserTier {
-        // Non-commercial stage: Default to FREE tier with standard features unlocked
+        // Defaults to FREE tier for standard installation
         return UserTier.FREE
     }
 
     override fun isFeatureUnlocked(feature: CommercialFeature): Boolean {
-        // In current non-commercial stage, all baseline features are unlocked and accessible
-        return true
+        return when (feature) {
+            CommercialFeature.WHITE_LABEL_REPORTS -> getCurrentTier() == UserTier.PRO
+            else -> true
+        }
     }
 }

@@ -6,11 +6,13 @@ import androidx.compose.runtime.Composable
 @Composable
 fun PhotoReportTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    themeMode: String = "system",
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     com.fatihenes.photoreport.core.designsystem.theme.PhotoReportTheme(
         darkTheme = darkTheme,
+        themeMode = themeMode,
         dynamicColor = dynamicColor,
         content = content
     )

@@ -32,7 +32,7 @@
             android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/Theme.App.Starting"
-            android:configChanges="locale|layoutDirection|uiMode|screenSize|smallestScreenSize|screenLayout">
+            android:configChanges="orientation|screenSize|smallestScreenSize|screenLayout|uiMode|locale|layoutDirection">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

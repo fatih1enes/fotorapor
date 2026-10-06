@@ -33,13 +33,20 @@ class ExportWorker @AssistedInject constructor(
     @Assisted params: WorkerParameters,
     private val repository: AppRepository,
     private val pdfExportManager: PdfExportManager,
+    private val commercialManager: com.fatihenes.photoreport.core.common.manager.CommercialManager,
     @Dispatcher(FotoRaporDispatchers.IO) private val ioDispatcher: CoroutineDispatcher
 ) : CoroutineWorker(context, params) {
 
     companion object {
         private const val PROGRESS_NOTIFICATION_ID = 1001
         private const val CHANNEL_ID = "export_channel"
+        // Progress throttle: binder şişmesini önle, davranış aynı.
+        private const val PROGRESS_THROTTLE_MS = 500L
     }
+
+    // Throttle state (Worker instance başına, thread-safe değil ama IO dispatcher'da seri çağrılır)
+    private var lastProgressPercent = -1
+    private var lastProgressTimeMs = 0L
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
         val notification = createNotification(context.getString(R.string.export_notif_title), "")
@@ -81,6 +88,18 @@ class ExportWorker @AssistedInject constructor(
 
     private fun showProgressNotification(projectName: String, current: Int = 0, total: Int = 0) {
         try {
+            // Throttle: total>0 iken aynı yüzde + 500ms içinde tekrar notify etme.
+            if (total > 0) {
+                val percent = (current * 100) / total.coerceAtLeast(1)
+                val now = System.currentTimeMillis()
+                if (percent == lastProgressPercent && (now - lastProgressTimeMs) < PROGRESS_THROTTLE_MS) {
+                    return
+                }
+                // Son %100 her zaman gösterilsin
+                if (percent != 100 && percent == lastProgressPercent) return
+                lastProgressPercent = percent
+                lastProgressTimeMs = now
+            }
             val contentText = if (total > 0) {
                 val percent = (current * 100) / total
                 "${context.getString(R.string.export_progress_text, current, total)} (%$percent)"
@@ -119,6 +138,8 @@ class ExportWorker @AssistedInject constructor(
         return try {
             executeExportFlow(projectName)
         } catch (e: kotlinx.coroutines.CancellationException) {
+            // İptalde progress bildirimi takılı kalmasın.
+            cancelProgressNotification()
             throw e
         } catch (e: Throwable) {
             handleExportError(e, projectName)
@@ -134,7 +155,11 @@ class ExportWorker @AssistedInject constructor(
         showProgressNotification(projectName)
 
         val data = fetchExportData()
-            ?: return Result.failure(workDataOf("error" to "Data not found"))
+            ?: run {
+                // Feedback'siz failure yok: progress temizle.
+                cancelProgressNotification()
+                return Result.failure(workDataOf("error" to "Data not found"))
+            }
         val uri = performExportAction(data.first, data.second, projectName)
 
         return handleExportResult(uri, projectName)
@@ -149,6 +174,7 @@ class ExportWorker @AssistedInject constructor(
             )
             Result.success(workDataOf("uri" to uri.toString()))
         } else {
+            cancelProgressNotification()
             Result.failure(
                 workDataOf("error" to context.getString(R.string.error_unknown))
             )
@@ -173,7 +199,7 @@ class ExportWorker @AssistedInject constructor(
         val quality = inputData.getInt("quality", 100)
         val language = inputData.getString("language") ?: "tr"
 
-        return if (format == "PDF") {
+        return if (format.equals("PDF", ignoreCase = true)) {
             exportPdf(project, logs, quality, language, projectName)
         } else {
             exportZip(project, logs, quality, language)
@@ -215,6 +241,7 @@ class ExportWorker @AssistedInject constructor(
             photos = photoEntities,
             quality = quality,
             language = language,
+            isFreeTier = !commercialManager.isWhiteLabelEnabled(),
             dispatcher = ioDispatcher,
         )
         return HtmlExporter.exportToHtmlZip(params)
@@ -222,8 +249,8 @@ class ExportWorker @AssistedInject constructor(
 
     private fun handleExportError(e: Throwable, projectName: String): Result {
         Log.e("ExportWorker", "Export failed", e)
+        // OOM retry YOK: aynı veriyle tekrar OOM olur, 3x pil yakar. Direkt failure.
         val isRetryable = e is java.io.IOException ||
-                e is OutOfMemoryError ||
                 e is android.database.sqlite.SQLiteException
         if (isRetryable && runAttemptCount < 3) return Result.retry()
 
@@ -262,8 +289,9 @@ class ExportWorker @AssistedInject constructor(
     private fun showCompletionNotification(uri: Uri, format: String, projectName: String) {
         cancelProgressNotification()
         val intent = android.content.Intent(android.content.Intent.ACTION_SEND).apply {
-            type = if (format == "PDF") "application/pdf" else "application/zip"
+            type = if (format.equals("PDF", ignoreCase = true)) "application/pdf" else "application/zip"
             putExtra(android.content.Intent.EXTRA_STREAM, uri)
+            clipData = android.content.ClipData.newUri(context.contentResolver, "export", uri)
             addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
         val chooser = android.content.Intent.createChooser(intent, context.getString(R.string.export_share_chooser)).apply {

@@ -75,6 +75,28 @@ class PhotoReportApp : Application(), SingletonImageLoader.Factory, Configuratio
                     .build()
             )
         }
+
+        createNotificationChannels()
+    }
+
+    private fun createNotificationChannels() {
+        val nm = getSystemService(Context.NOTIFICATION_SERVICE) as? android.app.NotificationManager ?: return
+        val progressChannel = android.app.NotificationChannel(
+            "export_channel",
+            "Export Service",
+            android.app.NotificationManager.IMPORTANCE_LOW
+        )
+        val completeChannel = android.app.NotificationChannel(
+            "export_complete_channel",
+            getString(R.string.export_complete_channel),
+            android.app.NotificationManager.IMPORTANCE_HIGH
+        )
+        val errorChannel = android.app.NotificationChannel(
+            "export_error_channel",
+            getString(R.string.export_error_channel_name),
+            android.app.NotificationManager.IMPORTANCE_HIGH
+        )
+        nm.createNotificationChannels(listOf(progressChannel, completeChannel, errorChannel))
     }
 
     override fun newImageLoader(context: Context): ImageLoader {
@@ -90,7 +112,7 @@ class PhotoReportApp : Application(), SingletonImageLoader.Factory, Configuratio
             .diskCache {
                 DiskCache.Builder()
                     .directory(context.cacheDir.resolve("image_cache").absolutePath.toPath())
-                    .maxSizePercent(0.10)
+                    .maxSizeBytes(250L * 1024 * 1024)
                     .build()
             }
             .crossfade(true)

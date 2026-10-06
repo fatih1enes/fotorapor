@@ -8,6 +8,7 @@ import com.fatihenes.photoreport.core.common.manager.*
 import com.fatihenes.photoreport.core.media.WatermarkRenderer
 import com.fatihenes.photoreport.manager.*
 import com.fatihenes.photoreport.repository.*
+import com.fatihenes.photoreport.repository.domain.DomainPhotoRepositoryImpl
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -44,13 +45,6 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun providePhotoRepository(
-        @ApplicationContext context: Context,
-        photoDao: PhotoDao,
-    ): PhotoRepository = PhotoRepositoryImpl(context, photoDao)
-
-    @Provides
-    @Singleton
     fun provideTrashRepository(
         projectDao: ProjectDao,
         dailyLogDao: DailyLogDao,
@@ -64,7 +58,7 @@ object AppModule {
     fun provideAppRepository(
         projectRepository: ProjectRepository,
         logRepository: LogRepository,
-        photoRepository: PhotoRepository,
+        photoRepository: com.fatihenes.photoreport.core.domain.repository.PhotoRepository,
         trashRepository: TrashRepository
     ): AppRepository = AppRepositoryImpl(projectRepository, logRepository, photoRepository, trashRepository)
 

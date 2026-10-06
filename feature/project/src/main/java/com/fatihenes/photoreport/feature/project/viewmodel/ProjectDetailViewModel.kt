@@ -11,8 +11,10 @@ import com.fatihenes.photoreport.core.domain.repository.LogRepository
 import com.fatihenes.photoreport.core.domain.repository.PhotoRepository
 import com.fatihenes.photoreport.core.domain.repository.ProjectRepository
 import com.fatihenes.photoreport.core.domain.repository.ReportRepository
+import com.fatihenes.photoreport.core.model.ExportState
 import com.fatihenes.photoreport.core.model.Photo
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
@@ -28,59 +30,64 @@ class ProjectDetailViewModel @Inject constructor(
     private val logRepository: LogRepository,
     private val photoRepository: PhotoRepository,
     private val reportRepository: ReportRepository,
-    private val savedStateHandle: SavedStateHandle,
-    @Dispatcher(FotoRaporDispatchers.IO) private val ioDispatcher: CoroutineDispatcher
+    @Dispatcher(FotoRaporDispatchers.IO) private val ioDispatcher: CoroutineDispatcher,
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val projectIdFlow = savedStateHandle.getStateFlow<Long?>("projectId", null)
+    private val projectIdFlow = savedStateHandle.getStateFlow("projectId", -1L)
     private val contentRefreshVersion = MutableStateFlow(0)
 
     fun setProjectId(id: Long) {
         savedStateHandle["projectId"] = id
     }
 
-    private val _fileSizeInfo = MutableStateFlow<FileSizeInfo?>(null)
-    val fileSizeInfo: StateFlow<FileSizeInfo?> = _fileSizeInfo
+    val currentProject = projectIdFlow.flatMapLatest { id ->
+        projectRepository.getProjectById(id)
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
+
+    val selectedProject = currentProject
+
+    val currentProjectLogs = combine(projectIdFlow, contentRefreshVersion) { id, _ -> id }
+        .flatMapLatest { id ->
+            logRepository.getLogsWithPhotosForProjectFlow(id)
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val allProjectPhotos: StateFlow<List<Photo>> = currentProjectLogs.map { logs ->
+        logs.flatMap { it.photos }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
+
+    val groupedPhotos = currentProjectLogs.map { logs ->
+        logs.flatMap { it.photos }.groupBy { photo ->
+            logs.firstOrNull { it.photos.any { p -> p.id == photo.id } }?.log?.date ?: 0L
+        }
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyMap())
+
+    private val _calculatedFileSizes = MutableStateFlow<FileSizeInfo?>(null)
+    val calculatedFileSizes: StateFlow<FileSizeInfo?> = _calculatedFileSizes.asStateFlow()
+    val fileSizeInfo: StateFlow<FileSizeInfo?> = _calculatedFileSizes.asStateFlow()
 
     fun calculateFileSizes(photos: List<Photo>) {
         viewModelScope.launch {
-            _fileSizeInfo.value = reportRepository.calculateFileSizes(photos)
+            try {
+                _calculatedFileSizes.value = reportRepository.calculateFileSizes(photos)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                android.util.Log.e("ProjectDetailVM", "Failed to calculate file sizes", e)
+            }
         }
     }
 
-    val selectedProject = projectIdFlow.flatMapLatest { id ->
-        if (id == null) flowOf(null)
-        else projectRepository.getProjectById(id)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), null)
-
-    val currentProjectLogs = combine(projectIdFlow, contentRefreshVersion) { id, _ -> id }.flatMapLatest { id ->
-        if (id == null) flowOf(emptyList())
-        else logRepository.getLogsWithPhotosForProjectFlow(id)
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
-    val allProjectPhotos = currentProjectLogs.map { logs ->
-        logs.flatMap { it.photos }.sortedByDescending { it.id }
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
-
-    private val _noteUpdates = MutableSharedFlow<Pair<Long, String>>(extraBufferCapacity = 10)
+    private val _noteUpdates = MutableSharedFlow<Pair<Long, String>>(extraBufferCapacity = 64)
 
     init {
-        observeNoteUpdates()
-    }
-
-    private fun observeNoteUpdates() {
         viewModelScope.launch {
-            @OptIn(kotlinx.coroutines.FlowPreview::class)
             _noteUpdates
-                .groupBy { it.first }
-                .collect { groupedFlow ->
-                    launch {
-                        groupedFlow
-                            .debounce(400.milliseconds)
-                            .distinctUntilChanged()
-                            .collect { (logId, note) ->
-                                logRepository.updateNote(logId, note)
-                            }
+                .debounce(300.milliseconds)
+                .distinctUntilChanged()
+                .collect { (logId, note) ->
+                    withContext(ioDispatcher) {
+                        logRepository.updateNote(logId, note)
                     }
                 }
         }
@@ -95,45 +102,75 @@ class ProjectDetailViewModel @Inject constructor(
 
     fun addPhotoToLog(logId: Long, filePath: String) {
         viewModelScope.launch {
-            withContext(ioDispatcher) {
-                photoRepository.insertPhoto(logId = logId, filePath = filePath)
+            try {
+                withContext(ioDispatcher) {
+                    photoRepository.insertPhoto(logId = logId, filePath = filePath)
+                }
+                contentRefreshVersion.update { it + 1 }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                android.util.Log.e("ProjectDetailVM", "Failed to add photo to log", e)
             }
-            contentRefreshVersion.update { it + 1 }
         }
     }
 
     fun addLogForDate(projectId: Long, date: Long) {
         viewModelScope.launch(ioDispatcher) {
-            val existing = logRepository.getLogForDate(projectId, date)
-            if (existing == null) {
-                logRepository.insertLog(
-                    projectId = projectId,
-                    date = date,
-                    note = ""
-                )
+            try {
+                val existing = logRepository.getLogForDate(projectId, date)
+                if (existing == null) {
+                    logRepository.insertLog(
+                        projectId = projectId,
+                        date = date,
+                        note = ""
+                    )
+                }
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                android.util.Log.e("ProjectDetailVM", "Failed to add log for date", e)
             }
         }
     }
 
     fun deletePhoto(photo: Photo) {
         viewModelScope.launch(ioDispatcher) {
-            photoRepository.softDeletePhoto(photo)
+            try {
+                photoRepository.softDeletePhoto(photo)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                android.util.Log.e("ProjectDetailVM", "Failed to delete photo", e)
+            }
         }
     }
 
     fun deletePhotos(photoIds: List<Long>) {
         viewModelScope.launch(ioDispatcher) {
-            val photosToDelete = currentProjectLogs.value
-                .flatMap { it.photos }
-                .filter { it.id in photoIds }
+            try {
+                val photosToDelete = currentProjectLogs.value
+                    .flatMap { it.photos }
+                    .filter { it.id in photoIds }
 
-            photoRepository.softDeletePhotos(photosToDelete)
+                photoRepository.softDeletePhotos(photosToDelete)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                android.util.Log.e("ProjectDetailVM", "Failed to delete photos", e)
+            }
         }
     }
 
     fun updatePhotoRotation(photoId: Long, rotation: Float) {
         viewModelScope.launch {
-            photoRepository.updatePhotoRotation(photoId, rotation)
+            try {
+                photoRepository.updatePhotoRotation(photoId, rotation)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                android.util.Log.e("ProjectDetailVM", "Failed to update photo rotation", e)
+            }
         }
     }
 
@@ -150,10 +187,19 @@ class ProjectDetailViewModel @Inject constructor(
         _isExporting.value = true
         val workId = reportRepository.enqueueExportWork(projectId, projectName, format, quality, language)
         viewModelScope.launch {
-            reportRepository.observeExportWork(workId).collect { uri ->
-                if (uri != null) {
-                    _isExporting.value = false
-                    _exportResultUri.emit(uri)
+            reportRepository.observeExportState(workId).collect { state ->
+                when (state) {
+                    is ExportState.Success -> {
+                        _isExporting.value = false
+                        _exportResultUri.emit(state.uri)
+                    }
+                    is ExportState.Error -> {
+                        _isExporting.value = false
+                        _exportError.emit(state.message)
+                    }
+                    ExportState.Loading -> {
+                        _isExporting.value = true
+                    }
                 }
             }
         }
@@ -161,7 +207,13 @@ class ProjectDetailViewModel @Inject constructor(
 
     fun deleteProject(projectId: Long) {
         viewModelScope.launch {
-            projectRepository.deleteProjectById(projectId)
+            try {
+                projectRepository.deleteProjectById(projectId)
+            } catch (e: CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                android.util.Log.e("ProjectDetailVM", "Failed to delete project", e)
+            }
         }
     }
 }

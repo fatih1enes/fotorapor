@@ -11,6 +11,7 @@ interface PhotoRepository {
     suspend fun deletePhoto(photo: Photo)
     suspend fun deletePhotosByIds(photoIds: List<Long>)
     suspend fun updatePhotoRotation(id: Long, rotation: Float)
+    suspend fun updatePhotoFilePath(id: Long, filePath: String)
     suspend fun softDeletePhoto(photo: Photo)
     suspend fun softDeletePhotos(photos: List<Photo>)
     fun processAndSavePhotoInBackground(uriString: String, projectId: Long, logId: Long, enableWebp: Boolean, projectName: String, watermarkData: WatermarkData? = null)

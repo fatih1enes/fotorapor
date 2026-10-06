@@ -1,3 +1,4 @@
+@file:Suppress("TooGenericExceptionCaught")
 package com.fatihenes.photoreport.core.media
 
 import android.content.ContentValues
@@ -66,8 +67,24 @@ class WatermarkRenderer @Inject constructor(
             )
 
             if (watermarkedUri != null) {
-                context.contentResolver.openOutputStream(watermarkedUri)?.use { out ->
-                    watermarkedBitmap.compress(Bitmap.CompressFormat.JPEG, 95, out)
+                var writeOk = false
+                try {
+                    context.contentResolver.openOutputStream(watermarkedUri)?.use { out ->
+                        writeOk = watermarkedBitmap.compress(Bitmap.CompressFormat.JPEG, 95, out)
+                    } ?: run { writeOk = false }
+                } catch (e: Throwable) {
+                    Log.e(TAG, "Watermark write failed", e)
+                    writeOk = false
+                }
+
+                if (!writeOk) {
+                    // 0-byte hayalet dosya bırakma: yarım kaydı temizle, orijinalle devam et.
+                    try {
+                        context.contentResolver.delete(watermarkedUri, null, null)
+                    } catch (e: Throwable) {
+                        Log.w(TAG, "Failed to clean incomplete watermark file", e)
+                    }
+                    return@withContext originalUri
                 }
 
                 val pendingValues = ContentValues().apply {
@@ -75,12 +92,21 @@ class WatermarkRenderer @Inject constructor(
                 }
                 context.contentResolver.update(watermarkedUri, pendingValues, null, null)
 
-                context.contentResolver.delete(originalUri, null, null)
+                try {
+                    if (originalUri.scheme == "file") {
+                        val path = originalUri.path
+                        if (path != null) java.io.File(path).delete()
+                    } else {
+                        context.contentResolver.delete(originalUri, null, null)
+                    }
+                } catch (e: Throwable) {
+                    Log.w(TAG, "Failed to clean original temporary capture", e)
+                }
                 return@withContext watermarkedUri
             }
 
             originalUri
-        } catch (e: Exception) {
+        } catch (e: Throwable) {
             Log.e(TAG, "Watermark application failed", e)
             originalUri
         } finally {

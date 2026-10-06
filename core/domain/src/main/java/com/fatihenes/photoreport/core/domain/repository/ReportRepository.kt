@@ -1,7 +1,10 @@
 package com.fatihenes.photoreport.core.domain.repository
 
+import com.fatihenes.photoreport.core.model.ExportState
 import com.fatihenes.photoreport.core.model.FileSizeInfo
 import com.fatihenes.photoreport.core.model.Photo
+import kotlinx.coroutines.flow.Flow
+import java.util.UUID
 
 interface ReportRepository {
     suspend fun calculateFileSizes(photos: List<Photo>): FileSizeInfo
@@ -11,7 +14,8 @@ interface ReportRepository {
         format: String,
         quality: Int,
         language: String,
-    ): java.util.UUID
+    ): UUID
 
-    fun observeExportWork(workId: java.util.UUID): kotlinx.coroutines.flow.Flow<android.net.Uri?>
+    fun observeExportWork(workId: UUID): Flow<android.net.Uri?>
+    fun observeExportState(workId: UUID): Flow<ExportState>
 }

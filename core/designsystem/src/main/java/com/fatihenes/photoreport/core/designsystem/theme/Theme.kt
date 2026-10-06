@@ -1,3 +1,4 @@
+@file:Suppress("MagicNumber")
 package com.fatihenes.photoreport.core.designsystem.theme
 
 import android.app.Activity
@@ -105,6 +106,41 @@ private val DarkColorScheme = darkColorScheme(
     inverseSurface = InverseSurfaceDark,
     inverseOnSurface = InverseOnSurfaceDark,
     inversePrimary = InversePrimaryDark,
+    scrim = Color(0xFF000000)
+)
+
+private val HighContrastColorScheme = darkColorScheme(
+    primary = FieldHazardYellow,
+    onPrimary = Color(0xFF000000),
+    primaryContainer = Color(0xFF332B00),
+    onPrimaryContainer = FieldHazardYellow,
+    secondary = FieldCyanAccent,
+    onSecondary = Color(0xFF000000),
+    secondaryContainer = Color(0xFF00363A),
+    onSecondaryContainer = FieldCyanAccent,
+    tertiary = FieldHazardYellowDark,
+    onTertiary = Color(0xFF000000),
+    tertiaryContainer = Color(0xFF4A3B00),
+    onTertiaryContainer = FieldHazardYellow,
+    background = FieldPitchBlack,
+    onBackground = FieldSharpWhite,
+    surface = FieldCardDark,
+    onSurface = FieldSharpWhite,
+    surfaceVariant = FieldCardElevated,
+    onSurfaceVariant = Color(0xFFE0E0E0),
+    surfaceContainerLowest = FieldPitchBlack,
+    surfaceContainerLow = FieldCardDark,
+    surfaceContainer = FieldCardElevated,
+    surfaceContainerHigh = Color(0xFF2C2C2C),
+    outline = FieldThickBorder,
+    outlineVariant = FieldBorderSubtle,
+    error = FieldHighRed,
+    onError = Color(0xFF000000),
+    errorContainer = Color(0xFF4E0000),
+    onErrorContainer = Color(0xFFFF8A80),
+    inverseSurface = FieldSharpWhite,
+    inverseOnSurface = FieldPitchBlack,
+    inversePrimary = Color(0xFF9E8600),
     scrim = Color(0xFF000000)
 )
 
@@ -448,29 +484,43 @@ object FotoRaporMotion {
 @Composable
 fun PhotoReportTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
+    themeMode: String = "system",
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val context = LocalContext.current
+    val isFieldContrast = themeMode == "high_contrast"
+    val isDark = when (themeMode) {
+        "light" -> false
+        "dark", "high_contrast" -> true
+        else -> darkTheme
+    }
+
     val colorScheme = when {
+        isFieldContrast -> HighContrastColorScheme
         dynamicColor && android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S -> {
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            if (isDark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-        darkTheme -> DarkColorScheme
+        isDark -> DarkColorScheme
         else -> LightColorScheme
     }
 
     val view = LocalView.current
     if (!view.isInEditMode) {
         SideEffect {
-            val window = (view.context as Activity).window
+            // Preview/Service context'te ClassCastException vermemesi için güvenli cast.
+            // Activity yoksa sistem bar ayarı atlanır, tema aynen uygulanır.
+            val activity = view.context as? Activity
+            val window = activity?.window
+            if (window != null) {
             @Suppress("DEPRECATION")
             window.statusBarColor = Color.Transparent.toArgb()
             @Suppress("DEPRECATION")
             window.navigationBarColor = Color.Transparent.toArgb()
             val controller = WindowCompat.getInsetsController(window, view)
-            controller.isAppearanceLightStatusBars = !darkTheme
-            controller.isAppearanceLightNavigationBars = !darkTheme
+            controller.isAppearanceLightStatusBars = !isDark
+            controller.isAppearanceLightNavigationBars = !isDark
+            }
         }
     }
 

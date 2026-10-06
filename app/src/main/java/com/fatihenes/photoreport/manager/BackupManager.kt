@@ -125,6 +125,7 @@ class LocalBackupManager @Inject constructor(
     private suspend fun zipMediaInChunks(zos: ZipOutputStream, onProgress: suspend (Int) -> Unit) {
         var offset = 0
         val chunkSize = 50
+        var processed = 0
         while (true) {
             val chunk = photoDao.getAllPhotosChunked(chunkSize, offset)
             if (chunk.isEmpty()) break
@@ -137,15 +138,28 @@ class LocalBackupManager @Inject constructor(
                         } ?: "jpg"
                     } else photo.filePath.substringAfterLast(".", "avif")
 
-                    zos.putNextEntry(ZipEntry("media/${photo.id}.$ext"))
-                    context.contentResolver.openInputStream(uri)?.use { it.copyTo(zos) }
-                    zos.closeEntry()
+                    // Boş stream'de boş zip entry yazma (0-byte dosya oluşurdu).
+                    val input = try {
+                        context.contentResolver.openInputStream(uri)
+                    } catch (e: Exception) {
+                        android.util.Log.w("BackupManager", "Skipping media: ${photo.filePath}", e)
+                        null
+                    }
+                    if (input != null) {
+                        input.use {
+                            zos.putNextEntry(ZipEntry("media/${photo.id}.$ext"))
+                            it.copyTo(zos)
+                            zos.closeEntry()
+                        }
+                    }
                 } catch (e: Exception) {
                     android.util.Log.w("BackupManager", "Skipping media: ${photo.filePath}", e)
                 }
             }
             offset += chunk.size
-            onProgress(80)
+            processed += chunk.size
+            // Sabit 80 yerine ilerleyen progress: 40->80 bandında ilerle.
+            onProgress((40 + (processed / 10)).coerceAtMost(80))
         }
     }
 
@@ -205,21 +219,83 @@ class LocalBackupManager @Inject constructor(
         val extractedDb = File(tempDir, "database/photoreport_database")
         if (!extractedDb.exists()) return
 
+        prepareAndMigrateBackupDatabase(extractedDb)
+
         database.openHelper.writableDatabase.apply {
             beginTransaction()
             try {
-                execSQL("ATTACH DATABASE '${extractedDb.absolutePath}' AS backup")
+                // ATTACH bind desteklemez: tek tırnak escape'le. Davranış aynı, SQL bozulması önlenir.
+                val escapedPath = extractedDb.absolutePath.replace("'", "''")
+                execSQL("ATTACH DATABASE '$escapedPath' AS backup")
                 execSQL("DELETE FROM photos")
                 execSQL("DELETE FROM daily_logs")
                 execSQL("DELETE FROM projects")
-                execSQL("INSERT INTO projects SELECT * FROM backup.projects")
-                execSQL("INSERT INTO daily_logs SELECT * FROM backup.daily_logs")
-                execSQL("INSERT INTO photos SELECT * FROM backup.photos")
+                execSQL("INSERT INTO projects (id, name, colorHex, isDeleted, deletedAt) SELECT id, name, colorHex, isDeleted, deletedAt FROM backup.projects")
+                execSQL("INSERT INTO daily_logs (id, projectId, date, note) SELECT id, projectId, date, note FROM backup.daily_logs")
+                execSQL("INSERT INTO photos (id, logId, filePath, rotation, isDeleted, deletedAt) SELECT id, logId, filePath, rotation, isDeleted, deletedAt FROM backup.photos")
                 execSQL("DETACH DATABASE backup")
                 setTransactionSuccessful()
             } finally {
                 endTransaction()
             }
+        }
+    }
+
+    private fun prepareAndMigrateBackupDatabase(dbFile: File) {
+        val sqliteDb = android.database.sqlite.SQLiteDatabase.openDatabase(
+            dbFile.absolutePath,
+            null,
+            android.database.sqlite.SQLiteDatabase.OPEN_READWRITE
+        )
+        try {
+            val currentVersion = 6
+            val backupVersion = sqliteDb.version
+            if (backupVersion > currentVersion) {
+                throw IllegalStateException("Yedek dosyası daha yeni bir uygulama sürümüne ait (v$backupVersion > v$currentVersion)")
+            }
+
+            if (backupVersion < 2) {
+                try {
+                    sqliteDb.execSQL("ALTER TABLE photos ADD COLUMN rotation REAL NOT NULL DEFAULT 0.0")
+                } catch (_: Exception) { }
+            }
+            if (backupVersion < 3) {
+                try {
+                    sqliteDb.execSQL("CREATE INDEX IF NOT EXISTS `index_daily_logs_projectId` ON `daily_logs` (`projectId`)")
+                } catch (_: Exception) { }
+            }
+            if (backupVersion < 4) {
+                try {
+                    sqliteDb.execSQL("ALTER TABLE projects ADD COLUMN isDeleted INTEGER NOT NULL DEFAULT 0")
+                } catch (_: Exception) { }
+                try {
+                    sqliteDb.execSQL("ALTER TABLE projects ADD COLUMN deletedAt INTEGER")
+                } catch (_: Exception) { }
+                try {
+                    sqliteDb.execSQL("ALTER TABLE photos ADD COLUMN isDeleted INTEGER NOT NULL DEFAULT 0")
+                } catch (_: Exception) { }
+                try {
+                    sqliteDb.execSQL("ALTER TABLE photos ADD COLUMN deletedAt INTEGER")
+                } catch (_: Exception) { }
+            }
+            if (backupVersion < 5) {
+                try {
+                    sqliteDb.execSQL("CREATE INDEX IF NOT EXISTS `index_projects_isDeleted` ON `projects` (`isDeleted`)")
+                    sqliteDb.execSQL("CREATE INDEX IF NOT EXISTS `index_projects_deletedAt` ON `projects` (`deletedAt`)")
+                    sqliteDb.execSQL("CREATE INDEX IF NOT EXISTS `index_daily_logs_date` ON `daily_logs` (`date`)")
+                    sqliteDb.execSQL("CREATE INDEX IF NOT EXISTS `index_photos_isDeleted` ON `photos` (`isDeleted`)")
+                    sqliteDb.execSQL("CREATE INDEX IF NOT EXISTS `index_photos_deletedAt` ON `photos` (`deletedAt`)")
+                } catch (_: Exception) { }
+            }
+            if (backupVersion < 6) {
+                try {
+                    sqliteDb.execSQL("CREATE INDEX IF NOT EXISTS `index_projects_isDeleted_deletedAt` ON `projects` (`isDeleted`, `deletedAt`)")
+                    sqliteDb.execSQL("CREATE INDEX IF NOT EXISTS `index_photos_isDeleted_deletedAt` ON `photos` (`isDeleted`, `deletedAt`)")
+                } catch (_: Exception) { }
+            }
+            sqliteDb.version = currentVersion
+        } finally {
+            sqliteDb.close()
         }
     }
 
@@ -244,13 +320,18 @@ class LocalBackupManager @Inject constructor(
         }
 
         extractedMediaDir.listFiles()?.forEach { mediaFile ->
-            val destFile = File(appMediaDir, mediaFile.name)
-            mediaFile.copyTo(destFile, overwrite = true)
-            mediaFile.name.substringBefore(".").toLongOrNull()?.let { photoId ->
-                database.openHelper.writableDatabase.execSQL(
-                    "UPDATE photos SET filePath = ? WHERE id = ?",
-                    arrayOf(destFile.absolutePath, photoId)
-                )
+            try {
+                val destFile = File(appMediaDir, mediaFile.name)
+                mediaFile.copyTo(destFile, overwrite = true)
+                mediaFile.name.substringBefore(".").toLongOrNull()?.let { photoId ->
+                    database.openHelper.writableDatabase.execSQL(
+                        "UPDATE photos SET filePath = ? WHERE id = ?",
+                        arrayOf(destFile.absolutePath, photoId)
+                    )
+                }
+            } catch (e: Exception) {
+                // Disk dolması vb: tek dosya fail'i tüm restore'u bozmasın, devam et.
+                android.util.Log.w("BackupManager", "Skipping restore media: ${mediaFile.name}", e)
             }
         }
     }

@@ -114,7 +114,9 @@ class LocalFileManager @Inject constructor(
 
     override suspend fun createTempDirectory(dirPrefix: String): OperationResult<File> = withContext(Dispatchers.IO) {
         try {
-            val dir = File(context.cacheDir, "${dirPrefix}_${System.currentTimeMillis()}")
+            // Aynı ms çakışmasını önlemek için UUID ekle. Davranış korunur.
+            val safePrefix = dirPrefix.filter { it.isLetterOrDigit() || it == '_' || it == '-' }.take(32).ifEmpty { "tmp" }
+            val dir = File(context.cacheDir, "${safePrefix}_${System.currentTimeMillis()}_${java.util.UUID.randomUUID().toString().take(8)}")
             if (!dir.exists() && !dir.mkdirs()) {
                 OperationResult.Error(Exception("Directory creation failed"), "Geçici klasör oluşturulamadı.")
             } else {

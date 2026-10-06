@@ -175,7 +175,8 @@ object PdfStyle {
         pageNumber: Int,
         totalPages: Int,
         language: String,
-        typography: PdfTypography
+        typography: PdfTypography,
+        isFreeTier: Boolean = true
     ) {
         val width = PdfTheme.PAGE_WIDTH.toFloat()
         val height = PdfTheme.PAGE_HEIGHT.toFloat()
@@ -184,7 +185,19 @@ object PdfStyle {
 
         canvas.drawLine(margin, footerY - 12f, width - margin, footerY - 12f, typography.dividerLinePaint)
 
-        val sysText = if (language == "en") "FotoRapor Executive Field Inspection System" else "FotoRapor Kurumsal Saha Denetim Mimarisi"
+        val sysText = if (isFreeTier) {
+            if (language == "en") {
+                "⚡ PhotoReport • Generated on site in 2 mins • Try for free"
+            } else {
+                "⚡ FotoRapor • Sahada 2 dakikada hazırlandı • Ücretsiz deneyin"
+            }
+        } else {
+            if (language == "en") {
+                "FotoRapor Executive Field Inspection System"
+            } else {
+                "FotoRapor Kurumsal Saha Denetim Mimarisi"
+            }
+        }
         canvas.drawText(sysText, margin, footerY + 2f, typography.pageNumPaint)
 
         val pageText = if (language == "en") "Page $pageNumber of $totalPages" else "Sayfa $pageNumber / $totalPages"

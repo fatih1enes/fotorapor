@@ -14,6 +14,7 @@ interface LocalProjectDataSource {
     suspend fun restoreProjectById(id: Long)
     suspend fun hardDeleteProjectById(id: Long)
     fun getDeletedProjects(): Flow<List<Project>>
+    suspend fun getDeletedProjectsSuspend(): List<Project>
     fun getProjectById(id: Long): Flow<Project?>
     suspend fun getProjectByIdSuspend(id: Long): Project?
     suspend fun getLatestProjectSuspend(): Project?
@@ -37,7 +38,9 @@ interface LocalPhotoDataSource {
     suspend fun hardDeletePhotoById(id: Long)
     suspend fun hardDeletePhotosByIds(ids: List<Long>)
     suspend fun updateRotation(id: Long, rotation: Float)
+    suspend fun updateFilePath(id: Long, filePath: String)
     fun getDeletedPhotos(): Flow<List<Photo>>
+    suspend fun getDeletedPhotosSuspend(): List<Photo>
 }
 
 interface LocalSettingsDataSource {

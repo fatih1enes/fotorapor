@@ -22,7 +22,26 @@ class ExportViewModel @Inject constructor(
 
     fun calculateFileSizes(photos: List<Photo>) {
         viewModelScope.launch {
-            _fileSizeInfo.value = reportRepository.calculateFileSizes(photos)
+            try {
+                _fileSizeInfo.value = reportRepository.calculateFileSizes(photos)
+            } catch (e: kotlinx.coroutines.CancellationException) {
+                throw e
+            } catch (e: Exception) {
+                // Hata yutulmasın diye logla; UI hesaplıyor göstergesinde takılı kalmaz:
+                // boş liste için sıfır değer yayınla.
+                android.util.Log.w("ExportViewModel", "calculateFileSizes failed", e)
+                if (photos.isEmpty()) {
+                    _fileSizeInfo.value = com.fatihenes.photoreport.core.model.FileSizeInfo(
+                        totalPhotoBytes = 0L,
+                        totalVideoBytes = 0L,
+                        photoCount = 0,
+                        videoCount = 0,
+                        estimatedQ100Bytes = 0L,
+                        estimatedQ85Bytes = 0L,
+                        estimatedQ75Bytes = 0L
+                    )
+                }
+            }
         }
     }
 

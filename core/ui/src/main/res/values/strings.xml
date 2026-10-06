@@ -15,7 +15,7 @@
     <!-- Add Project Dialog -->
     <string name="start_new_project">Yeni Proje Başlat</string>
     <string name="project_name_label">Proje İsmi</string>
-    <string name="cancel_btn">İptal Et</string>
+    <string name="cancel_btn">İptal</string>
 
     <!-- Project Detail -->
     <string name="project_details_label">Proje Detayları</string>
@@ -46,7 +46,7 @@
     <string name="delete_photo_title">Fotoğrafı Sil</string>
     <string name="delete_photo_desc">Bu fotoğrafı kalıcı olarak silmek istiyor musunuz?</string>
     <plurals name="delete_bulk_desc">
-        <item quantity="one">Seçilen %d fotoğrafı kalıcı olarak silmek istediğinize emin misiniz?</item>
+        <item quantity="one">%d fotoğrafı kalıcı olarak silmek istediğinize emin misiniz?</item>
         <item quantity="other">Seçilen %d fotoğrafı kalıcı olarak silmek istediğinize emin misiniz?</item>
     </plurals>
     <string name="delete_confirm_btn">Sil</string>
@@ -59,7 +59,7 @@
     <string name="flash_label">Flaş</string>
 
     <!-- Sharing -->
-    <string name="share_media">Medya Paylaş</string>
+    <string name="share_media">Medyayı Paylaş</string>
     <string name="share_selected">Seçilenleri Paylaş</string>
     <string name="share_failed">Paylaşım başlatılamadı</string>
     <string name="share_no_files">Paylaşılacak dosya bulunamadı</string>
@@ -84,8 +84,8 @@
     <string name="export_quality_standard_sub">Hızlı Aktarım</string>
     <string name="export_content_summary">İçerik Özeti</string>
     <string name="export_calculating">Boyutlar hesaplanıyor…</string>
-    <string name="export_pdf_desc">Görsel rapor\n(Videolar oynatılamaz)</string>
-    <string name="export_zip_desc">Web raporu\n(Videolar dahil edilir)</string>
+    <string name="export_pdf_desc">Fotoğrafları ve notları kronolojik olarak bir A4 PDF belgesinde birleştirir. Yazdırma veya hızlı paylaşım için en iyisidir.</string>
+    <string name="export_zip_desc">Fotoğrafları ve notları orijinal formatlarında içeren bir HTML web sayfası oluşturur. Videoları görüntülemek için en iyisidir.</string>
     <string name="export_photo_label">📸 Fotoğraf</string>
     <string name="export_video_label">🎬 Video</string>
     <string name="export_day_label">📅 Gün Kaydı</string>
@@ -104,7 +104,7 @@
     <!-- ExportWorker Notifications -->
     <string name="export_notif_title">Dışa Aktarılıyor</string>
     <string name="export_notif_text">%s hazırlanırken lütfen bekleyin…</string>
-    <string name="export_progress_text">Görsel %1$d / %2$d işleniyor…</string>
+    <string name="export_progress_text">İşleniyor: %1$d / %2$d…</string>
     <string name="export_share_chooser">Raporu Paylaş</string>
     <string name="export_complete_channel">Dışa Aktarım Tamamlandı</string>
     <string name="export_ready_title">Paylaşıma Hazır!</string>
@@ -137,10 +137,130 @@
     <string name="settings_theme_system">Sistem Varsayılanı</string>
     <string name="settings_theme_light">Açık Tema</string>
     <string name="settings_theme_dark">Karanlık Tema</string>
+    <string name="settings_theme_high_contrast">Güneş Altında Yüksek Kontrast (Saha)</string>
     <string name="settings_report">Rapor Ayarları</string>
     <string name="settings_company_logo">Firma Logosu</string>
     <string name="settings_company_logo_desc">PDF raporlarının sağ üst köşesinde görünecek resmi seçin.</string>
     <string name="settings_remove_logo">Logoyu Kaldır</string>
+
+    <!-- Photo Markup & Studio Studio -->
+    <string name="markup_tool_title">Fotoğraf Stüdyosu</string>
+    <string name="markup_cat_draw">Çizim</string>
+    <string name="markup_cat_shapes">Şekiller</string>
+    <string name="markup_cat_text">Metin</string>
+    <string name="markup_cat_markers">İşaretler</string>
+    <string name="markup_cat_redact">Sansür</string>
+    <string name="markup_cat_measure">Ölçüm</string>
+    <string name="markup_cat_crop">Kırp</string>
+    <string name="markup_cat_adjust">Ayar</string>
+
+    <string name="markup_tool_arrow">Ok</string>
+    <string name="markup_tool_rect">Kutu</string>
+    <string name="markup_tool_circle">Daire</string>
+    <string name="markup_tool_line">Çizgi</string>
+    <string name="markup_tool_freehand">Kalem</string>
+    <string name="markup_tool_neon">Neon</string>
+    <string name="markup_tool_highlighter">Vurgula</string>
+    <string name="markup_tool_pin">Numara</string>
+    <string name="markup_tool_mosaic">Mozaik</string>
+    <string name="markup_tool_blur">Sansür</string>
+    <string name="markup_blur_mode_brush">Fırça</string>
+    <string name="markup_blur_mode_box">Kutu</string>
+    <string name="markup_blur_brush_size">Fırça Kalınlığı</string>
+    <string name="markup_tool_redaction">Sansür</string>
+    <string name="markup_tool_text">Metin</string>
+    <string name="markup_tool_callout">Açıklama</string>
+    <string name="markup_tool_measure">Ölçüm</string>
+    <string name="markup_tool_marker">Kusur/Durum</string>
+
+    <string name="markup_brush_pen">Tükenmez</string>
+    <string name="markup_brush_marker">Keçeli</string>
+    <string name="markup_brush_highlighter">Fosforlu</string>
+    <string name="markup_brush_neon">Neon</string>
+    <string name="markup_brush_soft">Yumuşak</string>
+    <string name="markup_brush_dashed">Kesikli</string>
+    <string name="markup_brush_dotted">Noktalı</string>
+
+    <string name="markup_adjust_brightness">Parlaklık</string>
+    <string name="markup_adjust_contrast">Kontrast</string>
+    <string name="markup_adjust_saturation">Doygunluk</string>
+    <string name="markup_adjust_temp">Sıcaklık</string>
+    <string name="markup_adjust_tint">Ton</string>
+    <string name="markup_adjust_vignette">Vinyet</string>
+    <string name="markup_adjust_exposure">Pozlama</string>
+    <string name="markup_adjust_reset">Sıfırla</string>
+
+    <string name="markup_crop">Kırp</string>
+    <string name="markup_crop_original">Orijinal</string>
+    <string name="markup_crop_free">Serbest</string>
+    <string name="markup_crop_1_1">1:1 Kare</string>
+    <string name="markup_crop_4_3">4:3</string>
+    <string name="markup_crop_16_9">16:9</string>
+    <string name="markup_crop_rotate">90° Döndür</string>
+    <string name="markup_crop_flip_h">Yatay Çevir</string>
+    <string name="markup_crop_flip_v">Dikey Çevir</string>
+    <string name="markup_crop_straighten">Düzeltme</string>
+
+    <string name="markup_layers_title">Katmanlar</string>
+    <string name="markup_layer_up">Öne Getir</string>
+    <string name="markup_layer_down">Arkaya Gönder</string>
+    <string name="markup_layer_lock">Kilitle</string>
+    <string name="markup_layer_unlock">Kilidi Aç</string>
+    <string name="markup_layer_hide">Gizle</string>
+    <string name="markup_layer_show">Göster</string>
+
+    <string name="markup_action_duplicate">Kopyala</string>
+    <string name="markup_action_delete">Sil</string>
+    <string name="markup_action_edit">Düzenle</string>
+    <string name="markup_action_lock">Kilitle</string>
+    <string name="markup_action_unlock">Kilidi Aç</string>
+
+    <string name="markup_before_after">Önce / Sonra</string>
+    <string name="markup_grid_toggle">Kılavuz Izgara</string>
+    <string name="markup_custom_color">Özel Renk</string>
+    <string name="markup_measure_unit">Birim</string>
+    <string name="markup_measure_calibrate">Kalibre Et</string>
+    <string name="markup_measure_dialog_title">Ölçüm Kalibrasyonu</string>
+    <string name="markup_measure_dialog_msg">Çizilen çizginin gerçek uzunluğunu girin:</string>
+
+    <string name="markup_preset_defect">Kusur</string>
+    <string name="markup_preset_warning">Uyarı</string>
+    <string name="markup_preset_electrical">Elektrik</string>
+    <string name="markup_preset_structural">Yapısal</string>
+    <string name="markup_preset_water">Su / Nem</string>
+    <string name="markup_preset_crack">Çatlak</string>
+    <string name="markup_preset_safety">İSG Güvenlik</string>
+    <string name="markup_preset_approved">Onaylandı</string>
+    <string name="markup_preset_failed">Uygunsuz</string>
+    <string name="markup_preset_urgent">Acil</string>
+    <string name="markup_preset_before">Öncesi</string>
+    <string name="markup_preset_after">Sonrası</string>
+
+    <string name="markup_rotate">Döndür</string>
+    <string name="markup_undo">Geri Al</string>
+    <string name="markup_redo">İleri Al</string>
+    <string name="markup_clear">Tümünü Temizle</string>
+    <string name="markup_save">Kaydet</string>
+    <string name="markup_saving">Kaydediliyor…</string>
+    <string name="markup_text_prompt_title">Metin Ekle</string>
+    <string name="markup_text_prompt_hint">Not, ölçü veya kusur açıklaması…</string>
+    <string name="markup_callout_prompt_hint">Açıklama metni…</string>
+    <string name="markup_saved_success">Fotoğraf başarıyla kaydedildi</string>
+    <string name="markup_save_error">Fotoğraf kaydedilemedi</string>
+    <string name="markup_btn">İşaretle / Çizim</string>
+    <string name="markup_discard_title">Değişiklikleri At?</string>
+    <string name="markup_discard_msg">Yapılan düzenlemeler kaybolacak. Çıkmak istediğinize emin misiniz?</string>
+    <string name="markup_discard_btn">At ve Çık</string>
+    <string name="markup_discard_cancel">Düzenlemeye Devam Et</string>
+    <string name="markup_thickness_thin">İnce</string>
+    <string name="markup_thickness_medium">Orta</string>
+    <string name="markup_thickness_thick">Kalın</string>
+    <string name="markup_thickness_extra">Çok Kalın</string>
+    <string name="markup_text_style_badge">Rozet</string>
+    <string name="markup_text_style_frosted">Buzlu Cam</string>
+    <string name="markup_text_style_outline">Gölge</string>
+    <string name="markup_text_style_transparent">Şeffaf</string>
+    <string name="markup_reset_pin_counter">1\'den Başlat</string>
 
     <!-- Trash -->
     <string name="trash_title">Çöp Kutusu (Son 30 Gün)</string>
@@ -180,6 +300,7 @@
     <string name="settings_backup_restore">Geri Yükle</string>
     <string name="settings_backup_restore_desc">Önceden aldığınız bir yedeği (.zip) cihaza geri yükleyin.</string>
     <string name="backup_success">İşlem başarıyla tamamlandı.</string>
+    <string name="restore_success">Geri yükleme başarıyla tamamlandı.</string>
 
     <!-- Accessibility Labels -->
     <string name="acc_add_project">Yeni proje ekle</string>

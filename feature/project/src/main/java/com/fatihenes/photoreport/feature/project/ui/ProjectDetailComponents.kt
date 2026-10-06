@@ -96,6 +96,9 @@ data class ProjectDetailActions(
     val onPhotoViewDismiss: () -> Unit,
     val onDeletePhoto: (Photo) -> Unit,
     val onUpdateRotation: (Long, Float) -> Unit,
+    val onSaveSuccess: (String) -> Unit = { },
+    val onSaveError: () -> Unit = { },
+    val onContentRefresh: () -> Unit = { },
 )
 
 data class TopBarParams(
@@ -431,6 +434,9 @@ private fun FullScreenPhotoWrapper(state: ProjectDetailViewState, actions: Proje
                     onDismiss = actions.onPhotoViewDismiss,
                     onDelete = actions.onDeletePhoto,
                     onUpdateRotation = actions.onUpdateRotation,
+                    onSaveSuccess = actions.onSaveSuccess,
+                    onSaveError = actions.onSaveError,
+                    onContentRefresh = actions.onContentRefresh,
                 )
             }
         }

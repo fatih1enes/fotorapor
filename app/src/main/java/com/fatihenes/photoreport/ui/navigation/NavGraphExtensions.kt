@@ -190,6 +190,7 @@ fun NavGraphBuilder.cameraRoute(
         val settings by settingsViewModel.settings.collectAsStateWithLifecycle()
         val cameraOpt = settings?.cameraOptimization ?: true
         val avifEnabled = settings?.avifEnabled ?: true
+        val gpsEnabled = settings?.gpsWatermarkEnabled ?: false
 
         val projectState by detailViewModel.selectedProject.collectAsStateWithLifecycle()
         val projectName = projectState?.name ?: ""
@@ -209,10 +210,13 @@ fun NavGraphBuilder.cameraRoute(
                 }
             },
             onClose = { navController.popBackStack() },
+            projectName = projectName,
             enableOptimization = cameraOpt,
             enableAvif = avifEnabled,
+            gpsWatermarkEnabled = gpsEnabled,
             onToggleOptimization = { settingsViewModel.setCameraOptimization(it) },
-            onToggleAvif = { settingsViewModel.setAvifEnabled(it) }
+            onToggleAvif = { settingsViewModel.setAvifEnabled(it) },
+            onToggleGpsWatermark = { settingsViewModel.setGpsWatermarkEnabled(it) }
         )
     }
 }

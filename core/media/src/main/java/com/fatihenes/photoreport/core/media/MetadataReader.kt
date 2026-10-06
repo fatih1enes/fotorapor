@@ -9,17 +9,14 @@ object MetadataReader {
         if (pathString.endsWith(".mp4", ignoreCase = true)) return 0f
         return try {
             val uri = pathString.toUri()
-            val exif = context.contentResolver.openInputStream(uri)?.use { inputStream ->
-                ExifInterface(inputStream)
+            val exif = when (uri.scheme) {
+                "file" -> uri.path?.let { ExifInterface(it) } ?: context.contentResolver.openInputStream(uri)?.use { ExifInterface(it) }
+                "content" -> context.contentResolver.openInputStream(uri)?.use { ExifInterface(it) }
+                else -> ExifInterface(pathString)
             } ?: return 0f
             parseExifOrientation(exif)
         } catch (_: Exception) {
-            try {
-                val exif = ExifInterface(pathString)
-                parseExifOrientation(exif)
-            } catch (_: Exception) {
-                0f
-            }
+            0f
         }
     }
 

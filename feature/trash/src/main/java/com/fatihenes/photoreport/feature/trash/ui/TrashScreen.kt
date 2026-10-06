@@ -13,6 +13,7 @@ import androidx.compose.material.icons.filled.DeleteOutline
 import androidx.compose.material.icons.filled.Restore
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -26,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.toColorInt
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import coil3.request.CachePolicy
 import coil3.request.ImageRequest
@@ -47,10 +49,11 @@ fun TrashScreen(
     language: String = "tr",
     viewModel: TrashViewModel = hiltViewModel(),
 ) {
-    val deletedProjects by viewModel.deletedProjects.collectAsState(initial = emptyList())
-    val deletedPhotos by viewModel.deletedPhotos.collectAsState(initial = emptyList())
+    val deletedProjects by viewModel.deletedProjects.collectAsStateWithLifecycle(initialValue = emptyList())
+    val deletedPhotos by viewModel.deletedPhotos.collectAsStateWithLifecycle(initialValue = emptyList())
 
-    var showDeleteConfirmProject by remember { mutableStateOf<Long?>(null) }
+    var showDeleteConfirmProject by rememberSaveable { mutableStateOf<Long?>(null) }
+    // Photo Parcelable değil: Saveable crash verir, o yüzden remember korunur.
     var showDeleteConfirmPhoto by remember { mutableStateOf<Photo?>(null) }
 
     Scaffold(
@@ -369,13 +372,17 @@ fun TrashPhotoItem(
         ) {
             // Photo thumbnail
             val context = LocalContext.current
-            AsyncImage(
-                model = ImageRequest.Builder(context)
+            // Her recomposition'da Builder kurma: flicker + alloc önlenir.
+            val thumbRequest = remember(context, photo.filePath) {
+                ImageRequest.Builder(context)
                     .data(photo.filePath)
                     .size(THUMB_SIZE)
                     .crossfade(FotoRaporMotion.DURATION_SHORT)
                     .memoryCachePolicy(CachePolicy.ENABLED)
-                    .build(),
+                    .build()
+            }
+            AsyncImage(
+                model = thumbRequest,
                 contentDescription = stringResource(R.string.photo_label),
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
