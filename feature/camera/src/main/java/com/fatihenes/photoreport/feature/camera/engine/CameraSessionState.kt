@@ -111,8 +111,15 @@ data class EnhancedCapabilities(
     val supportsLowLightBoost: Boolean = false,
     val supportedVideoQualities: List<Quality> = emptyList(),
     val supportsHdrExtension: Boolean = false,
-    val supportsNightExtension: Boolean = false
+    val supportsNightExtension: Boolean = false,
+    val supportsHeic: Boolean = false,
+    val supportsHdrVideo: Boolean = false,
+    val supportsUltraWide: Boolean = false,
+    val ultraWideMinZoomRatio: Float = 1f
 ) {
     val isZoomSupported: Boolean get() = maxZoomRatio > minZoomRatio
     val isExposureSupported: Boolean get() = exposureRangeLower != exposureRangeUpper
+    
+    /** Returns true if device supports 0.5x ultra-wide zoom */
+    val hasUltraWide: Boolean get() = supportsUltraWide && ultraWideMinZoomRatio < 1f
 }

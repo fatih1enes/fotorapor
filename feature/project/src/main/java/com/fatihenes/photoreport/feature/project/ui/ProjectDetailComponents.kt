@@ -431,12 +431,14 @@ private fun FullScreenPhotoWrapper(state: ProjectDetailViewState, actions: Proje
                 FullScreenPhotoDialog(
                     photoList = state.allProjectPhotos,
                     initialIndex = index,
-                    onDismiss = actions.onPhotoViewDismiss,
-                    onDelete = actions.onDeletePhoto,
-                    onUpdateRotation = actions.onUpdateRotation,
-                    onSaveSuccess = actions.onSaveSuccess,
-                    onSaveError = actions.onSaveError,
-                    onContentRefresh = actions.onContentRefresh,
+                    callbacks = FullScreenPhotoViewerCallbacks(
+                        onDismiss = actions.onPhotoViewDismiss,
+                        onDelete = actions.onDeletePhoto,
+                        onUpdateRotation = actions.onUpdateRotation,
+                        onSaveSuccess = actions.onSaveSuccess,
+                        onSaveError = actions.onSaveError,
+                        onContentRefresh = actions.onContentRefresh,
+                    ),
                 )
             }
         }

@@ -24,7 +24,9 @@ data class CameraUiState(
     val exposureIndex: Int = 0,
     val exposureRange: ClosedRange<Int> = 0..0,
     val isGridVisible: Boolean = false,
-    val isLevelVisible: Boolean = true,
+    // Level indicator is off by default to save battery; the user enables it
+    // from Quick Settings when they need horizon alignment.
+    val isLevelVisible: Boolean = false,
     val isFocusLocked: Boolean = false,
     val tapOffset: Offset? = null,
     val isShutterBlinking: Boolean = false,

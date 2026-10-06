@@ -21,21 +21,28 @@ class CameraKeyEventDispatcher @Inject constructor() {
     var isListening: Boolean = false
 
     fun onKeyEvent(event: KeyEvent): Boolean {
-        if (!isListening) return false
+        val result: Boolean
+        if (!isListening) {
+            result = false
+        } else {
+            // Check if this is a camera-triggering key
+            val isShutterKey = event.keyCode == KeyEvent.KEYCODE_VOLUME_UP ||
+                event.keyCode == KeyEvent.KEYCODE_VOLUME_DOWN ||
+                event.keyCode == KeyEvent.KEYCODE_CAMERA
 
-        // Check if this is a camera-triggering key
-        val isShutterKey = event.keyCode == KeyEvent.KEYCODE_VOLUME_UP ||
-            event.keyCode == KeyEvent.KEYCODE_VOLUME_DOWN ||
-            event.keyCode == KeyEvent.KEYCODE_CAMERA
+            if (!isShutterKey) {
+                result = false
+            } else {
+                // Only emit on ACTION_DOWN to avoid double-triggers on release
+                val shouldEmit = event.action == KeyEvent.ACTION_DOWN && event.repeatCount == 0
+                if (shouldEmit) {
+                    _events.tryEmit(CameraHardwareKeyEvent.Shutter)
+                }
 
-        if (!isShutterKey) return false
-
-        // Only emit on ACTION_DOWN to avoid double-triggers on release
-        if (event.action == KeyEvent.ACTION_DOWN && event.repeatCount == 0) {
-            _events.tryEmit(CameraHardwareKeyEvent.Shutter)
+                // Return true to consume the volume key event so system volume slider does not show up
+                result = true
+            }
         }
-
-        // Return true to consume the volume key event so system volume slider does not show up
-        return true
+        return result
     }
 }

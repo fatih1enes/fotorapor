@@ -38,10 +38,44 @@ object CameraTokens {
     val ModeLabelFontSize = 14.sp
     val WatermarkMonospaceFontSize = 10.sp
 
+    // Aspect Ratios
+    const val AspectRatio4_3 = 3f / 4f
+    const val AspectRatio16_9 = 9f / 16f
+
+    // Photo Target Resolutions (12MP - iPhone default)
+    const val PhotoTarget4_3Width = 4032
+    const val PhotoTarget4_3Height = 3024
+    const val PhotoTarget16_9Width = 4032
+    const val PhotoTarget16_9Height = 2268
+
+    // Zoom Tiers (iPhone-style)
+    const val ZoomTierUltraWide = 0.5f
+    const val ZoomTierWide = 1f
+    const val ZoomTierTelephoto2x = 2f
+    const val ZoomTierTelephoto3x = 3f
+    const val ZoomTierTelephoto5x = 5f
+
+    // Zoom Tier Tolerances
+    const val ZoomTierTolerancePercent = 0.15f
+    const val ZoomTierMinTolerance = 0.12f
+    const val ZoomTierMaxTolerance = 0.5f
+    const val UltraWideActiveThreshold = 0.95f
+    const val UltraWideActiveOffset = 0.15f
+    const val Telephoto2xThreshold = 1.8f
+    const val Telephoto3xThreshold = 3.5f
+    const val Telephoto5xThreshold = 4.5f
+
     // Animation Specs
+    // Shutter press: snappy and immediate — no bouncy rebound which would look
+    // amateurish on a professional photography tool.
     val ShutterSpring = spring<Float>(
-        dampingRatio = Spring.DampingRatioMediumBouncy,
-        stiffness = Spring.StiffnessLow
+        dampingRatio = Spring.DampingRatioNoBouncy,
+        stiffness = Spring.StiffnessHigh
+    )
+    // Focus reticle pop-in: slight overshoot communicates "acquired" tactilely.
+    val FocusSpring = spring<Float>(
+        dampingRatio = Spring.DampingRatioLowBouncy,
+        stiffness = Spring.StiffnessMediumLow
     )
     val SmoothSpring = spring<Float>(
         dampingRatio = Spring.DampingRatioNoBouncy,
@@ -51,5 +85,10 @@ object CameraTokens {
         dampingRatio = Spring.DampingRatioNoBouncy,
         stiffness = Spring.StiffnessMedium
     )
-    val CrossfadeDuration = 180
+    // Crossfade between lens/mode switches: fast enough to feel instant,
+    // slow enough not to glitch on slower devices.
+    const val CrossfadeDuration = 120
+    // Shutter blink: 25 ms in, 60 ms out — mirrors Apple's timing
+    const val ShutterBlinkInMs = 25
+    const val ShutterBlinkOutMs = 60
 }

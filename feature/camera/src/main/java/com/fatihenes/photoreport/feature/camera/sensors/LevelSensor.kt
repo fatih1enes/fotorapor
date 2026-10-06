@@ -17,8 +17,14 @@ import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.sqrt
 
-private const val LEVEL_THRESHOLD_DEGREES = 1.2f
-private const val LOW_PASS_ALPHA = 0.20f
+private const val LEVEL_THRESHOLD_DEGREES = 1.5f
+
+/**
+ * Alpha for the one-euro-style low-pass filter applied to raw accelerometer
+ * samples. Lower = smoother indicator, slightly slower to track real tilt.
+ * 0.15 eliminates micro hand-shake while still feeling responsive at 60 fps.
+ */
+private const val LOW_PASS_ALPHA = 0.15f
 private const val FLAT_PITCH_THRESHOLD = 75f
 
 @Stable
@@ -84,7 +90,9 @@ fun rememberLevelSensor(
         }
 
         if (sensor != null) {
-            sm.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_GAME)
+            // SENSOR_DELAY_UI (~60 Hz) is sufficient for a level indicator and
+            // uses significantly less power than SENSOR_DELAY_GAME (~200 Hz).
+            sm.registerListener(listener, sensor, SensorManager.SENSOR_DELAY_UI)
         }
 
         onDispose {

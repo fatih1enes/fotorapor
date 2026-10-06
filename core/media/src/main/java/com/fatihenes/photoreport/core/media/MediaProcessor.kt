@@ -1,3 +1,4 @@
+@file:Suppress("TooGenericExceptionCaught")
 package com.fatihenes.photoreport.core.media
 
 import android.content.ContentValues
@@ -50,7 +51,9 @@ class MediaProcessor @Inject constructor(
                 if (optimizedUri != null) {
                     try {
                         appContext.contentResolver.delete(optimizedUri, null, null)
-                    } catch (_: Exception) { }
+                    } catch (e: Exception) {
+                        android.util.Log.d("MediaProcessor", "Failed to clean unverified image: ${e.message}")
+                    }
                 }
                 originalUri
             }

@@ -83,7 +83,7 @@ class CameraViewModelTest {
         assertEquals(AspectRatioSelection.RATIO_4_3, state.aspectRatio)
         assertEquals(1f, state.zoomRatio)
         assertFalse(state.isGridVisible)
-        assertTrue(state.isLevelVisible)
+        assertFalse(state.isLevelVisible)
         assertFalse(state.isRecording)
     }
 
@@ -134,9 +134,9 @@ class CameraViewModelTest {
         viewModel.toggleGrid()
         assertTrue(viewModel.uiState.value.isGridVisible)
 
-        assertTrue(viewModel.uiState.value.isLevelVisible)
-        viewModel.toggleLevel()
         assertFalse(viewModel.uiState.value.isLevelVisible)
+        viewModel.toggleLevel()
+        assertTrue(viewModel.uiState.value.isLevelVisible)
     }
 
     @Test

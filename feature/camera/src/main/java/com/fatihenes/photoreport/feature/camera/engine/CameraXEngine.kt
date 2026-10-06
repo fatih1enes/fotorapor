@@ -279,6 +279,10 @@ class CameraXEngine @Inject constructor(
         removeCameraObservers()
         provider.unbindAll()
         _isStreaming.value = false
+        // Reset the binding flag before each new session attempt so stale
+        // three-use-case state never leaks across rebinds (e.g. after mode or
+        // aspect-ratio changes).
+        isThreeUseCasesBound = false
 
         val lensFacing = _activeLensFacing.value
         val selector = resolveCameraSelector(provider, lensFacing)
@@ -294,11 +298,7 @@ class CameraXEngine @Inject constructor(
         val caps = capabilityRepository.getCapabilities(lensFacing, targetInfo, extensionsManager)
         currentCapabilities = caps
 
-        previewView.implementationMode = if (caps.isLegacy) {
-            PreviewView.ImplementationMode.COMPATIBLE
-        } else {
-            PreviewView.ImplementationMode.PERFORMANCE
-        }
+        // Keep previewView implementation mode stable (COMPATIBLE mode set on creation for Compose safety)
 
         // Binding VideoCapture alongside ImageCapture caps photo resolution to the
         // RECORD size (~1080p) on LIMITED hardware and disables ZSL. Only FULL/LEVEL_3
@@ -335,7 +335,6 @@ class CameraXEngine @Inject constructor(
         return try {
             val preview = sessionConfigFactory.createPreview(
                 aspectRatio = _currentAspectRatio.value,
-                enableStabilization = false,
                 caps = caps
             ).also { it.surfaceProvider = previewView.surfaceProvider }
 
@@ -344,12 +343,14 @@ class CameraXEngine @Inject constructor(
                 flashMode = _currentFlashMode.value,
                 targetRotation = currentTargetRotation,
                 enableOptimization = true,
-                caps = caps
+                caps = caps,
+                enableAvif = false // AVIF handled post-capture via Media3 Transformer
             )
 
             val video = sessionConfigFactory.createVideoCapture(
                 videoQuality = _currentVideoQuality.value,
-                targetRotation = currentTargetRotation
+                targetRotation = currentTargetRotation,
+                caps = caps
             )
 
             currentCamera = provider.bindToLifecycle(lifecycle, selector, preview, capture, video)
@@ -371,9 +372,24 @@ class CameraXEngine @Inject constructor(
         previewView: PreviewView,
         caps: EnhancedCapabilities
     ) {
+        try {
+            bindStandardSession(provider, lifecycle, selector, previewView, caps)
+        } catch (e: Exception) {
+            Log.w(TAG, "Standard session bind failed, falling back to minimal safe session", e)
+            provider.unbindAll()
+            bindMinimalSafeSession(provider, lifecycle, selector, previewView)
+        }
+    }
+
+    private fun bindStandardSession(
+        provider: ProcessCameraProvider,
+        lifecycle: LifecycleOwner,
+        selector: CameraSelector,
+        previewView: PreviewView,
+        caps: EnhancedCapabilities
+    ) {
         val preview = sessionConfigFactory.createPreview(
             aspectRatio = _currentAspectRatio.value,
-            enableStabilization = false,
             caps = caps
         ).also { it.surfaceProvider = previewView.surfaceProvider }
 
@@ -383,7 +399,8 @@ class CameraXEngine @Inject constructor(
                 flashMode = _currentFlashMode.value,
                 targetRotation = currentTargetRotation,
                 enableOptimization = true,
-                caps = caps
+                caps = caps,
+                enableAvif = false
             )
             currentCamera = provider.bindToLifecycle(lifecycle, selector, preview, capture)
             currentPreview = preview
@@ -392,12 +409,45 @@ class CameraXEngine @Inject constructor(
         } else {
             val video = sessionConfigFactory.createVideoCapture(
                 videoQuality = _currentVideoQuality.value,
-                targetRotation = currentTargetRotation
+                targetRotation = currentTargetRotation,
+                caps = caps
             )
             currentCamera = provider.bindToLifecycle(lifecycle, selector, preview, video)
             currentPreview = preview
             currentImageCapture = null
             currentVideoCapture = video
+        }
+    }
+
+    private fun bindMinimalSafeSession(
+        provider: ProcessCameraProvider,
+        lifecycle: LifecycleOwner,
+        selector: CameraSelector,
+        previewView: PreviewView
+    ) {
+        try {
+            val preview = Preview.Builder().build().also {
+                it.surfaceProvider = previewView.surfaceProvider
+            }
+            if (_currentMode.value == CameraMode.PHOTO) {
+                val capture = ImageCapture.Builder()
+                    .setTargetRotation(currentTargetRotation)
+                    .build()
+                currentCamera = provider.bindToLifecycle(lifecycle, selector, preview, capture)
+                currentPreview = preview
+                currentImageCapture = capture
+                currentVideoCapture = null
+            } else {
+                val video = VideoCapture.withOutput(
+                    Recorder.Builder().build()
+                )
+                currentCamera = provider.bindToLifecycle(lifecycle, selector, preview, video)
+                currentPreview = preview
+                currentImageCapture = null
+                currentVideoCapture = video
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Minimal safe session bind also failed", e)
         }
     }
 
@@ -467,6 +517,10 @@ class CameraXEngine @Inject constructor(
             CameraSelector.LENS_FACING_BACK
         }
         _activeLensFacing.value = nextLens
+        // The front and back cameras have different hardware capability profiles.
+        // Clear the cache so the next bind queries fresh characteristics for the
+        // new lens instead of reusing stale data from the previous lens.
+        capabilityRepository.clearCache()
         bindSessionInternal()
     }
 

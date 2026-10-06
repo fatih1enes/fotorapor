@@ -264,8 +264,8 @@ object HtmlExporter {
             append("<div class=\"day-card\">")
             append("<div class=\"day-header\">")
             append("<h2 class=\"day-title\">${formatter.format(Instant.ofEpochMilli(log.date)).htmlEncode()}</h2>")
-            append("</div>")
-            if (log.note.isNotBlank()) append("<div class=\"note-content\">${log.note.htmlEncode()}</div>")
+            append(DIV_CLOSE)
+            if (log.note.isNotBlank()) append("<div class=\"note-content\">${log.note.htmlEncode()}$DIV_CLOSE")
             if (photos.isNotEmpty()) {
                 append("<div class=\"media-grid\">")
                 photos.forEach { photo -> map[photo.id]?.let { append(generateMediaItem(it, photo.rotation, lang)) } }

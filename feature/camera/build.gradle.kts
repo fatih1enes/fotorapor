@@ -54,6 +54,9 @@ dependencies {
     implementation(libs.androidx.camera.view)
     implementation(libs.androidx.camera.extensions)
 
+    implementation(libs.androidx.media3.transformer)
+    implementation(libs.avif.coder)
+
     implementation(libs.coil.compose)
     implementation(libs.coil.video)
 

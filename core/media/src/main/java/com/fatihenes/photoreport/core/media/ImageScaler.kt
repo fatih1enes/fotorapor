@@ -37,14 +37,11 @@ object ImageScaler {
     @Suppress("ReturnCount")
     private fun rotateBitmapIfNeeded(context: Context, pathString: String, bitmap: Bitmap): Bitmap {
         return try {
-            val uri = pathString.toUri()
-            val exif = when (uri.scheme) {
-                "content" -> context.contentResolver.openInputStream(uri)?.use { ExifInterface(it) }
-                "file" -> uri.path?.let { ExifInterface(it) } ?: context.contentResolver.openInputStream(uri)?.use { ExifInterface(it) }
-                else -> ExifInterface(pathString)
-            }
-            val orientation = exif?.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
-                ?: ExifInterface.ORIENTATION_NORMAL
+            val exif = getExifInterface(context, pathString)
+            val orientation = exif?.getAttributeInt(
+                ExifInterface.TAG_ORIENTATION,
+                ExifInterface.ORIENTATION_NORMAL
+            ) ?: ExifInterface.ORIENTATION_NORMAL
             val matrix = Matrix()
             when (orientation) {
                 ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(ROTATION_90)
@@ -59,9 +56,21 @@ object ImageScaler {
                 bitmap.recycle()
             }
             rotated
-        } catch (e: Throwable) {
-            Log.w(TAG, "Exif rotation failed", e)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error rotating bitmap", e)
             bitmap
+        }
+    }
+
+    private fun getExifInterface(context: Context, pathString: String): ExifInterface? {
+        val uri = pathString.toUri()
+        return when (uri.scheme) {
+            "content" -> context.contentResolver.openInputStream(uri)?.use { ExifInterface(it) }
+            "file" -> {
+                uri.path?.let { ExifInterface(it) }
+                    ?: context.contentResolver.openInputStream(uri)?.use { ExifInterface(it) }
+            }
+            else -> ExifInterface(pathString)
         }
     }
 

@@ -250,52 +250,59 @@ class LocalBackupManager @Inject constructor(
         try {
             val currentVersion = 6
             val backupVersion = sqliteDb.version
-            if (backupVersion > currentVersion) {
-                throw IllegalStateException("Yedek dosyası daha yeni bir uygulama sürümüne ait (v$backupVersion > v$currentVersion)")
+            check(backupVersion <= currentVersion) {
+                "Yedek dosyası daha yeni bir uygulama sürümüne ait (v$backupVersion > v$currentVersion)"
             }
 
-            if (backupVersion < 2) {
-                try {
-                    sqliteDb.execSQL("ALTER TABLE photos ADD COLUMN rotation REAL NOT NULL DEFAULT 0.0")
-                } catch (_: Exception) { }
-            }
-            if (backupVersion < 3) {
-                try {
-                    sqliteDb.execSQL("CREATE INDEX IF NOT EXISTS `index_daily_logs_projectId` ON `daily_logs` (`projectId`)")
-                } catch (_: Exception) { }
-            }
-            if (backupVersion < 4) {
-                try {
-                    sqliteDb.execSQL("ALTER TABLE projects ADD COLUMN isDeleted INTEGER NOT NULL DEFAULT 0")
-                } catch (_: Exception) { }
-                try {
-                    sqliteDb.execSQL("ALTER TABLE projects ADD COLUMN deletedAt INTEGER")
-                } catch (_: Exception) { }
-                try {
-                    sqliteDb.execSQL("ALTER TABLE photos ADD COLUMN isDeleted INTEGER NOT NULL DEFAULT 0")
-                } catch (_: Exception) { }
-                try {
-                    sqliteDb.execSQL("ALTER TABLE photos ADD COLUMN deletedAt INTEGER")
-                } catch (_: Exception) { }
-            }
-            if (backupVersion < 5) {
-                try {
-                    sqliteDb.execSQL("CREATE INDEX IF NOT EXISTS `index_projects_isDeleted` ON `projects` (`isDeleted`)")
-                    sqliteDb.execSQL("CREATE INDEX IF NOT EXISTS `index_projects_deletedAt` ON `projects` (`deletedAt`)")
-                    sqliteDb.execSQL("CREATE INDEX IF NOT EXISTS `index_daily_logs_date` ON `daily_logs` (`date`)")
-                    sqliteDb.execSQL("CREATE INDEX IF NOT EXISTS `index_photos_isDeleted` ON `photos` (`isDeleted`)")
-                    sqliteDb.execSQL("CREATE INDEX IF NOT EXISTS `index_photos_deletedAt` ON `photos` (`deletedAt`)")
-                } catch (_: Exception) { }
-            }
-            if (backupVersion < 6) {
-                try {
-                    sqliteDb.execSQL("CREATE INDEX IF NOT EXISTS `index_projects_isDeleted_deletedAt` ON `projects` (`isDeleted`, `deletedAt`)")
-                    sqliteDb.execSQL("CREATE INDEX IF NOT EXISTS `index_photos_isDeleted_deletedAt` ON `photos` (`isDeleted`, `deletedAt`)")
-                } catch (_: Exception) { }
-            }
+            migrateDatabaseVersion(sqliteDb, backupVersion)
             sqliteDb.version = currentVersion
         } finally {
             sqliteDb.close()
+        }
+    }
+
+    private fun migrateDatabaseVersion(db: android.database.sqlite.SQLiteDatabase, backupVersion: Int) {
+        if (backupVersion < 2) {
+            executeSqlQuietly(db, "ALTER TABLE photos ADD COLUMN rotation REAL NOT NULL DEFAULT 0.0")
+        }
+        if (backupVersion < 3) {
+            executeSqlQuietly(
+                db,
+                "CREATE INDEX IF NOT EXISTS `index_daily_logs_projectId` ON `daily_logs` (`projectId`)"
+            )
+        }
+        if (backupVersion < 4) {
+            executeSqlQuietly(db, "ALTER TABLE projects ADD COLUMN isDeleted INTEGER NOT NULL DEFAULT 0")
+            executeSqlQuietly(db, "ALTER TABLE projects ADD COLUMN deletedAt INTEGER")
+            executeSqlQuietly(db, "ALTER TABLE photos ADD COLUMN isDeleted INTEGER NOT NULL DEFAULT 0")
+            executeSqlQuietly(db, "ALTER TABLE photos ADD COLUMN deletedAt INTEGER")
+        }
+        if (backupVersion < 5) {
+            executeSqlQuietly(db, "CREATE INDEX IF NOT EXISTS `index_projects_isDeleted` ON `projects` (`isDeleted`)")
+            executeSqlQuietly(db, "CREATE INDEX IF NOT EXISTS `index_projects_deletedAt` ON `projects` (`deletedAt`)")
+            executeSqlQuietly(db, "CREATE INDEX IF NOT EXISTS `index_daily_logs_date` ON `daily_logs` (`date`)")
+            executeSqlQuietly(db, "CREATE INDEX IF NOT EXISTS `index_photos_isDeleted` ON `photos` (`isDeleted`)")
+            executeSqlQuietly(db, "CREATE INDEX IF NOT EXISTS `index_photos_deletedAt` ON `photos` (`deletedAt`)")
+        }
+        if (backupVersion < 6) {
+            executeSqlQuietly(
+                db,
+                "CREATE INDEX IF NOT EXISTS `index_projects_isDeleted_deletedAt` " +
+                    "ON `projects` (`isDeleted`, `deletedAt`)"
+            )
+            executeSqlQuietly(
+                db,
+                "CREATE INDEX IF NOT EXISTS `index_photos_isDeleted_deletedAt` " +
+                    "ON `photos` (`isDeleted`, `deletedAt`)"
+            )
+        }
+    }
+
+    private fun executeSqlQuietly(db: android.database.sqlite.SQLiteDatabase, sql: String) {
+        try {
+            db.execSQL(sql)
+        } catch (e: android.database.SQLException) {
+            android.util.Log.d("BackupManager", "Ignored migration exception for SQL '$sql': ${e.message}")
         }
     }
 

@@ -1,7 +1,9 @@
 package com.fatihenes.photoreport.feature.camera.capture
 
 import android.content.Context
+import android.media.MediaCodecList
 import android.net.Uri
+import android.os.Build
 import android.util.Log
 import com.fatihenes.photoreport.core.common.di.Dispatcher
 import com.fatihenes.photoreport.core.common.di.FotoRaporDispatchers
@@ -31,8 +33,15 @@ private const val TAG = "PhotoCaptureController"
 data class CapturedPhotoResult(
     val uri: Uri,
     val watermarkData: WatermarkData,
-    val capturedTimestamp: Long
+    val capturedTimestamp: Long,
+    val format: CaptureFormat = CaptureFormat.JPEG
 )
+
+enum class CaptureFormat {
+    JPEG,
+    HEIC,
+    AVIF
+}
 
 @Singleton
 class PhotoCaptureController @Inject constructor(
@@ -56,7 +65,9 @@ class PhotoCaptureController @Inject constructor(
         rotation: Int,
         projectName: String,
         includeGps: Boolean,
-        onInstantFeedback: () -> Unit
+        onInstantFeedback: () -> Unit,
+        enableHeic: Boolean = true,
+        enableAvif: Boolean = false
     ) {
         // 1. Instant feedback: Shutter animation, haptic, sound immediately fires (<50ms)
         onInstantFeedback()
@@ -65,10 +76,22 @@ class PhotoCaptureController @Inject constructor(
         controllerScope.launch {
             val captureTime = System.currentTimeMillis()
 
-            // 2. Prepare app-private destination file immediately
+            // 2. Prepare app-private destination file immediately with proper extension
             val outputFile = withContext(ioDispatcher) {
                 val dir = File(context.filesDir, "captures").apply { if (!exists()) mkdirs() }
-                File(dir, "IMG_${captureTime}_${UUID.randomUUID().toString().take(6)}.jpg")
+                val format = when {
+                    enableAvif && hasAvifSupport() -> CaptureFormat.AVIF
+                    enableHeic && hasHeicSupport() -> CaptureFormat.HEIC
+                    else -> CaptureFormat.JPEG
+                }
+                val extension = format.fileExtension()
+                File(dir, "IMG_${captureTime}_${UUID.randomUUID().toString().take(6)}.$extension")
+            }
+
+            val selectedFormat = when {
+                enableAvif && hasAvifSupport() -> CaptureFormat.AVIF
+                enableHeic && hasHeicSupport() -> CaptureFormat.HEIC
+                else -> CaptureFormat.JPEG
             }
 
             // 3. Trigger camera sensor capture IMMEDIATELY (zero lag)
@@ -94,7 +117,8 @@ class PhotoCaptureController @Inject constructor(
                     CapturedPhotoResult(
                         uri = uri,
                         watermarkData = metadataSnapshot,
-                        capturedTimestamp = captureTime
+                        capturedTimestamp = captureTime,
+                        format = selectedFormat
                     )
                 )
             }.onFailure { error ->
@@ -103,4 +127,48 @@ class PhotoCaptureController @Inject constructor(
             }
         }
     }
+
+    private fun hasHeicSupport(): Boolean {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && hasHeicEncoder()
+    }
+
+    private fun hasAvifSupport(): Boolean {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && hasAvifEncoder()
+    }
+
+    private fun hasHeicEncoder(): Boolean {
+        return try {
+            val codecList = MediaCodecList(MediaCodecList.ALL_CODECS)
+            codecList.codecInfos.any { info ->
+                info.isEncoder && "image/heic".equals(info.getSupportedTypes().firstOrNull(), ignoreCase = true)
+            }
+        } catch (e: IllegalArgumentException) {
+            Log.w(TAG, "HEIC encoder check failed: IllegalArgumentException", e)
+            false
+        } catch (e: SecurityException) {
+            Log.w(TAG, "HEIC encoder check failed: SecurityException", e)
+            false
+        }
+    }
+
+    private fun hasAvifEncoder(): Boolean {
+        return try {
+            val codecList = MediaCodecList(MediaCodecList.ALL_CODECS)
+            codecList.codecInfos.any { info ->
+                info.isEncoder && "image/avif".equals(info.getSupportedTypes().firstOrNull(), ignoreCase = true)
+            }
+        } catch (e: IllegalArgumentException) {
+            Log.w(TAG, "AVIF encoder check failed: IllegalArgumentException", e)
+            false
+        } catch (e: SecurityException) {
+            Log.w(TAG, "AVIF encoder check failed: SecurityException", e)
+            false
+        }
+    }
+}
+
+private fun CaptureFormat.fileExtension(): String = when (this) {
+    CaptureFormat.JPEG -> "jpg"
+    CaptureFormat.HEIC -> "heic"
+    CaptureFormat.AVIF -> "avif"
 }

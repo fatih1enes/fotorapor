@@ -3,6 +3,7 @@ package com.fatihenes.photoreport.feature.camera.engine
 import android.content.Context
 import android.hardware.camera2.CameraCharacteristics
 import android.hardware.camera2.CameraManager
+import android.media.MediaCodecList
 import android.os.Build
 import android.util.Log
 import androidx.camera.camera2.interop.Camera2CameraInfo
@@ -96,6 +97,10 @@ class CapabilityRepository @Inject constructor(
                 maxZoom = z.maxZoomRatio
             }
 
+            // Ultra-wide detection: minZoom < 1.0 indicates ultra-wide lens (0.5x, 0.6x, etc.)
+            val supportsUltraWide = minZoom < 1f
+            val ultraWideMinZoom = if (supportsUltraWide) minZoom else 1f
+
             // Exposure
             var lowerExp = 0
             var upperExp = 0
@@ -132,8 +137,36 @@ class CapabilityRepository @Inject constructor(
             val supportsHdr = extensionsManager?.isExtensionAvailable(selector, ExtensionMode.HDR) ?: false
             val supportsNight = extensionsManager?.isExtensionAvailable(selector, ExtensionMode.NIGHT) ?: false
 
-            // Zero shutter lag
-            val supportsZsl = isFullOrBetter
+            // Zero Shutter Lag (ZSL) — requires FULL+ hardware AND either the
+            // PRIVATE_REPROCESSING or YUV_REPROCESSING capability bit. Relying
+            // on hardware level alone produces false-positives on LIMITED devices
+            // that expose a FULL-level ISP but no reprocessing pipeline.
+            val availCaps = chars.get(CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES) ?: intArrayOf()
+            val hasReprocessing =
+                CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_PRIVATE_REPROCESSING in availCaps ||
+                CameraCharacteristics.REQUEST_AVAILABLE_CAPABILITIES_YUV_REPROCESSING in availCaps
+            val supportsZsl = isFullOrBetter && hasReprocessing
+
+            // Low-light boost: some OEMs expose a Night AE mode (value 5) even
+            // without the Night extension, giving free low-light SNR improvement.
+            val aeModes = chars.get(CameraCharacteristics.CONTROL_AE_AVAILABLE_MODES) ?: intArrayOf()
+            @Suppress("MagicNumber")
+            val supportsNightAe = 5 in aeModes // CaptureRequest.CONTROL_AE_MODE_ON_LOW_LIGHT_BOOST
+
+            // HEIC support: Android 10+ with HEIC encoder
+            val supportsHeic = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && hasHeicEncoder()
+
+            // HDR video support: Android 13+ (Tiramisu) with HDR video capabilities
+            val supportsHdrVideo = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                cameraInfo != null &&
+                try {
+                    // Check if HDR dynamic range is supported for video recording
+                    val videoCaps = Recorder.getVideoCapabilities(cameraInfo)
+                    val supportedRanges = videoCaps.supportedDynamicRanges
+                    supportedRanges.size > 1 // More than just SDR means HDR/HLG support
+                } catch (e: Exception) {
+                    false
+                }
 
             EnhancedCapabilities(
                 hardwareLevel = hwLevel,
@@ -150,16 +183,31 @@ class CapabilityRepository @Inject constructor(
                 hasFlashUnit = hasFlashUnit,
                 supportsTorch = hasFlashUnit,
                 supportsZeroShutterLag = supportsZsl,
-                supportsLowLightBoost = false,
+                supportsLowLightBoost = supportsNightAe,
                 supportedVideoQualities = qualities,
                 supportsHdrExtension = supportsHdr,
-                supportsNightExtension = supportsNight
+                supportsNightExtension = supportsNight,
+                supportsHeic = supportsHeic,
+                supportsHdrVideo = supportsHdrVideo,
+                supportsUltraWide = supportsUltraWide,
+                ultraWideMinZoomRatio = ultraWideMinZoom
             ).also {
                 Log.d(TAG, "Queried capabilities for lens $lensFacing: $it")
             }
         } catch (e: Exception) {
             Log.w(TAG, "Failed to query camera capabilities for lens $lensFacing", e)
             EnhancedCapabilities()
+        }
+    }
+
+    private fun hasHeicEncoder(): Boolean {
+        return try {
+            val codecList = MediaCodecList(MediaCodecList.ALL_CODECS)
+            codecList.codecInfos.any { info ->
+                info.isEncoder && "image/heic".equals(info.getSupportedTypes().firstOrNull(), ignoreCase = true)
+            }
+        } catch (e: Exception) {
+            false
         }
     }
 

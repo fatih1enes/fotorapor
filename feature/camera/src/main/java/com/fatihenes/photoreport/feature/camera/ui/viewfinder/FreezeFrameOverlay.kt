@@ -19,8 +19,8 @@ fun ShutterBlinkFeedback(
 ) {
     AnimatedVisibility(
         visible = visible,
-        enter = fadeIn(tween(20)),
-        exit = fadeOut(tween(60)),
+        enter = fadeIn(tween(CameraTokens.ShutterBlinkInMs)),
+        exit = fadeOut(tween(CameraTokens.ShutterBlinkOutMs)),
         modifier = modifier.fillMaxSize()
     ) {
         Box(

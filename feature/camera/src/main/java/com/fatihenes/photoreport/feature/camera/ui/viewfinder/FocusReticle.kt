@@ -72,7 +72,7 @@ fun FocusReticle(
 
     AnimatedVisibility(
         visible = visible,
-        enter = fadeIn() + scaleIn(initialScale = 1.35f, animationSpec = CameraTokens.SmoothSpring),
+        enter = fadeIn() + scaleIn(initialScale = 1.35f, animationSpec = CameraTokens.FocusSpring),
         exit = fadeOut(),
         modifier = modifier
     ) {

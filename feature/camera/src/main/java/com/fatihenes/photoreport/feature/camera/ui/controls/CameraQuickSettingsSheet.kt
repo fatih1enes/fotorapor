@@ -35,11 +35,14 @@ import androidx.compose.ui.unit.sp
 import com.fatihenes.photoreport.feature.camera.theme.CameraTokens
 
 @Composable
+@Suppress("LongMethod", "UnusedParameter")
 fun CameraQuickSettingsSheet(
     visible: Boolean,
     onDismiss: () -> Unit,
     enableOptimization: Boolean,
     onToggleOptimization: (Boolean) -> Unit,
+    enableHeic: Boolean,
+    onToggleHeic: (Boolean) -> Unit,
     enableAvif: Boolean,
     onToggleAvif: (Boolean) -> Unit,
     isLevelVisible: Boolean,
@@ -112,8 +115,8 @@ fun CameraQuickSettingsSheet(
                 HorizontalDivider(color = Color.White.copy(alpha = 0.1f), modifier = Modifier.padding(vertical = 10.dp))
 
                 SettingsToggleRow(
-                    title = "AVIF Kayıt (Kayıpsız Sıkıştırma)",
-                    description = "Fotoğrafların dosya boyutunu %50 düşürür",
+                    title = "AVIF / HEIC Yüksek Verimli Kayıt",
+                    description = "Fotoğrafların dosya boyutunu %50 düşürür, görsel kaliteyi korur",
                     checked = enableAvif,
                     onCheckedChange = onToggleAvif
                 )

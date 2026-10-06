@@ -14,6 +14,7 @@ import com.fatihenes.photoreport.feature.camera.engine.CameraMode
 import com.fatihenes.photoreport.feature.camera.engine.CameraSessionState
 import com.fatihenes.photoreport.feature.camera.engine.FlashMode
 import com.fatihenes.photoreport.feature.camera.model.CameraUiState
+import com.fatihenes.photoreport.feature.camera.theme.CameraTokens
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -155,7 +156,9 @@ class CameraViewModel @Inject constructor(
         rotation: Int,
         projectName: String,
         includeGps: Boolean,
-        enableAudio: Boolean = true
+        enableAudio: Boolean = true,
+        enableHeic: Boolean = true,
+        enableAvif: Boolean = false
     ) {
         if (_uiState.value.cameraMode == CameraMode.PHOTO) {
             photoCaptureController.capturePhoto(
@@ -164,7 +167,9 @@ class CameraViewModel @Inject constructor(
                 includeGps = includeGps,
                 onInstantFeedback = {
                     triggerInstantShutterBlink()
-                }
+                },
+                enableHeic = enableHeic,
+                enableAvif = enableAvif
             )
         } else {
             if (_uiState.value.isRecording) {
@@ -183,7 +188,10 @@ class CameraViewModel @Inject constructor(
     private fun triggerInstantShutterBlink() {
         viewModelScope.launch {
             _uiState.update { it.copy(isShutterBlinking = true) }
-            delay(50)
+            // Total visible duration = fade-in + brief hold + fade-out.
+            // Using the token values keeps this in sync with the animation durations
+            // declared in CameraTokens so the blink never outlasts its animation.
+            delay((CameraTokens.ShutterBlinkInMs + CameraTokens.ShutterBlinkOutMs).toLong())
             _uiState.update { it.copy(isShutterBlinking = false) }
         }
     }

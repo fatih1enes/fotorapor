@@ -44,6 +44,7 @@ import com.fatihenes.photoreport.feature.camera.engine.FlashMode
 import com.fatihenes.photoreport.feature.camera.theme.CameraTokens
 
 @Composable
+@Suppress("LongMethod", "CyclomaticComplexMethod")
 fun CameraTopBar(
     flashMode: FlashMode,
     aspectRatio: AspectRatioSelection,
@@ -56,7 +57,8 @@ fun CameraTopBar(
     onAspectRatioToggle: () -> Unit,
     onGridToggle: () -> Unit,
     onSettingsClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    gpsStatusText: String? = null,
 ) {
     Column(
         modifier = modifier
@@ -127,16 +129,18 @@ fun CameraTopBar(
             verticalAlignment = Alignment.CenterVertically
         ) {
             // GPS pill
+            val gpsText = gpsStatusText ?: (if (gpsAccuracyMeters != null) {
+                "● GPS ±${gpsAccuracyMeters.toInt()}m"
+            } else {
+                "● GPS Bekleniyor"
+            })
             val gpsColor = when {
+                gpsText.contains("Kapalı") || gpsText.contains("Yok") -> Color.Gray
+                gpsText.contains("Aranıyor") -> CameraTokens.Amber
                 gpsAccuracyMeters == null -> Color.Gray
                 gpsAccuracyMeters < 10f -> Color(0xFF34C759)
                 gpsAccuracyMeters < 30f -> CameraTokens.Amber
                 else -> Color(0xFFFF3B30)
-            }
-            val gpsText = if (gpsAccuracyMeters != null) {
-                "● GPS ±${gpsAccuracyMeters.toInt()}m"
-            } else {
-                "● GPS Bekleniyor"
             }
 
             Box(

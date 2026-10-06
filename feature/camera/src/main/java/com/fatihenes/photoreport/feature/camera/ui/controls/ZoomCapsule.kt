@@ -36,12 +36,18 @@ fun ZoomCapsule(
 ) {
     val haptic = LocalHapticFeedback.current
     val zoomTiers = remember(minZoom, maxZoom) {
-        val list = mutableListOf<Float>()
-        if (minZoom < 0.95f) list.add(minZoom)
-        list.add(1f)
-        if (maxZoom >= 2f) list.add(2f)
-        if (maxZoom >= 5f) list.add(5f)
-        list
+        buildList {
+            // Ultra-wide: show only if the camera actually goes below 1x
+            if (minZoom < CameraTokens.UltraWideActiveThreshold) add(minZoom)
+            // 1x is always shown
+            add(CameraTokens.ZoomTierWide)
+            // 2x telephoto: show if reachable with some headroom
+            if (maxZoom >= CameraTokens.Telephoto2xThreshold) add(CameraTokens.ZoomTierTelephoto2x)
+            // 3x telephoto: show if this tier is significantly below max
+            if (maxZoom >= CameraTokens.Telephoto3xThreshold) add(CameraTokens.ZoomTierTelephoto3x)
+            // 5x telephoto: show if reachable
+            if (maxZoom >= CameraTokens.Telephoto5xThreshold) add(CameraTokens.ZoomTierTelephoto5x)
+        }
     }
 
     Box(
@@ -87,19 +93,24 @@ fun ZoomCapsule(
 }
 
 private fun isZoomTierActive(currentZoom: Float, tier: Float): Boolean {
-    return if (tier < 1f) {
-        currentZoom < 0.95f
+    return if (tier < CameraTokens.UltraWideActiveThreshold) {
+        // Ultra-wide: active when zoom is near the min tier value
+        currentZoom < (tier + CameraTokens.UltraWideActiveOffset).coerceAtMost(CameraTokens.UltraWideActiveThreshold)
     } else {
-        (currentZoom >= tier - 0.2f) && (currentZoom <= tier + 0.2f)
+        // Standard tiers: ±15% tolerance, preventing two tiers lighting up simultaneously
+        val halfGap = (tier * CameraTokens.ZoomTierTolerancePercent).coerceIn(
+            CameraTokens.ZoomTierMinTolerance,
+            CameraTokens.ZoomTierMaxTolerance
+        )
+        currentZoom in (tier - halfGap)..(tier + halfGap)
     }
 }
 
 private fun formatZoomTier(tier: Float): String {
-    return if (tier < 1f) {
-        String.format(java.util.Locale.US, "%.1f", tier)
-    } else if (tier == 1f) {
-        "1x"
-    } else {
-        "${tier.toInt()}"
+    return when {
+        tier < CameraTokens.UltraWideActiveThreshold -> String.format(java.util.Locale.US, "%.1f×", tier)
+        tier == CameraTokens.ZoomTierWide -> "1×"
+        tier % 1f == 0f -> "${tier.toInt()}×"
+        else -> String.format(java.util.Locale.US, "%.1f×", tier)
     }
 }

@@ -1,6 +1,8 @@
 @file:Suppress("TooManyFunctions")
 package com.fatihenes.photoreport.feature.project.ui
 
+import android.content.Context
+import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -90,6 +92,15 @@ private const val VIDEO_PLACEHOLDER_ICON_ALPHA = 0.6f
 private const val VIDEO_PLACEHOLDER_BG_ALPHA = 0.1f
 private const val IMAGE_FULL_RES_SIZE = 2400
 
+data class FullScreenPhotoViewerCallbacks(
+    val onDismiss: () -> Unit,
+    val onDelete: (Photo) -> Unit,
+    val onUpdateRotation: (Long, Float) -> Unit,
+    val onSaveSuccess: (String) -> Unit = { },
+    val onSaveError: () -> Unit = { },
+    val onContentRefresh: () -> Unit = { },
+)
+
 @androidx.annotation.OptIn(androidx.media3.common.util.UnstableApi::class)
 @OptIn(ExperimentalMaterial3Api::class)
 @Suppress("FunctionName", "LongMethod")
@@ -97,13 +108,15 @@ private const val IMAGE_FULL_RES_SIZE = 2400
 fun FullScreenPhotoDialog(
     photoList: List<Photo>,
     initialIndex: Int,
-    onDismiss: () -> Unit,
-    onDelete: (Photo) -> Unit,
-    onUpdateRotation: (Long, Float) -> Unit,
-    onSaveSuccess: (String) -> Unit = { },
-    onSaveError: () -> Unit = { },
-    onContentRefresh: () -> Unit = { },
+    callbacks: FullScreenPhotoViewerCallbacks,
 ) {
+    val onDismiss = callbacks.onDismiss
+    val onDelete = callbacks.onDelete
+    val onUpdateRotation = callbacks.onUpdateRotation
+    val onSaveSuccess = callbacks.onSaveSuccess
+    val onSaveError = callbacks.onSaveError
+    val onContentRefresh = callbacks.onContentRefresh
+
     val currentPhotoList by rememberUpdatedState(photoList)
     val pagerState = rememberPagerState(
         initialPage = initialIndex,
@@ -402,26 +415,9 @@ private fun VideoPlayerItem(photo: Photo, isPageActive: Boolean) {
     var hasPlaybackError by remember { mutableStateOf(false) }
 
     DisposableEffect(photo.filePath) {
-        val mediaUri = try {
-            MediaShareUtils.resolveMediaUri(context, photo.filePath).first
-        } catch (e: Exception) {
-            if (photo.filePath.startsWith("content://") || photo.filePath.startsWith("file://")) {
-                photo.filePath.toUri()
-            } else {
-                java.io.File(photo.filePath).toUri()
-            }
-        }
-        val player = androidx.media3.exoplayer.ExoPlayer.Builder(context).build().apply {
-            setMediaItem(androidx.media3.common.MediaItem.fromUri(mediaUri))
-            repeatMode = androidx.media3.common.Player.REPEAT_MODE_ALL
-            addListener(object : androidx.media3.common.Player.Listener {
-                override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
-                    android.util.Log.e("VideoPlayerItem", "ExoPlayer error on $mediaUri", error)
-                    hasPlaybackError = true
-                }
-            })
-            prepare()
-            playWhenReady = isPageActive
+        val mediaUri = resolveVideoMediaUri(context, photo.filePath)
+        val player = buildExoPlayer(context, mediaUri, isPageActive) {
+            hasPlaybackError = true
         }
         exoPlayer = player
         onDispose { player.release(); exoPlayer = null }
@@ -462,6 +458,38 @@ private fun VideoPlayerItem(photo: Photo, isPageActive: Boolean) {
         )
     } else {
         VideoPlaceholder()
+    }
+}
+
+private fun resolveVideoMediaUri(context: Context, filePath: String): Uri {
+    return try {
+        MediaShareUtils.resolveMediaUri(context, filePath).first
+    } catch (_: Exception) {
+        if (filePath.startsWith("content://") || filePath.startsWith("file://")) {
+            filePath.toUri()
+        } else {
+            java.io.File(filePath).toUri()
+        }
+    }
+}
+
+private fun buildExoPlayer(
+    context: Context,
+    mediaUri: Uri,
+    isPageActive: Boolean,
+    onError: () -> Unit
+): androidx.media3.exoplayer.ExoPlayer {
+    return androidx.media3.exoplayer.ExoPlayer.Builder(context).build().apply {
+        setMediaItem(androidx.media3.common.MediaItem.fromUri(mediaUri))
+        repeatMode = androidx.media3.common.Player.REPEAT_MODE_ALL
+        addListener(object : androidx.media3.common.Player.Listener {
+            override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
+                android.util.Log.e("VideoPlayerItem", "ExoPlayer error on $mediaUri", error)
+                onError()
+            }
+        })
+        prepare()
+        playWhenReady = isPageActive
     }
 }
 

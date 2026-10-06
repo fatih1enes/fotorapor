@@ -21,6 +21,7 @@ import androidx.navigation.navArgument
 import com.fatihenes.photoreport.core.designsystem.theme.FotoRaporMotion
 import com.fatihenes.photoreport.core.ui.state.UiState
 import com.fatihenes.photoreport.feature.camera.ui.CameraScreen
+import com.fatihenes.photoreport.feature.camera.ui.CameraScreenSettings
 import com.fatihenes.photoreport.feature.dashboard.ui.DashboardScreen
 import com.fatihenes.photoreport.feature.dashboard.ui.DashboardScreenParams
 import com.fatihenes.photoreport.feature.dashboard.viewmodel.DashboardViewModel
@@ -211,12 +212,14 @@ fun NavGraphBuilder.cameraRoute(
             },
             onClose = { navController.popBackStack() },
             projectName = projectName,
-            enableOptimization = cameraOpt,
-            enableAvif = avifEnabled,
-            gpsWatermarkEnabled = gpsEnabled,
-            onToggleOptimization = { settingsViewModel.setCameraOptimization(it) },
-            onToggleAvif = { settingsViewModel.setAvifEnabled(it) },
-            onToggleGpsWatermark = { settingsViewModel.setGpsWatermarkEnabled(it) }
+            settings = CameraScreenSettings(
+                enableOptimization = cameraOpt,
+                enableAvif = avifEnabled,
+                gpsWatermarkEnabled = gpsEnabled,
+                onToggleOptimization = { settingsViewModel.setCameraOptimization(it) },
+                onToggleAvif = { settingsViewModel.setAvifEnabled(it) },
+                onToggleGpsWatermark = { settingsViewModel.setGpsWatermarkEnabled(it) }
+            )
         )
     }
 }

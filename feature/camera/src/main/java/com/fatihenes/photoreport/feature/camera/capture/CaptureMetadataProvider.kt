@@ -20,7 +20,11 @@ import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
+
 private const val TAG = "CaptureMetadataProvider"
+private const val GPS_GEOCODER_TIMEOUT_MS = 2500L
 
 @Singleton
 class CaptureMetadataProvider @Inject constructor(
@@ -60,7 +64,7 @@ class CaptureMetadataProvider @Inject constructor(
     }
 
     @SuppressLint("MissingPermission")
-    private fun getBestLastKnownLocation(): Location? {
+    fun getBestLastKnownLocation(): Location? {
         return try {
             val lm = context.getSystemService(Context.LOCATION_SERVICE) as? LocationManager ?: return null
             val providers = lm.getProviders(true)
@@ -78,14 +82,41 @@ class CaptureMetadataProvider @Inject constructor(
             null
         }
     }
-    private suspend fun getAddressFromLocation(lat: Double, lng: Double): String? = withTimeoutOrNull(1500L) {
+
+    private suspend fun getAddressFromLocation(
+        lat: Double,
+        lng: Double
+    ): String? = withTimeoutOrNull(GPS_GEOCODER_TIMEOUT_MS) {
         try {
             val geocoder = Geocoder(context, Locale.getDefault())
-            @Suppress("DEPRECATION")
-            val list = geocoder.getFromLocation(lat, lng, 1)
-            list?.firstOrNull()?.let { addr ->
-                val line = addr.getAddressLine(0)
-                if (!line.isNullOrBlank()) line else "${addr.subAdminArea ?: ""}, ${addr.adminArea ?: ""}"
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                suspendCancellableCoroutine { cont ->
+                    geocoder.getFromLocation(lat, lng, 1, object : Geocoder.GeocodeListener {
+                        override fun onGeocode(addresses: MutableList<android.location.Address>) {
+                            val addr = addresses.firstOrNull()
+                            val line = addr?.getAddressLine(0)
+                            val formatted = if (!line.isNullOrBlank()) {
+                                line
+                            } else if (addr != null) {
+                                "${addr.subAdminArea.orEmpty()}, ${addr.adminArea.orEmpty()}"
+                            } else null
+                            if (cont.isActive) cont.resume(formatted)
+                        }
+
+                        override fun onError(errorMessage: String?) {
+                            Log.w(TAG, "Geocoder error: $errorMessage")
+                            if (cont.isActive) cont.resume(null)
+                        }
+                    })
+                }
+            } else {
+                @Suppress("DEPRECATION")
+                val list = geocoder.getFromLocation(lat, lng, 1)
+                list?.firstOrNull()?.let { addr ->
+                    val line = addr.getAddressLine(0)
+                    if (!line.isNullOrBlank()) line
+                    else "${addr.subAdminArea.orEmpty()}, ${addr.adminArea.orEmpty()}"
+                }
             }
         } catch (e: Exception) {
             Log.w(TAG, "Geocoder failed for ($lat, $lng)", e)

@@ -22,8 +22,11 @@ class ProviderWarmup @Inject constructor(
     @Dispatcher(FotoRaporDispatchers.IO) private val ioDispatcher: CoroutineDispatcher
 ) {
     private val mutex = Mutex()
-    private var cachedProvider: ProcessCameraProvider? = null
-    private var cachedExtensions: ExtensionsManager? = null
+    // @Volatile guarantees that writes from the Mutex-protected block are
+    // immediately visible to all threads — necessary for the outer fast-path
+    // check to be safe without holding the lock.
+    @Volatile private var cachedProvider: ProcessCameraProvider? = null
+    @Volatile private var cachedExtensions: ExtensionsManager? = null
 
     suspend fun awaitCameraProvider(): ProcessCameraProvider = withContext(ioDispatcher) {
         cachedProvider?.let { return@withContext it }

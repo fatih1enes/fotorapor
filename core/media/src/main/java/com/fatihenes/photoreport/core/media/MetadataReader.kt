@@ -10,7 +10,10 @@ object MetadataReader {
         return try {
             val uri = pathString.toUri()
             val exif = when (uri.scheme) {
-                "file" -> uri.path?.let { ExifInterface(it) } ?: context.contentResolver.openInputStream(uri)?.use { ExifInterface(it) }
+                "file" -> {
+                    uri.path?.let { ExifInterface(it) }
+                        ?: context.contentResolver.openInputStream(uri)?.use { ExifInterface(it) }
+                }
                 "content" -> context.contentResolver.openInputStream(uri)?.use { ExifInterface(it) }
                 else -> ExifInterface(pathString)
             } ?: return 0f

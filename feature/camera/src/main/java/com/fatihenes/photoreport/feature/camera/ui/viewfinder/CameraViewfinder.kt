@@ -29,7 +29,6 @@ import com.fatihenes.photoreport.feature.camera.sensors.LevelSensorState
 @Composable
 fun CameraViewfinder(
     previewView: PreviewView,
-    aspectRatio: AspectRatioSelection,
     currentZoomRatio: Float,
     minZoom: Float,
     maxZoom: Float,
