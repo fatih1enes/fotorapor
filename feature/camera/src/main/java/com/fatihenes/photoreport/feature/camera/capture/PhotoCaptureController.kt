@@ -76,23 +76,13 @@ class PhotoCaptureController @Inject constructor(
         controllerScope.launch {
             val captureTime = System.currentTimeMillis()
 
-            // 2. Prepare app-private destination file immediately with proper extension
+            // 2. Prepare app-private destination file immediately with proper extension (.jpg for CameraX)
             val outputFile = withContext(ioDispatcher) {
                 val dir = File(context.filesDir, "captures").apply { if (!exists()) mkdirs() }
-                val format = when {
-                    enableAvif && hasAvifSupport() -> CaptureFormat.AVIF
-                    enableHeic && hasHeicSupport() -> CaptureFormat.HEIC
-                    else -> CaptureFormat.JPEG
-                }
-                val extension = format.fileExtension()
-                File(dir, "IMG_${captureTime}_${UUID.randomUUID().toString().take(6)}.$extension")
+                File(dir, "IMG_${captureTime}_${UUID.randomUUID().toString().take(6)}.jpg")
             }
 
-            val selectedFormat = when {
-                enableAvif && hasAvifSupport() -> CaptureFormat.AVIF
-                enableHeic && hasHeicSupport() -> CaptureFormat.HEIC
-                else -> CaptureFormat.JPEG
-            }
+            val selectedFormat = CaptureFormat.JPEG
 
             // 3. Trigger camera sensor capture IMMEDIATELY (zero lag)
             val captureDeferred = async {

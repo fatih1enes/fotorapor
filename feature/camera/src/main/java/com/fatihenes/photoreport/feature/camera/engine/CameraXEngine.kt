@@ -112,8 +112,9 @@ class CameraXEngine @Inject constructor(
     private var currentPreviewView: PreviewView? = null
     private var currentTargetRotation: Int = Surface.ROTATION_0
     private var currentCapabilities: EnhancedCapabilities = EnhancedCapabilities()
-    private var isThreeUseCasesBound: Boolean = false
     private var activeRecording: Recording? = null
+    private var activeExtensionMode: Int = ExtensionMode.NONE
+    private var availableExtensionMode: Int = ExtensionMode.NONE
 
     init {
         startCommandActor()
@@ -279,16 +280,10 @@ class CameraXEngine @Inject constructor(
         removeCameraObservers()
         provider.unbindAll()
         _isStreaming.value = false
-        // Reset the binding flag before each new session attempt so stale
-        // three-use-case state never leaks across rebinds (e.g. after mode or
-        // aspect-ratio changes).
-        isThreeUseCasesBound = false
 
         val lensFacing = _activeLensFacing.value
         val selector = resolveCameraSelector(provider, lensFacing)
 
-        // Query capabilities for the lens we are ABOUT to open (not the previous one),
-        // so zoom range (e.g. 0.5x ultra-wide), ZSL and video qualities are correct.
         val targetInfo = try {
             provider.getCameraInfo(selector)
         } catch (e: Exception) {
@@ -298,86 +293,39 @@ class CameraXEngine @Inject constructor(
         val caps = capabilityRepository.getCapabilities(lensFacing, targetInfo, extensionsManager)
         currentCapabilities = caps
 
-        // Keep previewView implementation mode stable (COMPATIBLE mode set on creation for Compose safety)
-
-        // Binding VideoCapture alongside ImageCapture caps photo resolution to the
-        // RECORD size (~1080p) on LIMITED hardware and disables ZSL. Only FULL/LEVEL_3
-        // devices guarantee a full-resolution JPEG stream next to a video stream.
-        val bound3 = caps.isFullOrBetter &&
-            tryBindConcurrentSession(provider, lifecycle, selector, previewView, caps)
-        isThreeUseCasesBound = bound3
-
-        if (!bound3) {
-            tryBindFallbackSession(provider, lifecycle, selector, previewView, caps)
+        try {
+            bindStandardSession(provider, lifecycle, selector, previewView, caps)
+            setupCameraObservers()
+            restoreTorchIfNeeded()
+            _sessionState.value = CameraSessionState.Ready(
+                isStreaming = true,
+                capabilities = currentCapabilities
+            )
+        } catch (e: Exception) {
+            Log.w(TAG, "Standard session bind failed, falling back to minimal safe session", e)
+            try {
+                provider.unbindAll()
+                bindMinimalSafeSession(provider, lifecycle, selector, previewView)
+                setupCameraObservers()
+                restoreTorchIfNeeded()
+                _sessionState.value = CameraSessionState.Ready(
+                    isStreaming = true,
+                    capabilities = currentCapabilities
+                )
+            } catch (fallbackError: Exception) {
+                Log.e(TAG, "Minimal safe session bind also failed", fallbackError)
+                _sessionState.value = CameraSessionState.Error(
+                    errorType = CameraErrorType.INITIALIZATION_FAILED,
+                    message = fallbackError.localizedMessage ?: "Kamera başlatılamadı",
+                    cause = fallbackError
+                )
+            }
         }
-
-        setupCameraObservers()
-        restoreTorchIfNeeded()
-        _sessionState.value = CameraSessionState.Ready(
-            isStreaming = true,
-            capabilities = currentCapabilities
-        )
     }
 
     private fun restoreTorchIfNeeded() {
         if (_currentFlashMode.value == FlashMode.TORCH) {
             currentCamera?.cameraControl?.enableTorch(true)
-        }
-    }
-
-    private fun tryBindConcurrentSession(
-        provider: ProcessCameraProvider,
-        lifecycle: LifecycleOwner,
-        selector: CameraSelector,
-        previewView: PreviewView,
-        caps: EnhancedCapabilities
-    ): Boolean {
-        return try {
-            val preview = sessionConfigFactory.createPreview(
-                aspectRatio = _currentAspectRatio.value,
-                caps = caps
-            ).also { it.surfaceProvider = previewView.surfaceProvider }
-
-            val capture = sessionConfigFactory.createImageCapture(
-                aspectRatio = _currentAspectRatio.value,
-                flashMode = _currentFlashMode.value,
-                targetRotation = currentTargetRotation,
-                enableOptimization = true,
-                caps = caps,
-                enableAvif = false // AVIF handled post-capture via Media3 Transformer
-            )
-
-            val video = sessionConfigFactory.createVideoCapture(
-                videoQuality = _currentVideoQuality.value,
-                targetRotation = currentTargetRotation,
-                caps = caps
-            )
-
-            currentCamera = provider.bindToLifecycle(lifecycle, selector, preview, capture, video)
-            currentPreview = preview
-            currentImageCapture = capture
-            currentVideoCapture = video
-            true
-        } catch (e: Exception) {
-            Log.w(TAG, "3-use-case concurrent binding not supported, falling back", e)
-            provider.unbindAll()
-            false
-        }
-    }
-
-    private fun tryBindFallbackSession(
-        provider: ProcessCameraProvider,
-        lifecycle: LifecycleOwner,
-        selector: CameraSelector,
-        previewView: PreviewView,
-        caps: EnhancedCapabilities
-    ) {
-        try {
-            bindStandardSession(provider, lifecycle, selector, previewView, caps)
-        } catch (e: Exception) {
-            Log.w(TAG, "Standard session bind failed, falling back to minimal safe session", e)
-            provider.unbindAll()
-            bindMinimalSafeSession(provider, lifecycle, selector, previewView)
         }
     }
 
@@ -388,25 +336,41 @@ class CameraXEngine @Inject constructor(
         previewView: PreviewView,
         caps: EnhancedCapabilities
     ) {
-        val preview = sessionConfigFactory.createPreview(
-            aspectRatio = _currentAspectRatio.value,
-            caps = caps
-        ).also { it.surfaceProvider = previewView.surfaceProvider }
+        activeExtensionMode = ExtensionMode.NONE
+        val baseInfo = try {
+            provider.getCameraInfo(selector)
+        } catch (e: Exception) {
+            null
+        }
 
         if (_currentMode.value == CameraMode.PHOTO) {
-            val capture = sessionConfigFactory.createImageCapture(
-                aspectRatio = _currentAspectRatio.value,
-                flashMode = _currentFlashMode.value,
-                targetRotation = currentTargetRotation,
-                enableOptimization = true,
-                caps = caps,
-                enableAvif = false
+            // Vendor extensions (Auto/HDR) use the phone maker's own multi-frame HDR/denoise
+            // pipeline, which is what gives the stock camera app its look.
+            val extensionMode = pickExtensionMode(selector)
+            if (extensionMode != ExtensionMode.NONE) {
+                try {
+                    val extSelector = extensionsManager!!
+                        .getExtensionEnabledCameraSelector(selector, extensionMode)
+                    bindPhotoUseCases(
+                        provider, lifecycle, extSelector, previewView, caps,
+                        baseInfo = baseInfo, extensionActive = true
+                    )
+                    activeExtensionMode = extensionMode
+                    return
+                } catch (e: Exception) {
+                    Log.w(TAG, "Extension $extensionMode bind failed, using standard pipeline", e)
+                    provider.unbindAll()
+                }
+            }
+            bindPhotoUseCases(
+                provider, lifecycle, selector, previewView, caps,
+                baseInfo = baseInfo, extensionActive = false
             )
-            currentCamera = provider.bindToLifecycle(lifecycle, selector, preview, capture)
-            currentPreview = preview
-            currentImageCapture = capture
-            currentVideoCapture = null
         } else {
+            val preview = sessionConfigFactory.createPreview(
+                aspectRatio = _currentAspectRatio.value,
+                caps = caps
+            ).also { it.surfaceProvider = previewView.surfaceProvider }
             val video = sessionConfigFactory.createVideoCapture(
                 videoQuality = _currentVideoQuality.value,
                 targetRotation = currentTargetRotation,
@@ -417,6 +381,52 @@ class CameraXEngine @Inject constructor(
             currentImageCapture = null
             currentVideoCapture = video
         }
+    }
+
+    private fun bindPhotoUseCases(
+        provider: ProcessCameraProvider,
+        lifecycle: LifecycleOwner,
+        selector: CameraSelector,
+        previewView: PreviewView,
+        caps: EnhancedCapabilities,
+        baseInfo: CameraInfo?,
+        extensionActive: Boolean
+    ) {
+        val preview = sessionConfigFactory.createPreview(
+            aspectRatio = _currentAspectRatio.value,
+            caps = caps
+        ).also { it.surfaceProvider = previewView.surfaceProvider }
+        val capture = sessionConfigFactory.createImageCapture(
+            aspectRatio = _currentAspectRatio.value,
+            flashMode = _currentFlashMode.value,
+            targetRotation = currentTargetRotation,
+            enableOptimization = true,
+            caps = caps,
+            enableAvif = false,
+            cameraInfo = baseInfo,
+            extensionActive = extensionActive
+        )
+        currentCamera = provider.bindToLifecycle(lifecycle, selector, preview, capture)
+        currentPreview = preview
+        currentImageCapture = capture
+        currentVideoCapture = null
+    }
+
+    /**
+     * Picks the best extension for stills, or NONE. AUTO lets the vendor choose HDR/night per
+     * scene; HDR is the fallback. NIGHT alone is skipped (multi-second capture = not "fast").
+     * Extensions are bypassed while flash is in use because most vendor pipelines ignore it.
+     */
+    private fun pickExtensionMode(selector: CameraSelector): Int {
+        val manager = extensionsManager ?: return ExtensionMode.NONE
+        availableExtensionMode = listOf(ExtensionMode.AUTO, ExtensionMode.HDR).firstOrNull {
+            try {
+                manager.isExtensionAvailable(selector, it)
+            } catch (e: Exception) {
+                false
+            }
+        } ?: ExtensionMode.NONE
+        return if (_currentFlashMode.value == FlashMode.OFF) availableExtensionMode else ExtensionMode.NONE
     }
 
     private fun bindMinimalSafeSession(
@@ -527,11 +537,7 @@ class CameraXEngine @Inject constructor(
     private suspend fun executeSetMode(mode: CameraMode) {
         if (_currentMode.value == mode) return
         _currentMode.value = mode
-
-        // If 3 use cases are concurrently bound, NO rebind needed at all!
-        if (!isThreeUseCasesBound) {
-            bindSessionInternal()
-        }
+        bindSessionInternal()
     }
 
     private suspend fun executeSetAspectRatio(ratio: AspectRatioSelection) {
@@ -540,8 +546,19 @@ class CameraXEngine @Inject constructor(
         bindSessionInternal()
     }
 
-    private fun executeSetFlash(mode: FlashMode) {
+    private suspend fun executeSetFlash(mode: FlashMode) {
         _currentFlashMode.value = mode
+
+        // Extensions are only used with flash off; rebind when that eligibility flips.
+        if (currentImageCapture != null && _currentMode.value == CameraMode.PHOTO) {
+            val extensionRunning = activeExtensionMode != ExtensionMode.NONE
+            val shouldRun = mode == FlashMode.OFF && availableExtensionMode != ExtensionMode.NONE
+            if (extensionRunning != shouldRun) {
+                bindSessionInternal()
+                return
+            }
+        }
+
         val cam = currentCamera ?: return
 
         if (mode == FlashMode.TORCH) {
@@ -621,6 +638,7 @@ class CameraXEngine @Inject constructor(
         currentPreview = null
         currentImageCapture = null
         currentVideoCapture = null
+        activeExtensionMode = ExtensionMode.NONE
         _isStreaming.value = false
         _sessionState.value = CameraSessionState.Uninitialized
     }

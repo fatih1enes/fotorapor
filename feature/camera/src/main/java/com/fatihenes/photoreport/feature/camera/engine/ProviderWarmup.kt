@@ -38,15 +38,21 @@ class ProviderWarmup @Inject constructor(
         }
     }
 
-    suspend fun awaitExtensionsManager(provider: ProcessCameraProvider): ExtensionsManager = withContext(ioDispatcher) {
-        cachedExtensions?.let { return@withContext it }
-        mutex.withLock {
-            cachedExtensions?.let { return@withLock it }
-            val extensions = ExtensionsManager.getInstanceAsync(context, provider).get()
-            cachedExtensions = extensions
-            extensions
+    suspend fun awaitExtensionsManager(provider: ProcessCameraProvider): ExtensionsManager? =
+        withContext(ioDispatcher) {
+            cachedExtensions?.let { return@withContext it }
+            mutex.withLock {
+                cachedExtensions?.let { return@withLock it }
+                try {
+                    val extensions = ExtensionsManager.getInstanceAsync(context, provider).get()
+                    cachedExtensions = extensions
+                    extensions
+                } catch (e: Exception) {
+                    android.util.Log.w("ProviderWarmup", "ExtensionsManager initialization failed: ${e.message}")
+                    null
+                }
+            }
         }
-    }
 
     fun prewarm() {
         // Fire-and-forget prewarming

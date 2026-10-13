@@ -90,7 +90,7 @@ private const val ZOOM_MAX = 5f
 private const val VIDEO_PLACEHOLDER_ICON_SIZE = 72
 private const val VIDEO_PLACEHOLDER_ICON_ALPHA = 0.6f
 private const val VIDEO_PLACEHOLDER_BG_ALPHA = 0.1f
-private const val IMAGE_FULL_RES_SIZE = 2400
+private const val IMAGE_FULL_RES_SIZE = 4096
 
 data class FullScreenPhotoViewerCallbacks(
     val onDismiss: () -> Unit,

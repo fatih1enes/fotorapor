@@ -138,7 +138,8 @@ object ImageScaler {
                 inSampleSize *= 2
             }
         }
-        while ((height / inSampleSize) * (width / inSampleSize) > 3_000_000) {
+        // Safety guard against extreme sensors (>25MP), avoiding heap allocation spikes on Android 11+
+        while ((height / inSampleSize) * (width / inSampleSize) > 25_000_000) {
             inSampleSize *= 2
         }
         return inSampleSize

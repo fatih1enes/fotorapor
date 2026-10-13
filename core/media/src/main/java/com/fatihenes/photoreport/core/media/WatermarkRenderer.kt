@@ -46,7 +46,7 @@ class WatermarkRenderer @Inject constructor(
         var originalBitmap: Bitmap? = null
         var watermarkedBitmap: Bitmap? = null
         try {
-            originalBitmap = ImageScaler.loadScaledBitmap(context, originalUri.toString(), 2560, 2560)
+            originalBitmap = ImageScaler.loadScaledBitmap(context, originalUri.toString(), 4096, 4096)
                 ?: return@withContext originalUri
 
             watermarkedBitmap = drawWatermark(originalBitmap, watermarkData)
@@ -70,7 +70,7 @@ class WatermarkRenderer @Inject constructor(
                 var writeOk = false
                 try {
                     context.contentResolver.openOutputStream(watermarkedUri)?.use { out ->
-                        writeOk = watermarkedBitmap.compress(Bitmap.CompressFormat.JPEG, 95, out)
+                        writeOk = watermarkedBitmap.compress(Bitmap.CompressFormat.JPEG, 98, out)
                     } ?: run { writeOk = false }
                 } catch (e: Throwable) {
                     Log.e(TAG, "Watermark write failed", e)

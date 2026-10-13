@@ -38,7 +38,9 @@ class CapabilityRepository @Inject constructor(
         cameraInfo: CameraInfo? = null,
         extensionsManager: ExtensionsManager? = null
     ): EnhancedCapabilities = withContext(ioDispatcher) {
-        capabilitiesCache[lensFacing]?.let { return@withContext it }
+        if (cameraInfo == null) {
+            capabilitiesCache[lensFacing]?.let { return@withContext it }
+        }
 
         val queried = queryCapabilities(lensFacing, cameraInfo, extensionsManager)
         capabilitiesCache[lensFacing] = queried

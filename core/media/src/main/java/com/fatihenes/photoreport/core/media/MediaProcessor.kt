@@ -79,19 +79,18 @@ class MediaProcessor @Inject constructor(
     private fun calculateMaxDimension(context: Context, pathString: String): Int {
         return try {
             val boundsOptions = BitmapFactory.Options().apply { inJustDecodeBounds = true }
-            val stream = context.contentResolver.openInputStream(pathString.toUri()) ?: return 2560
+            val stream = context.contentResolver.openInputStream(pathString.toUri()) ?: return 4096
             stream.use { BitmapFactory.decodeStream(it, null, boundsOptions) }
-            val maxPixels = 2560 * 2560 // ~6.5MP max
+            val maxPixels = 4096 * 4096 // ~16.8MP max
             val width = boundsOptions.outWidth
             val height = boundsOptions.outHeight
-            if (width <= 0 || height <= 0) return 2560
+            if (width <= 0 || height <= 0) return 4096
             val currentPixels = width * height
-            if (currentPixels <= maxPixels) return 2560
-            // Calculate scale factor to reduce to maxPixels
+            if (currentPixels <= maxPixels) return Math.max(width, height)
             val scale = Math.sqrt(maxPixels.toDouble() / currentPixels)
-            (2560 * scale).toInt().coerceAtLeast(1024).coerceAtMost(2560)
+            (Math.max(width, height) * scale).toInt().coerceAtLeast(2048).coerceAtMost(4096)
         } catch (e: Exception) {
-            2560
+            4096
         }
     }
 

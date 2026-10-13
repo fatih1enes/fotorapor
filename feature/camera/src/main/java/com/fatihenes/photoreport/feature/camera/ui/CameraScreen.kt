@@ -87,10 +87,9 @@ fun CameraScreen(
     val lifecycleOwner = LocalLifecycleOwner.current
     val uiState by cameraViewModel.uiState.collectAsStateWithLifecycle()
 
-    // 1. ImplementationMode.COMPATIBLE avoids Compose black screens and supports clipping
     val previewView = remember {
         PreviewView(context).apply {
-            implementationMode = PreviewView.ImplementationMode.COMPATIBLE
+            implementationMode = PreviewView.ImplementationMode.PERFORMANCE
             scaleType = PreviewView.ScaleType.FILL_CENTER
         }
     }
@@ -259,6 +258,15 @@ fun CameraScreen(
         if (!hasCameraPermission) {
             CameraPermissionRequiredContent(
                 onRequestPermission = { cameraPermissionLauncher.launch(Manifest.permission.CAMERA) },
+                onClose = onClose,
+                modifier = Modifier.align(Alignment.Center)
+            )
+        } else if (uiState.errorMessage != null) {
+            CameraErrorContent(
+                message = uiState.errorMessage ?: "Kamera başlatılamadı",
+                onRetry = {
+                    cameraViewModel.bind(lifecycleOwner, previewView)
+                },
                 onClose = onClose,
                 modifier = Modifier.align(Alignment.Center)
             )
@@ -570,4 +578,41 @@ private fun GpsDisabledDialog(
             }
         }
     )
+}
+
+@Composable
+private fun CameraErrorContent(
+    message: String,
+    onRetry: () -> Unit,
+    onClose: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier.padding(32.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Kamera Başlatılamadı",
+            color = Color.White,
+            fontSize = 20.sp,
+            fontWeight = FontWeight.Bold
+        )
+        Spacer(Modifier.height(12.dp))
+        Text(
+            text = message,
+            color = Color.White.copy(alpha = 0.8f),
+            fontSize = 14.sp
+        )
+        Spacer(Modifier.height(24.dp))
+        Button(
+            onClick = onRetry,
+            colors = ButtonDefaults.buttonColors(containerColor = CameraTokens.Amber)
+        ) {
+            Text(text = "Yeniden Dene", color = Color.Black, fontWeight = FontWeight.Bold)
+        }
+        Spacer(Modifier.height(8.dp))
+        TextButton(onClick = onClose) {
+            Text(text = "Geri Dön", color = Color.White)
+        }
+    }
 }
